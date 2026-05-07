@@ -1,5 +1,5 @@
 // ─── src/index.js ────────────────────────────────────────
-// DevAgency OS — Express API Server
+// buildwithlami.dev — Express API Server
 // ──────────────────────────────────────────────────────────
 
 import 'dotenv/config';
@@ -11,15 +11,10 @@ import helmet from 'helmet';
 
 // ── Route modules ────────────────────────────────────────
 import authRoutes from './routes/authRoutes.js';
-import leadRoutes from './routes/leadRoutes.js';
-import clientRoutes from './routes/clientRoutes.js';
 import projectRoutes from './routes/projectRoutes.js';
-import invoiceRoutes from './routes/invoiceRoutes.js';
-import domainRoutes from './routes/domainRoutes.js';
-import webhookRoutes from './routes/webhookRoutes.js';
-
-// ── Cron jobs ────────────────────────────────────────────
-import { startDomainExpiryCron } from './utils/cronJobs.js';
+import contactRoutes from './routes/contactRoutes.js';
+import profileRoutes from './routes/profileRoutes.js';
+import pool from './config/db.js';
 
 // ── App setup ────────────────────────────────────────────
 const app = express();
@@ -32,7 +27,7 @@ const authLimiter = rateLimit({
     message: { error: 'Too many requests. Please try again later.' },
 });
 
-const leadLimiter = rateLimit({
+const contactLimiter = rateLimit({
     windowMs: 60 * 60 * 1000, // 1 hour
     max: 10,
     message: { error: 'Too many submissions. Please try again later.' },
@@ -53,12 +48,9 @@ app.get('/api/health', (_req, res) => {
 
 // ── API routes ───────────────────────────────────────────
 app.use('/api/auth', authLimiter, authRoutes);
-app.use('/api/leads', leadLimiter, leadRoutes);
-app.use('/api/clients', clientRoutes);
 app.use('/api/projects', projectRoutes);
-app.use('/api/invoices', invoiceRoutes);
-app.use('/api/domains', domainRoutes);
-app.use('/api/webhooks', webhookRoutes);
+app.use('/api/contact', contactLimiter, contactRoutes);
+app.use('/api/profile', profileRoutes);
 
 // ── 404 fallback ─────────────────────────────────────────
 app.use((_req, res) => {
@@ -72,7 +64,30 @@ app.use((err, _req, res, _next) => {
 });
 
 // ── Start ────────────────────────────────────────────────
-app.listen(PORT, () => {
-    console.log(`\n🚀 DevAgency OS API running on http://localhost:${PORT}\n`);
-    startDomainExpiryCron();
+const server = app.listen(PORT, () => {
+    console.log(`\n🚀 buildwithlami.dev API running on http://localhost:${PORT}\n`);
 });
+
+// ── Graceful Shutdown ────────────────────────────────────
+const shutdown = () => {
+    console.log('\n[Server] Shutting down gracefully...');
+    server.close(async () => {
+        console.log('[Server] Closed out remaining connections.');
+        try {
+            await pool.end();
+            console.log('[Server] Database pool closed.');
+        } catch (err) {
+            console.error('[Server] Error closing database pool:', err.message);
+        }
+        process.exit(0);
+    });
+
+    // Force close if it takes too long
+    setTimeout(() => {
+        console.error('[Server] Could not close connections in time, forcefully shutting down');
+        process.exit(1);
+    }, 10000);
+};
+
+process.on('SIGTERM', shutdown);
+process.on('SIGINT', shutdown);

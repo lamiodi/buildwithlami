@@ -1,24 +1,20 @@
-// ─── src/routes/projectRoutes.js ──────────────────────────
-import { Router } from 'express';
+import express from 'express';
+import { getProjects, getProjectById, getProjectBySlug, createProject, updateProject, deleteProject } from '../controllers/projectController.js';
 import { verifyToken, requireRole } from '../middlewares/authMiddleware.js';
-import {
-    getProjects, getProjectById, getProjectBySlug,
-    createProject, updateProject, deleteProject,
-} from '../controllers/projectController.js';
 
-const router = Router();
-const isAdmin = [verifyToken, requireRole('ADMIN', 'SUPER_ADMIN')];
+const router = express.Router();
 
-// Public — portfolio / slug lookup (no auth)
+// Public routes
+router.get('/', getProjects);
 router.get('/slug/:slug', getProjectBySlug);
+router.get('/:id', getProjectById);
 
-// Read — any authenticated user (CLIENT sees own, ADMIN sees all — filtered in controller)
-router.get('/', verifyToken, getProjects);
-router.get('/:id', verifyToken, getProjectById);
+// Protected routes (Admin/Owner only)
+router.use(verifyToken);
+router.use(requireRole('OWNER'));
 
-// Write — admin only
-router.post('/', ...isAdmin, createProject);
-router.put('/:id', ...isAdmin, updateProject);
-router.delete('/:id', ...isAdmin, deleteProject);
+router.post('/', createProject);
+router.put('/:id', updateProject);
+router.delete('/:id', deleteProject);
 
 export default router;

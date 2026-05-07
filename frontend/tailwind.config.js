@@ -4,6 +4,7 @@ export default {
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {
@@ -13,6 +14,7 @@ export default {
       fontFamily: {
         heading: ['"Space Grotesk"', 'sans-serif'],
         body: ['"Advent Pro"', 'sans-serif'],
+        handwritten: ['"Caveat"', 'cursive'],
       },
     },
   },

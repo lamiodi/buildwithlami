@@ -1,0 +1,22 @@
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <rect width="200" height="200" fill="white"/>
+  <!-- Top Left -->
+  <path d="M20 20h60v60h-60z" fill="black"/>
+  <path d="M35 35h30v30h-30z" fill="white"/>
+  <path d="M42 42h16v16h-16z" fill="black"/>
+  
+  <!-- Top Right -->
+  <path d="M120 20h60v60h-60z" fill="black"/>
+  <path d="M135 35h30v30h-30z" fill="white"/>
+  <path d="M142 42h16v16h-16z" fill="black"/>
+  
+  <!-- Bottom Left -->
+  <path d="M20 120h60v60h-60z" fill="black"/>
+  <path d="M35 135h30v30h-30z" fill="white"/>
+  <path d="M42 142h16v16h-16z" fill="black"/>
+  
+  <!-- Random Pixels -->
+  <path d="M100 20h10v10h-10zM100 40h10v10h-10zM100 60h10v10h-10zM100 80h10v10h-10zM100 100h10v10h-10zM100 120h10v10h-10zM100 140h10v10h-10zM100 160h10v10h-10zM100 180h10v10h-10z" fill="black"/>
+  <path d="M120 100h10v10h-10zM140 100h10v10h-10zM160 100h10v10h-10zM180 100h10v10h-10z" fill="black"/>
+  <path d="M120 120h20v20h-20zM160 120h10v10h-10zM180 140h10v10h-10zM140 160h20v20h-20zM120 180h10v10h-10zM160 160h10v10h-10zM180 180h10v10h-10z" fill="black"/>
+</svg>

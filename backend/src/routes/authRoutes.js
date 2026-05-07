@@ -1,15 +1,13 @@
-// ─── src/routes/authRoutes.js ─────────────────────────────
-import { Router } from 'express';
-import { verifyToken, requireRole } from '../middlewares/authMiddleware.js';
-import { login, generateMagicLink, verifyMagicLink } from '../controllers/authController.js';
+import express from 'express';
+import { login } from '../controllers/authController.js';
+import { verifyToken } from '../middlewares/authMiddleware.js';
 
-const router = Router();
+const router = express.Router();
 
-// Public
 router.post('/login', login);
-router.get('/verify', verifyMagicLink);
-
-// Admin only — only an admin can dispatch a magic link to a client
-router.post('/magic-link', verifyToken, requireRole('ADMIN', 'SUPER_ADMIN'), generateMagicLink);
+router.post('/logout', verifyToken, (req, res) => {
+    // Client side clears token. Server responds success.
+    res.json({ success: true, message: 'Logged out successfully' });
+});
 
 export default router;

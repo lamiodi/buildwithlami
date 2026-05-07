@@ -1,45 +1,59 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const Footer = () => {
-  return (
-    <footer className="bg-background pt-16 pb-8 border-t border-gray-900">
-      <div className="px-6 md:px-12 max-w-7xl mx-auto">
-        <div className="flex flex-col md:flex-row justify-between items-start mb-16 gap-8">
-          <div className="flex gap-4">
-            {/* QR Code Placeholder */}
-            <div className="w-24 h-24 bg-white p-2 flex items-center justify-center">
-              <div className="w-full h-full border-2 border-black flex items-center justify-center text-black text-xs text-center font-bold">
-                QR CODE
-              </div>
-            </div>
-            <div className="w-48 h-24 bg-gray-500"></div>
-          </div>
+  // Enforcing the year 2026 from the template
+  const displayYear = 2026;
 
-          <div className="flex flex-wrap gap-8 text-xs font-bold tracking-widest uppercase text-gray-400">
-            <div className="flex flex-col space-y-4">
-              <a href="#about" className="hover:text-accent transition-colors">About</a>
-              <a href="#demo" className="hover:text-accent transition-colors">Demo</a>
+  return (
+    <footer className="bg-black text-white pt-20 pb-12 px-6 md:px-12 font-mono selection:bg-white selection:text-black">
+      <div className="max-w-[1400px] mx-auto">
+        
+        {/* Top: QR and Professional Status Section */}
+        <div className="flex flex-col md:flex-row gap-4 mb-20">
+          <div className="w-full md:w-[240px] aspect-square bg-white flex items-center justify-center p-2 rounded-sm group overflow-hidden">
+            <img 
+              src="/qr-code.svg" 
+              alt="QR Code" 
+              className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500"
+            />
+          </div>
+          <div className="flex-1 bg-[#111] min-h-[240px] flex flex-col items-center justify-center border border-white/5 uppercase tracking-[0.5em] text-[10px] text-white/40 font-bold rounded-sm relative overflow-hidden group">
+            <div className="relative z-10 text-center">
+              <span className="block mb-2 text-white/60">[ STATUS ]</span>
+              <span className="text-accent group-hover:text-white transition-colors duration-500">Available for Select Projects</span>
+              <span className="block mt-4 text-[8px] opacity-30">Est. 2024 // Lagos, NG</span>
             </div>
-            <div className="flex flex-col space-y-4">
-              <a href="#services" className="hover:text-accent transition-colors">Services</a>
-              <a href="#faqs" className="hover:text-accent transition-colors">FAQs</a>
-            </div>
-            <div className="flex flex-col space-y-4">
-              <a href="#projects" className="hover:text-accent transition-colors">Projects</a>
-            </div>
-            <div className="flex flex-col space-y-4">
-              <a href="#terms" className="hover:text-accent transition-colors">Terms</a>
-            </div>
+            <div className="absolute inset-0 bg-gradient-to-tr from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
           </div>
         </div>
 
-        <div className="flex flex-col md:flex-row justify-between items-end">
-          <h2 className="text-3xl md:text-5xl font-heading font-bold tracking-widest mb-4 md:mb-0">
+        {/* Navigation Links */}
+        <nav className="flex flex-wrap gap-x-12 gap-y-6 mb-12 text-[11px] md:text-[12px] tracking-[0.5em] font-black uppercase border-b border-white/10 pb-10">
+          <Link to="/" className="hover:text-accent transition-colors">Home</Link>
+          <Link to="/about" className="hover:text-accent transition-colors">About</Link>
+          <Link to="/services" className="hover:text-accent transition-colors">Services</Link>
+          <Link to="/projects" className="hover:text-accent transition-colors">Projects</Link>
+          <Link to="/services#pricing" className="hover:text-accent transition-colors">Pricing</Link>
+        </nav>
+
+        {/* Massive Branding Headline */}
+        <div className="mb-16 select-none pointer-events-none overflow-hidden">
+          <h2 className="text-[12.1vw] md:text-[9.7vw] font-black leading-[0.8] tracking-[-0.06em] uppercase whitespace-nowrap -ml-[0.05em] text-white">
             &lt;BUILDWITH_LAMI /&gt;
           </h2>
-          <p className="text-[10px] text-gray-600 uppercase tracking-widest">
-            copyright 2024 || buildwith_lami
-          </p>
+        </div>
+
+        {/* Bottom Information Row */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 pt-10 border-t border-white/10 text-[10px] md:text-[11px] tracking-[0.3em] font-bold uppercase text-white/60">
+          <div className="flex gap-10">
+            <a href="mailto:hello@buildwithlami.dev" className="hover:text-accent transition-colors">Email</a>
+            <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="hover:text-accent transition-colors">LinkedIn</a>
+            <Link to="/contact" className="hover:text-accent transition-colors">Faqs</Link>
+          </div>
+          <div className="opacity-60 font-medium lowercase">
+            copyright {displayYear} // built with precision by lami
+          </div>
         </div>
       </div>
     </footer>
