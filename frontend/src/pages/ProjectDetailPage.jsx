@@ -9,6 +9,17 @@ const ProjectDetailPage = () => {
 
   useEffect(() => {
     window.scrollTo(0, 0);
+    if (project) {
+      document.title = `${project.title} | Projects - Eugene Odibenuah`;
+      const metaDesc = document.querySelector('meta[name="description"]');
+      if (metaDesc) {
+        metaDesc.setAttribute("content", project.summary || project.description || `Case study of ${project.title} - a premium web development project by Eugene Odibenuah.`);
+      }
+    }
+  }, [id, project]);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
     const fetchProject = async () => {
       try {
         const response = await fetch(`http://localhost:4000/api/projects/${id}`);

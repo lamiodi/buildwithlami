@@ -5,6 +5,12 @@ import { motion } from 'framer-motion';
 const AboutPage = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
+    // SEO Best Practices
+    document.title = "About | Eugene Odibenuah - Full-Stack Developer";
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) {
+      metaDesc.setAttribute("content", "Learn more about Eugene Odibenuah, a Nigerian-based full-stack developer with expertise in React, Node.js, and building scalable business solutions.");
+    }
   }, []);
 
   const containerVariants = {

@@ -37,6 +37,15 @@ const Services = () => {
         "Code Modernization",
         "Tech Stack Strategy"
       ]
+    },
+    {
+      title: "SEO & Growth Strategy",
+      desc: "Data-driven approach to organic search visibility",
+      features: [
+        "Technical SEO Audits",
+        "Core Web Vitals Optimization",
+        "Growth & Content Strategy"
+      ]
     }
   ];
 

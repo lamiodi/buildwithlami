@@ -10,6 +10,12 @@ const ProjectsPage = () => {
 
   useEffect(() => {
     window.scrollTo(0, 0);
+    // SEO Best Practices
+    document.title = "Selected Works | Eugene Odibenuah - Portfolio";
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) {
+      metaDesc.setAttribute("content", "Explore a curated collection of selected works by Eugene Odibenuah, ranging from full-stack ERP systems to premium e-commerce ecosystems and professional portals.");
+    }
     const fetchProjects = async () => {
       try {
         const response = await fetch('http://localhost:4000/api/projects');

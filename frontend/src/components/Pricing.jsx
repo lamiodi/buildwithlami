@@ -94,7 +94,7 @@ const Pricing = () => {
     {
       name: "E-commerce Elite",
       price: pricingData[currency].tiers[2].price,
-      desc: "Scalable online stores built to convert visitors into loyal customers.",
+      desc: "Scalable online stores built to convert visitors into loyal customers. *Pricing depends on user count.*",
       features: [
         "Full Product Management",
         "Payment Gateway Integration",
@@ -105,7 +105,7 @@ const Pricing = () => {
     {
       name: "Custom Enterprise",
       price: pricingData[currency].tiers[3].price,
-      desc: "Complex ERP and Inventory systems tailored specifically to your business logic.",
+      desc: "Complex ERP and Inventory systems tailored specifically to your business logic. *Pricing depends on user count.*",
       features: [
         "Full ERP & Inventory Logic",
         "Role-Based Access Control",
