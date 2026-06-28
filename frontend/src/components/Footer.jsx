@@ -36,7 +36,7 @@ const Footer = () => {
 
         {/* Massive Branding Headline */}
         <div className="mb-16 select-none pointer-events-none overflow-hidden">
-          <h2 className="text-[12.1vw] md:text-[9.7vw] font-black leading-[0.8] tracking-[-0.06em] uppercase whitespace-nowrap -ml-[0.05em] text-white">
+          <h2 className="text-[10vw] sm:text-[12.1vw] md:text-[9.7vw] font-black leading-[0.8] tracking-[-0.04em] md:tracking-[-0.06em] uppercase whitespace-nowrap -ml-[0.03em] md:-ml-[0.05em] text-white">
             &lt;BUILDWITH_LAMI /&gt;
           </h2>
         </div>
