@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { getAuthToken, clearAuth, getAuthUser } from '../services/auth';
 
 const NAV_LINKS = [
   { name: 'Home', path: '#home', type: 'anchor' },
@@ -14,7 +15,16 @@ const NAV_LINKS = [
 const Navbar = ({ isDark, toggleTheme }) => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
   const isHome = location.pathname === '/';
+  const isLoggedIn = !!getAuthToken();
+  const user = getAuthUser();
+
+  const handleLogout = () => {
+    clearAuth();
+    setIsOpen(false);
+    navigate('/');
+  };
 
   useEffect(() => {
     document.body.style.overflow = isOpen ? 'hidden' : 'auto';
@@ -28,14 +38,26 @@ const Navbar = ({ isDark, toggleTheme }) => {
   const renderLink = (link, className, onClick) => {
     if (link.type === 'anchor') {
       return (
-        <a 
+        <Link 
           key={link.name}
-          href={getSectionPath(link.path)} 
-          onClick={onClick}
+          to={getSectionPath(link.path)} 
+          onClick={(e) => {
+            // Smooth scroll if we are already on the home page
+            if (isHome) {
+              const id = link.path.replace('#', '');
+              const element = document.getElementById(id);
+              if (element) {
+                e.preventDefault();
+                element.scrollIntoView({ behavior: 'smooth' });
+                window.history.pushState({}, '', link.path);
+              }
+            }
+            if (onClick) onClick();
+          }}
           className={className}
         >
           {link.name}
-        </a>
+        </Link>
       );
     }
     return (
@@ -64,6 +86,26 @@ const Navbar = ({ isDark, toggleTheme }) => {
       <div className="hidden md:flex space-x-8 text-sm uppercase tracking-wider items-center text-gray-800 dark:text-gray-200 font-medium">
         {NAV_LINKS.map(link => renderLink(link, "hover:text-accent transition-colors"))}
         
+        {isLoggedIn ? (
+          <>
+            <Link to="/admin/projects" className="hover:text-accent transition-colors">Admin</Link>
+            <button
+              onClick={handleLogout}
+              className="border border-red-500/40 text-red-500 px-3 py-1.5 hover:bg-red-500 hover:text-white transition-colors font-bold text-xs rounded-lg"
+              title={user?.email || 'Sign out'}
+            >
+              Logout
+            </button>
+          </>
+        ) : (
+          <Link
+            to="/login"
+            className="border border-gray-800 dark:border-white/20 px-4 py-2 hover:bg-accent hover:text-white dark:hover:bg-accent dark:hover:border-accent transition-colors font-bold"
+          >
+            Sign In
+          </Link>
+        )}
+
         <ThemeToggle isDark={isDark} toggleTheme={toggleTheme} />
 
         <a 
@@ -102,6 +144,32 @@ const Navbar = ({ isDark, toggleTheme }) => {
           >
             {NAV_LINKS.map(link => renderLink(link, "text-2xl font-heading font-bold uppercase tracking-[0.2em] hover:text-accent transition-colors", closeMenu))}
             
+            {isLoggedIn ? (
+              <>
+                <Link
+                  to="/admin"
+                  onClick={closeMenu}
+                  className="text-2xl font-heading font-bold uppercase tracking-[0.2em] hover:text-accent transition-colors"
+                >
+                  Admin
+                </Link>
+                <button
+                  onClick={handleLogout}
+                  className="mt-4 border-2 border-red-500 text-red-500 px-8 py-4 text-lg font-bold uppercase tracking-widest hover:bg-red-500 hover:text-white transition-colors"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <Link
+                to="/login"
+                onClick={closeMenu}
+                className="mt-4 border-2 border-black dark:border-white px-8 py-4 text-lg font-bold uppercase tracking-widest hover:bg-accent hover:border-accent hover:text-white transition-colors"
+              >
+                Sign In
+              </Link>
+            )}
+
             <a 
               href="/resume.pdf" 
               target="_blank" 

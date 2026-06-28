@@ -1,36 +1,84 @@
 import React, { useState, useEffect } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import WhatsAppWidget from './components/WhatsAppWidget';
+import ErrorBoundary from './components/ErrorBoundary';
+import Preloader from './components/Preloader';
+import ToastHost from './components/ToastHost';
 import HomePage from './pages/HomePage';
 import ProjectsPage from './pages/ProjectsPage';
 import ContactPage from './pages/ContactPage';
 import AboutPage from './pages/AboutPage';
 import ServicesPage from './pages/ServicesPage';
 import ProjectDetailPage from './pages/ProjectDetailPage';
+import NotFoundPage from './pages/NotFoundPage';
+import ThemeToast from './components/ThemeToast';
+import AdminClientProjects from './pages/admin/AdminClientProjects';
+import AdminClients from './pages/admin/AdminClients';
+import AdminProjectDetail from './pages/admin/AdminProjectDetail';
+import AdminIntakeTemplates from './pages/admin/AdminIntakeTemplates';
+import AdminDashboard from './pages/admin/AdminDashboard';
+import ClientProjectTracker from './pages/ClientProjectTracker';
+import ClientIntakeForm from './pages/ClientIntakeForm';
+import LoginPage from './pages/LoginPage';
+import ProtectedRoute from './components/ProtectedRoute';
+
+// Page transition wrapper
+const PageWrapper = ({ children }) => {
+  const shouldReduce = useReducedMotion();
+  return (
+    <motion.div
+      initial={{ opacity: shouldReduce ? 1 : 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: shouldReduce ? 1 : 0 }}
+      transition={{ duration: shouldReduce ? 0 : 0.3 }}
+    >
+      {children}
+    </motion.div>
+  );
+};
 
 function App() {
-  // Theme state: default to dark
-  const [isDark, setIsDark] = useState(true);
+  const [toastMessage, setToastMessage] = useState(null);
+  const [showPreloader, setShowPreloader] = useState(true);
   const location = useLocation();
 
+  // Read theme state from the DOM (set instantly by index.html inline script)
+  const [isDark, setIsDark] = useState(() =>
+    document.documentElement.classList.contains('dark')
+  );
+
   useEffect(() => {
-    // Check local storage or system preference on mount
+    // Show toast only on first load if no saved theme (auto-detected)
     const savedTheme = localStorage.getItem('theme');
-    if (savedTheme === 'light') {
-      setIsDark(false);
-      document.documentElement.classList.remove('dark');
-    } else {
-      setIsDark(true);
-      document.documentElement.classList.add('dark');
+    if (!savedTheme) {
+      const hour = new Date().getHours();
+      const isDaytime = hour >= 6 && hour < 18;
+      if (!isDaytime) {
+        setToastMessage("Good evening! 🌙 Dark mode enabled based on your local time.");
+      } else {
+        setToastMessage("Good morning! ☀️ Light mode enabled based on your local time.");
+      }
     }
   }, []);
 
-  // Scroll to top on route change
+  // Scroll to top or specific hash on route change
   useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [location.pathname]);
+    if (location.hash) {
+      const id = location.hash.replace('#', '');
+      // Slight delay to ensure DOM is fully rendered before scrolling
+      setTimeout(() => {
+        const element = document.getElementById(id);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 100);
+    } else {
+      window.scrollTo(0, 0);
+    }
+  }, [location.pathname, location.hash]);
 
   const toggleTheme = () => {
     setIsDark((prev) => {
@@ -46,21 +94,64 @@ function App() {
     });
   };
 
+  // Defensive: if Preloader throws or never finishes (e.g. a stalled animation),
+  // surface the app after 4s so the user is never permanently locked out.
+  const [preloaderTimedOut, setPreloaderTimedOut] = useState(false);
+  useEffect(() => {
+    if (!showPreloader) return;
+    const t = setTimeout(() => setPreloaderTimedOut(true), 4000);
+    return () => clearTimeout(t);
+  }, [showPreloader]);
+
+  if (showPreloader && !preloaderTimedOut) {
+    try {
+      return <Preloader onComplete={() => setShowPreloader(false)} />;
+    } catch (err) {
+      console.error('[App] Preloader crashed, falling through:', err);
+      setShowPreloader(false);
+    }
+  }
+
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900 dark:bg-background dark:text-white font-body selection:bg-accent selection:text-white transition-colors duration-300">
-      <Navbar isDark={isDark} toggleTheme={toggleTheme} />
-      <main>
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/projects" element={<ProjectsPage />} />
-          <Route path="/contact" element={<ContactPage />} />
-          <Route path="/about" element={<AboutPage />} />
-          <Route path="/services" element={<ServicesPage />} />
-          <Route path="/projects/:id" element={<ProjectDetailPage />} />
-        </Routes>
-      </main>
-      <Footer />
-      <WhatsAppWidget />
+    <div className="min-h-screen bg-gray-50 text-gray-900 dark:bg-background dark:text-white font-body selection:bg-accent selection:text-white transition-colors duration-500">
+      <ErrorBoundary>
+        <Navbar isDark={isDark} toggleTheme={toggleTheme} />
+        <main>
+          <AnimatePresence mode="wait">
+            <Routes location={location} key={location.pathname}>
+              <Route path="/" element={<PageWrapper><HomePage /></PageWrapper>} />
+              <Route path="/projects" element={<PageWrapper><ProjectsPage /></PageWrapper>} />
+              <Route path="/contact" element={<PageWrapper><ContactPage /></PageWrapper>} />
+              <Route path="/about" element={<PageWrapper><AboutPage /></PageWrapper>} />
+              <Route path="/services" element={<PageWrapper><ServicesPage /></PageWrapper>} />
+              <Route path="/projects/:id" element={<PageWrapper><ProjectDetailPage /></PageWrapper>} />
+              
+              {/* Admin Routes — Protected by JWT verification */}
+              <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+              <Route path="/admin/projects" element={<ProtectedRoute><AdminClientProjects /></ProtectedRoute>} />
+              <Route path="/admin/clients" element={<ProtectedRoute><AdminClients /></ProtectedRoute>} />
+              <Route path="/admin/projects/:id" element={<ProtectedRoute><AdminProjectDetail /></ProtectedRoute>} />
+              <Route path="/admin/templates" element={<ProtectedRoute><AdminIntakeTemplates /></ProtectedRoute>} />
+              
+              {/* Auth Route */}
+              <Route path="/login" element={<LoginPage />} />
+
+              {/* Client Public Routes */}
+              <Route path="/track/:trackingId" element={<ClientProjectTracker />} />
+              <Route path="/form/:formId" element={<ClientIntakeForm />} />
+
+              <Route path="*" element={<PageWrapper><NotFoundPage /></PageWrapper>} />
+            </Routes>
+          </AnimatePresence>
+        </main>
+        <Footer />
+        <WhatsAppWidget />
+        <ThemeToast
+          message={toastMessage}
+          onClose={() => setToastMessage(null)}
+        />
+        <ToastHost />
+      </ErrorBoundary>
     </div>
   );
 }

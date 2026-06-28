@@ -45,3 +45,11 @@ export async function login(req, res) {
         return res.status(500).json({ error: 'Internal server error.' });
     }
 }
+
+// ── Verify Current Session ───────────────────────────────
+// Called by the frontend ProtectedRoute to check if the
+// admin's JWT is still valid before rendering admin pages.
+export async function getMe(req, res) {
+    // req.user is set by the verifyToken middleware
+    return res.json({ id: req.user.id, email: req.user.email, role: req.user.role });
+}

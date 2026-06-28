@@ -1,0 +1,6 @@
+# buildwithlami.dev
+User-agent: *
+Allow: /
+Disallow: /api/
+
+Sitemap: https://buildwithlami.dev/sitemap.xml

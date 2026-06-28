@@ -1,6 +1,17 @@
 import { z } from 'zod';
 import pool from '../config/db.js';
 
+// ── Helpers ──────────────────────────────────────────────
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+function validateUUID(id, res) {
+    if (!UUID_REGEX.test(id)) {
+        res.status(400).json({ error: 'Invalid ID format.' });
+        return false;
+    }
+    return true;
+}
+
 // ── Validation ───────────────────────────────────────────
 const createProjectSchema = z.object({
     title: z.string().min(1),
@@ -52,6 +63,8 @@ export async function getProjects(req, res) {
 // ── Get single project ──────────────────────────────────
 export async function getProjectById(req, res) {
     try {
+        if (!validateUUID(req.params.id, res)) return;
+
         const { rows } = await pool.query(`SELECT * FROM projects WHERE id = $1`, [req.params.id]);
         if (rows.length === 0) return res.status(404).json({ error: 'Project not found.' });
 
@@ -107,6 +120,8 @@ export async function createProject(req, res) {
 // ── Update project ───────────────────────────────────────
 export async function updateProject(req, res) {
     try {
+        if (!validateUUID(req.params.id, res)) return;
+
         const data = updateProjectSchema.parse(req.body);
         const fields = [];
         const values = [];
@@ -139,6 +154,8 @@ export async function updateProject(req, res) {
 // ── Delete project ───────────────────────────────────────
 export async function deleteProject(req, res) {
     try {
+        if (!validateUUID(req.params.id, res)) return;
+
         const { rowCount } = await pool.query(`DELETE FROM projects WHERE id = $1`, [req.params.id]);
         if (rowCount === 0) return res.status(404).json({ error: 'Project not found.' });
         return res.json({ message: 'Project deleted.' });

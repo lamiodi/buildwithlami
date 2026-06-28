@@ -4,7 +4,14 @@
 @tailwind components;
 @tailwind utilities;
 
-* {
+/* Scope theme transitions to meaningful elements only — not every DOM node */
+body,
+main,
+section,
+nav,
+footer,
+header,
+.theme-transition {
   transition: background-color 0.4s ease-in-out, color 0.4s ease-in-out, border-color 0.4s ease-in-out;
 }
 

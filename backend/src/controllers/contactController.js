@@ -3,12 +3,26 @@ import DOMPurify from 'isomorphic-dompurify';
 import pool from '../config/db.js';
 import { sendNotificationEmail } from '../services/emailService.js';
 
+// ── Helpers ──────────────────────────────────────────────
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+function validateUUID(id, res) {
+    if (!UUID_REGEX.test(id)) {
+        res.status(400).json({ error: 'Invalid ID format.' });
+        return false;
+    }
+    return true;
+}
+
 // ── Validation ───────────────────────────────────────────
 const createMessageSchema = z.object({
     full_name: z.string().min(1),
     email: z.string().email(),
     subject: z.string().optional(),
-    message: z.string().min(1)
+    message: z.string().min(1),
+    project_type: z.string().optional().nullable(),
+    budget: z.string().optional().nullable(),
+    timeline: z.string().optional().nullable()
 });
 
 export async function submitContactForm(req, res) {
@@ -19,21 +33,26 @@ export async function submitContactForm(req, res) {
         const cleanName = DOMPurify.sanitize(data.full_name);
         const cleanSubject = data.subject ? DOMPurify.sanitize(data.subject) : null;
         const cleanMessage = DOMPurify.sanitize(data.message);
+        const cleanProjectType = data.project_type ? DOMPurify.sanitize(data.project_type) : null;
+        const cleanBudget = data.budget ? DOMPurify.sanitize(data.budget) : null;
+        const cleanTimeline = data.timeline ? DOMPurify.sanitize(data.timeline) : null;
 
         const { rows } = await pool.query(
-            `INSERT INTO messages (full_name, email, subject, message)
-       VALUES ($1, $2, $3, $4)
+            `INSERT INTO messages (full_name, email, subject, message, project_type, budget, timeline)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)
        RETURNING id, full_name, email, created_at`,
-            [cleanName, data.email, cleanSubject, cleanMessage]
+            [cleanName, data.email, cleanSubject, cleanMessage, cleanProjectType, cleanBudget, cleanTimeline]
         );
         
-        // Send email notification
-        await sendNotificationEmail({
+        // Fire-and-forget: don't block the response for email delivery
+        sendNotificationEmail({
             name: cleanName,
             email: data.email,
             subject: cleanSubject,
             message: cleanMessage
-        });
+        }).catch(err =>
+            console.error('[Contact] Email notification failed:', err.message)
+        );
         
         return res.status(201).json({ success: true, message: 'Message sent successfully.' });
     } catch (err) {
@@ -55,6 +74,8 @@ export async function getMessages(req, res) {
 
 export async function markMessageRead(req, res) {
     try {
+        if (!validateUUID(req.params.id, res)) return;
+
         const { rows } = await pool.query(
             `UPDATE messages SET is_read = true WHERE id = $1 RETURNING *`,
             [req.params.id]
@@ -69,6 +90,8 @@ export async function markMessageRead(req, res) {
 
 export async function deleteMessage(req, res) {
     try {
+        if (!validateUUID(req.params.id, res)) return;
+
         const { rowCount } = await pool.query(`DELETE FROM messages WHERE id = $1`, [req.params.id]);
         if (rowCount === 0) return res.status(404).json({ error: 'Message not found.' });
         return res.json({ message: 'Message deleted.' });

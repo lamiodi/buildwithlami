@@ -1,77 +1,73 @@
 
 
-The stack (React/Express/Postgres) remains, but the data models and logic now focus on **showcasing your work** and **managing contact inquiries**.
+# buildwithlami.dev — Technical Blueprint v2.0 (Agency Operating System)
 
----
-
-#buildwithlami.dev — Technical Blueprint v1.0
-
-> **Last Updated:** October 2024
-> **Status:** Backend Phase 1 Complete. **Phase 2 (Portfolio CMS) is active priority.**
+> **Last Updated:** May 2025
+> **Status:** Phase 3 Frontend/UX Complete. **Phase 4 (Backend Environment Config & Deployment) is active priority.**
 
 ---
 
 ## 1. Executive Summary
 
 **Project Name:** buildwithlami.dev
-**Type:** Personal Portfolio & Content Management System
-**Stack:** React (Vite) + Express.js + PostgreSQL (Supabase)
+**Type:** Personal Portfolio & High-Performance Agency Operating System
+**Stack:** React 19 (Vite) + Express.js + PostgreSQL (Supabase) + Matter.js (Visual Showcase)
 
 ### Core Mission
-Showcase expertise and turn visitors into opportunities.
+Provide a top-tier visual experience for visitors while acting as a robust, secure operation center for freelance agency work—handling incoming leads, client projects, dynamic intake processes, secure credentials storage, and live progress tracking.
 
-The system is built around a simple personal pipeline:
-
-```
-VISITOR → BROWSE PROJECTS → CONTACT FORM → INQUIRY → OPPORTUNITY
-```
-
-### Two Interfaces
-1.  **Public Interface** — SEO-optimized portfolio (Hero, Projects, Experience, Contact).
-2.  **Private Interface** — Personal Admin Dashboard (Manage Projects, View Messages, Update Profile).
+### Interactive User Flows
+1. **Public Portfolio Pipeline**:
+   ```
+   VISITOR → INTERACT WITH MATTER.JS STACK → VIEW DETAILED CASE STUDY → FILL INQUIRY FORM → messages TABLE
+   ```
+2. **Client Portal & Onboarding Pipeline**:
+   ```
+   LEAD SIGNED → ADMIN GENERATES CLIENT PORTAL → CLIENT ACCESSES UNIQUE TRACKING ID → COMPLETES INTAKE TEMPLATE → UPLOADS SECURE CREDENTIALS (SECRET VAULT)
+   ```
 
 ---
 
 ## 2. System Architecture
 
 ### A. Tech Stack
-*No changes required to the core stack.*
 
 | Layer | Technology | Status |
 | :--- | :--- | :--- |
-| **Frontend** | React 18 + Vite (SPA) | 🔲 Not started |
-| **Styling** | TailwindCSS + Shadcn/UI | 🔲 Not started |
-| **Backend** | Node.js + Express | ✅ Built |
-| **Database** | Supabase (PostgreSQL) | ✅ Schema deployed (needs migration) |
-| **Auth** | JWT (HttpOnly Cookie) | ✅ Built (Owner only) |
+| **Frontend** | React 19 + Vite (SPA) | ✅ Built & Responsive |
+| **Styling** | TailwindCSS + Framer Motion | ✅ Implemented |
+| **Visual Elements** | Matter.js 2D Physics Engine | ✅ Live on Tech Stack view |
+| **Backend** | Node.js + Express | ✅ Built & Rate-Limited |
+| **Database** | PostgreSQL (Supabase) | ✅ Migrations v2 - v8 deployed |
+| **Security** | JWT (HttpOnly Cookie) + AES-CBC Secrets Encryption | ✅ Implemented |
 
-### B. The Visitor Flow
+### B. Relational Architecture Flow
 
 ```
-[1] Visitor lands on Homepage
-        ↓
-[2] GET /api/projects  →  Fetches featured works
-        ↓
-[3] Visitor views Project Details (Case Study)
-        ↓
-[4] Visitor fills "Contact Me" Form
-        ↓
-[5] POST /api/contact  →  Inserted into `messages` table
-        ↓
-[6] Email/WhatsApp alert sent to YOU (The Owner)
-        ↓
-[7] You view message in Admin Dashboard
+                     ┌──────────────────┐
+                     │     Clients      │
+                     └─────────┬────────┘
+                               │ (1 to Many)
+                               ▼
+                     ┌──────────────────┐
+                     │ Client Projects  │◄──────────────────┐
+                     └────┬─────────┬───┘                   │
+                          │         │                       │
+              (1 to Many) │         │ (1 to Many)           │ (Many to 1)
+                          ▼         ▼                       │
+       ┌──────────────────┐ ┌──────────────────┐ ┌──────────┴─────────┐
+       │ Project Secrets  │ │Intake Submissions│ │  Intake Templates  │
+       │ (Encrypted Vault)│ └──────────────────┘ └────────────────────┘
+       └──────────────────┘
 ```
 
 ---
 
-## 3. Database Schema (Personal Portfolio Edition)
+## 3. Database Schema (Agency OS Edition)
 
-> **Migration Strategy:** We will create `migrations/v1_portfolio_schema.sql`. We are removing `clients`, `invoices`, and `leads` and adding `projects` and `messages`.
+### A. Core Portfolio & Messaging
 
-### A. `users` — Owner Profile
-*Simplified: Only one user (You).*
-
+#### `users` — Owner Admin Profile
 ```sql
 CREATE TABLE IF NOT EXISTS users (
   id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -83,47 +79,40 @@ CREATE TABLE IF NOT EXISTS users (
 );
 ```
 
-### B. `profile` — Public Bio
-*Stores your headline, about section, and social links.*
-
+#### `profile` — Public Bio & Socials
 ```sql
 CREATE TABLE IF NOT EXISTS profile (
   id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   full_name    TEXT NOT NULL,
-  headline     TEXT,                 -- e.g., "Full Stack Developer"
-  bio          TEXT,                 -- Long form about me
-  resume_url   TEXT,                 -- Link to downloadable PDF
+  headline     TEXT,
+  bio          TEXT,
+  resume_url   TEXT,
   avatar_url   TEXT,
   social_links JSONB,                -- { "github": "...", "linkedin": "..." }
   updated_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 ```
 
-### C. `projects` — Portfolio Pieces
-*Replaces the agency "projects" table. This is the core content.*
-
+#### `projects` — Portfolio Pieces
 ```sql
 CREATE TABLE IF NOT EXISTS projects (
   id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   title       TEXT NOT NULL,
-  slug        TEXT UNIQUE NOT NULL, -- For URL routing
-  summary     TEXT,                 -- Short card description
-  content     TEXT,                 -- Full case study (Markdown or HTML)
-  tech_stack  TEXT[],               -- Array of technologies ['React', 'Node']
-  image_url   TEXT,                 -- Thumbnail
-  live_url    TEXT,                 -- Live demo
-  repo_url    TEXT,                 -- GitHub link
+  slug        TEXT UNIQUE NOT NULL, -- Card Routing
+  summary     TEXT,
+  content     TEXT,                 -- Case Study (Markdown)
+  tech_stack  TEXT[],
+  image_url   TEXT,
+  live_url    TEXT,
+  repo_url    TEXT,
   featured    BOOLEAN NOT NULL DEFAULT false,
-  status      TEXT NOT NULL DEFAULT 'PUBLISHED'
-              CHECK (status IN ('DRAFT', 'PUBLISHED', 'ARCHIVED')),
+  status      TEXT NOT NULL DEFAULT 'PUBLISHED' CHECK (status IN ('DRAFT', 'PUBLISHED', 'ARCHIVED')),
   created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 ```
 
-### D. `messages` — Contact Inquiries
-*Replaces the "leads" table. No complex conversion logic—just communication.*
-
+#### `messages` — Portfolio Inquiry Contact
 ```sql
 CREATE TABLE IF NOT EXISTS messages (
   id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -134,96 +123,143 @@ CREATE TABLE IF NOT EXISTS messages (
   is_read     BOOLEAN DEFAULT false,
   created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+```
 
-CREATE INDEX IF NOT EXISTS idx_messages_read ON messages(is_read);
+### B. Client Portals & Project Tracking
+
+#### `clients` — Client Accounts
+```sql
+CREATE TABLE IF NOT EXISTS clients (
+  id                    UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name                  TEXT NOT NULL,
+  primary_contact_email TEXT NOT NULL,
+  billing_email         TEXT,
+  notes                 TEXT,
+  created_at            TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at            TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+```
+
+#### `client_projects` — Client Operating Portals
+```sql
+CREATE TABLE IF NOT EXISTS client_projects (
+  id                     UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  client_id              UUID REFERENCES clients(id) ON DELETE SET NULL,
+  project_name           TEXT NOT NULL,
+  tracking_id            TEXT UNIQUE NOT NULL DEFAULT encode(gen_random_bytes(16), 'hex'),
+  progress               INT NOT NULL DEFAULT 0 CHECK (progress >= 0 AND progress <= 100),
+  status                 TEXT NOT NULL DEFAULT 'PLANNING' CHECK (status IN ('PLANNING', 'ACTIVE', 'ON_HOLD', 'COMPLETED')),
+  domain_name            TEXT,
+  domain_expiration      DATE,
+  amount_due             NUMERIC(10, 2) DEFAULT 0.00,
+  payment_type           TEXT DEFAULT 'ONE_TIME' CHECK (payment_type IN ('ONE_TIME', 'MONTHLY')),
+  monthly_fee            NUMERIC(10, 2) DEFAULT 0.00,
+  intake_form_id         UUID REFERENCES intake_templates(id) ON DELETE SET NULL,
+  intake_completed       BOOLEAN NOT NULL DEFAULT false,
+  assets_url             TEXT,
+  training_video_url     TEXT,
+  maintenance_plan_url   TEXT,
+  notes                  TEXT,
+  stages                 JSONB DEFAULT '[
+      {"name": "Discovery & Planning", "status": "PENDING"},
+      {"name": "Design & Mockups", "status": "PENDING"},
+      {"name": "Development", "status": "PENDING"},
+      {"name": "Testing & Revisions", "status": "PENDING"},
+      {"name": "Launch", "status": "PENDING"}
+  ]'::jsonb,
+  created_at             TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at             TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+```
+
+### C. Dynamic Intake & Credential Vault
+
+#### `intake_templates` — Flexible Form Builder Blueprints
+```sql
+CREATE TABLE IF NOT EXISTS intake_templates (
+  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name        TEXT NOT NULL,
+  description TEXT,
+  schema      JSONB NOT NULL DEFAULT '[]'::jsonb, -- Fields array: {id, type, label, required, options}
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+```
+
+#### `intake_submissions` — Intake Form Client Responses
+```sql
+CREATE TABLE IF NOT EXISTS intake_submissions (
+  id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  project_id   UUID REFERENCES client_projects(id) ON DELETE CASCADE,
+  responses    JSONB NOT NULL DEFAULT '{}'::jsonb,
+  submitted_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+```
+
+#### `project_secrets` — Encrypted Client Vault
+```sql
+CREATE TABLE IF NOT EXISTS project_secrets (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  project_id      UUID REFERENCES client_projects(id) ON DELETE CASCADE,
+  key_name        TEXT NOT NULL,
+  encrypted_value TEXT NOT NULL,
+  iv              TEXT NOT NULL, -- AES Initialization Vector
+  created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
 ```
 
 ---
 
-## 4. Backend Architecture (Express API)
+## 4. Security & Cryptographic Protocols
 
-### A. API Routes Overview
-
-| Endpoint | Method | Access | Description |
-| :--- | :--- | :--- | :--- |
-| **Auth** | | | |
-| `/api/auth/login` | POST | Public | Owner login |
-| `/api/auth/logout` | POST | Private | Owner logout |
-| **Public** | | | |
-| `/api/profile` | GET | Public | Get bio/socials |
-| `/api/projects` | GET | Public | List published projects |
-| `/api/projects/:slug` | GET | Public | Get single project details |
-| `/api/contact` | POST | Public | Submit a message |
-| **Admin** | | | |
-| `/api/admin/projects` | POST | Private | Create new project |
-| `/api/admin/projects/:id` | PUT | Private | Update project |
-| `/api/admin/messages` | GET | Private | List all messages |
-| `/api/admin/messages/:id` | DELETE | Private | Delete message |
-
-### B. Logic Changes
-
-**Removed:**
-*   Lead Conversion Logic (`/api/leads/:id/convert`).
-*   Client Portal Authentication (Magic Links).
-*   Invoice/Payment processing.
-
-**Added:**
-*   **Contact Controller:** Handles form submissions. Sends you an email/notification.
-*   **Project Controller:** CRUD operations for your portfolio items.
-
----
-
-## 5. Security Protocol
-
-| Concern | Strategy | Implementation Detail |
+| Feature | Protocol | Details |
 | :--- | :--- | :--- |
-| **Admin Auth** | ✅ Simple & Strong | OnKy onJser (You). `bcrypt` hash password. |
-| **Spam** | ✅ Rate Limiting | Strict rate limit on `/api/contact` (3 per 15 mins). |
-| **CORS** | ✅ Whitelisted | Only allow your frontend domain. |
-| **Input Validation** | ✅ Zod | Ensure contact forms aren't malicious. |
+| **Authentication** | JWT Validation | Stored via secure client cookies validating the `OWNER` role. |
+| **Spam Hardening** | Express Rate Limiters | Submissions to `/api/contact` limited to 10/hour to prevent spamming. |
+| **Credential Storage** | AES-256-CBC | Values inside `project_secrets` are dynamically encrypted/decrypted on transit with a 32-character `ENCRYPTION_KEY` and unique Initialization Vectors (IV). |
+| **XSS Defense** | DOMPurify | Sanitizes input data in Markdown parser and intake submissions. |
 
 ---
 
-## 6. Prioritized Development Roadmap
+## 5. Development Roadmap
 
-### Phase 1.5 — Security Hardening (🚨 IMMEDIATE)
-*Same as before, but simpler.*
-- [ ] **Hash Passwords:** Ensure your owner password is bcrypt hashed.
-- [ ] **Middleware:** Add `helmet()` and rate limiting (specifically for the contact form to prevent spam).
+### Phase 2.5 — Platform Configuration & Integration Verification (🚨 ACTIVE)
+- [ ] **Database Connection**: Link the backend with live Supabase configurations.
+- [ ] **Admin Seeding**: Seed initial admin credentials through `npm run db:seed`.
+- [ ] **Notifications Integration**: Setup live alerts (via WhatsApp/Twilio or standard SMTP/Nodemailer).
 
-### Phase 2 — Portfolio Engine (NEW PRIORITY)
-*Goal: Display your work.*
-- [ ] **Database:** Run migration to create `projects` and `profile` tables.
-- [ ] **Backend:** Build `projectController.js`.
-  - `GET /api/projects` (Public, filter by `PUBLISHED`).
-  - `POST /api/admin/projects` (Protected).
-- [ ] **Uploads:** Decide how to handle images (Cloudinary or local storage folder).
-
-### Phase 3 — Frontend MVP
-- [ ] Initialize Vite/React/Tailwind.
-- [ ] Build `<HomePage />` (Hero + Featured Projects Grid).
-- [ ] Build `<ProjectPage />` (Dynamic routing with slugs).
-- [ ] Build `<ContactForm />` connected to `POST /api/contact`.
-
-### Phase 4 — Admin Dashboard
-- [ ] Build simple Login page.
-- [ ] Build `<ProjectManager />` (List/Edit/Delete projects).
-- [ ] Build `<Inbox />` (View messages sent via contact form).
+### Phase 3 — Onboarding & Offboarding Features (✅ COMPLETE)
+- [x] Connect client dashboard to display static training videos and maintenance assets.
+- [x] Validate responsive layouts in `ClientIntakeForm.jsx` and client credentials vault forms.
+- [x] Implement passwordless client portal access.
+- [x] Merge credential vaults into one unified secure section.
 
 ---
 
-## 7. Environment Variables
+## 6. Environment Configurations (`backend/.env`)
 
 ```env
-# Database
-DATABASE_URL=postgresql://...
+# Database Credentials
+DATABASE_URL=postgresql://postgres:[PASSWORD]@db.[PROJECT_REF].supabase.co:5432/postgres
 
-# Auth
-JWT_SECRET=your-very-long-secure-secret
+# JWT Configurations
+JWT_SECRET=your-very-long-secure-secret-key
+JWT_EXPIRES_IN=7d
 
-# Security
-FRONTEND_URL=https://your-portfolio.com
+# Cryptographic Keys
+ENCRYPTION_KEY=0123456789abcdef0123456789abcdef
 
-# Messaging (Optional: Email or WhatsApp for contact alerts)
-EMAIL_SERVICE_API_KEY=... 
+# WhatsApp Cloud API Integrations
+WHATSAPP_API_URL=https://graph.facebook.com/v18.0
+WHATSAPP_PHONE_NUMBER_ID=000000000000000
+WHATSAPP_ACCESS_TOKEN=EAAG...
+ADMIN_WHATSAPP_PHONE=2348012345678
+
+# Seed Credentials
+ADMIN_EMAIL=admin@devagency.os
+ADMIN_PASSWORD=ChangeMe123!
+
+# Whitelists & CORS
+FRONTEND_URL=http://localhost:3000
 ```

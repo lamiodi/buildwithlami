@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { CONTACT } from '../config/contact';
 
 const WhatsAppWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
 
-  // International format for 09064185442 (Nigeria)
-  const phoneNumber = "2349064185442";
+  // International format (E.164, no leading +) from the shared contact config.
+  const phoneNumber = CONTACT.phoneE164;
   const defaultMessage = encodeURIComponent("Hi Eugene! I'd like to discuss a project.");
   const waLink = `https://wa.me/${phoneNumber}?text=${defaultMessage}`;
 

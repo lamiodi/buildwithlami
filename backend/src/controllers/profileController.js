@@ -11,9 +11,12 @@ const updateProfileSchema = z.object({
     social_links: z.any().optional().nullable()
 });
 
+// The profile table is constrained to a single row with id = 1.
+const PROFILE_ID = 1;
+
 export async function getProfile(req, res) {
     try {
-        const { rows } = await pool.query(`SELECT * FROM profile LIMIT 1`);
+        const { rows } = await pool.query(`SELECT * FROM profile WHERE id = $1`, [PROFILE_ID]);
         if (rows.length === 0) return res.status(404).json({ error: 'Profile not found.' });
         return res.json(rows[0]);
     } catch (err) {
@@ -25,22 +28,19 @@ export async function getProfile(req, res) {
 export async function updateProfile(req, res) {
     try {
         const data = updateProfileSchema.parse(req.body);
-        
-        // Check if profile exists
-        const { rows: existing } = await pool.query(`SELECT id FROM profile LIMIT 1`);
-        
+
+        const { rows: existing } = await pool.query(`SELECT id FROM profile WHERE id = $1`, [PROFILE_ID]);
+
         if (existing.length === 0) {
-            // Create
             if (!data.full_name) return res.status(400).json({ error: 'full_name is required for initial profile creation.' });
-            
+
             const { rows } = await pool.query(
-                `INSERT INTO profile (full_name, headline, bio, resume_url, avatar_url, social_links)
-                 VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
-                [data.full_name, data.headline, data.bio, data.resume_url, data.avatar_url, data.social_links]
+                `INSERT INTO profile (id, full_name, headline, bio, resume_url, avatar_url, social_links)
+                 VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
+                [PROFILE_ID, data.full_name, data.headline, data.bio, data.resume_url, data.avatar_url, data.social_links]
             );
             return res.status(201).json(rows[0]);
         } else {
-            // Update
             const fields = [];
             const values = [];
             let idx = 1;
@@ -52,7 +52,7 @@ export async function updateProfile(req, res) {
             if (fields.length === 0) return res.status(400).json({ error: 'No fields to update.' });
 
             fields.push(`updated_at = NOW()`);
-            values.push(existing[0].id);
+            values.push(PROFILE_ID);
 
             const { rows } = await pool.query(
                 `UPDATE profile SET ${fields.join(', ')} WHERE id = $${idx} RETURNING *`,

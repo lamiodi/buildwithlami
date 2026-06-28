@@ -1,5 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import TechStack from './TechStack';
+import { CONTACT } from '../config/contact';
 
 const Footer = () => {
   // Enforcing the year 2026 from the template
@@ -18,13 +20,8 @@ const Footer = () => {
               className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500"
             />
           </div>
-          <div className="flex-1 bg-[#111] min-h-[240px] flex flex-col items-center justify-center border border-white/5 uppercase tracking-[0.5em] text-[10px] text-white/40 font-bold rounded-sm relative overflow-hidden group">
-            <div className="relative z-10 text-center">
-              <span className="block mb-2 text-white/60">[ STATUS ]</span>
-              <span className="text-accent group-hover:text-white transition-colors duration-500">Available for Select Projects</span>
-              <span className="block mt-4 text-[8px] opacity-30">Est. 2024 // Lagos, NG</span>
-            </div>
-            <div className="absolute inset-0 bg-gradient-to-tr from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+          <div className="flex-1 min-h-[360px] rounded-sm relative overflow-hidden">
+            <TechStack />
           </div>
         </div>
 
@@ -45,13 +42,13 @@ const Footer = () => {
         </div>
 
         {/* Bottom Information Row */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 pt-10 border-t border-white/10 text-[10px] md:text-[11px] tracking-[0.3em] font-bold uppercase text-white/60">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 pt-10 border-t border-white/10 text-[10px] md:text-[11px] tracking-[0.3em] font-bold uppercase text-white/90">
           <div className="flex gap-10">
-            <a href="mailto:hello@buildwithlami.dev" className="hover:text-accent transition-colors">Email</a>
+            <a href={`mailto:${CONTACT.email}`} className="hover:text-accent transition-colors">Email</a>
             <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="hover:text-accent transition-colors">LinkedIn</a>
             <Link to="/contact" className="hover:text-accent transition-colors">Faqs</Link>
           </div>
-          <div className="opacity-60 font-medium lowercase">
+          <div className="opacity-90 font-medium lowercase">
             copyright {displayYear} // built with precision by lami
           </div>
         </div>

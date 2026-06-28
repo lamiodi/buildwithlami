@@ -1,0 +1,17 @@
+node_modules/
+.env
+.env.local
+dist/
+build/
+*.log
+.DS_Store
+.vite/
+
+# Keep example env files for reference (remove from this block before publishing secrets)
+# Backend
+backend/.dev-mock/
+
+# IDE
+.vscode/*
+!.vscode/extensions.json
+.idea/
