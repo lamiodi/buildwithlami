@@ -48,12 +48,12 @@ const Hero = () => {
       
       {/* Image */}
       <motion.div
-        className="w-full md:w-1/3 mt-12 md:mt-0 flex justify-end relative"
+        className="w-full md:w-1/3 mt-12 md:mt-0 flex justify-center md:justify-end relative"
         initial={shouldReduce ? {} : { opacity: 0, x: 40 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: shouldReduce ? 0 : 0.7, delay: shouldReduce ? 0 : 0.4, ease: 'easeOut' }}
       >
-        <div className="w-64 h-80 md:w-80 md:h-96 bg-gray-800 relative overflow-visible shadow-2xl">
+        <div className="w-56 h-72 sm:w-64 sm:h-80 md:w-80 md:h-96 bg-gray-800 relative overflow-visible shadow-2xl">
           <img 
             src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=2070&auto=format&fit=crop" 
             alt="Eugene Odibenuah" 
