@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { api } from '../../services/api';
 import { notify } from '../../services/notify';
 import AdminSubNav from '../../components/AdminSubNav';
@@ -12,7 +13,6 @@ const DEFAULT_STAGES = [
   { name: 'Launch', status: 'PENDING' }
 ];
 
-// Mirrors the v5_offboarding_schema.sql default JSONB.
 const DEFAULT_OFFBOARDING = {
   assets_delivered: false,
   training_completed: false,
@@ -36,8 +36,6 @@ const AdminClientProjects = () => {
     offboarding_status: { ...DEFAULT_OFFBOARDING },
   });
   const [editingId, setEditingId] = useState(null);
-
-  // Bulk-actions state. Keep the selection in a Set for O(1) toggles.
   const [selected, setSelected] = useState(() => new Set());
   const [bulkStatus, setBulkStatus] = useState('');
   const [bulkClientId, setBulkClientId] = useState('');
@@ -92,10 +90,8 @@ const AdminClientProjects = () => {
   const handleStageChange = (index, status) => {
     const newStages = [...formData.stages];
     newStages[index].status = status;
-    
     const completed = newStages.filter(s => s.status === 'COMPLETED').length;
     const progress = Math.round((completed / newStages.length) * 100);
-    
     setFormData(prev => ({ ...prev, stages: newStages, progress }));
   };
 
@@ -123,7 +119,6 @@ const AdminClientProjects = () => {
     } else {
       res = await api.post('/client-projects', payload);
     }
-
     if (res.ok && res.data && res.data.id) {
       notify.success(editingId ? 'Project updated!' : 'Project saved!');
       fetchProjects();
@@ -141,9 +136,6 @@ const AdminClientProjects = () => {
     else notify.error(res.error || 'Failed to delete project.');
   };
 
-  // ── Bulk action helpers ──────────────────────────────────────
-  // Toggles a single project in/out of the selection set. Cheap, runs on
-  // every checkbox click without re-fetching the list.
   const toggleSelected = (id) => {
     setSelected((prev) => {
       const next = new Set(prev);
@@ -153,27 +145,19 @@ const AdminClientProjects = () => {
     });
   };
   const clearSelection = () => setSelected(new Set());
-
   const allOnPageSelected = projects.length > 0 && projects.every((p) => selected.has(p.id));
   const toggleSelectAll = () => {
     setSelected((prev) => {
-      if (projects.every((p) => prev.has(p.id))) {
-        return new Set();
-      }
+      if (projects.every((p) => prev.has(p.id))) return new Set();
       return new Set(projects.map((p) => p.id));
     });
   };
 
-  // Apply one PATCH per selected project in parallel. Failures are surfaced
-  // via a single toast with the success/fail count — the admin shouldn't have
-  // to babysit each individual request.
   const runBulkUpdate = async (payload) => {
     if (selected.size === 0) return;
     setBulkBusy(true);
     const ids = Array.from(selected);
-    const results = await Promise.all(
-      ids.map((id) => api.patch(`/client-projects/${id}`, payload))
-    );
+    const results = await Promise.all(ids.map((id) => api.patch(`/client-projects/${id}`, payload)));
     const ok = results.filter((r) => r.ok).length;
     const fail = results.length - ok;
     setBulkBusy(false);
@@ -197,343 +181,313 @@ const AdminClientProjects = () => {
     setBulkClientId('');
   };
   const archiveSelected = () => {
-    if (!window.confirm(`Archive ${selected.size} project${selected.size === 1 ? '' : 's'}? They'll become read-only.`)) return;
+    if (!window.confirm(`Archive ${selected.size} project${selected.size === 1 ? '' : 's'}?`)) return;
     runBulkUpdate({ status: 'ARCHIVED' });
   };
 
+  const inputClass = "w-full p-3 text-sm border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900 outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-colors font-body";
+  const selectClass = "w-full p-3 text-sm border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900 outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-colors font-body";
+  const labelClass = "block text-[10px] font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2";
+
   return (
-    <div className="max-w-7xl mx-auto p-6 pt-24">
-      <AdminSubNav />
-      <h1 className="text-3xl font-bold mb-8">Admin: Agency Projects & Billing</h1>
-      
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
-        {/* Form Column */}
-        <div className="xl:col-span-1 bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 h-fit">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold">{editingId ? 'Edit Project' : 'New Project'}</h2>
-            {editingId && <button type="button" onClick={() => setEditingId(null)} className="text-sm text-blue-500">Cancel Edit</button>}
+    <div className="min-h-screen bg-gray-50 dark:bg-background pt-24 pb-12 px-6">
+      <div className="max-w-7xl mx-auto">
+        <AdminSubNav />
+
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h1 className="text-4xl font-extrabold font-heading bg-gradient-to-r from-accent to-orange-500 bg-clip-text text-transparent">
+                Agency Projects
+              </h1>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 font-body">Manage client projects, billing, and onboarding.</p>
+            </div>
           </div>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Basic Info */}
-            <div>
-              <label className="block text-sm font-medium mb-1">Client</label>
-              <select name="client_id" value={formData.client_id} onChange={handleChange} required className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600">
-                <option value="">Select a Client</option>
-                {clients.map(c => (
-                  <option key={c.id} value={c.id}>{c.name}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Project Name</label>
-              <input type="text" name="project_name" value={formData.project_name} onChange={handleChange} required className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600" />
-            </div>
-            
-            {/* Onboarding */}
-            <h3 className="font-semibold pt-4 border-t border-gray-200 dark:border-gray-700">Onboarding & Intake</h3>
-            <div>
-              <label className="block text-sm font-medium mb-1">Require Intake Form</label>
-              <select name="intake_form_id" value={formData.intake_form_id} onChange={handleChange} className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600">
-                <option value="">None (Bypass Intake)</option>
-                {templates.map(t => (
-                  <option key={t.id} value={t.id}>{t.name}</option>
-                ))}
-              </select>
-            </div>
-            {formData.intake_form_id && (
-              <label className="flex items-center gap-2 text-sm">
-                <input type="checkbox" name="intake_completed" checked={formData.intake_completed} onChange={handleChange} />
-                Mark Intake as Completed
-              </label>
-            )}
+        </motion.div>
 
-            {/* Stages */}
-            <h3 className="font-semibold pt-4 border-t border-gray-200 dark:border-gray-700">Project Stages</h3>
-            <div className="space-y-2">
-              {formData.stages.map((stage, idx) => (
-                <div key={idx} className="flex justify-between items-center bg-gray-50 dark:bg-gray-900 p-2 rounded border border-gray-200 dark:border-gray-700">
-                  <span className="text-sm font-medium">{stage.name}</span>
-                  <select 
-                    value={stage.status} 
-                    onChange={(e) => handleStageChange(idx, e.target.value)}
-                    className="text-xs p-1 rounded border dark:bg-gray-800 dark:border-gray-600"
-                  >
-                    <option value="PENDING">Pending</option>
-                    <option value="IN_PROGRESS">In Progress</option>
-                    <option value="COMPLETED">Completed</option>
-                  </select>
-                </div>
-              ))}
-            </div>
-
-            <div className="flex justify-between items-center pt-2">
-              <label className="block text-sm font-medium">Auto Progress: {formData.progress}%</label>
-              <select name="status" value={formData.status} onChange={handleChange} className="p-1 border rounded text-sm dark:bg-gray-700 dark:border-gray-600 font-bold text-blue-600">
-                <option value="ONBOARDING">Intake / Onboarding</option>
-                <option value="PLANNING">Planning & Scope</option>
-                <option value="DESIGN">Design & Figma</option>
-                <option value="DEVELOPMENT">Development</option>
-                <option value="REVIEW">Client Review</option>
-                <option value="LAUNCHED">🚀 LAUNCHED (Offboarding)</option>
-                <option value="MAINTENANCE">Maintenance</option>
-                <option value="ARCHIVED">Archived (Read-Only)</option>
-              </select>
-            </div>
-            
-            {/* Offboarding / Handover */}
-            {(formData.status === 'LAUNCHED' || formData.status === 'MAINTENANCE') && (
-              <>
-                <h3 className="font-semibold pt-4 border-t border-gray-200 dark:border-gray-700 text-green-600">Launch & Handoff Vault</h3>
-                <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-xl border border-green-100 dark:border-green-800 space-y-3 mb-4">
-                  <h4 className="text-sm font-bold text-green-800 dark:text-green-300">Offboarding Checklist</h4>
-                  {[
-                    { key: 'final_payment', label: 'Final invoice sent and paid' },
-                    { key: 'credentials_documented', label: 'All credentials documented in vault' },
-                    { key: 'assets_delivered', label: 'Domain transferred / DNS documented' },
-                    { key: 'client_feedback', label: 'Client feedback collected' },
-                  ].map(({ key, label }) => (
-                    <label key={key} className="flex items-center gap-2 text-sm text-green-700 dark:text-green-400">
-                      <input
-                        type="checkbox"
-                        className="w-4 h-4 text-green-600 rounded"
-                        checked={!!(formData.offboarding_status || DEFAULT_OFFBOARDING)[key]}
-                        onChange={() => handleOffboardingToggle(key)}
-                      />
-                      {label}
-                    </label>
-                  ))}
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1">Final Assets URL (Zip/Drive)</label>
-                  <input type="url" name="assets_url" value={formData.assets_url} onChange={handleChange} placeholder="https://drive.google.com/..." className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1">Video Training URL (Loom)</label>
-                  <input type="url" name="training_video_url" value={formData.training_video_url} onChange={handleChange} placeholder="https://www.loom.com/..." className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1">Maintenance Paystack Link (Upsell)</label>
-                  <input type="url" name="maintenance_plan_url" value={formData.maintenance_plan_url} onChange={handleChange} placeholder="https://paystack.com/pay/..." className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600" />
-                </div>
-              </>
-            )}
-
-            {/* Domain & Billing */}
-            <h3 className="font-semibold pt-4 border-t border-gray-200 dark:border-gray-700">Domain & Billing</h3>
-            <div>
-              <label className="block text-sm font-medium mb-1">Live Domain Name</label>
-              <input type="text" name="domain_name" value={formData.domain_name} onChange={handleChange} className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600" placeholder="e.g. client.com" />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Domain Expiration</label>
-              <input type="date" name="domain_expiration" value={formData.domain_expiration} onChange={handleChange} className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600" />
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              <div>
-                <label className="block text-sm font-medium mb-1">Amount Due ($)</label>
-                <input type="number" name="amount_due" value={formData.amount_due} onChange={handleChange} className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600" />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Payment Type</label>
-                <select name="payment_type" value={formData.payment_type} onChange={handleChange} className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600">
-                  <option value="ONE_TIME">One Time</option>
-                  <option value="MONTHLY">Monthly</option>
-                </select>
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              <div>
-                <label className="block text-sm font-medium mb-1">Monthly Fee ($)</label>
-                <input type="number" name="monthly_fee" value={formData.monthly_fee} onChange={handleChange} className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600" disabled={formData.payment_type !== 'MONTHLY'} />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Payment Status</label>
-                <select name="payment_status" value={formData.payment_status || 'PENDING'} onChange={handleChange} className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600">
-                  <option value="PENDING">Pending</option>
-                  <option value="PARTIAL">Partial</option>
-                  <option value="PAID">Paid</option>
-                  <option value="OVERDUE">Overdue</option>
-                </select>
-              </div>
-            </div>
-            
-            <button type="submit" className="w-full mt-6 bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-lg transition-colors shadow-sm">
-              {editingId ? 'Update Project' : 'Save Project'}
-            </button>
-          </form>
-        </div>
-
-        {/* List Column */}
-        <div className="xl:col-span-2 space-y-4">
-          <div className="flex flex-wrap items-end justify-between gap-2">
-            <div>
-              <h2 className="text-xl font-semibold">Manage Projects</h2>
-              {selected.size > 0 && (
-                <p className="text-xs text-blue-600 dark:text-blue-400 font-bold mt-0.5">
-                  {selected.size} selected
-                </p>
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+          {/* Form Column */}
+          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: 0.05 }}
+            className="xl:col-span-1 bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm h-fit">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-bold font-heading text-gray-900 dark:text-white">
+                {editingId ? 'Edit Project' : 'New Project'}
+              </h2>
+              {editingId && (
+                <button type="button" onClick={() => setEditingId(null)} className="text-sm text-accent font-bold hover:underline">
+                  Cancel
+                </button>
               )}
             </div>
-            {projects.length > 0 && (
-              <label className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 cursor-pointer select-none">
-                <input
-                  type="checkbox"
-                  checked={allOnPageSelected}
-                  onChange={toggleSelectAll}
-                  className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                />
-                {allOnPageSelected ? 'Deselect all' : 'Select all'}
-              </label>
-            )}
-          </div>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label className={labelClass}>Client</label>
+                <select name="client_id" value={formData.client_id} onChange={handleChange} required className={selectClass}>
+                  <option value="">Select a Client</option>
+                  {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className={labelClass}>Project Name</label>
+                <input type="text" name="project_name" value={formData.project_name} onChange={handleChange} required className={inputClass} />
+              </div>
 
-          {/* ── Bulk action toolbar (visible only when something is selected) ── */}
-          {selected.size > 0 && (
-            <div className="sticky top-32 z-20 bg-white dark:bg-gray-800 border border-blue-200 dark:border-blue-800/60 shadow-lg rounded-xl p-3 flex flex-wrap items-center gap-2">
-              <span className="text-xs font-extrabold text-blue-700 dark:text-blue-300 uppercase tracking-wider">
-                Bulk ({selected.size})
-              </span>
-              <div className="flex items-center gap-1.5">
-                <select
-                  value={bulkStatus}
-                  onChange={(e) => setBulkStatus(e.target.value)}
-                  disabled={bulkBusy}
-                  className="text-xs p-1.5 rounded-lg border border-gray-200 dark:border-gray-700 dark:bg-gray-900"
-                >
+              <h3 className="font-bold font-heading pt-4 border-t border-gray-100 dark:border-gray-700 text-gray-900 dark:text-white">Onboarding & Intake</h3>
+              <div>
+                <label className={labelClass}>Require Intake Form</label>
+                <select name="intake_form_id" value={formData.intake_form_id} onChange={handleChange} className={selectClass}>
+                  <option value="">None (Bypass Intake)</option>
+                  {templates.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+                </select>
+              </div>
+              {formData.intake_form_id && (
+                <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 font-body">
+                  <input type="checkbox" name="intake_completed" checked={formData.intake_completed} onChange={handleChange} className="accent-accent" />
+                  Mark Intake as Completed
+                </label>
+              )}
+
+              <h3 className="font-bold font-heading pt-4 border-t border-gray-100 dark:border-gray-700 text-gray-900 dark:text-white">Project Stages</h3>
+              <div className="space-y-2">
+                {formData.stages.map((stage, idx) => (
+                  <div key={idx} className="flex justify-between items-center bg-gray-50 dark:bg-gray-900 p-3 rounded-xl border border-gray-200 dark:border-gray-700">
+                    <span className="text-sm font-medium text-gray-800 dark:text-gray-200">{stage.name}</span>
+                    <select value={stage.status} onChange={(e) => handleStageChange(idx, e.target.value)}
+                      className="text-xs p-1.5 rounded-lg border border-gray-200 dark:border-gray-600 dark:bg-gray-800 font-body">
+                      <option value="PENDING">Pending</option>
+                      <option value="IN_PROGRESS">In Progress</option>
+                      <option value="COMPLETED">Completed</option>
+                    </select>
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex justify-between items-center pt-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Progress: {formData.progress}%</label>
+                <select name="status" value={formData.status} onChange={handleChange} className="p-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm dark:bg-gray-900 font-body font-bold text-accent">
+                  <option value="ONBOARDING">Intake / Onboarding</option>
+                  <option value="PLANNING">Planning & Scope</option>
+                  <option value="DESIGN">Design & Figma</option>
+                  <option value="DEVELOPMENT">Development</option>
+                  <option value="REVIEW">Client Review</option>
+                  <option value="LAUNCHED">LAUNCHED (Offboarding)</option>
+                  <option value="MAINTENANCE">Maintenance</option>
+                  <option value="ARCHIVED">Archived (Read-Only)</option>
+                </select>
+              </div>
+
+              {(formData.status === 'LAUNCHED' || formData.status === 'MAINTENANCE') && (
+                <>
+                  <h3 className="font-bold font-heading pt-4 border-t border-gray-100 dark:border-gray-700 text-accent">Launch & Handoff Vault</h3>
+                  <div className="bg-accent/5 dark:bg-accent/10 p-4 rounded-xl border border-accent/20 dark:border-accent/30 space-y-3">
+                    <h4 className="text-sm font-bold text-accent">Offboarding Checklist</h4>
+                    {[
+                      { key: 'final_payment', label: 'Final invoice sent and paid' },
+                      { key: 'credentials_documented', label: 'All credentials documented in vault' },
+                      { key: 'assets_delivered', label: 'Domain transferred / DNS documented' },
+                      { key: 'client_feedback', label: 'Client feedback collected' },
+                    ].map(({ key, label }) => (
+                      <label key={key} className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 font-body">
+                        <input type="checkbox" className="accent-accent rounded"
+                          checked={!!(formData.offboarding_status || DEFAULT_OFFBOARDING)[key]}
+                          onChange={() => handleOffboardingToggle(key)} />
+                        {label}
+                      </label>
+                    ))}
+                  </div>
+                  <div>
+                    <label className={labelClass}>Final Assets URL (Zip/Drive)</label>
+                    <input type="url" name="assets_url" value={formData.assets_url} onChange={handleChange} placeholder="https://drive.google.com/..." className={inputClass} />
+                  </div>
+                  <div>
+                    <label className={labelClass}>Video Training URL (Loom)</label>
+                    <input type="url" name="training_video_url" value={formData.training_video_url} onChange={handleChange} placeholder="https://www.loom.com/..." className={inputClass} />
+                  </div>
+                  <div>
+                    <label className={labelClass}>Maintenance Paystack Link (Upsell)</label>
+                    <input type="url" name="maintenance_plan_url" value={formData.maintenance_plan_url} onChange={handleChange} placeholder="https://paystack.com/pay/..." className={inputClass} />
+                  </div>
+                </>
+              )}
+
+              <h3 className="font-bold font-heading pt-4 border-t border-gray-100 dark:border-gray-700 text-gray-900 dark:text-white">Domain & Billing</h3>
+              <div>
+                <label className={labelClass}>Live Domain Name</label>
+                <input type="text" name="domain_name" value={formData.domain_name} onChange={handleChange} className={inputClass} placeholder="e.g. client.com" />
+              </div>
+              <div>
+                <label className={labelClass}>Domain Expiration</label>
+                <input type="date" name="domain_expiration" value={formData.domain_expiration} onChange={handleChange} className={inputClass} />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className={labelClass}>Amount Due (₦)</label>
+                  <input type="number" name="amount_due" value={formData.amount_due} onChange={handleChange} className={inputClass} />
+                </div>
+                <div>
+                  <label className={labelClass}>Payment Type</label>
+                  <select name="payment_type" value={formData.payment_type} onChange={handleChange} className={selectClass}>
+                    <option value="ONE_TIME">One Time</option>
+                    <option value="MONTHLY">Monthly</option>
+                  </select>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className={labelClass}>Monthly Fee (₦)</label>
+                  <input type="number" name="monthly_fee" value={formData.monthly_fee} onChange={handleChange} disabled={formData.payment_type !== 'MONTHLY'} className={inputClass} />
+                </div>
+                <div>
+                  <label className={labelClass}>Payment Status</label>
+                  <select name="payment_status" value={formData.payment_status || 'PENDING'} onChange={handleChange} className={selectClass}>
+                    <option value="PENDING">Pending</option>
+                    <option value="PARTIAL">Partial</option>
+                    <option value="PAID">Paid</option>
+                    <option value="OVERDUE">Overdue</option>
+                  </select>
+                </div>
+              </div>
+
+              <button type="submit" className="w-full mt-6 bg-accent hover:bg-orange-600 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg hover:shadow-accent/30 font-body">
+                {editingId ? 'Update Project' : 'Save Project'}
+              </button>
+            </form>
+          </motion.div>
+
+          {/* List Column */}
+          <div className="xl:col-span-2 space-y-4">
+            <div className="flex flex-wrap items-end justify-between gap-2">
+              <div>
+                <h2 className="text-xl font-bold font-heading text-gray-900 dark:text-white">Manage Projects</h2>
+                {selected.size > 0 && (
+                  <p className="text-xs text-accent font-bold mt-0.5">{selected.size} selected</p>
+                )}
+              </div>
+              {projects.length > 0 && (
+                <label className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 cursor-pointer select-none font-body">
+                  <input type="checkbox" checked={allOnPageSelected} onChange={toggleSelectAll} className="accent-accent rounded" />
+                  {allOnPageSelected ? 'Deselect all' : 'Select all'}
+                </label>
+              )}
+            </div>
+
+            {selected.size > 0 && (
+              <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
+                className="sticky top-32 z-20 bg-white dark:bg-gray-800 border border-accent/30 dark:border-accent/40 shadow-lg rounded-2xl p-4 flex flex-wrap items-center gap-2">
+                <span className="text-xs font-extrabold text-accent uppercase tracking-wider font-body">
+                  Bulk ({selected.size})
+                </span>
+                <select value={bulkStatus} onChange={(e) => setBulkStatus(e.target.value)} disabled={bulkBusy}
+                  className="text-xs p-2 rounded-lg border border-gray-200 dark:border-gray-700 dark:bg-gray-900 font-body">
                   <option value="">Set status…</option>
                   {['ONBOARDING', 'PLANNING', 'DESIGN', 'DEVELOPMENT', 'REVIEW', 'LAUNCHED', 'MAINTENANCE', 'ARCHIVED'].map((s) => (
                     <option key={s} value={s}>{s}</option>
                   ))}
                 </select>
-                <button
-                  type="button"
-                  onClick={applyBulkStatus}
-                  disabled={bulkBusy || !bulkStatus}
-                  className="cursor-pointer text-xs font-bold bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white px-2.5 py-1.5 rounded-lg transition-colors"
-                >
+                <button type="button" onClick={applyBulkStatus} disabled={bulkBusy || !bulkStatus}
+                  className="cursor-pointer text-xs font-bold bg-accent hover:bg-orange-600 disabled:opacity-50 text-white px-3 py-2 rounded-lg transition-colors">
                   Apply
                 </button>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <select
-                  value={bulkClientId}
-                  onChange={(e) => setBulkClientId(e.target.value)}
-                  disabled={bulkBusy}
-                  className="text-xs p-1.5 rounded-lg border border-gray-200 dark:border-gray-700 dark:bg-gray-900"
-                >
+                <select value={bulkClientId} onChange={(e) => setBulkClientId(e.target.value)} disabled={bulkBusy}
+                  className="text-xs p-2 rounded-lg border border-gray-200 dark:border-gray-700 dark:bg-gray-900 font-body">
                   <option value="">Assign client…</option>
-                  {clients.map((c) => (
-                    <option key={c.id} value={c.id}>{c.name}</option>
-                  ))}
+                  {clients.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
                 </select>
-                <button
-                  type="button"
-                  onClick={applyBulkClient}
-                  disabled={bulkBusy || !bulkClientId}
-                  className="cursor-pointer text-xs font-bold bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white px-2.5 py-1.5 rounded-lg transition-colors"
-                >
+                <button type="button" onClick={applyBulkClient} disabled={bulkBusy || !bulkClientId}
+                  className="cursor-pointer text-xs font-bold bg-accent hover:bg-orange-600 disabled:opacity-50 text-white px-3 py-2 rounded-lg transition-colors">
                   Assign
                 </button>
+                <button type="button" onClick={archiveSelected} disabled={bulkBusy}
+                  className="cursor-pointer text-xs font-bold bg-amber-100 hover:bg-amber-200 dark:bg-amber-900/30 dark:hover:bg-amber-900/50 text-amber-800 dark:text-amber-300 px-3 py-2 rounded-lg transition-colors">
+                  Archive
+                </button>
+                <button type="button" onClick={clearSelection} disabled={bulkBusy}
+                  className="cursor-pointer text-xs font-bold text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 px-3 py-2 rounded-lg transition-colors ml-auto">
+                  Clear
+                </button>
+              </motion.div>
+            )}
+
+            {projects.length === 0 ? (
+              <div className="text-center py-16 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700">
+                <p className="text-gray-400 font-body">No client projects found.</p>
               </div>
-              <button
-                type="button"
-                onClick={archiveSelected}
-                disabled={bulkBusy}
-                className="cursor-pointer text-xs font-bold bg-amber-100 hover:bg-amber-200 dark:bg-amber-900/30 dark:hover:bg-amber-900/50 text-amber-800 dark:text-amber-300 px-2.5 py-1.5 rounded-lg transition-colors"
-              >
-                Archive
-              </button>
-              <button
-                type="button"
-                onClick={clearSelection}
-                disabled={bulkBusy}
-                className="cursor-pointer text-xs font-bold text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 px-2.5 py-1.5 rounded-lg transition-colors ml-auto"
-              >
-                Clear
-              </button>
-            </div>
-          )}
-
-          {projects.length === 0 ? (
-            <p className="text-gray-500">No client projects found.</p>
-          ) : (
-            projects.map(p => {
-              const isOverdue = p.domain_expiration && new Date(p.domain_expiration) < new Date();
-              const isSelected = selected.has(p.id);
-              return (
-                <div
-                  key={p.id}
-                  className={`bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border transition-colors ${isSelected ? 'border-blue-500 ring-2 ring-blue-500/20' : 'border-gray-100 dark:border-gray-700'}`}
-                >
-                  <div className="flex justify-between items-start mb-4">
-                    <div className="flex items-start gap-3 min-w-0 flex-1">
-                      <input
-                        type="checkbox"
-                        checked={isSelected}
-                        onChange={() => toggleSelected(p.id)}
-                        className="mt-1 w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
-                        aria-label={`Select ${p.project_name}`}
-                      />
-                      <div className="min-w-0">
-                        <h3 className="text-lg font-bold flex items-center gap-2 flex-wrap">
-                          {p.project_name}
-                          {p.payment_type === 'MONTHLY' && <span className="bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded-full">Monthly</span>}
-                          {p.status === 'LAUNCHED' && <span className="bg-purple-100 text-purple-800 text-xs px-2 py-0.5 rounded-full">Launched</span>}
-                        </h3>
-                        <p className="text-sm text-gray-500">{p.client_name}</p>
+            ) : (
+              projects.map((p, i) => {
+                const isOverdue = p.domain_expiration && new Date(p.domain_expiration) < new Date();
+                const isSelected = selected.has(p.id);
+                return (
+                  <motion.div key={p.id}
+                    initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.2, delay: i * 0.03 }}
+                    className={`bg-white dark:bg-gray-800 p-5 rounded-2xl border shadow-sm transition-all ${isSelected ? 'border-accent ring-2 ring-accent/20' : 'border-gray-100 dark:border-gray-700 hover:border-accent/40'}`}>
+                    <div className="flex justify-between items-start mb-3">
+                      <div className="flex items-start gap-3 min-w-0 flex-1">
+                        <input type="checkbox" checked={isSelected} onChange={() => toggleSelected(p.id)}
+                          className="mt-1 w-4 h-4 rounded accent-accent cursor-pointer" />
+                        <div className="min-w-0">
+                          <h3 className="text-lg font-bold font-heading text-gray-900 dark:text-white flex items-center gap-2 flex-wrap">
+                            {p.project_name}
+                            {p.payment_type === 'MONTHLY' && <span className="bg-emerald-100 text-emerald-800 text-[10px] px-2 py-0.5 rounded-full font-bold">Monthly</span>}
+                            {p.status === 'LAUNCHED' && <span className="bg-purple-100 text-purple-800 text-[10px] px-2 py-0.5 rounded-full font-bold">Launched</span>}
+                          </h3>
+                          <p className="text-sm text-gray-500 dark:text-gray-400 font-body">{p.client_name}</p>
+                        </div>
+                      </div>
+                      <div className="flex gap-2 flex-shrink-0">
+                        <button onClick={() => editProject(p)} className="text-accent hover:text-orange-600 text-sm font-bold">Edit</button>
+                        <button onClick={() => deleteProject(p.id)} className="text-red-500 hover:text-red-700 text-sm font-bold">Delete</button>
                       </div>
                     </div>
-                    <div className="space-x-3 flex-shrink-0">
-                      <button onClick={() => editProject(p)} className="text-blue-500 hover:text-blue-700 text-sm font-medium">Edit</button>
-                      <button onClick={() => deleteProject(p.id)} className="text-red-500 hover:text-red-700 text-sm font-medium">Delete</button>
-                    </div>
-                  </div>
-                  
-                  <div className="mb-4">
-                    <div className="flex justify-between text-sm mb-1">
-                      <span className="font-semibold">{p.status}</span>
-                      <span>{p.progress}%</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
-                      <div className={`h-2.5 rounded-full ${p.status === 'LAUNCHED' ? 'bg-purple-600' : 'bg-blue-600'}`} style={{ width: `${p.progress}%` }}></div>
-                    </div>
-                  </div>
 
-                  <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded text-sm mb-4 border border-blue-100 dark:border-blue-800">
-                    <p className="font-medium text-blue-900 dark:text-blue-100 mb-1">Client Magic Link:</p>
-                    <a href={`/track/${p.tracking_id}`} target="_blank" rel="noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline break-all">
-                      {window.location.origin}/track/{p.tracking_id}
-                    </a>
-                  </div>
-
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                    {p.domain_name && (
-                      <div className="bg-gray-50 dark:bg-gray-900 p-2 rounded">
-                        <span className="block text-gray-500 text-xs uppercase">Domain</span>
-                        <span className="font-medium truncate block" title={p.domain_name}>{p.domain_name}</span>
+                    <div className="mb-3">
+                      <div className="flex justify-between text-sm mb-1 font-body">
+                        <span className="font-bold text-gray-700 dark:text-gray-300">{p.status}</span>
+                        <span className="font-bold text-gray-600 dark:text-gray-400">{p.progress}%</span>
                       </div>
-                    )}
-                    {p.domain_expiration && (
-                      <div className={`p-2 rounded ${isOverdue ? 'bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400' : 'bg-gray-50 dark:bg-gray-900'}`}>
-                        <span className="block text-gray-500 text-xs uppercase">Expires</span>
-                        <span className="font-medium">{new Date(p.domain_expiration).toLocaleDateString()}</span>
+                      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                        <div className={`h-2 rounded-full transition-all ${p.status === 'LAUNCHED' ? 'bg-purple-500' : 'bg-accent'}`}
+                          style={{ width: `${p.progress}%` }} />
                       </div>
-                    )}
-                    <div className="bg-gray-50 dark:bg-gray-900 p-2 rounded">
-                      <span className="block text-gray-500 text-xs uppercase">Amount Due</span>
-                      <span className="font-medium font-mono text-red-600 dark:text-red-400">${Number(p.amount_due || 0).toFixed(2)}</span>
                     </div>
-                    {p.intake_form_id && (
-                       <div className={`p-2 rounded ${p.intake_completed ? 'bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'}`}>
-                       <span className="block text-xs uppercase">Intake Form</span>
-                       <span className="font-medium">{p.intake_completed ? 'Completed' : 'Pending'}</span>
-                     </div>
-                    )}
-                  </div>
-                </div>
-              );
-            })
-          )}
+
+                    <div className="bg-accent/5 dark:bg-accent/10 p-3 rounded-xl text-sm mb-3 border border-accent/20">
+                      <p className="font-bold text-accent text-[10px] uppercase tracking-wider mb-1">Client Magic Link:</p>
+                      <a href={`/track/${p.tracking_id}`} target="_blank" rel="noreferrer"
+                        className="text-accent hover:underline break-all font-mono text-xs">
+                        {window.location.origin}/track/{p.tracking_id}
+                      </a>
+                    </div>
+
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+                      {p.domain_name && (
+                        <div className="bg-gray-50 dark:bg-gray-900 p-3 rounded-xl">
+                          <span className="block text-gray-500 text-[10px] uppercase tracking-wider font-bold mb-1">Domain</span>
+                          <span className="font-medium text-gray-900 dark:text-white truncate block font-body" title={p.domain_name}>{p.domain_name}</span>
+                        </div>
+                      )}
+                      {p.domain_expiration && (
+                        <div className={`p-3 rounded-xl ${isOverdue ? 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400' : 'bg-gray-50 dark:bg-gray-900'}`}>
+                          <span className="block text-[10px] uppercase tracking-wider font-bold mb-1">Expires</span>
+                          <span className="font-medium font-body">{new Date(p.domain_expiration).toLocaleDateString()}</span>
+                        </div>
+                      )}
+                      <div className="bg-gray-50 dark:bg-gray-900 p-3 rounded-xl">
+                        <span className="block text-[10px] uppercase tracking-wider font-bold mb-1">Amount Due</span>
+                        <span className="font-bold font-mono text-red-600 dark:text-red-400">₦{Number(p.amount_due || 0).toLocaleString()}</span>
+                      </div>
+                      {p.intake_form_id && (
+                        <div className={`p-3 rounded-xl ${p.intake_completed ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'}`}>
+                          <span className="block text-[10px] uppercase tracking-wider font-bold mb-1">Intake Form</span>
+                          <span className="font-bold font-body">{p.intake_completed ? 'Completed' : 'Pending'}</span>
+                        </div>
+                      )}
+                    </div>
+                  </motion.div>
+                );
+              })
+            )}
+          </div>
         </div>
       </div>
     </div>

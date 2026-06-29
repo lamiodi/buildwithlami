@@ -16,17 +16,17 @@ const AdminSubNav = () => {
 
     return (
         <div className="sticky top-20 z-30 bg-gray-50/90 dark:bg-background/90 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 -mx-6 px-6 py-3 mb-8">
-            <nav className="flex flex-wrap gap-1 max-w-7xl mx-auto">
+            <nav className="flex flex-wrap gap-2 max-w-7xl mx-auto">
                 {tabs.map(tab => (
                     <NavLink
                         key={tab.to}
                         to={tab.to}
                         end={tab.end}
                         className={({ isActive }) =>
-                            `px-4 py-2 text-sm font-bold rounded-xl transition-all ${
+                            `px-5 py-2.5 text-sm font-bold rounded-xl transition-all font-body ${
                                 isActive
-                                    ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20'
-                                    : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+                                    ? 'bg-accent text-white shadow-md shadow-accent/20'
+                                    : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-accent'
                             }`
                         }
                     >

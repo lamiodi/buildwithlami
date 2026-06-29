@@ -12,7 +12,6 @@ const LoginPage = () => {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 
-  // If already authenticated, bounce to admin or to the page they came from.
   useEffect(() => {
     if (getAuthToken()) {
       const from = location.state?.from || '/admin';
@@ -45,24 +44,18 @@ const LoginPage = () => {
         className="w-full max-w-md bg-white dark:bg-gray-800 p-8 md:p-10 rounded-3xl shadow-xl border border-gray-100 dark:border-gray-700"
       >
         <div className="text-center mb-8">
-          <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white flex items-center justify-center font-bold text-xl shadow-lg shadow-blue-500/30">
+          <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-accent to-orange-600 text-white flex items-center justify-center font-bold text-xl font-heading shadow-lg shadow-accent/30">
             Ob
           </div>
-          <h1 className="text-2xl font-extrabold text-gray-900 dark:text-white">Admin Sign In</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+          <h1 className="text-2xl font-extrabold font-heading text-gray-900 dark:text-white">Admin Sign In</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-2 font-body">
             Sign in to access the agency dashboard.
           </p>
         </div>
 
-        <div className="mb-6 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/40 text-amber-800 dark:text-amber-200 text-xs p-3 rounded-xl">
-          <strong>🧪 DEV-MOCK MODE</strong> &middot; The real backend database is unreachable, so this
-          instance is hitting an in-memory mock on <code className="font-mono">localhost:4001</code>.
-          Use <em>any</em> email + any 6+ character password.
-        </div>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
+            <label className="block text-[10px] font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2 font-body">
               Email
             </label>
             <input
@@ -72,12 +65,12 @@ const LoginPage = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="admin@example.com"
-              className="w-full p-3 text-sm border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full p-3 text-sm border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900 outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-colors font-body"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
+            <label className="block text-[10px] font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2 font-body">
               Password
             </label>
             <input
@@ -87,12 +80,12 @@ const LoginPage = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
-              className="w-full p-3 text-sm border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full p-3 text-sm border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900 outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-colors font-body"
             />
           </div>
 
           {error && (
-            <div className="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm p-3 rounded-xl border border-red-100 dark:border-red-800">
+            <div className="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm p-3 rounded-xl border border-red-100 dark:border-red-800 font-body">
               {error}
             </div>
           )}
@@ -100,14 +93,14 @@ const LoginPage = () => {
           <button
             type="submit"
             disabled={submitting}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition-all shadow-lg hover:shadow-blue-500/30 disabled:opacity-50"
+            className="w-full bg-accent hover:bg-orange-600 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg hover:shadow-accent/30 disabled:opacity-50 font-body"
           >
             {submitting ? 'Signing in…' : 'Sign In'}
           </button>
         </form>
 
         <div className="mt-6 text-center text-xs text-gray-400">
-          <Link to="/" className="hover:text-blue-500">
+          <Link to="/" className="hover:text-accent transition-colors font-body">
             ← Back to homepage
           </Link>
         </div>

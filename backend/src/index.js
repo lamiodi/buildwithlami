@@ -22,6 +22,7 @@ import templateRoutes from './routes/templateRoutes.js';
 import feedbackRoutes from './routes/feedbackRoutes.js';
 import invoiceRoutes from './routes/invoiceRoutes.js';
 import uptimeRoutes from './routes/uptimeRoutes.js';
+import dashboardRoutes from './routes/dashboardRoutes.js';
 import pool from './config/db.js';
 import { startCronJobs } from './services/cronService.js';
 
@@ -44,8 +45,15 @@ const contactLimiter = rateLimit({
 
 // ── Global middleware ────────────────────────────────────
 app.use(helmet());
+const allowedOrigins = [
+    process.env.FRONTEND_URL,
+    'https://buildwithlami.vercel.app',
+    'https://buildwithlami.onrender.com',
+    'http://localhost:3000',
+].filter(Boolean);
+
 app.use(cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    origin: allowedOrigins,
     credentials: true,
 }));
 app.use(express.json({ limit: '100kb' }));
@@ -57,6 +65,9 @@ app.get('/api/health', (_req, res) => {
 
 // ── Uptime routes (/ping and /health with DB check) ──────
 app.use('/', uptimeRoutes);
+
+// ── Dashboard (admin overview) ───────────────────────────
+app.use('/api/dashboard', dashboardRoutes);
 
 // ── API routes ───────────────────────────────────────────
 app.use('/api/auth', authLimiter, authRoutes);

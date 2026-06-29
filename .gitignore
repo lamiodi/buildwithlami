@@ -15,3 +15,5 @@ backend/.dev-mock/
 .vscode/*
 !.vscode/extensions.json
 .idea/
+frontend/.env
+frontend/.env

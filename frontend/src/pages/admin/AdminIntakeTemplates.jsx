@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { api } from '../../services/api';
 import { notify } from '../../services/notify';
 import AdminSubNav from '../../components/AdminSubNav';
@@ -82,59 +83,29 @@ const AdminIntakeTemplates = () => {
     if (res.ok && res.data) setTemplates(res.data);
   };
 
-  useEffect(() => {
-    fetchTemplates();
-  }, []);
+  useEffect(() => { fetchTemplates(); }, []);
 
   const loadPreset = (preset) => {
-    setFormData({
-      name: preset.name,
-      description: preset.description,
-      // Deep copy to prevent mutating the presets
-      schema: JSON.parse(JSON.stringify(preset.schema))
-    });
+    setFormData({ name: preset.name, description: preset.description, schema: JSON.parse(JSON.stringify(preset.schema)) });
   };
 
   const addField = (type) => {
-    const newField = { 
-      id: Date.now().toString(), 
-      type, 
-      label: '', 
-      required: false 
-    };
-    
-    // Add default options for choice-based fields
-    if (type === 'select' || type === 'checkbox') {
-      newField.options = ['Option 1', 'Option 2'];
-    }
-
-    setFormData(prev => ({
-      ...prev,
-      schema: [...prev.schema, newField]
-    }));
+    const newField = { id: Date.now().toString(), type, label: '', required: false };
+    if (type === 'select' || type === 'checkbox') newField.options = ['Option 1', 'Option 2'];
+    setFormData(prev => ({ ...prev, schema: [...prev.schema, newField] }));
   };
 
   const updateField = (id, key, value) => {
-    setFormData(prev => ({
-      ...prev,
-      schema: prev.schema.map(f => f.id === id ? { ...f, [key]: value } : f)
-    }));
+    setFormData(prev => ({ ...prev, schema: prev.schema.map(f => f.id === id ? { ...f, [key] } : f) }));
   };
 
   const removeField = (id) => {
-    setFormData(prev => ({
-      ...prev,
-      schema: prev.schema.filter(f => f.id !== id)
-    }));
+    setFormData(prev => ({ ...prev, schema: prev.schema.filter(f => f.id !== id) }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (formData.schema.length === 0) {
-      notify.error('Add at least one field');
-      return;
-    }
-
+    if (formData.schema.length === 0) { notify.error('Add at least one field'); return; }
     setSubmitting(true);
     const res = await api.post('/templates', formData);
     if (res.ok) {
@@ -147,197 +118,145 @@ const AdminIntakeTemplates = () => {
     setSubmitting(false);
   };
 
+  const inputClass = "w-full p-3 text-sm border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900 outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-colors font-body";
+
   return (
-    <div className="max-w-7xl mx-auto p-6 pt-24 min-h-screen">
-      <AdminSubNav />
-      <div className="flex justify-between items-end mb-8">
-        <div>
-          <h1 className="text-3xl font-bold">Admin: Intake Templates</h1>
-          <p className="text-gray-500 mt-2">Build dynamic forms for client onboarding.</p>
-        </div>
-      </div>
-      
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        
-        {/* BUILDER PANEL */}
-        <div className="bg-white dark:bg-gray-800 p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-bold">Create New Template</h2>
-            
-            <div className="flex flex-wrap gap-2 justify-end">
-              <button 
-                onClick={() => loadPreset(ECOMMERCE_PRESET)}
-                className="text-xs bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 px-3 py-1.5 rounded-lg hover:bg-purple-200 font-semibold transition-colors"
-              >
-                E-Commerce
-              </button>
-              <button 
-                onClick={() => loadPreset(ERP_PRESET)}
-                className="text-xs bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-300 px-3 py-1.5 rounded-lg hover:bg-cyan-200 font-semibold transition-colors"
-              >
-                ERP
-              </button>
-              <button 
-                onClick={() => loadPreset(PORTFOLIO_PRESET)}
-                className="text-xs bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-300 px-3 py-1.5 rounded-lg hover:bg-pink-200 font-semibold transition-colors"
-              >
-                Portfolio
-              </button>
-              <button 
-                onClick={() => loadPreset(SAAS_PRESET)}
-                className="text-xs bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300 px-3 py-1.5 rounded-lg hover:bg-indigo-200 font-semibold transition-colors"
-              >
-                SaaS
-              </button>
-              <button 
-                onClick={() => loadPreset(LOCAL_BUSINESS_PRESET)}
-                className="text-xs bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300 px-3 py-1.5 rounded-lg hover:bg-emerald-200 font-semibold transition-colors"
-              >
-                Local Biz
-              </button>
+    <div className="min-h-screen bg-gray-50 dark:bg-background pt-24 pb-12 px-6">
+      <div className="max-w-7xl mx-auto">
+        <AdminSubNav />
+
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h1 className="text-4xl font-extrabold font-heading bg-gradient-to-r from-accent to-orange-500 bg-clip-text text-transparent">
+                Intake Templates
+              </h1>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 font-body">Build dynamic forms for client onboarding.</p>
             </div>
           </div>
-          
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <div>
-              <label className="block text-sm font-semibold mb-1 text-gray-700 dark:text-gray-300">Template Name</label>
-              <input 
-                type="text" 
-                value={formData.name} 
-                onChange={e => setFormData({...formData, name: e.target.value})} 
-                required 
-                placeholder="e.g. Standard Website Intake"
-                className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none dark:bg-gray-700 dark:border-gray-600 bg-gray-50 dark:bg-gray-900" 
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-semibold mb-1 text-gray-700 dark:text-gray-300">Description (Optional)</label>
-              <textarea 
-                value={formData.description} 
-                onChange={e => setFormData({...formData, description: e.target.value})} 
-                placeholder="Instructions for the client..."
-                rows={2}
-                className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none dark:bg-gray-700 dark:border-gray-600 bg-gray-50 dark:bg-gray-900" 
-              />
-            </div>
+        </motion.div>
 
-            <div className="border-t border-gray-100 dark:border-gray-700 pt-6">
-              <h3 className="font-semibold mb-4 text-gray-800 dark:text-gray-200">Form Fields ({formData.schema.length})</h3>
-              
-              <div className="space-y-3 mb-6 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
-                {formData.schema.map((field, idx) => (
-                  <div key={field.id} className="p-4 bg-gray-50 dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700">
-                    <div className="flex justify-between items-center mb-3">
-                      <span className="text-xs font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">
-                        {idx + 1}. {field.type} Field
-                      </span>
-                      <button type="button" onClick={() => removeField(field.id)} className="text-red-500 hover:text-red-700 text-xs font-bold bg-red-50 dark:bg-red-900/20 px-2 py-1 rounded">
-                        Remove
-                      </button>
-                    </div>
-                    
-                    <div className="space-y-3">
-                      <input 
-                        type="text" 
-                        placeholder="Question / Label (e.g. What is your company name?)" 
-                        value={field.label} 
-                        onChange={e => updateField(field.id, 'label', e.target.value)}
-                        required
-                        className="w-full p-2.5 border border-gray-200 rounded-lg text-sm outline-none focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600"
-                      />
-                      
-                      {(field.type === 'select' || field.type === 'checkbox') && (
-                        <div>
-                          <label className="text-xs text-gray-500 font-semibold mb-1 block">Options (Comma separated)</label>
-                          <input 
-                            type="text" 
-                            placeholder="e.g. Option 1, Option 2, Option 3" 
-                            value={(field.options || []).join(', ')} 
-                            onChange={e => updateField(field.id, 'options', e.target.value.split(',').map(s => s.trim()).filter(Boolean))}
-                            className="w-full p-2.5 border border-gray-200 rounded-lg text-sm outline-none focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600"
-                          />
-                        </div>
-                      )}
-
-                      <label className="flex items-center text-sm gap-2 font-medium text-gray-700 dark:text-gray-300">
-                        <input 
-                          type="checkbox" 
-                          checked={field.required} 
-                          onChange={e => updateField(field.id, 'required', e.target.checked)} 
-                          className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
-                        />
-                        Required Field
-                      </label>
-                    </div>
-                  </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* BUILDER PANEL */}
+          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: 0.05 }}
+            className="bg-white dark:bg-gray-800 p-6 md:p-8 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-bold font-heading text-gray-900 dark:text-white">Create New Template</h2>
+              <div className="flex flex-wrap gap-2 justify-end">
+                {[
+                  { preset: ECOMMERCE_PRESET, label: 'E-Commerce', color: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300' },
+                  { preset: ERP_PRESET, label: 'ERP', color: 'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-300' },
+                  { preset: PORTFOLIO_PRESET, label: 'Portfolio', color: 'bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-300' },
+                  { preset: SAAS_PRESET, label: 'SaaS', color: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300' },
+                  { preset: LOCAL_BUSINESS_PRESET, label: 'Local Biz', color: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300' },
+                ].map(({ preset, label, color }) => (
+                  <button key={label} onClick={() => loadPreset(preset)}
+                    className={`text-xs px-3 py-1.5 rounded-lg font-bold transition-colors ${color} hover:opacity-80`}>
+                    {label}
+                  </button>
                 ))}
-                
-                {formData.schema.length === 0 && (
-                  <div className="text-center p-8 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl text-gray-400">
-                    No fields added yet. Click below to add your first field.
-                  </div>
-                )}
-              </div>
-
-              <div className="flex flex-wrap gap-2">
-                <button type="button" onClick={() => addField('text')} className="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">+ Short Text</button>
-                <button type="button" onClick={() => addField('textarea')} className="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">+ Long Text</button>
-                <button type="button" onClick={() => addField('email')} className="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">+ Email</button>
-                <button type="button" onClick={() => addField('select')} className="px-4 py-2 bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 text-sm font-semibold rounded-lg hover:bg-blue-100 transition-colors">+ Dropdown</button>
-                <button type="button" onClick={() => addField('checkbox')} className="px-4 py-2 bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 text-sm font-semibold rounded-lg hover:bg-blue-100 transition-colors">+ Checkboxes</button>
               </div>
             </div>
 
-            <button 
-              type="submit" 
-              disabled={submitting || formData.schema.length === 0}
-              className="w-full mt-6 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg hover:shadow-blue-500/30 disabled:opacity-50 disabled:shadow-none"
-            >
-              {submitting ? 'Saving Template...' : 'Save Intake Template'}
-            </button>
-          </form>
-        </div>
-
-        {/* PREVIEW PANEL */}
-        <div className="space-y-4">
-          <h2 className="text-xl font-bold mb-4">Saved Templates</h2>
-          
-          <div className="grid gap-4">
-            {templates.length === 0 ? (
-              <div className="bg-white dark:bg-gray-800 p-8 rounded-2xl text-center text-gray-500 border border-gray-100 dark:border-gray-700 shadow-sm">
-                <svg className="w-12 h-12 mx-auto mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                No templates saved yet.
+            <form onSubmit={handleSubmit} className="space-y-5">
+              <div>
+                <label className="block text-[10px] font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2">Template Name</label>
+                <input type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} required placeholder="e.g. Standard Website Intake" className={inputClass} />
               </div>
-            ) : (
-              templates.map(t => (
-                <div key={t.id} className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 group hover:border-blue-200 transition-colors">
-                  <div className="flex justify-between items-start mb-2">
-                    <h3 className="text-lg font-bold group-hover:text-blue-600 transition-colors">{t.name}</h3>
-                  </div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-4 line-clamp-2">{t.description}</p>
-                  
-                  <div className="flex items-center justify-between border-t border-gray-100 dark:border-gray-700 pt-4 mt-2">
-                    <div className="flex items-center gap-2 text-sm font-semibold text-gray-600 dark:text-gray-300">
-                      <span className="bg-gray-100 dark:bg-gray-700 px-2.5 py-1 rounded-md">
+              <div>
+                <label className="block text-[10px] font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2">Description (Optional)</label>
+                <textarea value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} placeholder="Instructions for the client..." rows={2} className={inputClass} />
+              </div>
+
+              <div className="border-t border-gray-100 dark:border-gray-700 pt-6">
+                <h3 className="font-bold font-heading mb-4 text-gray-800 dark:text-gray-200">Form Fields ({formData.schema.length})</h3>
+                <div className="space-y-3 mb-6 max-h-[500px] overflow-y-auto pr-2">
+                  {formData.schema.map((field, idx) => (
+                    <div key={field.id} className="p-4 bg-gray-50 dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700">
+                      <div className="flex justify-between items-center mb-3">
+                        <span className="text-[10px] font-extrabold uppercase tracking-wider text-accent">
+                          {idx + 1}. {field.type} Field
+                        </span>
+                        <button type="button" onClick={() => removeField(field.id)} className="text-red-500 hover:text-red-700 text-xs font-bold bg-red-50 dark:bg-red-900/20 px-2 py-1 rounded-lg">
+                          Remove
+                        </button>
+                      </div>
+                      <div className="space-y-3">
+                        <input type="text" placeholder="Question / Label" value={field.label} onChange={e => updateField(field.id, 'label', e.target.value)} required className={inputClass} />
+                        {(field.type === 'select' || field.type === 'checkbox') && (
+                          <div>
+                            <label className="text-[10px] text-gray-500 font-bold mb-1 block">Options (Comma separated)</label>
+                            <input type="text" placeholder="Option 1, Option 2, Option 3" value={(field.options || []).join(', ')}
+                              onChange={e => updateField(field.id, 'options', e.target.value.split(',').map(s => s.trim()).filter(Boolean))} className={inputClass} />
+                          </div>
+                        )}
+                        <label className="flex items-center text-sm gap-2 font-medium text-gray-700 dark:text-gray-300">
+                          <input type="checkbox" checked={field.required} onChange={e => updateField(field.id, 'required', e.target.checked)} className="accent-accent rounded" />
+                          <span className="font-body">Required Field</span>
+                        </label>
+                      </div>
+                    </div>
+                  ))}
+                  {formData.schema.length === 0 && (
+                    <div className="text-center py-10 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl text-gray-400 font-body">
+                      No fields added yet. Click below to add your first field.
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    { type: 'text', label: '+ Short Text', color: 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300' },
+                    { type: 'textarea', label: '+ Long Text', color: 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300' },
+                    { type: 'email', label: '+ Email', color: 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300' },
+                    { type: 'select', label: '+ Dropdown', color: 'bg-accent/10 text-accent' },
+                    { type: 'checkbox', label: '+ Checkboxes', color: 'bg-accent/10 text-accent' },
+                  ].map(({ type, label, color }) => (
+                    <button key={type} type="button" onClick={() => addField(type)}
+                      className={`px-4 py-2 text-sm font-bold rounded-xl transition-colors ${color} hover:opacity-80`}>
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <button type="submit" disabled={submitting || formData.schema.length === 0}
+                className="w-full mt-6 bg-accent hover:bg-orange-600 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg hover:shadow-accent/30 disabled:opacity-50 disabled:cursor-not-allowed font-body">
+                {submitting ? 'Saving Template...' : 'Save Intake Template'}
+              </button>
+            </form>
+          </motion.div>
+
+          {/* PREVIEW PANEL */}
+          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: 0.1 }}
+            className="space-y-4">
+            <h2 className="text-xl font-bold font-heading text-gray-900 dark:text-white">Saved Templates</h2>
+            <div className="grid gap-4">
+              {templates.length === 0 ? (
+                <div className="bg-white dark:bg-gray-800 p-12 rounded-2xl text-center text-gray-400 border border-gray-100 dark:border-gray-700 shadow-sm">
+                  <p className="font-body">No templates saved yet.</p>
+                </div>
+              ) : (
+                templates.map(t => (
+                  <div key={t.id} className="bg-white dark:bg-gray-800 p-5 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm group hover:border-accent/40 transition-colors">
+                    <div className="flex justify-between items-start mb-2">
+                      <h3 className="text-lg font-bold font-heading text-gray-900 dark:text-white group-hover:text-accent transition-colors">{t.name}</h3>
+                    </div>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-4 line-clamp-2 font-body">{t.description}</p>
+                    <div className="flex items-center justify-between border-t border-gray-100 dark:border-gray-700 pt-4 mt-2">
+                      <span className="bg-gray-100 dark:bg-gray-700 px-2.5 py-1 rounded-lg text-sm font-bold text-gray-600 dark:text-gray-300 font-body">
                         {t.schema?.length || 0} fields
                       </span>
+                      <a href={`/form/${t.id}`} target="_blank" rel="noreferrer"
+                        className="text-accent text-sm font-bold hover:underline flex items-center gap-1 font-body">
+                        Preview Form →
+                      </a>
                     </div>
-                    
-                    <a 
-                      href={`/form/${t.id}`} 
-                      target="_blank" 
-                      rel="noreferrer" 
-                      className="text-blue-600 dark:text-blue-400 text-sm font-bold hover:underline flex items-center gap-1"
-                    >
-                      Preview Form
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
-                    </a>
                   </div>
-                </div>
-              ))
-            )}
-          </div>
+                ))
+              )}
+            </div>
+          </motion.div>
         </div>
       </div>
     </div>
