@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import AdminSubNav from './AdminSubNav';
 
 const Icon = {
     Dashboard: (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>,
@@ -192,7 +191,6 @@ const AdminLayout = ({ isDark, toggleTheme }) => {
 
                 {/* ── PAGE CONTENT ── */}
                 <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
-                    <AdminSubNav />
                     <div className="max-w-7xl mx-auto">
                         <Outlet />
                     </div>
