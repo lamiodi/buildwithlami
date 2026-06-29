@@ -96,7 +96,7 @@ const AdminIntakeTemplates = () => {
   };
 
   const updateField = (id, key, value) => {
-    setFormData(prev => ({ ...prev, schema: prev.schema.map(f => f.id === id ? { ...f, [key] } : f) }));
+    setFormData(prev => ({ ...prev, schema: prev.schema.map(f => f.id === id ? { ...f, [key]: value } : f) }));
   };
 
   const removeField = (id) => {
