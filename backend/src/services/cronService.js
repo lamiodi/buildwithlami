@@ -38,9 +38,9 @@ export const startCronJobs = () => {
         await generateMonthlyInvoices();
     });
 
-    // Database health-check every 5 minutes — keeps the connection
+    // Database health-check once a day at 8:05 AM — keeps the connection
     // warm so Supabase doesn't idle it out, and logs any issues.
-    cron.schedule('*/5 * * * *', async () => {
+    cron.schedule('5 8 * * *', async () => {
         try {
             const start = Date.now();
             const result = await pool.query('SELECT 1 AS ok, NOW() AS db_time');
