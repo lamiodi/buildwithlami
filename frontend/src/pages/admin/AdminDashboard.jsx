@@ -224,6 +224,22 @@ const AdminDashboard = () => {
         return c;
     }, [projects, invoices, nowMs, now]);
 
+    // Monthly Revenue for Chart
+    const monthlyRevenue = useMemo(() => {
+        const months = {};
+        for (let i = 5; i >= 0; i--) {
+            const d = new Date();
+            d.setMonth(d.getMonth() - i);
+            months[d.toLocaleString('default', { month: 'short' })] = 0;
+        }
+        invoices.filter(i => i.status === 'PAID').forEach(inv => {
+            const m = new Date(inv.paid_at || inv.created_at).toLocaleString('default', { month: 'short' });
+            if (months[m] !== undefined) months[m] += Number(inv.amount || 0);
+        });
+        const max = Math.max(...Object.values(months), 1);
+        return Object.entries(months).map(([m, val]) => ({ month: m, value: val, height: (val / max) * 100 }));
+    }, [invoices]);
+
     const fetchAll = async () => {
         const res = await api.get('/dashboard');
         if (res.ok && res.data) {
@@ -262,22 +278,6 @@ const AdminDashboard = () => {
     // Revenue Calculation
     const totalRevenue = invoices.filter(i => i.status === 'PAID').reduce((sum, i) => sum + Number(i.amount || 0), 0);
     const activeClients = new Set(projects.filter(p => !['LAUNCHED', 'MAINTENANCE', 'ARCHIVED'].includes(p.status)).map(p => p.client_id)).size;
-
-    // Monthly Revenue for Chart
-    const monthlyRevenue = useMemo(() => {
-        const months = {};
-        for (let i = 5; i >= 0; i--) {
-            const d = new Date();
-            d.setMonth(d.getMonth() - i);
-            months[d.toLocaleString('default', { month: 'short' })] = 0;
-        }
-        invoices.filter(i => i.status === 'PAID').forEach(inv => {
-            const m = new Date(inv.paid_at || inv.created_at).toLocaleString('default', { month: 'short' });
-            if (months[m] !== undefined) months[m] += Number(inv.amount || 0);
-        });
-        const max = Math.max(...Object.values(months), 1);
-        return Object.entries(months).map(([m, val]) => ({ month: m, value: val, height: (val / max) * 100 }));
-    }, [invoices]);
 
     // ── Smart view filter ──────────────────────────────
     // One-click filters that surface the work the admin actually came here to do.
