@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { api } from '../../services/api';
 import { notify } from '../../services/notify';
+import { FRONTEND_URL } from '../../config/frontend.js';
 const DEFAULT_STAGES = [
   { name: 'Discovery & Planning', status: 'PENDING' },
   { name: 'Design & Mockups', status: 'PENDING' },
@@ -54,11 +55,12 @@ const AdminClientProjects = () => {
   const handleDrop = async (e, newStatus) => {
     e.preventDefault();
     if (!draggedProject || draggedProject.status === newStatus) return;
-    
+
     const oldStatus = draggedProject.status;
     setProjects(prev => prev.map(p => p.id === draggedProject.id ? { ...p, status: newStatus } : p));
-    
-    const res = await api.put(`/client-projects/${draggedProject.id}`, { ...draggedProject, status: newStatus, intake_form_id: draggedProject.intake_form_id || null });
+
+    // Send only the changed field — avoids shipping stale/read-only fields.
+    const res = await api.patch(`/client-projects/${draggedProject.id}`, { status: newStatus });
     if (!res.ok) {
       notify.error('Failed to update status');
       setProjects(prev => prev.map(p => p.id === draggedProject.id ? { ...p, status: oldStatus } : p));
@@ -495,7 +497,7 @@ const AdminClientProjects = () => {
                       <p className="font-bold text-accent text-[10px] uppercase tracking-wider mb-1">Client Magic Link:</p>
                       <a href={`/track/${p.tracking_id}`} target="_blank" rel="noreferrer"
                         className="text-accent hover:underline break-all font-mono text-xs">
-                        {window.location.origin}/track/{p.tracking_id}
+                        {FRONTEND_URL}/track/{p.tracking_id}
                       </a>
                     </div>
 
@@ -532,7 +534,7 @@ const AdminClientProjects = () => {
         ) : (
           /* KANBAN VIEW */
           <div className="flex overflow-x-auto pb-8 gap-6 snap-x">
-            {['ONBOARDING', 'PLANNING', 'DESIGN', 'DEVELOPMENT', 'REVIEW', 'LAUNCHED', 'MAINTENANCE'].map((status) => (
+            {['ONBOARDING', 'PLANNING', 'DESIGN', 'DEVELOPMENT', 'REVIEW', 'LAUNCHED', 'MAINTENANCE', 'ARCHIVED'].map((status) => (
               <div 
                 key={status} 
                 className="flex-shrink-0 w-80 flex flex-col bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-gray-100 dark:border-gray-700 snap-center h-[calc(100vh-250px)]"

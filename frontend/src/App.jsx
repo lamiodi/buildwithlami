@@ -19,6 +19,7 @@ import AdminClientProjects from './pages/admin/AdminClientProjects';
 import AdminClients from './pages/admin/AdminClients';
 import AdminProjectDetail from './pages/admin/AdminProjectDetail';
 import AdminIntakeTemplates from './pages/admin/AdminIntakeTemplates';
+import AdminInvoices from './pages/admin/AdminInvoices';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminLayout from './components/AdminLayout';
 import ClientProjectTracker from './pages/ClientProjectTracker';
@@ -133,6 +134,7 @@ function App() {
                 <Route path="projects" element={<AdminClientProjects />} />
                 <Route path="clients" element={<AdminClients />} />
                 <Route path="projects/:id" element={<AdminProjectDetail />} />
+                <Route path="invoices" element={<AdminInvoices />} />
                 <Route path="templates" element={<AdminIntakeTemplates />} />
               </Route>
               

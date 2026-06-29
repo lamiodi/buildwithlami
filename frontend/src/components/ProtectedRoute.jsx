@@ -1,23 +1,26 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { api } from '../services/api';
+import { clearAuth } from '../services/auth.js';
 
 /**
  * ProtectedRoute — Wraps admin pages so unauthenticated users
- * are redirected to the homepage. Validates the JWT by calling
+ * are redirected to /login. Validates the JWT by calling
  * /api/auth/me on mount.
  *
  * Behaviour notes:
  * - If the first call fails with a transient (network) error, we retry
  *   once after 500ms before giving up — avoids a "logged out on flaky
  *   network" footgun.
- * - Only an explicit 401/403 from the server is treated as "denied".
- *   Other failures (timeout, 5xx) also redirect, but a brief delay is
- *   added so the user can see the loader.
+ * - On 401/403 the stale token is cleared from storage so the user
+ *   doesn't get stuck in a redirect loop on the next visit.
+ * - Redirects to /login with a `from` param so the login page can send
+ *   the user back after authenticating.
  */
 const ProtectedRoute = ({ children }) => {
     const [status, setStatus] = useState('loading'); // loading | authenticated | denied
     const ranOnce = useRef(false);
+    const location = useLocation();
 
     useEffect(() => {
         if (ranOnce.current) return;
@@ -30,6 +33,8 @@ const ProtectedRoute = ({ children }) => {
                 return;
             }
             if (!res.ok && (res.status === 401 || res.status === 403)) {
+                // Clear the stale/invalid token so we don't keep failing.
+                clearAuth();
                 setStatus('denied');
                 return;
             }
@@ -52,7 +57,7 @@ const ProtectedRoute = ({ children }) => {
     }
 
     if (status === 'denied') {
-        return <Navigate to="/" replace />;
+        return <Navigate to={`/login?from=${encodeURIComponent(location.pathname)}`} replace />;
     }
 
     return children;

@@ -1,5 +1,5 @@
 import express from 'express';
-import { createInvoice, getInvoicesByProject, paystackWebhook } from '../controllers/invoiceController.js';
+import { createInvoice, getAllInvoices, getInvoicesByProject, paystackWebhook } from '../controllers/invoiceController.js';
 import { verifyToken, requireRole } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
@@ -18,6 +18,7 @@ const paystackRawBody = express.json({
 router.post('/webhook/paystack', paystackRawBody, paystackWebhook);
 
 // Protected Routes
+router.get('/', verifyToken, requireRole('ADMIN', 'OWNER'), getAllInvoices);
 router.post('/', verifyToken, requireRole('ADMIN', 'OWNER'), createInvoice);
 // Both Admin and Client can view invoices (Clients use JWT bound to trackingId)
 router.get('/project/:projectId', verifyToken, requireRole('CLIENT', 'ADMIN', 'OWNER'), getInvoicesByProject);

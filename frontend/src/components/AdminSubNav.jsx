@@ -3,15 +3,18 @@ import { NavLink } from 'react-router-dom';
 
 /**
  * Admin sub-navigation bar. Rendered at the top of every admin page so the
- * user can jump between Dashboard, Projects, Clients, and Templates without
- * having to remember deep URLs.
+ * user can jump between Dashboard, Projects, Clients, Invoices, and Templates
+ * without having to remember deep URLs.
+ *
+ * Must stay in sync with the sidebar navItems in AdminLayout.jsx.
  */
 const AdminSubNav = () => {
     const tabs = [
         { to: '/admin', label: 'Dashboard', end: true },
         { to: '/admin/projects', label: 'Projects' },
         { to: '/admin/clients', label: 'Clients' },
-        { to: '/admin/templates', label: 'Templates' },
+        { to: '/admin/invoices', label: 'Invoices' },
+        { to: '/admin/templates', label: 'Forms & Intake' },
     ];
 
     return (

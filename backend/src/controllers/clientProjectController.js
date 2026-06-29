@@ -1,5 +1,6 @@
 import pool from '../config/db.js';
 import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
 import { decrypt } from '../utils/crypto.js';
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -295,7 +296,15 @@ export const authClientPortal = async (req, res) => {
         const primaryEmail = (client.primary_contact_email || '').toLowerCase().trim();
         const billingEmail = (client.billing_email || '').toLowerCase().trim();
 
-        if (providedEmail === primaryEmail || (billingEmail && providedEmail === billingEmail)) {
+        // Timing-safe comparison to prevent email enumeration via response timing.
+        const providedBuf = Buffer.from(providedEmail);
+        const primaryBuf = Buffer.from(primaryEmail);
+        const billingBuf = billingEmail ? Buffer.from(billingEmail) : null;
+
+        const matchesPrimary = providedBuf.length === primaryBuf.length && crypto.timingSafeEqual(providedBuf, primaryBuf);
+        const matchesBilling = billingBuf && providedBuf.length === billingBuf.length && crypto.timingSafeEqual(providedBuf, billingBuf);
+
+        if (matchesPrimary || matchesBilling) {
             // Generate JWT bound to tracking_id
             const token = jwt.sign(
                 { trackingId: client.tracking_id, clientId: client.id, role: 'CLIENT' },

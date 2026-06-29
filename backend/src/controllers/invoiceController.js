@@ -104,6 +104,27 @@ export const createInvoice = async (req, res) => {
     }
 };
 
+// Admin: Get all invoices (with client + project names for display)
+export const getAllInvoices = async (req, res) => {
+    try {
+        const { rows } = await pool.query(`
+            SELECT i.id, i.project_id, i.client_id, i.amount, i.status,
+                   i.due_date, i.payment_url, i.paystack_reference, i.paid_at,
+                   i.created_at,
+                   c.name AS client_name,
+                   p.project_name
+            FROM invoices i
+            LEFT JOIN clients c ON i.client_id = c.id
+            LEFT JOIN client_projects p ON i.project_id = p.id
+            ORDER BY i.created_at DESC
+        `);
+        res.json(rows);
+    } catch (err) {
+        console.error('[Invoices] getAllInvoices error:', err.message);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
 // Admin/Client: Get invoices for a project
 export const getInvoicesByProject = async (req, res) => {
     const { projectId } = req.params;

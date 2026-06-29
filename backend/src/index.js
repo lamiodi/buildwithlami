@@ -43,6 +43,13 @@ const contactLimiter = rateLimit({
     message: { error: 'Too many submissions. Please try again later.' },
 });
 
+// General API limiter — protects all mutating routes from abuse.
+const apiLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100,
+    message: { error: 'Too many requests. Please slow down.' },
+});
+
 // ── Global middleware ────────────────────────────────────
 app.use(helmet());
 const allowedOrigins = [
@@ -71,16 +78,16 @@ app.use('/api/dashboard', dashboardRoutes);
 
 // ── API routes ───────────────────────────────────────────
 app.use('/api/auth', authLimiter, authRoutes);
-app.use('/api/projects', projectRoutes);
-app.use('/api/clients', clientRoutes);
+app.use('/api/projects', apiLimiter, projectRoutes);
+app.use('/api/clients', apiLimiter, clientRoutes);
 app.use('/api/contact', contactLimiter, contactRoutes);
-app.use('/api/profile', profileRoutes);
-app.use('/api/client-projects', clientProjectRoutes);
+app.use('/api/profile', apiLimiter, profileRoutes);
+app.use('/api/client-projects', apiLimiter, clientProjectRoutes);
 // Forms system deprecated in favor of /api/templates
-app.use('/api/secrets', secretRoutes);
-app.use('/api/feedback', feedbackRoutes);
-app.use('/api/invoices', invoiceRoutes);
-app.use('/api', templateRoutes);
+app.use('/api/secrets', apiLimiter, secretRoutes);
+app.use('/api/feedback', apiLimiter, feedbackRoutes);
+app.use('/api/invoices', apiLimiter, invoiceRoutes);
+app.use('/api', apiLimiter, templateRoutes);
 
 // ── 404 fallback ─────────────────────────────────────────
 app.use((_req, res) => {

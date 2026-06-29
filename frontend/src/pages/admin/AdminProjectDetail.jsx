@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { api } from '../../services/api';
 import { notify } from '../../services/notify';
+import { FRONTEND_URL } from '../../config/frontend.js';
 
 const AdminProjectDetail = () => {
   const { id } = useParams();
@@ -161,7 +162,7 @@ const AdminProjectDetail = () => {
                     <div className="flex items-center gap-2">
                       <a href={`/track/${project.tracking_id}`} target="_blank" rel="noreferrer"
                         className="text-accent hover:underline text-sm font-mono break-all">
-                        {window.location.origin}/track/{project.tracking_id}
+                        {FRONTEND_URL}/track/{project.tracking_id}
                       </a>
                       <button onClick={handleRegenerateLink}
                         className="text-xs text-red-600 hover:text-red-800 bg-red-50 dark:bg-red-900/20 px-2 py-1 rounded-lg font-bold">
@@ -308,26 +309,30 @@ const AdminProjectDetail = () => {
                     <p className="text-gray-500 text-sm font-body">No invoices generated for this project.</p>
                   ) : (
                     <div className="space-y-4">
-                      {invoices.map(inv => (
-                        <div key={inv.id} className="flex flex-col md:flex-row md:items-center justify-between bg-gray-50 dark:bg-gray-900 p-4 rounded-xl border border-gray-200 dark:border-gray-700">
-                          <div>
-                            <p className="font-bold text-lg font-heading text-gray-900 dark:text-white">₦{Number(inv.amount).toLocaleString()}</p>
-                            <p className="text-[10px] text-gray-500 font-body">Created: {new Date(inv.created_at).toLocaleDateString()}</p>
+                      {invoices.map(inv => {
+                        const isOverdue = inv.status === 'PENDING' && inv.due_date && new Date(inv.due_date) < new Date();
+                        return (
+                          <div key={inv.id} className={`flex flex-col md:flex-row md:items-center justify-between p-4 rounded-xl border ${isOverdue ? 'bg-rose-50/40 dark:bg-rose-900/10 border-rose-200/60 dark:border-rose-800/40' : 'bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700'}`}>
+                            <div>
+                              <p className="font-bold text-lg font-heading text-gray-900 dark:text-white">₦{Number(inv.amount).toLocaleString()}</p>
+                              <p className="text-[10px] text-gray-500 font-body">Created: {new Date(inv.created_at).toLocaleDateString()}</p>
+                              {inv.due_date && <p className="text-[10px] text-gray-500 font-body">Due: {new Date(inv.due_date).toLocaleDateString()}</p>}
+                            </div>
+                            <div className="flex items-center gap-4 mt-4 md:mt-0">
+                              <span className={`px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider ${
+                                inv.status === 'PAID' ? 'bg-emerald-100 text-emerald-800' : isOverdue ? 'bg-rose-100 text-rose-800' : 'bg-amber-100 text-amber-800'
+                              }`}>
+                                {isOverdue ? 'OVERDUE' : inv.status}
+                              </span>
+                              {inv.payment_url && inv.status === 'PENDING' && (
+                                <a href={inv.payment_url} target="_blank" rel="noreferrer" className="text-sm text-accent hover:underline font-bold">
+                                  Pay via Paystack →
+                                </a>
+                              )}
+                            </div>
                           </div>
-                          <div className="flex items-center gap-4 mt-4 md:mt-0">
-                            <span className={`px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider ${
-                              inv.status === 'PAID' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
-                            }`}>
-                              {inv.status}
-                            </span>
-                            {inv.payment_url && (
-                              <a href={inv.payment_url} target="_blank" rel="noreferrer" className="text-sm text-accent hover:underline font-bold">
-                                View Link →
-                              </a>
-                            )}
-                          </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   )}
                 </div>

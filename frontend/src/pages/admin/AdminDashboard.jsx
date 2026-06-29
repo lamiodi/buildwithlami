@@ -222,7 +222,7 @@ const AdminDashboard = () => {
             if (created && (nowMs - created) <= sevenDays) c.thisweek++;
         }
         return c;
-    }, [projects, invoices, nowMs, now]);
+    }, [projects, invoices, nowMs]);
 
     // Monthly Revenue for Chart
     const monthlyRevenue = useMemo(() => {
@@ -859,8 +859,10 @@ const CommandPalette = ({ projects, clients, templates, onClose, onNavigate }) =
             { kind: 'action', label: 'Go to Dashboard', path: '/admin', hint: 'Nav' },
             { kind: 'action', label: 'Go to Projects', path: '/admin/projects', hint: 'Nav' },
             { kind: 'action', label: 'Go to Clients', path: '/admin/clients', hint: 'Nav' },
+            { kind: 'action', label: 'Go to Invoices', path: '/admin/invoices', hint: 'Nav' },
             { kind: 'action', label: 'Go to Templates', path: '/admin/templates', hint: 'Nav' },
             { kind: 'action', label: 'Create new Project', path: '/admin/projects', hint: 'Nav' },
+            { kind: 'action', label: 'Create new Invoice', path: '/admin/invoices', hint: 'Nav' },
         ];
         const fromClients = clients.map((c) => ({
             kind: 'client',
