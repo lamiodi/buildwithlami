@@ -21,6 +21,7 @@ import secretRoutes from './routes/secretRoutes.js';
 import templateRoutes from './routes/templateRoutes.js';
 import feedbackRoutes from './routes/feedbackRoutes.js';
 import invoiceRoutes from './routes/invoiceRoutes.js';
+import uptimeRoutes from './routes/uptimeRoutes.js';
 import pool from './config/db.js';
 import { startCronJobs } from './services/cronService.js';
 
@@ -49,10 +50,13 @@ app.use(cors({
 }));
 app.use(express.json({ limit: '100kb' }));
 
-// ── Health-check ─────────────────────────────────────────
+// ── Health-check (legacy, no DB) ─────────────────────────
 app.get('/api/health', (_req, res) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
+
+// ── Uptime routes (/ping and /health with DB check) ──────
+app.use('/', uptimeRoutes);
 
 // ── API routes ───────────────────────────────────────────
 app.use('/api/auth', authLimiter, authRoutes);

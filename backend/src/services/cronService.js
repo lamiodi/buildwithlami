@@ -37,6 +37,20 @@ export const startCronJobs = () => {
         await checkDomainExpirations();
         await generateMonthlyInvoices();
     });
+
+    // Database health-check every 5 minutes — keeps the connection
+    // warm so Supabase doesn't idle it out, and logs any issues.
+    cron.schedule('*/5 * * * *', async () => {
+        try {
+            const start = Date.now();
+            const result = await pool.query('SELECT 1 AS ok, NOW() AS db_time');
+            const latency = Date.now() - start;
+            console.log(`[Cron] DB heartbeat OK — ${latency}ms, db_time: ${result.rows[0].db_time}`);
+        } catch (error) {
+            console.error(`[Cron] DB heartbeat FAILED — ${error.message}`);
+        }
+    });
+
     console.log('[Server] Cron jobs scheduled successfully.');
 };
 
