@@ -11,7 +11,7 @@ router.get('/:id', getProjectById);
 
 // Protected routes (Admin/Owner only)
 router.use(verifyToken);
-router.use(requireRole('OWNER'));
+router.use(requireRole('ADMIN', 'OWNER'));
 
 router.post('/', createProject);
 router.put('/:id', updateProject);
