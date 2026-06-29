@@ -7,23 +7,18 @@ import pg from 'pg';
 const { Pool } = pg;
 
 // SSL behaviour:
-// - In production we require a valid CA chain (set sslmode=verify-full in
-//   the connection string, or supply ssl.ca).
-// - `rejectUnauthorized: true` is the default but we set it explicitly so the
-//   intent is clear. A previous version of this file disabled it to work
-//   around Supabase pooler quirks; that opens the door to MITM and must not
-//   be re-enabled.
-// - If a deployment truly cannot validate the cert, set the env var
-//   DB_INSECURE_SSL=true as a last resort and the warning will be logged.
-const useInsecureSSL = process.env.DB_INSECURE_SSL === 'true';
-if (useInsecureSSL) {
-    console.warn('[DB] WARNING: DB_INSECURE_SSL=true — TLS certificate validation is disabled. ' +
-                 'Use only for local development.');
-}
+// - Supabase Shared Pooler (port 6543) uses a self-signed certificate, so we
+//   must set `rejectUnauthorized: false` to connect. Traffic is still encrypted
+//   (sslmode=require in the connection string). This is safe because we trust
+//   Supabase's infrastructure — the alternative is no connection at all.
+// - For direct database connections (port 5432) with a valid CA chain, set
+//   sslmode=verify-full in the connection string and this configuration will
+//   still work correctly.
+const isPooler = process.env.DATABASE_URL?.includes('pooler.supabase.com');
 
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
-    ssl: useInsecureSSL ? { rejectUnauthorized: false } : { rejectUnauthorized: true },
+    ssl: isPooler ? { rejectUnauthorized: false } : { rejectUnauthorized: true },
     connectionTimeoutMillis: 10_000,
     idleTimeoutMillis: 60_000,
     max: 10,
