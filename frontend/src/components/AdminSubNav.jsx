@@ -14,6 +14,7 @@ const AdminSubNav = () => {
         { to: '/admin/projects', label: 'Projects' },
         { to: '/admin/clients', label: 'Clients' },
         { to: '/admin/invoices', label: 'Invoices' },
+        { to: '/admin/reports', label: 'Reports' },
         { to: '/admin/templates', label: 'Forms & Intake' },
     ];
 
