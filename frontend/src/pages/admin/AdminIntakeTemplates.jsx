@@ -2,8 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { api } from '../../services/api';
 import { notify } from '../../services/notify';
-import AdminSubNav from '../../components/AdminSubNav';
-
 const ECOMMERCE_PRESET = {
   name: "E-Commerce Website Intake",
   description: "Please fill out this comprehensive questionnaire so we can structure your online store perfectly.",
@@ -121,10 +119,8 @@ const AdminIntakeTemplates = () => {
   const inputClass = "w-full p-3 text-sm border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900 outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-colors font-body";
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-background pt-24 pb-12 px-6">
-      <div className="max-w-7xl mx-auto">
-        <AdminSubNav />
-
+    <div className="flex flex-col">
+      <div className="max-w-7xl mx-auto w-full">
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
           <div className="flex items-center justify-between mb-8">
             <div>

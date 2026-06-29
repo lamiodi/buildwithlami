@@ -11,9 +11,14 @@ const clientSchema = z.object({
 
 export const getClients = async (req, res) => {
     try {
-        const { rows } = await pool.query(
-            `SELECT * FROM clients ORDER BY created_at DESC`
-        );
+        const { rows } = await pool.query(`
+            SELECT 
+                c.*,
+                (SELECT COUNT(*) FROM client_projects cp WHERE cp.client_id = c.id) as projects_count,
+                (SELECT COALESCE(SUM(amount), 0) FROM invoices i WHERE i.client_id = c.id AND i.status = 'PAID') as total_billed
+            FROM clients c
+            ORDER BY c.created_at DESC
+        `);
         res.json(rows);
     } catch (err) {
         console.error('[Clients] getClients error:', err.message);

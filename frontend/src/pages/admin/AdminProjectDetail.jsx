@@ -91,7 +91,7 @@ const AdminProjectDetail = () => {
   };
 
   if (!project) return (
-    <div className="min-h-screen bg-gray-50 dark:bg-background pt-24 pb-12 px-6 flex items-center justify-center">
+    <div className="flex-1 flex items-center justify-center">
       <div className="animate-pulse text-gray-400 font-body">Loading project…</div>
     </div>
   );
@@ -102,8 +102,8 @@ const AdminProjectDetail = () => {
   const tabs = ['overview', 'intake', 'credentials', 'invoices', 'feedback'];
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-background pt-24 pb-12 px-6">
-      <div className="max-w-7xl mx-auto">
+    <div className="flex flex-col">
+      <div className="max-w-7xl mx-auto w-full">
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
           <div className="mb-6 flex items-center justify-between">
             <div>

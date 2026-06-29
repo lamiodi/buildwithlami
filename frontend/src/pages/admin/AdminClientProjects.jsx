@@ -3,8 +3,6 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { api } from '../../services/api';
 import { notify } from '../../services/notify';
-import AdminSubNav from '../../components/AdminSubNav';
-
 const DEFAULT_STAGES = [
   { name: 'Discovery & Planning', status: 'PENDING' },
   { name: 'Design & Mockups', status: 'PENDING' },
@@ -40,6 +38,35 @@ const AdminClientProjects = () => {
   const [bulkStatus, setBulkStatus] = useState('');
   const [bulkClientId, setBulkClientId] = useState('');
   const [bulkBusy, setBulkBusy] = useState(false);
+  const [viewMode, setViewMode] = useState('kanban'); // 'list' or 'kanban'
+  const [draggedProject, setDraggedProject] = useState(null);
+
+  const handleDragStart = (e, project) => {
+    setDraggedProject(project);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  };
+
+  const handleDrop = async (e, newStatus) => {
+    e.preventDefault();
+    if (!draggedProject || draggedProject.status === newStatus) return;
+    
+    const oldStatus = draggedProject.status;
+    setProjects(prev => prev.map(p => p.id === draggedProject.id ? { ...p, status: newStatus } : p));
+    
+    const res = await api.put(`/client-projects/${draggedProject.id}`, { ...draggedProject, status: newStatus, intake_form_id: draggedProject.intake_form_id || null });
+    if (!res.ok) {
+      notify.error('Failed to update status');
+      setProjects(prev => prev.map(p => p.id === draggedProject.id ? { ...p, status: oldStatus } : p));
+    } else {
+      notify.success('Project moved to ' + newStatus);
+    }
+    setDraggedProject(null);
+  };
 
   const handleOffboardingToggle = (key) => {
     setFormData((prev) => ({
@@ -190,10 +217,8 @@ const AdminClientProjects = () => {
   const labelClass = "block text-[10px] font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2";
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-background pt-24 pb-12 px-6">
-      <div className="max-w-7xl mx-auto">
-        <AdminSubNav />
-
+    <div className="flex flex-col">
+      <div className="max-w-7xl mx-auto w-full">
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
           <div className="flex items-center justify-between mb-8">
             <div>
@@ -202,10 +227,25 @@ const AdminClientProjects = () => {
               </h1>
               <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 font-body">Manage client projects, billing, and onboarding.</p>
             </div>
+            <div className="flex bg-gray-100 dark:bg-gray-800 p-1 rounded-xl">
+              <button 
+                onClick={() => setViewMode('kanban')}
+                className={`px-4 py-2 text-sm font-bold rounded-lg transition-all ${viewMode === 'kanban' ? 'bg-white dark:bg-gray-700 shadow-sm text-accent' : 'text-gray-500 hover:text-gray-900 dark:hover:text-gray-300'}`}
+              >
+                Kanban
+              </button>
+              <button 
+                onClick={() => setViewMode('list')}
+                className={`px-4 py-2 text-sm font-bold rounded-lg transition-all ${viewMode === 'list' ? 'bg-white dark:bg-gray-700 shadow-sm text-accent' : 'text-gray-500 hover:text-gray-900 dark:hover:text-gray-300'}`}
+              >
+                List
+              </button>
+            </div>
           </div>
         </motion.div>
 
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        {viewMode === 'list' ? (
+          <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
           {/* Form Column */}
           <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: 0.05 }}
             className="xl:col-span-1 bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm h-fit">
@@ -489,6 +529,48 @@ const AdminClientProjects = () => {
             )}
           </div>
         </div>
+        ) : (
+          /* KANBAN VIEW */
+          <div className="flex overflow-x-auto pb-8 gap-6 snap-x">
+            {['ONBOARDING', 'PLANNING', 'DESIGN', 'DEVELOPMENT', 'REVIEW', 'LAUNCHED', 'MAINTENANCE'].map((status) => (
+              <div 
+                key={status} 
+                className="flex-shrink-0 w-80 flex flex-col bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-gray-100 dark:border-gray-700 snap-center h-[calc(100vh-250px)]"
+                onDragOver={handleDragOver}
+                onDrop={(e) => handleDrop(e, status)}
+              >
+                <div className="p-4 border-b border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 rounded-t-2xl">
+                  <h3 className="font-bold text-gray-800 dark:text-gray-200 text-sm tracking-wide">{status}</h3>
+                  <p className="text-xs text-gray-500 mt-1 font-bold">{projects.filter(p => p.status === status).length} projects</p>
+                </div>
+                <div className="p-4 flex-1 overflow-y-auto space-y-4">
+                  {projects.filter(p => p.status === status).map((p) => (
+                    <div 
+                      key={p.id}
+                      draggable
+                      onDragStart={(e) => handleDragStart(e, p)}
+                      className="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md hover:border-accent/50 cursor-grab active:cursor-grabbing transition-all"
+                    >
+                      <h4 className="font-bold text-gray-900 dark:text-white font-heading text-sm mb-1">{p.project_name}</h4>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 font-body mb-3 truncate">{p.client_name}</p>
+                      <div className="flex items-center justify-between">
+                        <span className="font-bold text-gray-600 dark:text-gray-400 text-[10px] bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-md">{p.progress}%</span>
+                        <div className="flex gap-2">
+                          <button onClick={() => { setViewMode('list'); editProject(p); }} className="text-xs text-accent hover:underline font-bold">Edit</button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                  {projects.filter(p => p.status === status).length === 0 && (
+                    <div className="text-center py-6 text-gray-400 text-xs font-bold border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl">
+                      Drop here
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

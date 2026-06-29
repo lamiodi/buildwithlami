@@ -3,7 +3,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { api } from '../../services/api';
 import { notify } from '../../services/notify';
-import AdminSubNav from '../../components/AdminSubNav';
 import { toCSV, downloadCSV } from '../../utils/csv.js';
 
 // Simple Naira formatter (stored amounts are already in NGN in the DB).
@@ -238,18 +237,16 @@ const AdminDashboard = () => {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-gray-50 dark:bg-background pt-24 pb-12 px-6">
-                <div className="max-w-7xl mx-auto">
-                    <div className="animate-pulse text-gray-400 text-sm font-medium">Loading dashboard…</div>
-                </div>
+            <div className="flex-1 flex items-center justify-center">
+                <div className="animate-pulse text-gray-400 text-sm font-medium">Loading dashboard…</div>
             </div>
         );
     }
 
     if (error || !data) {
         return (
-            <div className="min-h-screen bg-gray-50 dark:bg-background pt-24 pb-12 px-6">
-                <div className="max-w-7xl mx-auto text-red-500">{error || 'No data'}</div>
+            <div className="flex-1 flex items-center justify-center">
+                <div className="text-red-500">{error || 'No data'}</div>
             </div>
         );
     }
@@ -261,6 +258,26 @@ const AdminDashboard = () => {
     const pendingInvoices = invoices.filter(i => i.status === 'PENDING');
     const overdueInvoices = pendingInvoices.filter(i => i.due_date && new Date(i.due_date) < new Date());
     const needsAttention = openFeedback.length + overdueInvoices.length;
+
+    // Revenue Calculation
+    const totalRevenue = invoices.filter(i => i.status === 'PAID').reduce((sum, i) => sum + Number(i.amount || 0), 0);
+    const activeClients = new Set(projects.filter(p => !['LAUNCHED', 'MAINTENANCE', 'ARCHIVED'].includes(p.status)).map(p => p.client_id)).size;
+
+    // Monthly Revenue for Chart
+    const monthlyRevenue = useMemo(() => {
+        const months = {};
+        for (let i = 5; i >= 0; i--) {
+            const d = new Date();
+            d.setMonth(d.getMonth() - i);
+            months[d.toLocaleString('default', { month: 'short' })] = 0;
+        }
+        invoices.filter(i => i.status === 'PAID').forEach(inv => {
+            const m = new Date(inv.paid_at || inv.created_at).toLocaleString('default', { month: 'short' });
+            if (months[m] !== undefined) months[m] += Number(inv.amount || 0);
+        });
+        const max = Math.max(...Object.values(months), 1);
+        return Object.entries(months).map(([m, val]) => ({ month: m, value: val, height: (val / max) * 100 }));
+    }, [invoices]);
 
     // ── Smart view filter ──────────────────────────────
     // One-click filters that surface the work the admin actually came here to do.
@@ -364,11 +381,8 @@ const AdminDashboard = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-background pt-24 pb-12 px-6">
-            <div className="max-w-7xl mx-auto">
-                <AdminSubNav />
-
-                {/* ── HEADER ─────────────────────────────────────────── */}
+        <div className="flex flex-col">
+            {/* ── HEADER ─────────────────────────────────────────── */}
                 <motion.div
                     initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -438,13 +452,67 @@ const AdminDashboard = () => {
                 )}
 
                 {/* ── STATS GRID ────────────────────────────────────── */}
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
-                    <StatCard label="Total Clients" value={stats.total_clients} icon={Icon.Clients} accent="blue" />
-                    <StatCard label="Active Projects" value={stats.active_projects} hint="In progress" icon={Icon.Active} accent="purple" />
-                    <StatCard label="Launched" value={stats.launched_projects} hint="Live sites" icon={Icon.Rocket} accent="emerald" />
-                    <StatCard label="Pending" value={formatCurrency(stats.pending_invoice_amount)} hint={`${stats.pending_invoices} unpaid`} icon={Icon.Money} accent="amber" isCurrency />
-                    <StatCard label="Paid" value={stats.paid_invoices} hint="Invoices settled" icon={Icon.Check} accent="emerald" />
-                    <StatCard label="Open Feedback" value={openFeedback.length} hint="Awaiting reply" icon={Icon.Chat} accent="rose" />
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                    <StatCard label="Total Projects" value={projects.length} icon={Icon.Rocket} accent="blue" />
+                    <StatCard label="Active Clients" value={activeClients} hint="With active projects" icon={Icon.Clients} accent="purple" />
+                    <StatCard label="Total Revenue" value={formatCurrency(totalRevenue)} hint="From paid invoices" icon={Icon.Money} accent="emerald" isCurrency />
+                    <StatCard label="Overdue Invoices" value={overdueInvoices.length} hint="Needs action" icon={Icon.Alert} accent="rose" />
+                </div>
+
+                {/* ── CHARTS ROW ────────────────────────────────────── */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                    {/* ── REVENUE CHART ─────────────────────────────────── */}
+                    <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm flex flex-col">
+                        <h2 className="font-bold text-lg text-gray-900 dark:text-white mb-4">Revenue Overview</h2>
+                        <div className="flex-1 min-h-[12rem] flex items-end gap-2 sm:gap-4 pt-4">
+                            {monthlyRevenue.map((data, idx) => (
+                                <div key={idx} className="flex-1 flex flex-col items-center gap-2 group">
+                                    <div className="w-full relative flex-1 flex items-end justify-center">
+                                        <div 
+                                            className="w-full max-w-[40px] bg-emerald-500/80 hover:bg-emerald-500 rounded-t-md transition-all duration-300 relative group"
+                                            style={{ height: `${Math.max(data.height, 5)}%` }}
+                                        >
+                                            <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-[10px] py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 font-bold pointer-events-none">
+                                                {formatCurrency(data.value)}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">{data.month}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* ── PIPELINE FUNNEL ─────────────────────────────────── */}
+                    <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm flex flex-col">
+                        <h2 className="font-bold text-lg text-gray-900 dark:text-white mb-4">Project Pipeline</h2>
+                        <div className="flex-1 flex flex-col justify-center gap-2">
+                            {['ONBOARDING', 'PLANNING', 'DESIGN', 'DEVELOPMENT', 'REVIEW', 'LAUNCHED'].map((stage, idx, arr) => {
+                                const count = projects.filter(p => p.status === stage).length;
+                                const maxCount = Math.max(...arr.map(s => projects.filter(p => p.status === s).length), 1);
+                                const width = `${Math.max((count / maxCount) * 100, 15)}%`;
+                                const colors = ['bg-amber-400', 'bg-slate-400', 'bg-pink-400', 'bg-blue-500', 'bg-purple-500', 'bg-emerald-500'];
+                                return (
+                                    <div key={stage} className="flex items-center gap-3">
+                                        <div className="w-24 text-right">
+                                            <span className="text-[10px] font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-wider">{stage}</span>
+                                        </div>
+                                        <div className="flex-1 bg-gray-100 dark:bg-gray-700 rounded-r-md h-6 flex items-center">
+                                            <div 
+                                                className={`h-full ${colors[idx]} rounded-r-md flex items-center justify-end px-2 text-[10px] font-bold text-white transition-all duration-500`}
+                                                style={{ width }}
+                                            >
+                                                {count > 0 ? count : ''}
+                                            </div>
+                                        </div>
+                                        <div className="w-8">
+                                            <span className="text-xs font-bold text-gray-900 dark:text-white">{count}</span>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
                 </div>
 
                 {/* ── SMART VIEW FILTERS + SEARCH ────────────────────── */}
@@ -758,12 +826,6 @@ const AdminDashboard = () => {
                         )}
                     </motion.div>
                 </div>
-
-                {/* Footer note */}
-                <p className="text-center text-[10px] text-gray-400 dark:text-gray-600 mt-8">
-                    All times shown in your local timezone.
-                </p>
-            </div>
 
             {/* ── COMMAND PALETTE (Cmd/Ctrl + K) ─────────────────────── */}
             {paletteOpen && (

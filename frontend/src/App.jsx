@@ -20,6 +20,7 @@ import AdminClients from './pages/admin/AdminClients';
 import AdminProjectDetail from './pages/admin/AdminProjectDetail';
 import AdminIntakeTemplates from './pages/admin/AdminIntakeTemplates';
 import AdminDashboard from './pages/admin/AdminDashboard';
+import AdminLayout from './components/AdminLayout';
 import ClientProjectTracker from './pages/ClientProjectTracker';
 import ClientIntakeForm from './pages/ClientIntakeForm';
 import LoginPage from './pages/LoginPage';
@@ -127,11 +128,13 @@ function App() {
               <Route path="/projects/:id" element={<PageWrapper><ProjectDetailPage /></PageWrapper>} />
               
               {/* Admin Routes — Protected by JWT verification */}
-              <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
-              <Route path="/admin/projects" element={<ProtectedRoute><AdminClientProjects /></ProtectedRoute>} />
-              <Route path="/admin/clients" element={<ProtectedRoute><AdminClients /></ProtectedRoute>} />
-              <Route path="/admin/projects/:id" element={<ProtectedRoute><AdminProjectDetail /></ProtectedRoute>} />
-              <Route path="/admin/templates" element={<ProtectedRoute><AdminIntakeTemplates /></ProtectedRoute>} />
+              <Route path="/admin" element={<ProtectedRoute><AdminLayout isDark={isDark} toggleTheme={toggleTheme} /></ProtectedRoute>}>
+                <Route index element={<AdminDashboard />} />
+                <Route path="projects" element={<AdminClientProjects />} />
+                <Route path="clients" element={<AdminClients />} />
+                <Route path="projects/:id" element={<AdminProjectDetail />} />
+                <Route path="templates" element={<AdminIntakeTemplates />} />
+              </Route>
               
               {/* Auth Route */}
               <Route path="/login" element={<LoginPage />} />
