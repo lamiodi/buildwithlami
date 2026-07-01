@@ -38,6 +38,7 @@ const AdminClientProjects = () => {
   const [projects, setProjects] = useState([]);
   const [templates, setTemplates] = useState([]);
   const [clients, setClients] = useState([]);
+  const [archiveAsCompleted, setArchiveAsCompleted] = useState(false);
   const [formData, setFormData] = useState({
     client_id: '', project_name: '', progress: 0, status: 'PLANNING',
     notes: '',
@@ -93,15 +94,38 @@ const AdminClientProjects = () => {
     }));
   };
 
-  const resetForm = () => ({
-    client_id: '', project_name: '', progress: 0, status: 'PLANNING',
-    notes: '',
-    domain_name: '', domain_expiration: '', amount_due: 0,
-    payment_type: 'ONE_TIME', monthly_fee: 0, payment_status: 'PENDING', stages: DEFAULT_STAGES,
-    intake_form_id: '', intake_completed: false,
-    assets_url: '', training_video_url: '', maintenance_plan_url: '',
-    offboarding_status: { ...DEFAULT_OFFBOARDING },
-  });
+  const handleArchiveAsCompleted = (checked) => {
+    setArchiveAsCompleted(checked);
+    if (checked) {
+      const completedStages = DEFAULT_STAGES.map(s => ({ ...s, status: 'COMPLETED' }));
+      setFormData(prev => ({
+        ...prev,
+        stages: completedStages,
+        progress: 100,
+        status: 'ARCHIVED',
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        stages: DEFAULT_STAGES,
+        progress: 0,
+        status: 'PLANNING',
+      }));
+    }
+  };
+
+  const resetForm = () => {
+    setArchiveAsCompleted(false);
+    return {
+      client_id: '', project_name: '', progress: 0, status: 'PLANNING',
+      notes: '',
+      domain_name: '', domain_expiration: '', amount_due: 0,
+      payment_type: 'ONE_TIME', monthly_fee: 0, payment_status: 'PENDING', stages: DEFAULT_STAGES,
+      intake_form_id: '', intake_completed: false,
+      assets_url: '', training_video_url: '', maintenance_plan_url: '',
+      offboarding_status: { ...DEFAULT_OFFBOARDING },
+    };
+  };
 
   const fetchProjects = async () => {
     const res = await api.get('/client-projects');
