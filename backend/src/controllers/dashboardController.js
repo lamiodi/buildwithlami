@@ -1,11 +1,19 @@
 import pool from '../config/db.js';
 
+// Helper to build date filter
+const dateFilter = (start, end) => {
+    const conditions = [];
+    if (start) conditions.push(`created_at >= '${start}'`);
+    if (end) conditions.push(`created_at < '${end}'`);
+    return conditions.length ? conditions.join(' AND ') : '';
+};
+
 // ── Admin Dashboard Overview ──────────────────────────────
 // Returns aggregated data for the admin dashboard:
-// projects, clients, templates, feedback, invoices.
+// projects, clients, templates, feedback, invoices, recentActivities.
 export async function getDashboardOverview(req, res) {
     try {
-        const [projects, clients, templates, feedback, invoices] = await Promise.all([
+        const [projects, clients, templates, feedback, invoices, recentActivities] = await Promise.all([
             pool.query(`
                 SELECT id, project_name, status, progress, amount_due, payment_status,
                        client_id, created_at, updated_at
@@ -33,6 +41,12 @@ export async function getDashboardOverview(req, res) {
                 FROM invoices
                 ORDER BY created_at DESC
             `),
+            pool.query(`
+                SELECT action, user_name, details, created_at
+                FROM activity_logs
+                ORDER BY created_at DESC
+                LIMIT 10
+            `),
         ]);
 
         res.json({
@@ -41,6 +55,7 @@ export async function getDashboardOverview(req, res) {
             templates: templates.rows,
             feedback: feedback.rows,
             invoices: invoices.rows,
+            recentActivities: recentActivities.rows,
         });
     } catch (err) {
         console.error('[Dashboard] Error:', err.message);
@@ -51,14 +66,17 @@ export async function getDashboardOverview(req, res) {
 // ── Admin Reports — Aggregated analytics for the Reports page ──
 export async function getReports(req, res) {
     try {
-        // Revenue by month (last 12 months)
+        const { start, end } = req.query;
+        const invoiceFilter = dateFilter(start, end);
+        const projectFilter = dateFilter(start, end);
+
+        // Revenue by month
         const revenueByMonth = await pool.query(`
             SELECT TO_CHAR(DATE_TRUNC('month', created_at), 'YYYY-MM') AS month,
                    SUM(amount) AS total,
                    COUNT(*) AS count
             FROM invoices
-            WHERE status = 'PAID'
-              AND created_at > NOW() - INTERVAL '12 months'
+            WHERE status = 'PAID' ${invoiceFilter ? `AND ${invoiceFilter}` : ''}
             GROUP BY DATE_TRUNC('month', created_at)
             ORDER BY month ASC
         `);
@@ -67,18 +85,19 @@ export async function getReports(req, res) {
         const projectsByStatus = await pool.query(`
             SELECT status, COUNT(*) AS count
             FROM client_projects
+            ${projectFilter ? `WHERE ${projectFilter}` : ''}
             GROUP BY status
             ORDER BY count DESC
         `);
 
-        // Top clients by revenue
+        // Top clients by revenue (filtered)
         const topClients = await pool.query(`
             SELECT c.id, c.name,
                    SUM(i.amount) AS total_revenue,
                    COUNT(i.id) AS invoice_count
             FROM clients c
             JOIN invoices i ON i.client_id = c.id
-            WHERE i.status = 'PAID'
+            WHERE i.status = 'PAID' ${invoiceFilter ? `AND ${invoiceFilter}` : ''}
             GROUP BY c.id, c.name
             ORDER BY total_revenue DESC
             LIMIT 10
@@ -92,6 +111,7 @@ export async function getReports(req, res) {
                 COUNT(*) FILTER (WHERE status = 'ARCHIVED') AS archived,
                 COUNT(*) FILTER (WHERE status NOT IN ('LAUNCHED', 'MAINTENANCE', 'ARCHIVED')) AS in_progress
             FROM client_projects
+            ${projectFilter ? `WHERE ${projectFilter}` : ''}
         `);
 
         // Invoice summary
@@ -104,13 +124,14 @@ export async function getReports(req, res) {
                 COALESCE(SUM(amount) FILTER (WHERE status = 'PAID'), 0) AS revenue,
                 COALESCE(SUM(amount) FILTER (WHERE status = 'PENDING'), 0) AS outstanding
             FROM invoices
+            ${invoiceFilter ? `WHERE ${invoiceFilter}` : ''}
         `);
 
-        // Average project progress
+        // Average project progress (exclude archived)
         const avgProgress = await pool.query(`
             SELECT ROUND(AVG(progress)) AS average_progress
             FROM client_projects
-            WHERE status NOT IN ('ARCHIVED')
+            ${projectFilter ? `WHERE ${projectFilter} AND status NOT IN ('ARCHIVED')` : 'WHERE status NOT IN (\'ARCHIVED\')'}
         `);
 
         res.json({

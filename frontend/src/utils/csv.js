@@ -46,3 +46,21 @@ export function downloadCSV(filename, csvText) {
     // Defer revoke so Safari has time to start the download.
     setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
+
+// ── Search Highlight Utility ───────────────────────────────
+// Returns a React-friendly string with <mark> tags around matches.
+export const highlightText = (text, search) => {
+    if (!search || !text) return text;
+    const regex = new RegExp(`(${search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+    return text.replace(regex, '<mark class="bg-accent/30 text-accent-900 rounded px-0.5">$1</mark>');
+};
+
+// Safe innerHTML for React
+export const HighlightedText = ({ text, search, className = '' }) => {
+    const parts = highlightText(text, search).split(/<mark[^>]*>([^<]+)<\/mark>/gi);
+    if (parts.length === 1) return <span className={className}>{text}</span>;
+    
+    return (
+        <span className={className} dangerouslySetInnerHTML={{ __html: highlightText(text, search) }} />
+    );
+};

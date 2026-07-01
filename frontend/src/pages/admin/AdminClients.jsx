@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../../services/api';
 import { notify } from '../../services/notify';
+import { HighlightedText } from '../../utils/csv.js';
+
 const AdminClients = () => {
   const [clients, setClients] = useState([]);
   const [formData, setFormData] = useState({
@@ -86,7 +88,7 @@ const AdminClients = () => {
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-10 pr-4 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900 outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-colors font-body"
             />
-            <svg className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+            <svg className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 1114 0z" /></svg>
           </div>
         </div>
 
@@ -218,8 +220,12 @@ const AdminClients = () => {
                       ).map(client => (
                         <tr key={client.id} className="hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors">
                           <td className="py-4 px-6">
-                            <p className="font-bold text-gray-900 dark:text-white font-heading">{client.name}</p>
-                            <p className="text-sm text-gray-500 dark:text-gray-400 font-body">{client.primary_contact_email}</p>
+                            <p className="font-bold text-gray-900 dark:text-white font-heading">
+                              <HighlightedText text={client.name} search={searchQuery} />
+                            </p>
+                            <p className="text-sm text-gray-500 dark:text-gray-400 font-body">
+                              <HighlightedText text={client.primary_contact_email} search={searchQuery} />
+                            </p>
                           </td>
                           <td className="py-4 px-6 text-center">
                             <span className="inline-flex items-center justify-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300 font-body">

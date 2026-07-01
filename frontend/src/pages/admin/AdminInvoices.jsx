@@ -37,6 +37,21 @@ const Icon = {
             <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
         </svg>
     ),
+    Check: (p) => (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}>
+            <polyline points="20 6 9 17 4 12" />
+        </svg>
+    ),
+    Refresh: (p) => (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}>
+            <polyline points="23 4 23 10 17 10" /><path d="M1 18a17 17 0 0 0 19-14l-9 9" />
+        </svg>
+    ),
+    File: (p) => (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}>
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" />
+        </svg>
+    ),
 };
 
 const StatusPill = ({ status, isOverdue }) => {
@@ -45,6 +60,7 @@ const StatusPill = ({ status, isOverdue }) => {
     }
     const map = {
         PAID: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300',
+        REFUNDED: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
         PENDING: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300',
     };
     return <span className={`px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider ${map[status] || 'bg-gray-100 text-gray-600'}`}>{status}</span>;
@@ -60,7 +76,7 @@ const StatCard = ({ label, value, hint, accent = 'blue' }) => {
     return (
         <div className="bg-white dark:bg-gray-800 p-5 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm">
             <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${accents[accent]} text-white flex items-center justify-center shadow-sm mb-3`}>
-                <Icon.Filter className="w-5 h-5" />
+                <Icon.File className="w-5 h-5" />
             </div>
             <div className="text-2xl font-extrabold text-gray-900 dark:text-white">{value}</div>
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{label}</p>
@@ -119,6 +135,38 @@ const AdminInvoices = () => {
             notify.error(res.error || 'Failed to create invoice.');
         }
         setSubmitting(false);
+    };
+
+    const handleMarkPaid = async (id) => {
+        const res = await api.patch(`/invoices/${id}/pay`);
+        if (res.ok) {
+            notify.success('Invoice marked as paid');
+            fetchInvoices();
+        } else {
+            notify.error(res.error || 'Failed to mark invoice as paid');
+        }
+    };
+
+    const handleRefund = async (id) => {
+        if (!window.confirm('Refund this invoice? This will mark it as refunded.')) return;
+        const res = await api.patch(`/invoices/${id}/refund`);
+        if (res.ok) {
+            notify.success('Invoice refunded');
+            fetchInvoices();
+        } else {
+            notify.error(res.error || 'Failed to refund invoice');
+        }
+    };
+
+    const handleDelete = async (id) => {
+        if (!window.confirm('Delete this invoice? This action cannot be undone.')) return;
+        const res = await api.delete(`/invoices/${id}`);
+        if (res.ok) {
+            notify.success('Invoice deleted');
+            fetchInvoices();
+        } else {
+            notify.error(res.error || 'Failed to delete invoice');
+        }
     };
 
     const exportCSV = () => {
@@ -320,14 +368,26 @@ const AdminInvoices = () => {
                                                     )}
                                                 </td>
                                                 <td className="py-4 px-6 text-right">
-                                                    {inv.payment_url && inv.status === 'PENDING' && (
-                                                        <a href={inv.payment_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-xs font-bold text-accent hover:underline">
-                                                            Pay Link <Icon.External className="w-3 h-3" />
-                                                        </a>
-                                                    )}
-                                                    {inv.status === 'PAID' && inv.paid_at && (
-                                                        <span className="text-[10px] text-gray-400">Paid {new Date(inv.paid_at).toLocaleDateString()}</span>
-                                                    )}
+                                                    <div className="flex items-center gap-3 justify-end">
+                                                        {inv.payment_url && inv.status === 'PENDING' && (
+                                                            <a href={inv.payment_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-xs font-bold text-accent hover:underline" title="Open payment link">
+                                                                Pay Link <Icon.External className="w-3 h-3" />
+                                                            </a>
+                                                        )}
+                                                        {inv.status === 'PENDING' && (
+                                                            <button onClick={() => handleMarkPaid(inv.id)} className="text-xs font-bold text-emerald-600 hover:text-emerald-700 flex items-center gap-1" title="Mark as paid">
+                                                                <Icon.Check className="w-3.5 h-3.5" /> Paid
+                                                            </button>
+                                                        )}
+                                                        {inv.status === 'PAID' && (
+                                                            <button onClick={() => handleRefund(inv.id)} className="text-xs font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1" title="Issue refund">
+                                                                <Icon.Refresh className="w-3.5 h-3.5" /> Refund
+                                                            </button>
+                                                        )}
+                                                        <button onClick={() => handleDelete(inv.id)} className="text-xs font-bold text-red-500 hover:text-red-600" title="Delete invoice">
+                                                            Delete
+                                                        </button>
+                                                    </div>
                                                 </td>
                                             </tr>
                                         );

@@ -23,6 +23,7 @@ import feedbackRoutes from './routes/feedbackRoutes.js';
 import invoiceRoutes from './routes/invoiceRoutes.js';
 import uptimeRoutes from './routes/uptimeRoutes.js';
 import dashboardRoutes from './routes/dashboardRoutes.js';
+import activityRoutes from './routes/activityRoutes.js';
 import pool from './config/db.js';
 import { startCronJobs } from './services/cronService.js';
 
@@ -88,6 +89,7 @@ app.use('/api/secrets', apiLimiter, secretRoutes);
 app.use('/api/feedback', apiLimiter, feedbackRoutes);
 app.use('/api/invoices', apiLimiter, invoiceRoutes);
 app.use('/api', apiLimiter, templateRoutes);
+app.use('/api/activity', apiLimiter, activityRoutes);
 
 // ── 404 fallback ─────────────────────────────────────────
 app.use((_req, res) => {

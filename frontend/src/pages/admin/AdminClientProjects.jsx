@@ -21,6 +21,19 @@ const DEFAULT_OFFBOARDING = {
   client_feedback: false,
 };
 
+const Icon = {
+    Copy: (p) => (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}>
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2" /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+        </svg>
+    ),
+    Send: (p) => (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}>
+            <line x1="22" y1="2" x2="11" x1="12" /><polygon points="22 2 15 22 11 13 2 9 22 2" />
+        </svg>
+    ),
+};
+
 const AdminClientProjects = () => {
   const [projects, setProjects] = useState([]);
   const [templates, setTemplates] = useState([]);
@@ -137,6 +150,42 @@ const AdminClientProjects = () => {
       offboarding_status: { ...DEFAULT_OFFBOARDING, ...(p.offboarding_status || {}) },
     });
     window.scrollTo(0, 0);
+  };
+
+  const duplicateProject = async (p) => {
+    if (!window.confirm(`Duplicate "${p.project_name}"? A copy will be created with "(Copy)" appended to the name.`)) return;
+    const payload = {
+      client_id: p.client_id,
+      project_name: `${p.project_name} (Copy)`,
+      notes: p.notes || '',
+      domain_name: '',
+      domain_expiration: '',
+      amount_due: p.amount_due || 0,
+      payment_type: p.payment_type || 'ONE_TIME',
+      monthly_fee: p.monthly_fee || 0,
+      payment_status: 'PENDING',
+      stages: p.stages ? p.stages.map(s => ({ ...s, status: 'PENDING' })) : DEFAULT_STAGES,
+      intake_form_id: p.intake_form_id || null,
+      intake_completed: false,
+      assets_url: '',
+      training_video_url: '',
+      maintenance_plan_url: '',
+      offboarding_status: { ...DEFAULT_OFFBOARDING },
+    };
+    const res = await api.post('/client-projects', payload);
+    if (res.ok) {
+      notify.success('Project duplicated');
+      fetchProjects();
+    } else {
+      notify.error(res.error || 'Failed to duplicate project');
+    }
+  };
+
+  const sendMagicLink = (p) => {
+    const url = `${FRONTEND_URL}/track/${p.tracking_id}`;
+    navigator.clipboard.writeText(url).then(() => {
+      notify.success('Magic link copied to clipboard!');
+    });
   };
 
   const handleSubmit = async (e) => {
@@ -322,7 +371,7 @@ const AdminClientProjects = () => {
                 <>
                   <h3 className="font-bold font-heading pt-4 border-t border-gray-100 dark:border-gray-700 text-accent">Launch & Handoff Vault</h3>
                   <div className="bg-accent/5 dark:bg-accent/10 p-4 rounded-xl border border-accent/20 dark:border-accent/30 space-y-3">
-                    <h4 className="text-sm font-bold text-accent">Offboarding Checklist</h4>
+                    <h4 className="text-sm font-bold text-accent text-[10px] uppercase tracking-wider mb-1">Offboarding Checklist</h4>
                     {[
                       { key: 'final_payment', label: 'Final invoice sent and paid' },
                       { key: 'credentials_documented', label: 'All credentials documented in vault' },
@@ -452,7 +501,11 @@ const AdminClientProjects = () => {
 
             {projects.length === 0 ? (
               <div className="text-center py-16 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700">
-                <p className="text-gray-400 font-body">No client projects found.</p>
+                <p className="text-gray-400 font-body mb-4">No client projects found.</p>
+                <button onClick={() => { setViewMode('list'); window.scrollTo(0, 0); }} className="inline-flex items-center gap-2 bg-accent hover:bg-orange-600 text-white font-bold py-2.5 px-5 rounded-xl transition-colors">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+                  Create your first project
+                </button>
               </div>
             ) : (
               projects.map((p, i) => {
@@ -470,13 +523,14 @@ const AdminClientProjects = () => {
                         <div className="min-w-0">
                           <h3 className="text-lg font-bold font-heading text-gray-900 dark:text-white flex items-center gap-2 flex-wrap">
                             {p.project_name}
-                            {p.payment_type === 'MONTHLY' && <span className="bg-emerald-100 text-emerald-800 text-[10px] px-2 py-0.5 rounded-full font-bold">Monthly</span>}
-                            {p.status === 'LAUNCHED' && <span className="bg-purple-100 text-purple-800 text-[10px] px-2 py-0.5 rounded-full font-bold">Launched</span>}
                           </h3>
                           <p className="text-sm text-gray-500 dark:text-gray-400 font-body">{p.client_name}</p>
                         </div>
                       </div>
                       <div className="flex gap-2 flex-shrink-0">
+                        <button onClick={() => duplicateProject(p)} className="text-xs font-bold text-gray-600 hover:text-accent flex items-center gap-1" title="Duplicate project">
+                          <Icon.Copy className="w-3.5 h-3.5" /> Duplicate
+                        </button>
                         <button onClick={() => editProject(p)} className="text-accent hover:text-orange-600 text-sm font-bold">Edit</button>
                         <button onClick={() => deleteProject(p.id)} className="text-red-500 hover:text-red-700 text-sm font-bold">Delete</button>
                       </div>
@@ -494,9 +548,14 @@ const AdminClientProjects = () => {
                     </div>
 
                     <div className="bg-accent/5 dark:bg-accent/10 p-3 rounded-xl text-sm mb-3 border border-accent/20">
-                      <p className="font-bold text-accent text-[10px] uppercase tracking-wider mb-1">Client Magic Link:</p>
+                      <div className="flex items-center justify-between mb-2">
+                        <p className="font-bold text-accent text-[10px] uppercase tracking-wider font-body">Client Magic Link:</p>
+                        <button onClick={() => sendMagicLink(p)} className="text-accent hover:text-orange-600 text-xs font-bold flex items-center gap-1" title="Copy magic link">
+                          <Icon.Send className="w-3 h-3" /> Copy
+                        </button>
+                      </div>
                       <a href={`/track/${p.tracking_id}`} target="_blank" rel="noreferrer"
-                        className="text-accent hover:underline break-all font-mono text-xs">
+                        className="text-accent hover:underline break-all font-mono text-xs block">
                         {FRONTEND_URL}/track/{p.tracking_id}
                       </a>
                     </div>
@@ -565,7 +624,7 @@ const AdminClientProjects = () => {
                   ))}
                   {projects.filter(p => p.status === status).length === 0 && (
                     <div className="text-center py-6 text-gray-400 text-xs font-bold border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl">
-                      Drop here
+                      Drop projects here
                     </div>
                   )}
                 </div>

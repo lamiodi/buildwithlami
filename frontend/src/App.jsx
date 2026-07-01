@@ -22,6 +22,8 @@ import AdminIntakeTemplates from './pages/admin/AdminIntakeTemplates';
 import AdminInvoices from './pages/admin/AdminInvoices';
 import AdminReports from './pages/admin/AdminReports';
 import AdminDashboard from './pages/admin/AdminDashboard';
+import AdminSettings from './pages/admin/AdminSettings';
+import AdminLogs from './pages/admin/AdminLogs';
 import AdminLayout from './components/AdminLayout';
 import ClientProjectTracker from './pages/ClientProjectTracker';
 import ClientIntakeForm from './pages/ClientIntakeForm';
@@ -138,6 +140,8 @@ function App() {
                 <Route path="invoices" element={<AdminInvoices />} />
                 <Route path="reports" element={<AdminReports />} />
                 <Route path="templates" element={<AdminIntakeTemplates />} />
+                <Route path="settings" element={<AdminSettings />} />
+                <Route path="logs" element={<AdminLogs />} />
               </Route>
               
               {/* Auth Route */}

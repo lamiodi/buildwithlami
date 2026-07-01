@@ -71,9 +71,28 @@ const LOCAL_BUSINESS_PRESET = {
   ]
 };
 
+const Icon = {
+    Edit: (p) => (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}>
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 13.5 9 14 9.5 11.5 17.5 3.5z" />
+        </svg>
+    ),
+    Trash: (p) => (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}>
+            <polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+        </svg>
+    ),
+    External: (p) => (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}>
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" /><polyline points="15 3 21 3 21 9" /><line x1="10" y1="14" x2="21" y2="3" />
+        </svg>
+    ),
+};
+
 const AdminIntakeTemplates = () => {
   const [templates, setTemplates] = useState([]);
   const [formData, setFormData] = useState({ name: '', description: '', schema: [] });
+  const [editingId, setEditingId] = useState(null);
   const [submitting, setSubmitting] = useState(false);
 
   const fetchTemplates = async () => {
@@ -85,6 +104,7 @@ const AdminIntakeTemplates = () => {
 
   const loadPreset = (preset) => {
     setFormData({ name: preset.name, description: preset.description, schema: JSON.parse(JSON.stringify(preset.schema)) });
+    setEditingId(null);
   };
 
   const addField = (type) => {
@@ -101,19 +121,52 @@ const AdminIntakeTemplates = () => {
     setFormData(prev => ({ ...prev, schema: prev.schema.filter(f => f.id !== id) }));
   };
 
+  const resetForm = () => {
+    setFormData({ name: '', description: '', schema: [] });
+    setEditingId(null);
+  };
+
+  const editTemplate = (template) => {
+    setEditingId(template.id);
+    setFormData({
+      name: template.name || '',
+      description: template.description || '',
+      schema: template.schema ? JSON.parse(JSON.stringify(template.schema)) : []
+    });
+    window.scrollTo(0, 0);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (formData.schema.length === 0) { notify.error('Add at least one field'); return; }
     setSubmitting(true);
-    const res = await api.post('/templates', formData);
-    if (res.ok) {
-      notify.success('Template created successfully!');
-      fetchTemplates();
-      setFormData({ name: '', description: '', schema: [] });
+
+    let res;
+    if (editingId) {
+      res = await api.put(`/templates/${editingId}`, formData);
     } else {
-      notify.error(res.error || 'Failed to create template');
+      res = await api.post('/templates', formData);
+    }
+
+    if (res.ok) {
+      notify.success(editingId ? 'Template updated!' : 'Template created successfully!');
+      fetchTemplates();
+      resetForm();
+    } else {
+      notify.error(res.error || 'Failed to save template');
     }
     setSubmitting(false);
+  };
+
+  const deleteTemplate = async (id) => {
+    if (!window.confirm('Delete this template? Projects using it will lose their intake form reference.')) return;
+    const res = await api.delete(`/templates/${id}`);
+    if (res.ok) {
+      notify.success('Template deleted');
+      fetchTemplates();
+    } else {
+      notify.error(res.error || 'Failed to delete template');
+    }
   };
 
   const inputClass = "w-full p-3 text-sm border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900 outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-colors font-body";
@@ -129,15 +182,23 @@ const AdminIntakeTemplates = () => {
               </h1>
               <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 font-body">Build dynamic forms for client onboarding.</p>
             </div>
+            {editingId && (
+              <button onClick={resetForm} className="text-sm font-bold text-accent hover:underline">
+                Cancel Edit
+              </button>
+            )}
           </div>
         </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* BUILDER PANEL */}
           <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: 0.05 }}
-            className="bg-white dark:bg-gray-800 p-6 md:p-8 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm">
+            className="bg-white dark:bg-gray-800 p-6 md:p-8 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm"
+          >
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-bold font-heading text-gray-900 dark:text-white">Create New Template</h2>
+              <h2 className="text-xl font-bold font-heading text-gray-900 dark:text-white">
+                {editingId ? 'Edit Template' : 'Create New Template'}
+              </h2>
               <div className="flex flex-wrap gap-2 justify-end">
                 {[
                   { preset: ECOMMERCE_PRESET, label: 'E-Commerce', color: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300' },
@@ -147,7 +208,9 @@ const AdminIntakeTemplates = () => {
                   { preset: LOCAL_BUSINESS_PRESET, label: 'Local Biz', color: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300' },
                 ].map(({ preset, label, color }) => (
                   <button key={label} onClick={() => loadPreset(preset)}
-                    className={`text-xs px-3 py-1.5 rounded-lg font-bold transition-colors ${color} hover:opacity-80`}>
+                    className={`text-xs px-3 py-1.5 rounded-lg font-bold transition-colors ${color} hover:opacity-80`}
+                    title={`Load ${label} preset`}
+                  >
                     {label}
                   </button>
                 ))}
@@ -195,7 +258,7 @@ const AdminIntakeTemplates = () => {
                   ))}
                   {formData.schema.length === 0 && (
                     <div className="text-center py-10 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl text-gray-400 font-body">
-                      No fields added yet. Click below to add your first field.
+                      No fields added yet. Use presets above or add fields below.
                     </div>
                   )}
                 </div>
@@ -209,7 +272,9 @@ const AdminIntakeTemplates = () => {
                     { type: 'checkbox', label: '+ Checkboxes', color: 'bg-accent/10 text-accent' },
                   ].map(({ type, label, color }) => (
                     <button key={type} type="button" onClick={() => addField(type)}
-                      className={`px-4 py-2 text-sm font-bold rounded-xl transition-colors ${color} hover:opacity-80`}>
+                      className={`px-4 py-2 text-sm font-bold rounded-xl transition-colors ${color} hover:opacity-80`}
+                      title={`Add ${type} field`}
+                    >
                       {label}
                     </button>
                   ))}
@@ -217,8 +282,9 @@ const AdminIntakeTemplates = () => {
               </div>
 
               <button type="submit" disabled={submitting || formData.schema.length === 0}
-                className="w-full mt-6 bg-accent hover:bg-orange-600 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg hover:shadow-accent/30 disabled:opacity-50 disabled:cursor-not-allowed font-body">
-                {submitting ? 'Saving Template...' : 'Save Intake Template'}
+                className="w-full mt-6 bg-accent hover:bg-orange-600 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg hover:shadow-accent/30 disabled:opacity-50 disabled:cursor-not-allowed font-body"
+              >
+                {submitting ? 'Saving...' : editingId ? 'Update Template' : 'Save Intake Template'}
               </button>
             </form>
           </motion.div>
@@ -230,13 +296,30 @@ const AdminIntakeTemplates = () => {
             <div className="grid gap-4">
               {templates.length === 0 ? (
                 <div className="bg-white dark:bg-gray-800 p-12 rounded-2xl text-center text-gray-400 border border-gray-100 dark:border-gray-700 shadow-sm">
-                  <p className="font-body">No templates saved yet.</p>
+                  <p className="font-body mb-4">No templates saved yet.</p>
+                  <p className="text-xs text-gray-500">Use presets above to quickly create templates for different project types.</p>
                 </div>
               ) : (
                 templates.map(t => (
                   <div key={t.id} className="bg-white dark:bg-gray-800 p-5 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm group hover:border-accent/40 transition-colors">
                     <div className="flex justify-between items-start mb-2">
                       <h3 className="text-lg font-bold font-heading text-gray-900 dark:text-white group-hover:text-accent transition-colors">{t.name}</h3>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => editTemplate(t)}
+                          className="text-xs bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 font-bold px-2 py-1 rounded-lg transition-colors"
+                          title="Edit template"
+                        >
+                          <Icon.Edit className="w-3.5 h-3.5 inline-block" />
+                        </button>
+                        <button
+                          onClick={() => deleteTemplate(t.id)}
+                          className="text-xs bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/40 text-red-600 font-bold px-2 py-1 rounded-lg transition-colors"
+                          title="Delete template"
+                        >
+                          <Icon.Trash className="w-3.5 h-3.5 inline-block" />
+                        </button>
+                      </div>
                     </div>
                     <p className="text-sm text-gray-500 dark:text-gray-400 mb-4 line-clamp-2 font-body">{t.description}</p>
                     <div className="flex items-center justify-between border-t border-gray-100 dark:border-gray-700 pt-4 mt-2">
@@ -245,7 +328,7 @@ const AdminIntakeTemplates = () => {
                       </span>
                       <a href={`/form/${t.id}`} target="_blank" rel="noreferrer"
                         className="text-accent text-sm font-bold hover:underline flex items-center gap-1 font-body">
-                        Preview Form →
+                        Preview Form <Icon.External className="w-3 h-3" />
                       </a>
                     </div>
                   </div>

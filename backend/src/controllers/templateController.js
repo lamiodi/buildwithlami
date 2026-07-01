@@ -53,6 +53,46 @@ export const getTemplateById = async (req, res) => {
     }
 };
 
+export const updateTemplate = async (req, res) => {
+    try {
+        const { id } = req.params;
+        if (!isUuid(id)) return res.status(400).json({ error: 'Invalid ID format.' });
+
+        const { name, description, schema } = templateSchema.parse(req.body);
+
+        const { rows } = await pool.query(
+            `UPDATE intake_templates SET name = $1, description = $2, schema = $3, updated_at = NOW()
+             WHERE id = $4 RETURNING *`,
+            [name, description || null, JSON.stringify(schema), id]
+        );
+
+        if (rows.length === 0) return res.status(404).json({ error: 'Template not found' });
+        res.json(rows[0]);
+    } catch (err) {
+        if (err instanceof z.ZodError) return res.status(400).json({ error: err.errors });
+        console.error('[Templates] updateTemplate error:', err.message);
+        res.status(500).json({ error: 'Internal server error.' });
+    }
+};
+
+export const deleteTemplate = async (req, res) => {
+    try {
+        const { id } = req.params;
+        if (!isUuid(id)) return res.status(400).json({ error: 'Invalid ID format.' });
+
+        const { rows } = await pool.query(
+            'DELETE FROM intake_templates WHERE id = $1 RETURNING *',
+            [id]
+        );
+
+        if (rows.length === 0) return res.status(404).json({ error: 'Template not found' });
+        res.json({ success: true, deleted: rows[0] });
+    } catch (err) {
+        console.error('[Templates] deleteTemplate error:', err.message);
+        res.status(500).json({ error: 'Internal server error.' });
+    }
+};
+
 // ── Intake Submissions ────────────────────────────────────
 
 const submissionSchema = z.object({

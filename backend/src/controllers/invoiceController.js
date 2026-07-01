@@ -141,6 +141,54 @@ export const getInvoicesByProject = async (req, res) => {
     }
 };
 
+// Admin: Delete invoice
+export const deleteInvoice = async (req, res) => {
+    const { id } = req.params;
+    if (!isUuid(id)) return res.status(400).json({ error: 'Invalid ID format.' });
+    try {
+        const { rows } = await pool.query('DELETE FROM invoices WHERE id = $1 RETURNING *', [id]);
+        if (rows.length === 0) return res.status(404).json({ error: 'Invoice not found.' });
+        res.json({ success: true, deleted: rows[0] });
+    } catch (err) {
+        console.error('[Invoices] deleteInvoice error:', err.message);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
+// Admin: Mark invoice as paid manually
+export const markInvoicePaid = async (req, res) => {
+    const { id } = req.params;
+    if (!isUuid(id)) return res.status(400).json({ error: 'Invalid ID format.' });
+    try {
+        const { rows } = await pool.query(
+            `UPDATE invoices SET status = 'PAID', paid_at = NOW() WHERE id = $1 AND status <> 'PAID' RETURNING *`,
+            [id]
+        );
+        if (rows.length === 0) return res.status(404).json({ error: 'Invoice not found or already paid.' });
+        res.json(rows[0]);
+    } catch (err) {
+        console.error('[Invoices] markInvoicePaid error:', err.message);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
+// Admin: Issue refund (sets invoice to REFUNDED, clears paid_at)
+export const refundInvoice = async (req, res) => {
+    const { id } = req.params;
+    if (!isUuid(id)) return res.status(400).json({ error: 'Invalid ID format.' });
+    try {
+        const { rows } = await pool.query(
+            `UPDATE invoices SET status = 'REFUNDED', paid_at = NULL WHERE id = $1 AND status = 'PAID' RETURNING *`,
+            [id]
+        );
+        if (rows.length === 0) return res.status(404).json({ error: 'Invoice not found or cannot be refunded.' });
+        res.json(rows[0]);
+    } catch (err) {
+        console.error('[Invoices] refundInvoice error:', err.message);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
 // Paystack Webhook to automatically mark invoice as PAID
 export const paystackWebhook = async (req, res) => {
     try {
