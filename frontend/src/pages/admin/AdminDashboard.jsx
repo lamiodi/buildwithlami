@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { api } from '../../services/api';
 import { notify } from '../../services/notify';
-import { toCSV, downloadCSV } from '../../utils/csv.js';
+import { toCSV, downloadCSV } from '../../utils/csv.jsx';
 
 // Simple Naira formatter (stored amounts are already in NGN in the DB).
 const formatCurrency = (n) => `₦${Number(n || 0).toLocaleString()}`;

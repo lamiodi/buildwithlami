@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { api } from '../../services/api';
 import { notify } from '../../services/notify';
-import { toCSV, downloadCSV } from '../../utils/csv.js';
+import { toCSV, downloadCSV } from '../../utils/csv.jsx';
 
 const formatCurrency = (n) => `₦${Number(n || 0).toLocaleString()}`;
 

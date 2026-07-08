@@ -46,6 +46,45 @@ export async function login(req, res) {
     }
 }
 
+// ── Change Password ──────────────────────────────────────
+const changePasswordSchema = z.object({
+    currentPassword: z.string().min(1),
+    newPassword: z.string().min(6),
+});
+
+export async function changePassword(req, res) {
+    try {
+        const { currentPassword, newPassword } = changePasswordSchema.parse(req.body);
+
+        const { rows } = await pool.query(
+            `SELECT password FROM users WHERE id = $1`,
+            [req.user.id],
+        );
+        if (rows.length === 0) {
+            return res.status(404).json({ error: 'User not found.' });
+        }
+
+        const match = await bcrypt.compare(currentPassword, rows[0].password);
+        if (!match) {
+            return res.status(401).json({ error: 'Current password is incorrect.' });
+        }
+
+        const hash = await bcrypt.hash(newPassword, 12);
+        await pool.query(
+            `UPDATE users SET password = $1, updated_at = NOW() WHERE id = $2`,
+            [hash, req.user.id],
+        );
+
+        return res.json({ message: 'Password changed successfully.' });
+    } catch (err) {
+        if (err instanceof z.ZodError) {
+            return res.status(400).json({ error: err.errors });
+        }
+        console.error('[Auth] changePassword error:', err.message);
+        return res.status(500).json({ error: 'Internal server error.' });
+    }
+}
+
 // ── Verify Current Session ───────────────────────────────
 // Called by the frontend ProtectedRoute to check if the
 // admin's JWT is still valid before rendering admin pages.

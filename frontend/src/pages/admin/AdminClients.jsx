@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../../services/api';
 import { notify } from '../../services/notify';
-import { HighlightedText } from '../../utils/csv.js';
+import { HighlightedText } from '../../utils/csv.jsx';
 
 const AdminClients = () => {
   const [clients, setClients] = useState([]);

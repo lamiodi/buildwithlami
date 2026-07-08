@@ -21,6 +21,91 @@ const Icon = {
     ),
 };
 
+const PasswordSection = () => {
+    const [currentPassword, setCurrentPassword] = useState('');
+    const [newPassword, setNewPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [changing, setChanging] = useState(false);
+    const [pwError, setPwError] = useState('');
+
+    const handlePasswordChange = async (e) => {
+        e.preventDefault();
+        setPwError('');
+        if (newPassword !== confirmPassword) {
+            setPwError('New passwords do not match.');
+            return;
+        }
+        if (newPassword.length < 6) {
+            setPwError('Password must be at least 6 characters.');
+            return;
+        }
+        setChanging(true);
+        const res = await api.put('/auth/password', {
+            currentPassword,
+            newPassword,
+        });
+        if (res.ok) {
+            notify.success('Password changed successfully!');
+            setCurrentPassword('');
+            setNewPassword('');
+            setConfirmPassword('');
+        } else {
+            setPwError(res.error || 'Failed to change password.');
+        }
+        setChanging(false);
+    };
+
+    return (
+        <form onSubmit={handlePasswordChange} className="space-y-4 max-w-md">
+            <div>
+                <label className="block text-[10px] font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2">Current Password</label>
+                <input
+                    type="password"
+                    required
+                    autoComplete="current-password"
+                    value={currentPassword}
+                    onChange={(e) => setCurrentPassword(e.target.value)}
+                    className="w-full p-3 text-sm border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900 outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-colors font-body"
+                />
+            </div>
+            <div>
+                <label className="block text-[10px] font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2">New Password</label>
+                <input
+                    type="password"
+                    required
+                    autoComplete="new-password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    className="w-full p-3 text-sm border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900 outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-colors font-body"
+                />
+            </div>
+            <div>
+                <label className="block text-[10px] font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2">Confirm New Password</label>
+                <input
+                    type="password"
+                    required
+                    autoComplete="new-password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className="w-full p-3 text-sm border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900 outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-colors font-body"
+                />
+            </div>
+            {pwError && (
+                <div className="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm p-3 rounded-xl border border-red-100 dark:border-red-800 font-body">
+                    {pwError}
+                </div>
+            )}
+            <button
+                type="submit"
+                disabled={changing}
+                className="bg-accent hover:bg-orange-600 text-white font-bold py-3 px-6 rounded-xl transition-all shadow-lg hover:shadow-accent/30 disabled:opacity-50 font-body inline-flex items-center gap-2"
+            >
+                {changing ? 'Changing…' : 'Change Password'}
+            </button>
+        </form>
+    );
+};
+
 const AdminSettings = () => {
     const [profile, setProfile] = useState({
         full_name: '',
@@ -138,6 +223,11 @@ const AdminSettings = () => {
                                     <input type="url" name="twitter" value={profile.social_links?.twitter || ''} onChange={handleSocialChange} placeholder="https://twitter.com/..." className={inputClass} />
                                 </div>
                             </div>
+                        </div>
+
+                        <div className="border-t border-gray-100 dark:border-gray-700 pt-6">
+                            <h3 className="font-bold font-heading text-gray-900 dark:text-white mb-4">Change Password</h3>
+                            <PasswordSection />
                         </div>
 
                         <button type="submit" disabled={saving}
