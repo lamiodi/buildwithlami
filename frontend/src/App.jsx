@@ -24,6 +24,7 @@ import AdminReports from './pages/admin/AdminReports';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminSettings from './pages/admin/AdminSettings';
 import AdminLogs from './pages/admin/AdminLogs';
+import AdminPortfolio from './pages/admin/AdminPortfolio';
 import AdminLayout from './components/AdminLayout';
 import ClientProjectTracker from './pages/ClientProjectTracker';
 import ClientIntakeForm from './pages/ClientIntakeForm';
@@ -134,6 +135,7 @@ function App() {
               {/* Admin Routes — Protected by JWT verification */}
               <Route path="/admin" element={<ProtectedRoute><AdminLayout isDark={isDark} toggleTheme={toggleTheme} /></ProtectedRoute>}>
                 <Route index element={<AdminDashboard />} />
+                <Route path="portfolio" element={<AdminPortfolio />} />
                 <Route path="projects" element={<AdminClientProjects />} />
                 <Route path="clients" element={<AdminClients />} />
                 <Route path="projects/:id" element={<AdminProjectDetail />} />

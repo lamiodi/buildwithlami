@@ -20,7 +20,8 @@ const Icon = {
 
 const navItems = [
     { to: '/admin', label: 'Dashboard', icon: Icon.Dashboard, end: true },
-    { to: '/admin/projects', label: 'Projects', icon: Icon.Folder },
+    { to: '/admin/portfolio', label: 'Portfolio', icon: Icon.FileText },
+    { to: '/admin/projects', label: 'Client Projects', icon: Icon.Folder },
     { to: '/admin/clients', label: 'Clients', icon: Icon.Users },
     { to: '/admin/invoices', label: 'Invoices', icon: Icon.CreditCard },
     { to: '/admin/templates', label: 'Forms & Intake', icon: Icon.FileText },
