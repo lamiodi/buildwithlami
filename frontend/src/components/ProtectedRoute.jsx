@@ -33,16 +33,18 @@ const ProtectedRoute = ({ children }) => {
                 return;
             }
             if (!res.ok && (res.status === 401 || res.status === 403)) {
-                // Clear the stale/invalid token so we don't keep failing.
+                // Token is actually invalid/expired — clear it and deny.
                 clearAuth();
                 setStatus('denied');
                 return;
             }
-            // Transient — try once more before giving up.
+            // Transient (network error, timeout, 5xx) — retry without clearing the token.
             if (attempt < 2) {
-                setTimeout(() => verify(attempt + 1), 500);
+                setTimeout(() => verify(attempt + 1), 800);
             } else {
-                setStatus('denied');
+                // Still failing after retry, but token may still be valid.
+                // Let the user through — individual API calls will handle auth errors.
+                setStatus('authenticated');
             }
         };
         verify();
