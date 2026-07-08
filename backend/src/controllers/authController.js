@@ -14,9 +14,16 @@ export async function login(req, res) {
     try {
         const { email, password } = loginSchema.parse(req.body);
 
+        // Fail fast if JWT_SECRET isn't set — silent "Internal server
+        // error" 500s make auth debugging miserable. Surface it clearly.
+        if (!process.env.JWT_SECRET) {
+            console.error('[Auth] JWT_SECRET is not set in environment variables.');
+            return res.status(500).json({ error: 'Server misconfiguration. Contact admin.' });
+        }
+
         const { rows } = await pool.query(
             `SELECT id, email, password, role FROM users WHERE email = $1`,
-            [email],
+            [email.toLowerCase().trim()],
         );
 
         if (rows.length === 0) {
