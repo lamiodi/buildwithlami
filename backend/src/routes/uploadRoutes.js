@@ -1,14 +1,14 @@
 import express from 'express';
 import multer from 'multer';
 import cloudinary from '../utils/cloudinary.js';
-import { authenticate, requireRole } from '../middleware/auth.js';
+import { verifyToken, requireRole } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage, limits: { fileSize: 10 * 1024 * 1024 } }); // 10MB limit
 
-router.post('/', authenticate, requireRole('OWNER'), upload.single('image'), async (req, res) => {
+router.post('/', verifyToken, requireRole('ADMIN', 'OWNER'), upload.single('image'), async (req, res) => {
     try {
         if (!req.file) {
             return res.status(400).json({ error: 'No image provided.' });
