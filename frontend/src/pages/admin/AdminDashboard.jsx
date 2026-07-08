@@ -847,12 +847,18 @@ const AdminDashboard = () => {
 // just a filter against the data already on screen.
 const CommandPalette = ({ projects, clients, templates, onClose, onNavigate }) => {
     const [q, setQ] = useState('');
+    const [debouncedQ, setDebouncedQ] = useState('');
     const [active, setActive] = useState(0);
     const inputRef = useRef(null);
 
     useEffect(() => {
         inputRef.current?.focus();
     }, []);
+
+    useEffect(() => {
+        const timer = setTimeout(() => setDebouncedQ(q), 150);
+        return () => clearTimeout(timer);
+    }, [q]);
 
     const items = useMemo(() => {
         const navActions = [
@@ -889,14 +895,14 @@ const CommandPalette = ({ projects, clients, templates, onClose, onNavigate }) =
     }, [projects, clients, templates]);
 
     const filtered = useMemo(() => {
-        const term = q.trim().toLowerCase();
+        const term = debouncedQ.trim().toLowerCase();
         if (!term) return items.slice(0, 10);
         return items.filter((i) => i.label.toLowerCase().includes(term) || (i.sub || '').toLowerCase().includes(term)).slice(0, 12);
-    }, [q, items]);
+    }, [debouncedQ, items]);
 
     useEffect(() => {
         setActive(0);
-    }, [q]);
+    }, [debouncedQ]);
 
     const onKeyDown = useCallback((e) => {
         if (e.key === 'ArrowDown') {
