@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>BuildWithLami</title>
+    <script>
+      // SPA fallback for Cloudflare Pages — send deep-link refreshes into the app.
+      // Cloudflare serves this 404 only when no static asset matches; we forward
+      // the user to the Vercel-style index.html rewrite so React Router boots.
+      var l = window.location;
+      l.replace(
+        l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
+        l.pathname.replace(/^\//, '/') + (l.pathname[0] === '/' ? '' : '/') +
+        l.search + l.hash
+      );
+      // Note: Cloudflare Pages' Pages Functions feature can serve index.html
+      // directly via _redirects — this file is a belt-and-braces fallback.
+    </script>
+  </head>
+  <body></body>
+</html>
