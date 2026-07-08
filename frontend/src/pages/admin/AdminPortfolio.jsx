@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { api } from '../../services/api';
+
+const API_BASE = import.meta.env.VITE_API_URL || '/api';
 
 const AdminPortfolio = () => {
     const [projects, setProjects] = useState([]);
@@ -19,13 +22,9 @@ const AdminPortfolio = () => {
     const fetchProjects = async () => {
         try {
             setLoading(true);
-            const token = localStorage.getItem('token');
-            const res = await fetch('/api/projects', {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            if (!res.ok) throw new Error('Failed to fetch projects');
-            const data = await res.json();
-            setProjects(data);
+            const res = await api.get('/projects');
+            if (!res.ok) throw new Error(res.error || 'Failed to fetch projects');
+            setProjects(res.data);
         } catch (err) {
             setError(err.message);
         } finally {
@@ -65,7 +64,7 @@ const AdminPortfolio = () => {
         formData.append('image', file);
 
         try {
-            const res = await fetch('/api/upload', {
+            const res = await fetch(`${API_BASE}/upload`, {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${token}` },
                 body: formData
@@ -83,20 +82,12 @@ const AdminPortfolio = () => {
     const handleSave = async (e) => {
         e.preventDefault();
         try {
-            const token = localStorage.getItem('token');
-            const url = editingProject ? `/api/projects/${editingProject}` : '/api/projects';
-            const method = editingProject ? 'PUT' : 'POST';
+            const url = editingProject ? `/projects/${editingProject}` : '/projects';
+            const res = editingProject 
+                ? await api.put(url, formData)
+                : await api.post(url, formData);
 
-            const res = await fetch(url, {
-                method,
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(formData)
-            });
-
-            if (!res.ok) throw new Error('Failed to save project');
+            if (!res.ok) throw new Error(res.error || 'Failed to save project');
             await fetchProjects();
             setIsEditModalOpen(false);
         } catch (err) {
@@ -107,12 +98,8 @@ const AdminPortfolio = () => {
     const handleDelete = async (id) => {
         if (!window.confirm('Are you sure you want to delete this project?')) return;
         try {
-            const token = localStorage.getItem('token');
-            const res = await fetch(`/api/projects/${id}`, {
-                method: 'DELETE',
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            if (!res.ok) throw new Error('Failed to delete project');
+            const res = await api.delete(`/projects/${id}`);
+            if (!res.ok) throw new Error(res.error || 'Failed to delete project');
             setProjects(projects.filter(p => p.id !== id));
         } catch (err) {
             alert(err.message);
