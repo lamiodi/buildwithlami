@@ -1,6 +1,15 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import SessionTimeoutModal from './admin/SessionTimeoutModal';
+import NotificationBell from './admin/NotificationBell';
+import GlobalSearch from './admin/GlobalSearch';
+import QuickActionFAB from './admin/QuickActionFAB';
+import WorkspaceSelector from './admin/WorkspaceSelector';
+import { useAuth } from '../contexts/AuthContext';
+import { coreNav, visibleWorkspaces } from '../data/adminNavItems.jsx';
+
+const WORKSPACE_STORAGE_KEY = 'bwl:admin:workspace';
 
 const Icon = {
     Users: (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>,
@@ -13,27 +22,56 @@ const Icon = {
     LogOut: (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>,
     Dashboard: (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>,
     Folder: (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>,
+    Kanban: (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/></svg>,
+    Mail: (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>,
     CreditCard: (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>,
     FileText: (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>,
-    BarChart: (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+    BarChart: (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>,
+    Shield: (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>,
 };
 
-const navItems = [
-    { to: '/admin', label: 'Dashboard', icon: Icon.Dashboard, end: true },
-    { to: '/admin/portfolio', label: 'Portfolio', icon: Icon.FileText },
-    { to: '/admin/projects', label: 'Client Projects', icon: Icon.Folder },
-    { to: '/admin/clients', label: 'Clients', icon: Icon.Users },
-    { to: '/admin/invoices', label: 'Invoices', icon: Icon.CreditCard },
-    { to: '/admin/templates', label: 'Forms & Intake', icon: Icon.FileText },
-    { to: '/admin/reports', label: 'Reports', icon: Icon.BarChart },
-    { to: '/admin/logs', label: 'Activity Logs', icon: Icon.Activity },
-    { to: '/admin/settings', label: 'Settings', icon: Icon.Settings },
-];
+// Module-level nav arrays (core + per-workspace) live in
+// `data/adminNavItems.js`. The visible nav is composed at
+// runtime from `useAuth().divisions` and the active workspace.
 
 const AdminLayout = ({ isDark, toggleTheme }) => {
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const location = useLocation();
+    const { user } = useAuth();
+
+    // Active workspace — read from localStorage on first mount,
+    // then re-evaluate when the user/their divisions change.
+    const [activeWorkspace, setActiveWorkspace] = useState(() => {
+        try { return localStorage.getItem(WORKSPACE_STORAGE_KEY) || 'software'; } catch { return 'software'; }
+    });
+
+    // Reset to a valid workspace if the persisted one isn't in
+    // the user's allowed set (e.g. role changed).
+    useEffect(() => {
+        const allowed = visibleWorkspaces(user);
+        if (allowed.length === 0) return;
+        if (!allowed.find(w => w.id === activeWorkspace)) {
+            const fallback = allowed[0].id;
+            try { localStorage.setItem(WORKSPACE_STORAGE_KEY, fallback); } catch {}
+            setActiveWorkspace(fallback);
+        }
+    }, [user, activeWorkspace]);
+
+    // Compose the visible nav: core (always) + the active
+    // workspace's items. De-duplicate by `to` so a core item
+    // can never show up twice if it happens to be in the
+    // workspace nav too.
+    const navItems = useMemo(() => {
+        const ws = visibleWorkspaces(user).find(w => w.id === activeWorkspace);
+        const combined = [...coreNav, ...(ws ? ws.nav : [])];
+        const seen = new Set();
+        return combined.filter(it => {
+            if (seen.has(it.to)) return false;
+            seen.add(it.to);
+            return true;
+        });
+    }, [user, activeWorkspace]);
 
     // Generate breadcrumbs from pathname
     const paths = location.pathname.split('/').filter(Boolean);
@@ -57,7 +95,22 @@ const AdminLayout = ({ isDark, toggleTheme }) => {
                         <span className="font-extrabold text-xl mx-auto text-blue-600">L</span>
                     )}
                 </div>
-                
+
+                {/* Phase 6 — Workspace switcher.
+                    Sits directly below the brand bar. The component
+                    itself is a no-op when the user has no division
+                    access; we still render the divider so the layout
+                    stays consistent for the rare "super-admin" case. */}
+                {sidebarOpen && (
+                    <div className="px-3 pt-4">
+                        <WorkspaceSelector
+                            user={user}
+                            active={activeWorkspace}
+                            onChange={setActiveWorkspace}
+                        />
+                    </div>
+                )}
+
                 <div className="flex-1 overflow-y-auto py-6 flex flex-col gap-2 px-3">
                     {navItems.map(item => (
                         <NavLink
@@ -166,18 +219,13 @@ const AdminLayout = ({ isDark, toggleTheme }) => {
                     </div>
 
                     <div className="flex items-center gap-3 sm:gap-4">
-                        {/* Global Search shortcut hint */}
-                        <div className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-100 dark:bg-gray-800 text-xs text-gray-500 dark:text-gray-400 mr-2 border border-gray-200 dark:border-gray-700">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                            <span className="font-mono font-bold ml-1">Cmd+K</span>
-                        </div>
+                        {/* Global Search (⌘K) */}
+                        <GlobalSearch />
 
-                        <button className="p-2 relative text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors rounded-full hover:bg-gray-100 dark:hover:bg-gray-800">
-                            <Icon.Bell className="w-5 h-5" />
-                            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-rose-500 rounded-full border-2 border-white dark:border-[#0A0A0A]"></span>
-                        </button>
-                        
-                        <button onClick={toggleTheme} className="p-2 text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors rounded-full hover:bg-gray-100 dark:hover:bg-gray-800">
+                        {/* Notifications */}
+                        <NotificationBell />
+
+                        <button onClick={toggleTheme} className="cursor-pointer p-2 text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors rounded-full hover:bg-gray-100 dark:hover:bg-gray-800">
                             {isDark ? <Icon.Sun className="w-5 h-5" /> : <Icon.Moon className="w-5 h-5" />}
                         </button>
 
@@ -200,6 +248,12 @@ const AdminLayout = ({ isDark, toggleTheme }) => {
                     </div>
                 </main>
             </div>
+
+            {/* ── SESSION TIMEOUT WARNING ── */}
+            <SessionTimeoutModal />
+
+            {/* ── QUICK-ACTION FLOATING BUTTON ── */}
+            <QuickActionFAB />
         </div>
     );
 };

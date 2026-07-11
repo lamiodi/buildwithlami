@@ -17,6 +17,10 @@ CREATE TABLE IF NOT EXISTS clients (
 );
 
 -- 2. Client Projects
+-- Note: `last_notified_at` was removed in Phase 0 — the
+-- `cronService.js` keeps dedupe state in a process-local Map,
+-- not in this column. The `v6_offboarding.sql` migration
+-- drops the column from legacy databases.
 CREATE TABLE IF NOT EXISTS client_projects (
     id                      UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     client_id               UUID NOT NULL REFERENCES clients(id) ON DELETE CASCADE,
@@ -40,8 +44,8 @@ CREATE TABLE IF NOT EXISTS client_projects (
     assets_url              TEXT,
     training_video_url      TEXT,
     maintenance_plan_url    TEXT,
-    offboarding_status      TEXT,
-    offboarding_checklist   JSONB,
+    offboarding_status      TEXT NOT NULL DEFAULT 'NOT_STARTED',
+    offboarding_checklist   JSONB NOT NULL DEFAULT '[]'::jsonb,
     created_at              TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at              TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );

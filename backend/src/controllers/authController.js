@@ -22,7 +22,8 @@ export async function login(req, res) {
         }
 
         const { rows } = await pool.query(
-            `SELECT id, email, password, role FROM users WHERE email = $1`,
+            `SELECT id, email, password, role, two_factor_enabled
+               FROM users WHERE email = $1`,
             [email.toLowerCase().trim()],
         );
 
@@ -37,10 +38,26 @@ export async function login(req, res) {
             return res.status(401).json({ error: 'Invalid credentials.' });
         }
 
+        // 2FA is enabled → mint a short-lived challenge token instead
+        // of the real admin JWT. The frontend exchanges it for the real
+        // token at /api/auth/login/2fa with a TOTP code.
+        if (user.two_factor_enabled) {
+            const challengeToken = jwt.sign(
+                { id: user.id, purpose: '2fa' },
+                process.env.JWT_SECRET,
+                { expiresIn: '5m' }
+            );
+            return res.json({
+                requires2fa: true,
+                challengeToken,
+                user: { id: user.id, email: user.email, role: user.role },
+            });
+        }
+
         const token = jwt.sign(
             { id: user.id, email: user.email, role: user.role },
             process.env.JWT_SECRET,
-            { expiresIn: process.env.JWT_EXPIRES_IN || '7d' },
+            { expiresIn: process.env.JWT_EXPIRES_IN || '30m' },
         );
 
         return res.json({ token, user: { id: user.id, email: user.email, role: user.role } });
@@ -98,4 +115,24 @@ export async function changePassword(req, res) {
 export async function getMe(req, res) {
     // req.user is set by the verifyToken middleware
     return res.json({ id: req.user.id, email: req.user.email, role: req.user.role });
+}
+
+// ── Refresh JWT ──────────────────────────────────────────
+// Mints a fresh admin JWT for the current user. Used by the
+// SessionTimeoutModal "Extend session" button — same identity,
+// fresh 30-min window, no password re-prompt.
+export async function refresh(req, res) {
+    if (!process.env.JWT_SECRET) {
+        console.error('[Auth] JWT_SECRET is not set in environment variables.');
+        return res.status(500).json({ error: 'Server misconfiguration. Contact admin.' });
+    }
+    const token = jwt.sign(
+        { id: req.user.id, email: req.user.email, role: req.user.role },
+        process.env.JWT_SECRET,
+        { expiresIn: process.env.JWT_EXPIRES_IN || '30m' },
+    );
+    return res.json({
+        token,
+        user: { id: req.user.id, email: req.user.email, role: req.user.role },
+    });
 }

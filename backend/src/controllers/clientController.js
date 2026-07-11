@@ -5,6 +5,7 @@ const clientSchema = z.object({
     name: z.string().min(1, "Name is required"),
     primary_contact_email: z.string().email("Valid primary email is required"),
     billing_email: z.string().email("Valid billing email is required").optional().or(z.literal('')),
+    phone: z.string().max(32, "Phone too long").optional().or(z.literal('')),
     stripe_customer_id: z.string().optional().or(z.literal('')),
     notes: z.string().optional().or(z.literal(''))
 });
@@ -62,10 +63,10 @@ export const updateClient = async (req, res) => {
         const { id } = req.params;
         const data = clientSchema.parse(req.body);
         const { rows } = await pool.query(
-            `UPDATE clients 
-             SET name = $1, primary_contact_email = $2, billing_email = $3, stripe_customer_id = $4, notes = $5, updated_at = NOW()
-             WHERE id = $6 RETURNING *`,
-            [data.name, data.primary_contact_email, data.billing_email || null, data.stripe_customer_id || null, data.notes || null, id]
+            `UPDATE clients
+             SET name = $1, primary_contact_email = $2, billing_email = $3, phone = $4, stripe_customer_id = $5, notes = $6, updated_at = NOW()
+             WHERE id = $7 RETURNING *`,
+            [data.name, data.primary_contact_email, data.billing_email || null, data.phone || null, data.stripe_customer_id || null, data.notes || null, id]
         );
         if (rows.length === 0) return res.status(404).json({ error: 'Client not found' });
         res.json(rows[0]);

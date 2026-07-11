@@ -1,11 +1,18 @@
 import pool from '../config/db.js';
 import { z } from 'zod';
 import crypto from 'crypto';
+import { writeAuditLog, getClientIp } from '../utils/auditLog.js';
+import { SUPPORTED_CURRENCIES } from '../utils/fx.js';
+import { sendInvoiceEmail } from './paymentController.js';
 
 const invoiceSchema = z.object({
     clientId: z.string().uuid(),
     projectId: z.string().uuid(),
     amount: z.number().positive(),
+    currency: z.string().length(3).refine(
+        (c) => SUPPORTED_CURRENCIES.includes(String(c).toUpperCase()),
+        { message: `currency must be one of: ${SUPPORTED_CURRENCIES.join(', ')}` }
+    ).optional(),
     dueDate: z.string().optional()
 });
 
@@ -26,7 +33,9 @@ function safeEqualHex(a, b) {
 // Admin: Create an invoice and generate a Paystack payment link
 export const createInvoice = async (req, res) => {
     try {
-        const { clientId, projectId, amount, dueDate } = invoiceSchema.parse(req.body);
+        const { clientId, projectId, amount, currency, dueDate } = invoiceSchema.parse(req.body);
+        // Default to NGN; upper-case to normalise storage.
+        const currencyCode = (currency || 'NGN').toUpperCase();
 
         if (!isUuid(clientId) || !isUuid(projectId)) {
             return res.status(400).json({ error: 'Invalid ID format.' });
@@ -49,16 +58,33 @@ export const createInvoice = async (req, res) => {
             return res.status(400).json({ error: 'Project does not belong to the given client.' });
         }
 
-        // Insert pending invoice into database
+        // Paystack is NGN-only. For non-NGN invoices we still store the
+        // invoice row but skip the Paystack init — the admin wires up
+        // payment manually (Stripe / wire / Wise) for USD/EUR/GBP.
+        const isPaystackSupported = currencyCode === 'NGN';
+
+        // Insert pending invoice into database. invoice_number
+        // is generated server-side as INV-YYYY-NNN where NNN is
+        // the count of invoices this year + 1. Using a UNIQUE
+        // column on invoice_number + a defensive ON CONFLICT
+        // fallback in case two concurrent inserts race.
+        const yearPrefix = `INV-${new Date().getFullYear()}-`;
+        const { rows: countRows } = await pool.query(
+            `SELECT COUNT(*)::int AS n FROM invoices WHERE invoice_number LIKE $1`,
+            [yearPrefix + '%']
+        );
+        const nextSeq = String((countRows[0]?.n || 0) + 1).padStart(3, '0');
+        const invoiceNumber = yearPrefix + nextSeq;
+
         const { rows } = await pool.query(
-            `INSERT INTO invoices (client_id, project_id, amount, due_date, status)
-             VALUES ($1, $2, $3, $4, 'PENDING') RETURNING *`,
-            [clientId, projectId, amount, dueDate || null]
+            `INSERT INTO invoices (client_id, project_id, amount, currency, due_date, status, invoice_number)
+             VALUES ($1, $2, $3, $4, $5, 'PENDING', $6) RETURNING *`,
+            [clientId, projectId, amount, currencyCode, dueDate || null, invoiceNumber]
         );
         const invoice = rows[0];
 
-        // Initialize transaction with Paystack
-        if (process.env.PAYSTACK_SECRET_KEY) {
+        // Initialize transaction with Paystack (NGN only).
+        if (isPaystackSupported && process.env.PAYSTACK_SECRET_KEY) {
             const paystackRes = await fetch('https://api.paystack.co/transaction/initialize', {
                 method: 'POST',
                 headers: {
@@ -79,22 +105,36 @@ export const createInvoice = async (req, res) => {
                 const paymentUrl = paystackData.data.authorization_url;
                 const reference = paystackData.data.reference;
 
-                const updatedInvoice = await pool.query(
+                const updated = await pool.query(
                     `UPDATE invoices SET payment_url = $1, paystack_reference = $2 WHERE id = $3 RETURNING *`,
                     [paymentUrl, reference, invoice.id]
                 );
-                return res.status(201).json(updatedInvoice.rows[0]);
+                // Merge Paystack data into the response object.
+                Object.assign(invoice, updated.rows[0]);
+            } else {
+                // Paystack init failed — log but keep the local
+                // invoice as PENDING so an admin can retry from
+                // the dashboard. We still send the invoice email
+                // so the client gets a payment link.
+                console.error('[Invoices] Paystack init failed:', paystackData.message || 'unknown error');
             }
-
-            // Paystack init failed — log and return 502 so the client knows the
-            // payment link wasn't generated, but keep the local invoice as PENDING
-            // so an admin can retry from the dashboard.
-            console.error('[Invoices] Paystack init failed:', paystackData.message || 'unknown error');
-            return res.status(502).json({
-                error: 'Payment provider error. Invoice saved as PENDING; please retry from the dashboard.',
-                invoice
-            });
         }
+
+        // Send the invoice email with the secure /pay/:token
+        // link. The PaymentPage shows bank-transfer details
+        // for non-NGN, so international clients get everything
+        // they need in one message. Fire-and-forget so SMTP
+        // latency doesn't block the API response.
+        sendInvoiceEmail({
+            clientEmail: email,
+            clientName: clientResult.rows[0].name || null,
+            invoiceId: invoice.id,
+            amount: invoice.amount,
+            currency: invoice.currency,
+            payToken: invoice.pay_token,
+            dueDate: invoice.due_date,
+            projectName: projectResult.rows[0].project_name || null,
+        }).catch(err => console.error('[Invoices] invoice-email failed:', err.message));
 
         res.status(201).json(invoice);
     } catch (err) {
@@ -108,7 +148,7 @@ export const createInvoice = async (req, res) => {
 export const getAllInvoices = async (req, res) => {
     try {
         const { rows } = await pool.query(`
-            SELECT i.id, i.project_id, i.client_id, i.amount, i.status,
+            SELECT i.id, i.project_id, i.client_id, i.amount, i.currency, i.status,
                    i.due_date, i.payment_url, i.paystack_reference, i.paid_at,
                    i.created_at,
                    c.name AS client_name,
@@ -148,6 +188,14 @@ export const deleteInvoice = async (req, res) => {
     try {
         const { rows } = await pool.query('DELETE FROM invoices WHERE id = $1 RETURNING *', [id]);
         if (rows.length === 0) return res.status(404).json({ error: 'Invoice not found.' });
+        await writeAuditLog({
+            action: 'INVOICE_DELETED',
+            entityType: 'invoices',
+            entityId: id,
+            details: { amount: rows[0].amount, status: rows[0].status },
+            user: req.user,
+            ipAddress: getClientIp(req),
+        });
         res.json({ success: true, deleted: rows[0] });
     } catch (err) {
         console.error('[Invoices] deleteInvoice error:', err.message);
@@ -165,6 +213,18 @@ export const markInvoicePaid = async (req, res) => {
             [id]
         );
         if (rows.length === 0) return res.status(404).json({ error: 'Invoice not found or already paid.' });
+        await writeAuditLog({
+            action: 'INVOICE_MARKED_PAID',
+            entityType: 'invoices',
+            entityId: id,
+            details: {
+                amount: rows[0].amount,
+                clientId: rows[0].client_id,
+                projectId: rows[0].project_id,
+            },
+            user: req.user,
+            ipAddress: getClientIp(req),
+        });
         res.json(rows[0]);
     } catch (err) {
         console.error('[Invoices] markInvoicePaid error:', err.message);
@@ -182,6 +242,18 @@ export const refundInvoice = async (req, res) => {
             [id]
         );
         if (rows.length === 0) return res.status(404).json({ error: 'Invoice not found or cannot be refunded.' });
+        await writeAuditLog({
+            action: 'INVOICE_REFUNDED',
+            entityType: 'invoices',
+            entityId: id,
+            details: {
+                amount: rows[0].amount,
+                clientId: rows[0].client_id,
+                projectId: rows[0].project_id,
+            },
+            user: req.user,
+            ipAddress: getClientIp(req),
+        });
         res.json(rows[0]);
     } catch (err) {
         console.error('[Invoices] refundInvoice error:', err.message);

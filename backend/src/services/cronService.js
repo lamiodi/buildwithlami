@@ -1,11 +1,13 @@
 // ─── src/services/cronService.js ────────────────────────
 // Handles scheduled background tasks like Domain Expiration
-// Reminders and Automated Monthly Invoicing.
+// Reminders, Automated Monthly Invoicing, and Live FX
+// rate refreshes.
 // ──────────────────────────────────────────────────────────
 
 import cron from 'node-cron';
 import pool from '../config/db.js';
 import { sendNotificationEmail } from './emailService.js';
+import { refreshAndApply } from './fxService.js';
 
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || process.env.EMAIL_TO;
 if (!ADMIN_EMAIL) {
@@ -14,9 +16,10 @@ if (!ADMIN_EMAIL) {
 
 // Track which (project, threshold) combinations we've already alerted on
 // during this process lifetime, so a re-run (e.g. after a restart) doesn't
-// spam the same client within a 6-day window. Pair with the on-disk
-// `last_notified_at` column in the v6_cron_dedupe migration to survive
-// restarts in production.
+// spam the same client within a 6-day window. State is in-memory only;
+// restart resets the dedupe window, which is acceptable for a single-node
+// Render deployment. If we ever scale horizontally, revisit this with a
+// shared store (e.g. a notifications table or Redis).
 const recentNotifications = new Map(); // key: `${projectId}:${days}` -> timestamp
 
 const wasNotifiedRecently = (projectId, days) => {
@@ -48,6 +51,22 @@ export const startCronJobs = () => {
             console.log(`[Cron] DB heartbeat OK — ${latency}ms, db_time: ${result.rows[0].db_time}`);
         } catch (error) {
             console.error(`[Cron] DB heartbeat FAILED — ${error.message}`);
+        }
+    });
+
+    // Live FX rate refresh — once a day at 5:00 AM UTC. open.er-api.com
+    // updates its rates at midnight UTC, so 5 AM UTC gives it time to
+    // settle. The admin can also trigger a manual refresh from
+    // Settings → FX Rates. If the API call fails, the existing rates
+    // (whether manual or stale-live) stay untouched — the dashboard's
+    // revenue numbers won't break.
+    cron.schedule('0 5 * * *', async () => {
+        console.log('[Cron] Refreshing live FX rates…');
+        try {
+            const summary = await refreshAndApply();
+            console.log(`[Cron] FX refresh OK — applied ${summary.applied_count} rate(s): ${summary.currencies.join(', ')}`);
+        } catch (err) {
+            console.error(`[Cron] FX refresh FAILED — ${err.message}. Existing rates unchanged.`);
         }
     });
 

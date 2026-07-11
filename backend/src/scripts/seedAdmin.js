@@ -10,7 +10,13 @@ import bcrypt from 'bcrypt';
 import pool from '../config/db.js';
 
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@devagency.os';
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'ChangeMe123!';
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+
+if (!ADMIN_PASSWORD) {
+    console.error('❌  Missing ADMIN_PASSWORD environment variable.');
+    process.exit(1);
+}
+
 const SALT_ROUNDS = 12;
 
 async function seed() {

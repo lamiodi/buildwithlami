@@ -4,7 +4,23 @@ import { api } from '../../services/api';
 import { notify } from '../../services/notify';
 import { toCSV, downloadCSV } from '../../utils/csv.jsx';
 
-const formatCurrency = (n) => `₦${Number(n || 0).toLocaleString()}`;
+const formatCurrency = (n, curr = 'NGN') => {
+    try {
+        return new Intl.NumberFormat('en-NG', { style: 'currency', currency: curr }).format(Number(n || 0));
+    } catch {
+        return `${curr} ${Number(n || 0).toLocaleString()}`;
+    }
+};
+
+// Convert any (amount, currency) pair to NGN using a rates map
+// fetched from /api/fx-rates. Missing rates are treated as 0 and
+// counted in the "uncategorised" count so the admin can spot gaps.
+const convertToNGN = (amount, currency, rates) => {
+    if (currency === 'NGN') return Number(amount || 0);
+    const rate = rates?.[currency]?.rate;
+    if (rate === undefined || rate === null) return 0;
+    return Number(amount || 0) * Number(rate);
+};
 
 const Icon = {
     Plus: (p) => (
@@ -45,6 +61,11 @@ const Icon = {
     Refresh: (p) => (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}>
             <polyline points="23 4 23 10 17 10" /><path d="M1 18a17 17 0 0 0 19-14l-9 9" />
+        </svg>
+    ),
+    Copy: (p) => (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}>
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2" /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
         </svg>
     ),
     File: (p) => (
@@ -94,7 +115,8 @@ const AdminInvoices = () => {
     const [showForm, setShowForm] = useState(false);
     const [submitting, setSubmitting] = useState(false);
     const [projects, setProjects] = useState([]);
-    const [formData, setFormData] = useState({ project_id: '', amount: '', dueDate: '' });
+    const [fxRates, setFxRates] = useState({});
+    const [formData, setFormData] = useState({ project_id: '', amount: '', currency: 'NGN', dueDate: '' });
 
     const fetchInvoices = async () => {
         const res = await api.get('/invoices');
@@ -108,9 +130,15 @@ const AdminInvoices = () => {
         if (res.ok && res.data) setProjects(res.data);
     };
 
+    const fetchFxRates = async () => {
+        const res = await api.get('/fx-rates');
+        if (res.ok && res.data?.rates) setFxRates(res.data.rates);
+    };
+
     useEffect(() => {
         fetchInvoices();
         fetchProjects();
+        fetchFxRates();
     }, []);
 
     const handleSubmit = async (e) => {
@@ -123,12 +151,13 @@ const AdminInvoices = () => {
             clientId: project?.client_id,
             projectId: formData.project_id,
             amount: Number(formData.amount),
+            currency: formData.currency || 'NGN',
             dueDate: formData.dueDate || undefined,
         });
 
         if (res.ok) {
             notify.success('Invoice created successfully!');
-            setFormData({ project_id: '', amount: '', dueDate: '' });
+            setFormData({ project_id: '', amount: '', currency: 'NGN', dueDate: '' });
             setShowForm(false);
             fetchInvoices();
         } else {
@@ -174,7 +203,8 @@ const AdminInvoices = () => {
             { label: 'Invoice ID', key: 'id' },
             { label: 'Project', key: 'project_name' },
             { label: 'Client', key: 'client_name' },
-            { label: 'Amount (NGN)', key: 'amount' },
+            { label: 'Amount', key: 'amount' },
+            { label: 'Currency', key: 'currency' },
             { label: 'Status', key: 'status' },
             { label: 'Due Date', value: (i) => i.due_date ? new Date(i.due_date).toISOString().slice(0, 10) : '' },
             { label: 'Paid At', value: (i) => i.paid_at ? new Date(i.paid_at).toISOString() : '' },
@@ -206,9 +236,32 @@ const AdminInvoices = () => {
         const paid = invoices.filter(i => i.status === 'PAID');
         const pending = invoices.filter(i => i.status === 'PENDING');
         const overdue = pending.filter(i => i.due_date && new Date(i.due_date) < new Date());
-        const revenue = paid.reduce((s, i) => s + Number(i.amount || 0), 0);
-        return { total, paidCount: paid.length, pendingCount: pending.length, overdueCount: overdue.length, revenue };
-    }, [invoices]);
+
+        // Multi-currency revenue: convert every paid invoice to NGN
+        // using the latest rates. Track how many rows had a missing
+        // rate so the admin can add a new currency in AdminSettings.
+        let revenueNGN = 0;
+        let missingRateCount = 0;
+        for (const inv of paid) {
+            const code = (inv.currency || 'NGN').toUpperCase();
+            if (code === 'NGN') {
+                revenueNGN += Number(inv.amount || 0);
+            } else if (fxRates[code]?.rate) {
+                revenueNGN += Number(inv.amount || 0) * Number(fxRates[code].rate);
+            } else {
+                missingRateCount += 1;
+            }
+        }
+
+        return {
+            total,
+            paidCount: paid.length,
+            pendingCount: pending.length,
+            overdueCount: overdue.length,
+            revenue: revenueNGN,
+            missingRateCount,
+        };
+    }, [invoices, fxRates]);
 
     const inputClass = "w-full p-3 text-sm border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900 outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-colors font-body";
     const labelClass = "block text-[10px] font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2";
@@ -246,7 +299,14 @@ const AdminInvoices = () => {
 
                 {/* Stats */}
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                    <StatCard label="Total Revenue" value={formatCurrency(stats.revenue)} hint="From paid invoices" accent="emerald" />
+                    <StatCard
+                        label="Total Revenue (NGN Equivalent)"
+                        value={formatCurrency(stats.revenue, 'NGN')}
+                        hint={stats.missingRateCount > 0
+                            ? `${stats.missingRateCount} invoice(s) skipped — unknown currency`
+                            : 'From paid invoices, converted at live FX rates'}
+                        accent="emerald"
+                    />
                     <StatCard label="Paid" value={stats.paidCount} hint={`${stats.total} total`} accent="blue" />
                     <StatCard label="Pending" value={stats.pendingCount} hint="Awaiting payment" accent="amber" />
                     <StatCard label="Overdue" value={stats.overdueCount} hint="Needs action" accent="rose" />
@@ -265,13 +325,24 @@ const AdminInvoices = () => {
                                         {projects.map(p => <option key={p.id} value={p.id}>{p.project_name}</option>)}
                                     </select>
                                 </div>
-                                <div>
-                                    <label className={labelClass}>Amount (₦)</label>
-                                    <input type="number" name="amount" value={formData.amount} onChange={e => setFormData({ ...formData, amount: e.target.value })} placeholder="e.g. 50000" required className={inputClass} />
-                                </div>
-                                <div>
-                                    <label className={labelClass}>Due Date (Optional)</label>
-                                    <input type="date" name="dueDate" value={formData.dueDate} onChange={e => setFormData({ ...formData, dueDate: e.target.value })} className={inputClass} />
+                                <div className="col-span-1 md:col-span-3 grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div>
+                                        <label className={labelClass}>Currency</label>
+                                        <select name="currency" value={formData.currency} onChange={e => setFormData({ ...formData, currency: e.target.value })} className={inputClass}>
+                                            <option value="NGN">NGN (Naira)</option>
+                                            <option value="USD">USD (Dollar)</option>
+                                            <option value="EUR">EUR (Euro)</option>
+                                            <option value="GBP">GBP (Pound)</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className={labelClass}>Amount</label>
+                                        <input type="number" name="amount" value={formData.amount} onChange={e => setFormData({ ...formData, amount: e.target.value })} placeholder="e.g. 50000" required className={inputClass} />
+                                    </div>
+                                    <div>
+                                        <label className={labelClass}>Due Date (Optional)</label>
+                                        <input type="date" name="dueDate" value={formData.dueDate} onChange={e => setFormData({ ...formData, dueDate: e.target.value })} className={inputClass} />
+                                    </div>
                                 </div>
                             </div>
                             <button type="submit" disabled={submitting} className="mt-4 bg-accent hover:bg-orange-600 text-white font-bold py-3 px-6 rounded-xl transition-all shadow-lg hover:shadow-accent/30 disabled:opacity-50 font-body">
@@ -353,7 +424,7 @@ const AdminInvoices = () => {
                                                     <span className="text-sm text-gray-700 dark:text-gray-300">{inv.client_name || '—'}</span>
                                                 </td>
                                                 <td className="py-4 px-6 text-right">
-                                                    <span className="font-bold font-mono text-gray-900 dark:text-white">{formatCurrency(inv.amount)}</span>
+                                                    <span className="font-bold font-mono text-gray-900 dark:text-white">{formatCurrency(inv.amount, inv.currency || 'NGN')}</span>
                                                 </td>
                                                 <td className="py-4 px-6 text-center">
                                                     <StatusPill status={inv.status} isOverdue={isOverdue} />
@@ -373,6 +444,19 @@ const AdminInvoices = () => {
                                                             <a href={inv.payment_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-xs font-bold text-accent hover:underline" title="Open payment link">
                                                                 Pay Link <Icon.External className="w-3 h-3" />
                                                             </a>
+                                                        )}
+                                                        {inv.pay_token && (
+                                                            <button
+                                                                onClick={() => {
+                                                                    const url = `${window.location.origin}/pay/${inv.pay_token}`;
+                                                                    navigator.clipboard?.writeText(url);
+                                                                    notify.success('Payment page URL copied — paste into your email to the client');
+                                                                }}
+                                                                className="inline-flex items-center gap-1 text-xs font-bold text-blue-600 hover:text-blue-700"
+                                                                title="Copy secure /pay/:token link"
+                                                            >
+                                                                <Icon.Copy className="w-3.5 h-3.5" /> Copy /pay Link
+                                                            </button>
                                                         )}
                                                         {inv.status === 'PENDING' && (
                                                             <button onClick={() => handleMarkPaid(inv.id)} className="text-xs font-bold text-emerald-600 hover:text-emerald-700 flex items-center gap-1" title="Mark as paid">

@@ -44,14 +44,20 @@ CREATE TABLE IF NOT EXISTS projects (
 );
 
 -- 4. Messages (Contact Inquiries)
+-- Note: `subject` was removed in Phase 0 — neither the
+-- /contact form nor the home-page Contact component sent it.
+-- `project_type` / `budget` / `timeline` are the qualification
+-- fields the home-page Contact component writes.
 CREATE TABLE IF NOT EXISTS messages (
-  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  full_name   TEXT NOT NULL,
-  email       TEXT NOT NULL,
-  subject     TEXT,
-  message     TEXT NOT NULL,
-  is_read     BOOLEAN DEFAULT false,
-  created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  full_name    TEXT NOT NULL,
+  email        TEXT NOT NULL,
+  message      TEXT NOT NULL,
+  project_type TEXT,
+  budget       TEXT,
+  timeline     TEXT,
+  is_read      BOOLEAN DEFAULT false,
+  created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 -- Indexes for common look-ups

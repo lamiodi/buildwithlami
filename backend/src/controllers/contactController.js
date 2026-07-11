@@ -2,6 +2,7 @@ import { z } from 'zod';
 import DOMPurify from 'isomorphic-dompurify';
 import pool from '../config/db.js';
 import { sendNotificationEmail } from '../services/emailService.js';
+import { insertLeadRow } from './crmController.js';
 
 // ── Helpers ──────────────────────────────────────────────
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -15,10 +16,12 @@ function validateUUID(id, res) {
 }
 
 // ── Validation ───────────────────────────────────────────
+// Note: `subject` was removed in Phase 0 — neither the
+// /contact form nor the home-page Contact component sends
+// a `subject` field, so the column was always NULL.
 const createMessageSchema = z.object({
     full_name: z.string().min(1),
     email: z.string().email(),
-    subject: z.string().optional(),
     message: z.string().min(1),
     project_type: z.string().optional().nullable(),
     budget: z.string().optional().nullable(),
@@ -28,32 +31,46 @@ const createMessageSchema = z.object({
 export async function submitContactForm(req, res) {
     try {
         const data = createMessageSchema.parse(req.body);
-        
+
         // Sanitize the inputs before saving/sending
         const cleanName = DOMPurify.sanitize(data.full_name);
-        const cleanSubject = data.subject ? DOMPurify.sanitize(data.subject) : null;
         const cleanMessage = DOMPurify.sanitize(data.message);
         const cleanProjectType = data.project_type ? DOMPurify.sanitize(data.project_type) : null;
         const cleanBudget = data.budget ? DOMPurify.sanitize(data.budget) : null;
         const cleanTimeline = data.timeline ? DOMPurify.sanitize(data.timeline) : null;
 
         const { rows } = await pool.query(
-            `INSERT INTO messages (full_name, email, subject, message, project_type, budget, timeline)
-       VALUES ($1, $2, $3, $4, $5, $6, $7)
+            `INSERT INTO messages (full_name, email, message, project_type, budget, timeline)
+       VALUES ($1, $2, $3, $4, $5, $6)
        RETURNING id, full_name, email, created_at`,
-            [cleanName, data.email, cleanSubject, cleanMessage, cleanProjectType, cleanBudget, cleanTimeline]
+            [cleanName, data.email, cleanMessage, cleanProjectType, cleanBudget, cleanTimeline]
         );
-        
+
+        // Phase 3 — auto-tag: every /contact submission also
+        // lands in the CRM pipeline at the LEAD stage with
+        // source = 'contact_form' and division = 'SOFTWARE'.
+        // Failures are swallowed so the public form still
+        // succeeds even if the leads table is unavailable.
+        insertLeadRow({
+            full_name: cleanName,
+            email: data.email,
+            division: 'SOFTWARE',
+            source: 'contact_form',
+            notes: cleanMessage
+                ? `Project: ${cleanProjectType || '—'} · Budget: ${cleanBudget || '—'} · Timeline: ${cleanTimeline || '—'}\n\n${cleanMessage}`
+                : null,
+        }).catch(err => console.error('[Contact] lead auto-tag failed:', err.message));
+
         // Fire-and-forget: don't block the response for email delivery
         sendNotificationEmail({
             name: cleanName,
             email: data.email,
-            subject: cleanSubject,
+            subject: 'New Contact Form Submission',
             message: cleanMessage
         }).catch(err =>
             console.error('[Contact] Email notification failed:', err.message)
         );
-        
+
         return res.status(201).json({ success: true, message: 'Message sent successfully.' });
     } catch (err) {
         if (err instanceof z.ZodError) return res.status(400).json({ error: err.errors });

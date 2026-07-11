@@ -25,11 +25,22 @@ import uptimeRoutes from './routes/uptimeRoutes.js';
 import dashboardRoutes from './routes/dashboardRoutes.js';
 import activityRoutes from './routes/activityRoutes.js';
 import uploadRoutes from './routes/uploadRoutes.js';
+import notificationRoutes from './routes/notificationRoutes.js';
+import adminInboxRoutes from './routes/adminInboxRoutes.js';
+import bookingRoutes from './routes/bookingRoutes.js';
+import crmRoutes from './routes/crmRoutes.js';
+import emailTemplateRoutes from './routes/emailTemplateRoutes.js';
+import cmsRoutes from './routes/cmsRoutes.js';
+import divisionRoutes from './routes/divisionRoutes.js';
+import contractRoutes from './routes/contractRoutes.js';
+import fxRateRoutes from './routes/fxRateRoutes.js';
+import paymentRoutes from './routes/paymentRoutes.js';
 import pool from './config/db.js';
 import { startCronJobs } from './services/cronService.js';
 
 // ── App setup ────────────────────────────────────────────
 const app = express();
+app.set('trust proxy', 1);
 const PORT = process.env.PORT || 4000;
 
 // ── Rate limiters ────────────────────────────────────────
@@ -50,6 +61,13 @@ const apiLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
     max: 100,
     message: { error: 'Too many requests. Please slow down.' },
+});
+
+// Stricter limiter for admin write endpoints (uploads, bulk actions).
+const adminWriteLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 60,
+    message: { error: 'Admin write limit reached. Please slow down.' },
 });
 
 // ── Global middleware ────────────────────────────────────
@@ -91,7 +109,45 @@ app.use('/api/feedback', apiLimiter, feedbackRoutes);
 app.use('/api/invoices', apiLimiter, invoiceRoutes);
 app.use('/api', apiLimiter, templateRoutes);
 app.use('/api/activity', apiLimiter, activityRoutes);
-app.use('/api/upload', apiLimiter, uploadRoutes);
+app.use('/api/upload', apiLimiter, adminWriteLimiter, uploadRoutes);
+app.use('/api/notifications', apiLimiter, notificationRoutes);
+
+// Unified admin inbox + global search + bulk actions (Phase 2).
+app.use('/api/admin', apiLimiter, adminWriteLimiter, adminInboxRoutes);
+
+// Booking submissions from /survey and /drone public pages (Phase 5).
+app.use('/api/bookings', contactLimiter, bookingRoutes);
+
+// CRM pipeline (Phase 3). Public lead submission shares the
+// /api/crm/leads route; everything else is admin-gated inside
+// the router.
+app.use('/api/crm', apiLimiter, crmRoutes);
+
+// Email templates (Phase 3). All endpoints are admin-gated.
+app.use('/api/email-templates', apiLimiter, emailTemplateRoutes);
+
+// CMS (Phase 4). Public reads + admin writes handled inside the router.
+app.use('/api/cms', apiLimiter, cmsRoutes);
+
+// Division-scoped admin reads (Phase 6). The router itself
+// applies `requireDivision` so a Survey Manager token can only
+// reach /api/divisions/survey/* and a Drone Pilot only
+// /api/divisions/drone/*.
+app.use('/api/divisions', apiLimiter, divisionRoutes);
+
+// Phase 8 — Zoho Sign & Financial. The contracts router is now
+// mounted (no longer commented out). It still operates in stub
+// mode because ZOHO_SIGN_TOKEN is not yet set — see
+// services/zohoSignService.js for the live/stub switch.
+app.use('/api/contracts', apiLimiter, contractRoutes);
+
+// Phase 8 — FX rates for multi-currency invoices.
+app.use('/api/fx-rates', apiLimiter, fxRateRoutes);
+
+// Phase 10 — International payment workflow (Paystack + Grey
+// bank transfers + manual proof review). The /public/* routes
+// are intentionally unauthenticated — the URL token is the auth.
+app.use('/api/payments', apiLimiter, paymentRoutes);
 
 // ── 404 fallback ─────────────────────────────────────────
 app.use((_req, res) => {
@@ -133,3 +189,11 @@ const shutdown = () => {
 
 process.on('SIGTERM', shutdown);
 process.on('SIGINT', shutdown);
+
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('[Server] Unhandled Rejection at:', promise, 'reason:', reason);
+});
+
+process.on('uncaughtException', (err) => {
+    console.error('[Server] Uncaught Exception:', err);
+});

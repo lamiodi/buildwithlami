@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { api } from '../../services/api';
 import { notify } from '../../services/notify';
 import { toCSV, downloadCSV } from '../../utils/csv.jsx';
+import TodayWidget from '../../components/admin/TodayWidget';
 
 // Simple Naira formatter (stored amounts are already in NGN in the DB).
 const formatCurrency = (n) => `₦${Number(n || 0).toLocaleString()}`;
@@ -415,6 +416,9 @@ const AdminDashboard = () => {
                         </Link>
                     </div>
                 </motion.div>
+
+                {/* ── TODAY WIDGET (Phase 2) — actionable at-a-glance counters ── */}
+                <TodayWidget />
 
                 {/* ── ALERT BANNER (only if there are issues) ───────── */}
                 {needsAttention > 0 && (

@@ -107,7 +107,8 @@ export const submitIntake = async (req, res) => {
 
         // For CLIENT tokens, the JWT carries the trackingId (req.user.trackingId)
         // which must resolve to the same project they are trying to submit for.
-        if (req.user && req.user.role === 'CLIENT') {
+        // Auth middleware normalises role strings to titlecase ('Client').
+        if (req.user && req.user.role === 'Client') {
             const proj = await pool.query(
                 'SELECT id FROM client_projects WHERE id = $1 AND tracking_id = $2',
                 [projectId, req.user.trackingId]

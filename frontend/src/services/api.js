@@ -121,4 +121,27 @@ export const api = {
             return { ok: false, status: 0, error: err.name === 'AbortError' ? 'Request timed out' : err.message };
         }
     },
+
+    /**
+     * Multipart upload — sends a single `file` field. Used by the
+     * CMS hero-image picker and the testimonial avatar picker. The
+     * Content-Type header is intentionally left unset so the browser
+     * generates the correct multipart boundary.
+     */
+    upload: async (path, file, opts = {}) => {
+        try {
+            const token = opts.token ?? getAuthToken();
+            const form = new FormData();
+            form.append('image', file);
+            const res = await fetch(`${API_BASE}${path}`, {
+                method: 'POST',
+                headers: token ? { Authorization: `Bearer ${token}` } : {},
+                body: form,
+            });
+            return parse(res);
+        } catch (err) {
+            console.error(`[API] UPLOAD ${path} failed:`, err.message);
+            return { ok: false, status: 0, error: err.name === 'AbortError' ? 'Request timed out' : err.message };
+        }
+    },
 };

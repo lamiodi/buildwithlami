@@ -308,7 +308,7 @@ export const authClientPortal = async (req, res) => {
             // Generate JWT bound to tracking_id
             const token = jwt.sign(
                 { trackingId: client.tracking_id, clientId: client.id, role: 'CLIENT' },
-                process.env.JWT_SECRET + client.tracking_id,
+                process.env.JWT_SECRET,
                 { expiresIn: '7d' }
             );
             return res.json({ message: 'Authenticated successfully', token });
@@ -340,7 +340,7 @@ export const generatePortalLink = async (req, res) => {
         const project = result.rows[0];
         const token = jwt.sign(
             { trackingId: project.tracking_id, clientId: project.client_id, role: 'CLIENT' },
-            process.env.JWT_SECRET + project.tracking_id,
+            process.env.JWT_SECRET,
             { expiresIn: '7d' }
         );
 

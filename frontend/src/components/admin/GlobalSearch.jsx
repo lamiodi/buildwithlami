@@ -1,0 +1,220 @@
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import { api } from '../../services/api';
+
+const Icon = {
+    Search: (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>,
+    Lead: (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /></svg>,
+    Client: (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>,
+    Project: (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" /></svg>,
+    Invoice: (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><rect x="1" y="4" width="22" height="16" rx="2" ry="2" /><line x1="1" y1="10" x2="23" y2="10" /></svg>,
+    Mail: (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" /></svg>,
+    Kbd: (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><rect x="2" y="4" width="20" height="16" rx="2" /><path d="M6 8h.01" /><path d="M10 8h.01" /><path d="M14 8h.01" /><path d="M18 8h.01" /><path d="M8 12h.01" /><path d="M12 12h.01" /><path d="M16 12h.01" /><path d="M7 16h10" /></svg>,
+};
+
+const CATEGORIES = [
+    { key: 'leads',     label: 'Leads',     icon: Icon.Lead,    path: (item) => `/admin/clients?lead=${item.id}` },
+    { key: 'clients',   label: 'Clients',   icon: Icon.Client,  path: (item) => `/admin/clients?focus=${item.id}` },
+    { key: 'projects',  label: 'Projects',  icon: Icon.Project, path: (item) => `/admin/projects/${item.id}` },
+    { key: 'invoices',  label: 'Invoices',  icon: Icon.Invoice, path: (item) => `/admin/invoices?focus=${item.id}` },
+    { key: 'messages',  label: 'Messages',  icon: Icon.Mail,    path: (item) => `/admin/inbox?message=${item.id}` },
+];
+
+const DEBOUNCE_MS = 300;
+
+/**
+ * GlobalSearch — top-right header search. Opens with ⌘K / Ctrl-K
+ * or by clicking the search button. Debounced (300 ms) query
+ * against /api/admin/search returns top 5 per category.
+ */
+const GlobalSearch = () => {
+    const [open, setOpen] = useState(false);
+    const [q, setQ] = useState('');
+    const [results, setResults] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const [activeIdx, setActiveIdx] = useState(0);
+    const inputRef = useRef(null);
+    const navigate = useNavigate();
+
+    // Flatten the categorised results into a single array of
+    // { id, label, sublabel, category, path, onClick } so we
+    // can arrow-key through the whole list and Enter on any item.
+    const flat = React.useMemo(() => {
+        if (!results) return [];
+        const list = [];
+        CATEGORIES.forEach((cat) => {
+            const items = results[cat.key] || [];
+            items.forEach((item) => {
+                list.push({
+                    id: `${cat.key}-${item.id}`,
+                    cat: cat.key,
+                    catLabel: cat.label,
+                    icon: cat.icon,
+                    primary: item.name || item.project_name || item.author_name || item.email || 'Item',
+                    secondary: item.email || item.client_name || item.status || item.snippet || '',
+                    path: cat.path(item),
+                });
+            });
+        });
+        return list;
+    }, [results]);
+
+    // ── Open / close on ⌘K + Esc ──────────────────────────
+    useEffect(() => {
+        const onKey = (e) => {
+            if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+                e.preventDefault();
+                setOpen((o) => !o);
+            }
+        };
+        document.addEventListener('keydown', onKey);
+        return () => document.removeEventListener('keydown', onKey);
+    }, []);
+
+    useEffect(() => {
+        if (open) {
+            setActiveIdx(0);
+            setTimeout(() => inputRef.current?.focus(), 50);
+        } else {
+            setQ('');
+            setResults(null);
+        }
+    }, [open]);
+
+    // ── Debounced search ─────────────────────────────────
+    useEffect(() => {
+        const trimmed = q.trim();
+        if (trimmed.length < 2) {
+            setResults(null);
+            return;
+        }
+        setLoading(true);
+        const id = setTimeout(async () => {
+            const res = await api.get('/admin/search', { params: { q: trimmed }, timeout: 5000 });
+            if (res.ok && res.data) setResults(res.data);
+            else setResults({ leads: [], clients: [], projects: [], invoices: [], messages: [] });
+            setLoading(false);
+            setActiveIdx(0);
+        }, DEBOUNCE_MS);
+        return () => clearTimeout(id);
+    }, [q]);
+
+    // ── Arrow-key navigation through the flat list ───────
+    const onKeyDown = (e) => {
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            setActiveIdx((i) => Math.min(flat.length - 1, i + 1));
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            setActiveIdx((i) => Math.max(0, i - 1));
+        } else if (e.key === 'Enter' && flat[activeIdx]) {
+            e.preventDefault();
+            const item = flat[activeIdx];
+            setOpen(false);
+            navigate(item.path);
+        }
+    };
+
+    return (
+        <>
+            <button
+                onClick={() => setOpen(true)}
+                className="cursor-pointer flex items-center gap-2 px-3 h-9 rounded-xl bg-white/50 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700 hover:border-accent dark:hover:border-accent text-sm text-gray-500 dark:text-gray-400 transition-colors"
+            >
+                <Icon.Search className="w-4 h-4" />
+                <span className="hidden md:inline">Search…</span>
+                <span className="hidden md:flex items-center gap-1 ml-2">
+                    <kbd className="px-1.5 py-0.5 text-[10px] font-bold bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded">⌘</kbd>
+                    <kbd className="px-1.5 py-0.5 text-[10px] font-bold bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded">K</kbd>
+                </span>
+            </button>
+
+            <AnimatePresence>
+                {open && (
+                    <motion.div
+                        key="overlay"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-start justify-center p-4 pt-24"
+                        onClick={(e) => { if (e.target === e.currentTarget) setOpen(false); }}
+                    >
+                        <motion.div
+                            initial={{ opacity: 0, y: -12, scale: 0.97 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            exit={{ opacity: 0, y: -12, scale: 0.97 }}
+                            transition={{ duration: 0.15 }}
+                            className="w-full max-w-2xl bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden"
+                        >
+                            <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-100 dark:border-gray-700">
+                                <Icon.Search className="w-4 h-4 text-gray-500" />
+                                <input
+                                    ref={inputRef}
+                                    type="text"
+                                    value={q}
+                                    onChange={(e) => setQ(e.target.value)}
+                                    onKeyDown={onKeyDown}
+                                    placeholder="Search clients, projects, invoices, messages…"
+                                    className="flex-1 bg-transparent outline-none text-sm text-gray-900 dark:text-white placeholder-gray-400"
+                                />
+                                {loading && <span className="text-xs text-gray-500">…</span>}
+                                <kbd className="px-1.5 py-0.5 text-[10px] font-bold bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 rounded">ESC</kbd>
+                            </div>
+
+                            <div className="max-h-[60vh] overflow-y-auto">
+                                {q.trim().length < 2 ? (
+                                    <div className="px-4 py-8 text-center text-sm text-gray-500">Type at least 2 characters to search.</div>
+                                ) : !results ? (
+                                    <div className="px-4 py-8 text-center text-sm text-gray-500">Searching…</div>
+                                ) : flat.length === 0 ? (
+                                    <div className="px-4 py-8 text-center text-sm text-gray-500">No results for "{q}".</div>
+                                ) : (
+                                    CATEGORIES.map((cat) => {
+                                        const items = results[cat.key] || [];
+                                        if (items.length === 0) return null;
+                                        return (
+                                            <div key={cat.key} className="py-2">
+                                                <h4 className="px-4 py-1 text-[10px] font-extrabold uppercase tracking-widest text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
+                                                    <cat.icon className="w-3 h-3" />
+                                                    {cat.label}
+                                                </h4>
+                                                {items.map((item) => {
+                                                    const flatIdx = flat.findIndex((f) => f.id === `${cat.key}-${item.id}`);
+                                                    const isActive = flatIdx === activeIdx;
+                                                    return (
+                                                        <button
+                                                            key={item.id}
+                                                            onClick={() => { setOpen(false); navigate(cat.path(item)); }}
+                                                            onMouseEnter={() => setActiveIdx(flatIdx)}
+                                                            className={`cursor-pointer w-full text-left flex items-center gap-3 px-4 py-2 text-sm transition-colors ${isActive ? 'bg-accent/10 text-accent' : 'hover:bg-gray-50 dark:hover:bg-gray-700/40 text-gray-900 dark:text-white'}`}
+                                                        >
+                                                            <span className="flex-1 min-w-0">
+                                                                <span className="font-bold truncate block">
+                                                                    {item.name || item.project_name || item.author_name || item.email}
+                                                                </span>
+                                                                {item.email && (
+                                                                    <span className="text-[11px] text-gray-500 dark:text-gray-400 truncate block">{item.email}</span>
+                                                                )}
+                                                                {item.status && (
+                                                                    <span className="text-[10px] font-extrabold uppercase tracking-widest text-gray-500">{item.status}</span>
+                                                                )}
+                                                            </span>
+                                                            <span className="text-[10px] text-gray-400">↵</span>
+                                                        </button>
+                                                    );
+                                                })}
+                                            </div>
+                                        );
+                                    })
+                                )}
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </>
+    );
+};
+
+export default GlobalSearch;

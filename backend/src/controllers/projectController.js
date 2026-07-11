@@ -45,8 +45,14 @@ export async function getProjects(req, res) {
         let query = `SELECT * FROM projects`;
         const vals = [];
 
-        // If not logged in, only show published projects
-        if (!req.user || req.user.role !== 'OWNER') {
+        // Auth middleware normalises the role to the canonical titlecase
+        // name from ROLE_DIVISIONS (e.g. 'Owner', 'Administrator'). For
+        // backwards compatibility we also accept any of the privilege
+        // roles that can see all projects (Owner / Administrator / Project
+        // Manager / Finance — anyone above 'client').
+        const privRoles = ['Owner', 'Administrator', 'Project Manager', 'Finance'];
+        const isPrivileged = req.user && privRoles.includes(req.user.role);
+        if (!isPrivileged) {
             query += ` WHERE status = 'PUBLISHED'`;
         }
 

@@ -9,6 +9,7 @@
     "start:prod": "NODE_ENV=production node src/index.js",
     "dev": "node --watch src/index.js",
     "db:init": "node src/scripts/runInit.js",
+    "db:migrate": "node src/scripts/runUpdateSchema.js",
     "db:seed": "node src/scripts/seedAdmin.js",
     "db:reset-password": "node src/scripts/resetPassword.js",
     "db:templates": "node src/scripts/seedTemplates.js"
@@ -29,8 +30,10 @@
     "multer": "^2.2.0",
     "node-cron": "^3.0.3",
     "nodemailer": "^8.0.7",
+    "otplib": "^13.4.1",
     "pg": "^8.13.1",
     "postgres": "^3.4.9",
+    "qrcode": "^1.5.4",
     "zod": "^3.24.2"
   }
 }
