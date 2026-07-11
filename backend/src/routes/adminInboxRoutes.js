@@ -90,16 +90,38 @@ router.get('/search', search);
 // POST /api/admin/bulk/invoices
 // body: { ids: [uuid, …], action: 'markPaid' | 'refund' | 'export' }
 // POST /api/admin/bulk/clients
-// body: { ids: [uuid, …], action: 'archive' | 'reassign', assignTo?: uuid }
+// body: { ids: [uuid, …], action: 'archive' | 'reassign' | 'export', assignTo?: uuid }
 
 const bulkInvoiceSchema = z.object({
     ids: z.array(z.string().uuid()).min(1).max(200),
-    action: z.enum(['markPaid', 'refund']),
+    action: z.enum(['markPaid', 'refund', 'export']),
 });
 
 router.post('/invoices', async (req, res) => {
     try {
         const data = bulkInvoiceSchema.parse(req.body);
+
+        // Export is a read, not a write — return CSV-ready rows.
+        if (data.action === 'export') {
+            const { rows } = await pool.query(
+                `SELECT i.id, i.amount, i.currency, i.status, i.due_date, i.paid_at,
+                        c.name AS client_name, c.primary_contact_email
+                   FROM invoices i
+                   LEFT JOIN clients c ON c.id = i.client_id
+                  WHERE i.id = ANY($1::uuid[])
+                  ORDER BY i.created_at DESC`,
+                [data.ids]
+            );
+            await writeAuditLog({
+                action: 'BULK_INVOICE_EXPORTED',
+                entityType: 'invoices',
+                details: { count: rows.length, ids: data.ids },
+                user: req.user,
+                ipAddress: getClientIp(req),
+            });
+            return res.json({ success: true, rows });
+        }
+
         const setClause = data.action === 'markPaid'
             ? `status = 'PAID', paid_at = NOW()`
             : `status = 'REFUNDED', paid_at = NULL`;
@@ -125,7 +147,7 @@ router.post('/invoices', async (req, res) => {
 
 const bulkClientSchema = z.object({
     ids: z.array(z.string().uuid()).min(1).max(200),
-    action: z.enum(['archive', 'reassign']),
+    action: z.enum(['archive', 'reassign', 'export']),
     assignTo: z.string().uuid().optional(),
 });
 
@@ -133,6 +155,25 @@ router.post('/clients', async (req, res) => {
     try {
         const data = bulkClientSchema.parse(req.body);
         let rowCount = 0;
+
+        if (data.action === 'export') {
+            const { rows } = await pool.query(
+                `SELECT id, name, primary_contact_email, phone, status, created_at
+                   FROM clients
+                  WHERE id = ANY($1::uuid[])
+                  ORDER BY created_at DESC`,
+                [data.ids]
+            );
+            await writeAuditLog({
+                action: 'BULK_CLIENT_EXPORTED',
+                entityType: 'clients',
+                details: { count: rows.length, ids: data.ids },
+                user: req.user,
+                ipAddress: getClientIp(req),
+            });
+            return res.json({ success: true, rows });
+        }
+
         if (data.action === 'archive') {
             // Soft-archive by setting a `notes` flag — there's no
             // archived column on `clients` yet, so we mark in notes

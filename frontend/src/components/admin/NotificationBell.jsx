@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useAuth } from '../../contexts/AuthContext';
 import { api } from '../../services/api';
 import { notify } from '../../services/notify';
 
@@ -42,9 +43,11 @@ function timeAgo(iso) {
  * with the latest notifications, polls every 30s, and exposes
  * "mark all read" + per-item "mark read" / "delete" actions.
  *
- * Phase 2 task #3 of ROADMAP.md.
+ * Polling is gated on (a) the user being logged in, and (b) the
+ * browser tab being visible. Both are silent no-ops otherwise.
  */
 const NotificationBell = () => {
+    const { user } = useAuth();
     const [items, setItems] = useState([]);
     const [unread, setUnread] = useState(0);
     const [open, setOpen] = useState(false);
@@ -66,6 +69,10 @@ const NotificationBell = () => {
 
     // ── Polling ───────────────────────────────────────────
     const fetchNotifications = useCallback(async (silent = true) => {
+        // Don't hammer the API when the admin isn't logged in or the tab is hidden.
+        if (!user) return;
+        if (typeof document !== 'undefined' && document.visibilityState === 'hidden') return;
+
         if (!silent) setLoading(true);
         const res = await api.get('/notifications', { params: { limit: POPUP_LIMIT }, timeout: 5000 });
         if (!silent) setLoading(false);
@@ -74,37 +81,58 @@ const NotificationBell = () => {
             setItems(list);
             setUnread(list.filter((n) => !n.is_read).length);
         }
-    }, []);
+    }, [user]);
 
     useEffect(() => {
+        if (!user) {
+            setItems([]);
+            setUnread(0);
+            return;
+        }
         fetchNotifications(true);
         const id = setInterval(() => fetchNotifications(true), POLL_INTERVAL_MS);
-        return () => clearInterval(id);
-    }, [fetchNotifications]);
+
+        // Resume polling as soon as the tab becomes visible again.
+        const onVisibility = () => { if (document.visibilityState === 'visible') fetchNotifications(true); };
+        document.addEventListener('visibilitychange', onVisibility);
+
+        return () => {
+            clearInterval(id);
+            document.removeEventListener('visibilitychange', onVisibility);
+        };
+    }, [fetchNotifications, user]);
 
     // ── Actions ───────────────────────────────────────────
     const markRead = async (id) => {
         setItems((cur) => cur.map((n) => (n.id === id ? { ...n, is_read: true } : n)));
         setUnread((u) => Math.max(0, u - 1));
-        const res = await api.put(`/notifications/${id}/read`);
-        if (!res.ok) fetchNotifications(true);
+        const res = await api.patch(`/notifications/${id}/read`);
+        if (!res.ok) {
+            notify.error('Failed to mark notification as read.');
+            fetchNotifications(true);
+        }
     };
 
     const markAllRead = async () => {
         setItems((cur) => cur.map((n) => ({ ...n, is_read: true })));
         setUnread(0);
-        const res = await api.put('/notifications/mark-all-read');
+        const res = await api.post('/notifications/read-all');
         if (!res.ok) {
-            notify.error('Failed to mark all read.');
+            notify.error('Failed to mark all as read.');
             fetchNotifications(true);
         }
     };
 
     const remove = async (id) => {
+        // Capture unread-ness from the local snapshot BEFORE mutating items.
+        const wasUnread = items.find((n) => n.id === id)?.is_read === false;
         setItems((cur) => cur.filter((n) => n.id !== id));
-        setUnread((u) => Math.max(0, u - (items.find((n) => n.id === id)?.is_read ? 0 : 1)));
+        if (wasUnread) setUnread((u) => Math.max(0, u - 1));
         const res = await api.delete(`/notifications/${id}`);
-        if (!res.ok) fetchNotifications(true);
+        if (!res.ok) {
+            notify.error('Failed to delete notification.');
+            fetchNotifications(true);
+        }
     };
 
     return (

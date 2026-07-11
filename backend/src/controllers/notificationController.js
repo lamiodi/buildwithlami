@@ -84,6 +84,28 @@ export async function markAllRead(req, res) {
 }
 
 /**
+ * DELETE /api/notifications/:id
+ * Permanently delete a single notification owned by the caller.
+ * Used by the bell icon's trash button.
+ */
+export async function deleteNotification(req, res) {
+    try {
+        const { id } = req.params;
+        if (!UUID_REGEX.test(id)) return res.status(400).json({ error: 'Invalid ID.' });
+
+        const { rowCount } = await pool.query(
+            `DELETE FROM notifications WHERE id = $1 AND user_id = $2`,
+            [id, req.user.id]
+        );
+        if (rowCount === 0) return res.status(404).json({ error: 'Notification not found.' });
+        return res.json({ success: true });
+    } catch (err) {
+        console.error('[Notifications] deleteNotification error:', err.message);
+        return res.status(500).json({ error: 'Failed to delete notification.' });
+    }
+}
+
+/**
  * Utility — create a notification (called from other controllers, not a route).
  */
 export async function createNotification({ userId, type, title, body, link }) {

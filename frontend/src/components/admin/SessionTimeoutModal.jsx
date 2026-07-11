@@ -53,11 +53,20 @@ const SessionTimeoutModal = () => {
         const res = await extendSession();
         setExtending(false);
         if (res.ok) {
+            // Bump the local "now" so the countdown jumps to the new
+            // token's full TTL instead of being stuck on the stale tick.
+            setNow(Date.now());
             notify.success('Session extended.');
         } else {
-            notify.error(res.error || 'Failed to extend session. Please log in again.');
+            notify.error(res.error || 'Failed to extend session. Logging out…');
+            // extendSession() already calls logout() on 401/403; for
+            // any other failure (network etc.) force it here so the
+            // user is never stuck on a doomed countdown.
+            if (res.status !== 401 && res.status !== 403) {
+                logout();
+            }
         }
-    }, [extendSession]);
+    }, [extendSession, logout]);
 
     const handleLogout = useCallback(() => {
         logout();

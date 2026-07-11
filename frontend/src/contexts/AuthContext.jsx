@@ -20,32 +20,15 @@
 // — see ROLE_DIVISIONS — and `<AuthGuard>` provides the redirect.
 // ──────────────────────────────────────────────────────────
 
-import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { api } from '../services/api.js';
 import { getAuthToken, setAuthToken, clearAuth } from '../services/auth.js';
 
 const AuthContext = createContext(null);
 
 /**
- * Mirror of `backend/src/middlewares/authMiddleware.js`
- * `ROLE_DIVISIONS`. Kept in sync manually — the API is the
- * source of truth at request time, but the frontend needs the
- * list to gate UI (e.g. hide Survey nav from a Developer).
+ * Decode the `exp` claim from a JWT without verifying it.
  */
-const ROLE_DIVISIONS = {
-    'Owner':             ['*'],
-    'Administrator':     ['*'],
-    'Project Manager':   ['SOFTWARE', 'SURVEY', 'DRONE'],
-    'Developer':         ['SOFTWARE'],
-    'Survey Manager':    ['SURVEY'],
-    'Surveyor':          ['SURVEY'],
-    'Drone Manager':     ['DRONE'],
-    'Drone Pilot':       ['DRONE'],
-    'Finance':           ['SOFTWARE', 'SURVEY', 'DRONE'],
-    'Client':            [],
-};
-
-/** Decode the `exp` claim from a JWT without verifying it. */
 function decodeTokenExp(token) {
     if (!token) return null;
     try {
@@ -138,10 +121,19 @@ export function AuthProvider({ children }) {
     // ── extendSession: re-issue a fresh JWT without prompting. ──
     // Used by SessionTimeoutModal to keep the user logged in
     // when they hit "Extend session" at the 25-min warning.
+    //
+    // The `user` dep would normally cause this callback's
+    // identity to change on every user update, which would
+    // re-fire downstream effects. We hold the latest user in a
+    // ref so the function stays stable; only its body reads
+    // the freshest value at call time.
+    const userRef = useRef(user);
+    useEffect(() => { userRef.current = user; }, [user]);
+
     const extendSession = useCallback(async () => {
         const res = await api.post('/auth/refresh');
         if (res.ok && res.data?.token) {
-            setAuthToken(res.data.token, res.data.user || user);
+            setAuthToken(res.data.token, res.data.user || userRef.current);
             setToken(res.data.token);
             if (res.data.user) setUser(res.data.user);
             return { ok: true };
@@ -150,14 +142,8 @@ export function AuthProvider({ children }) {
         if (res.status === 401 || res.status === 403) {
             logout();
         }
-        return { ok: false, error: res.error };
-    }, [user, logout]);
-
-    // ── Derived: division list the user is allowed to act on. ─
-    const divisions = useMemo(() => {
-        if (!user || !user.role) return [];
-        return ROLE_DIVISIONS[user.role] || [];
-    }, [user]);
+        return { ok: false, error: res.error, status: res.status };
+    }, [logout]);
 
     // ── Derived: token expiry (ms epoch) for the timeout warning. ─
     const tokenExpiresAt = useMemo(() => {
@@ -165,17 +151,22 @@ export function AuthProvider({ children }) {
         return exp ? exp * 1000 : null;
     }, [token]);
 
+    // The `/auth/me` response includes `user.divisions` straight
+    // from the backend's role table, so we just expose that. The
+    // old `divisions` useMemo used a hard-coded mirror of the
+    // backend table; using `user.divisions` as the single source
+    // of truth removes that drift risk.
     const value = useMemo(() => ({
         user,
         token,
         loading,
-        divisions,
+        divisions: user?.divisions ?? [],
         tokenExpiresAt,
         login,
         logout,
         refresh,
         extendSession,
-    }), [user, token, loading, divisions, tokenExpiresAt, login, logout, refresh, extendSession]);
+    }), [user, token, loading, tokenExpiresAt, login, logout, refresh, extendSession]);
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

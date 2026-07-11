@@ -42,6 +42,7 @@ const MIGRATIONS = [
     'v19_fx_live_source.sql',
     'v20_schema_cleanup.sql',
     'v21_pages_perf_index.sql',
+    'v22_normalize_admin_roles.sql',
 ];
 
 const run = async () => {

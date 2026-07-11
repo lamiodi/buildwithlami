@@ -112,9 +112,42 @@ export async function changePassword(req, res) {
 // ── Verify Current Session ───────────────────────────────
 // Called by the frontend ProtectedRoute to check if the
 // admin's JWT is still valid before rendering admin pages.
+// Also returns `divisions` so the workspace switcher / nav
+// gating in `data/adminNavItems.js` knows which divisions
+// the user can act on. The list is derived from the role
+// (mirrors `authMiddleware.js#ROLE_DIVISIONS`) so the
+// frontend can stay in sync without a separate API call.
+const ROLE_DIVISIONS = {
+    'Owner':             ['*'],
+    'Administrator':     ['*'],
+    'Project Manager':   ['SOFTWARE', 'SURVEY', 'DRONE'],
+    'Developer':         ['SOFTWARE'],
+    'Survey Manager':    ['SURVEY'],
+    'Surveyor':          ['SURVEY'],
+    'Drone Manager':     ['DRONE'],
+    'Drone Pilot':       ['DRONE'],
+    'Finance':           ['SOFTWARE', 'SURVEY', 'DRONE'],
+    'Client':            [],
+};
+
+function divisionsForRole(role) {
+    if (!role) return [];
+    if (ROLE_DIVISIONS[role]) return ROLE_DIVISIONS[role];
+    const lower = String(role).toLowerCase();
+    for (const [k, v] of Object.entries(ROLE_DIVISIONS)) {
+        if (k.toLowerCase() === lower) return v;
+    }
+    return [];
+}
+
 export async function getMe(req, res) {
     // req.user is set by the verifyToken middleware
-    return res.json({ id: req.user.id, email: req.user.email, role: req.user.role });
+    return res.json({
+        id: req.user.id,
+        email: req.user.email,
+        role: req.user.role,
+        divisions: divisionsForRole(req.user.role),
+    });
 }
 
 // ── Refresh JWT ──────────────────────────────────────────

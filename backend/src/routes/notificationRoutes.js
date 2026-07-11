@@ -5,6 +5,7 @@ import {
     getUnreadCount,
     markRead,
     markAllRead,
+    deleteNotification,
 } from '../controllers/notificationController.js';
 
 const router = express.Router();
@@ -17,5 +18,6 @@ router.get('/', getNotifications);
 router.get('/count', getUnreadCount);
 router.patch('/:id/read', markRead);
 router.post('/read-all', markAllRead);
+router.delete('/:id', deleteNotification);
 
 export default router;

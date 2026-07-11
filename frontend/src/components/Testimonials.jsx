@@ -40,7 +40,7 @@ const Testimonials = () => {
   useEffect(() => {
     const fetchTestimonials = async () => {
       try {
-        const res = await api.get('/testimonials?featured=true');
+        const res = await api.get('/cms/testimonials?featured=true');
         if (res.ok && res.data && res.data.length > 0) {
           setTestimonials(res.data);
         } else {

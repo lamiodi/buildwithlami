@@ -32,7 +32,10 @@ const Icon = {
 
 // Module-level nav arrays (core + per-workspace) live in
 // `data/adminNavItems.js`. The visible nav is composed at
-// runtime from `useAuth().divisions` and the active workspace.
+// runtime from `useAuth().user.divisions` and merges the
+// nav items from EVERY visible workspace (deduped by `to`)
+// — the WorkspaceSelector badge is now an identity marker,
+// not a filter, since BuildWithLami is a solo-CEO setup.
 
 const AdminLayout = ({ isDark, toggleTheme }) => {
     const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -53,25 +56,31 @@ const AdminLayout = ({ isDark, toggleTheme }) => {
         if (allowed.length === 0) return;
         if (!allowed.find(w => w.id === activeWorkspace)) {
             const fallback = allowed[0].id;
-            try { localStorage.setItem(WORKSPACE_STORAGE_KEY, fallback); } catch {}
+            try {
+                if (localStorage.getItem(WORKSPACE_STORAGE_KEY) !== fallback) {
+                    localStorage.setItem(WORKSPACE_STORAGE_KEY, fallback);
+                }
+            } catch {}
             setActiveWorkspace(fallback);
         }
     }, [user, activeWorkspace]);
 
-    // Compose the visible nav: core (always) + the active
-    // workspace's items. De-duplicate by `to` so a core item
-    // can never show up twice if it happens to be in the
-    // workspace nav too.
+    // Compose the visible nav: core (always) + the union of
+    // every visible workspace's items. De-duplicate by `to` so
+    // a core item that also lives in a workspace's nav still
+    // appears exactly once.
     const navItems = useMemo(() => {
-        const ws = visibleWorkspaces(user).find(w => w.id === activeWorkspace);
-        const combined = [...coreNav, ...(ws ? ws.nav : [])];
+        if (!user) return [];
+        const allowed = visibleWorkspaces(user);
+        const wsNav = allowed.flatMap((w) => w.nav);
+        const combined = [...coreNav, ...wsNav];
         const seen = new Set();
-        return combined.filter(it => {
+        return combined.filter((it) => {
             if (seen.has(it.to)) return false;
             seen.add(it.to);
             return true;
         });
-    }, [user, activeWorkspace]);
+    }, [user]);
 
     // Generate breadcrumbs from pathname
     const paths = location.pathname.split('/').filter(Boolean);
@@ -82,9 +91,9 @@ const AdminLayout = ({ isDark, toggleTheme }) => {
 
     return (
         <div className="flex h-screen overflow-hidden bg-gray-50 dark:bg-[#0A0A0A] text-gray-900 dark:text-white font-body selection:bg-accent selection:text-white">
-            
+
             {/* ── SIDEBAR (Desktop) ── */}
-            <motion.aside 
+            <motion.aside
                 animate={{ width: sidebarOpen ? 260 : 72 }}
                 className="hidden md:flex flex-col bg-white dark:bg-[#111111] border-r border-gray-200 dark:border-gray-800 transition-all duration-300 z-20"
             >
@@ -96,44 +105,44 @@ const AdminLayout = ({ isDark, toggleTheme }) => {
                     )}
                 </div>
 
-                {/* Phase 6 — Workspace switcher.
-                    Sits directly below the brand bar. The component
-                    itself is a no-op when the user has no division
-                    access; we still render the divider so the layout
-                    stays consistent for the rare "super-admin" case. */}
+                {/* Workspace identity badge (static, non-interactive). */}
                 {sidebarOpen && (
                     <div className="px-3 pt-4">
-                        <WorkspaceSelector
-                            user={user}
-                            active={activeWorkspace}
-                            onChange={setActiveWorkspace}
-                        />
+                        <WorkspaceSelector />
                     </div>
                 )}
 
                 <div className="flex-1 overflow-y-auto py-6 flex flex-col gap-2 px-3">
-                    {navItems.map(item => (
-                        <NavLink
-                            key={item.to}
-                            to={item.to}
-                            end={item.end}
-                            title={!sidebarOpen ? item.label : undefined}
-                            className={({ isActive }) =>
-                                `flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all font-bold text-sm ${
-                                    isActive
-                                        ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400'
-                                        : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white'
-                                }`
-                            }
-                        >
-                            <item.icon className="w-5 h-5 shrink-0" />
-                            {sidebarOpen && <span className="truncate">{item.label}</span>}
-                        </NavLink>
-                    ))}
+                    {!user ? (
+                        <div className="space-y-2 px-2">
+                            {[1, 2, 3, 4, 5, 6].map((i) => (
+                                <div key={i} className="h-9 rounded-xl bg-gray-100 dark:bg-gray-800/60 animate-pulse" />
+                            ))}
+                        </div>
+                    ) : (
+                        navItems.map(item => (
+                            <NavLink
+                                key={item.to}
+                                to={item.to}
+                                end={item.end}
+                                title={!sidebarOpen ? item.label : undefined}
+                                className={({ isActive }) =>
+                                    `flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all font-bold text-sm ${
+                                        isActive
+                                            ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400'
+                                            : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white'
+                                    }`
+                                }
+                            >
+                                <item.icon className="w-5 h-5 shrink-0" />
+                                {sidebarOpen && <span className="truncate">{item.label}</span>}
+                            </NavLink>
+                        ))
+                    )}
                 </div>
 
                 <div className="p-4 border-t border-gray-200 dark:border-gray-800">
-                    <button 
+                    <button
                         onClick={() => setSidebarOpen(!sidebarOpen)}
                         className="w-full flex items-center justify-center p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                     >
@@ -146,14 +155,14 @@ const AdminLayout = ({ isDark, toggleTheme }) => {
             <AnimatePresence>
                 {mobileMenuOpen && (
                     <>
-                        <motion.div 
+                        <motion.div
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             onClick={() => setMobileMenuOpen(false)}
                             className="fixed inset-0 bg-black/50 z-40 md:hidden"
                         />
-                        <motion.aside 
+                        <motion.aside
                             initial={{ x: '-100%' }}
                             animate={{ x: 0 }}
                             exit={{ x: '-100%' }}
@@ -199,15 +208,15 @@ const AdminLayout = ({ isDark, toggleTheme }) => {
                         <button onClick={() => setMobileMenuOpen(true)} className="md:hidden p-2 -ml-2 text-gray-500 hover:text-gray-900 dark:hover:text-white">
                             <Icon.Menu className="w-5 h-5" />
                         </button>
-                        
+
                         {/* Breadcrumbs */}
                         <nav className="hidden sm:flex items-center text-sm font-medium text-gray-500 dark:text-gray-400">
                             {breadcrumbs.map((bc, idx) => (
                                 <React.Fragment key={bc.url}>
                                     {idx > 0 && <span className="mx-2 text-gray-300 dark:text-gray-600">/</span>}
-                                    <NavLink 
-                                        to={bc.url} 
-                                        className={({ isActive }) => 
+                                    <NavLink
+                                        to={bc.url}
+                                        className={({ isActive }) =>
                                             `hover:text-gray-900 dark:hover:text-white transition-colors ${isActive ? 'text-gray-900 dark:text-white font-bold' : ''}`
                                         }
                                     >

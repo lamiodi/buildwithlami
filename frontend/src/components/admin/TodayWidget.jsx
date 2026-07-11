@@ -75,7 +75,7 @@ const TodayWidget = () => {
     if (loading) {
         return (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-3 mb-6">
-                {Array.from({ length: 4 }).map((_, i) => (
+                {Array.from({ length: 7 }).map((_, i) => (
                     <div key={i} className="bg-white dark:bg-gray-800 p-4 rounded-2xl border border-gray-100 dark:border-gray-700 h-24 animate-pulse" />
                 ))}
             </div>

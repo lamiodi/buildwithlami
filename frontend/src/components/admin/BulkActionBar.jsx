@@ -11,23 +11,27 @@ const Icon = {
 };
 
 // Default action set per resource. The host page can override
-// the `actions` prop for custom actions (e.g. projects have
-// "reassign" but invoices don't).
+// the `actions` prop for custom actions.
+//
+// Action mapping:
+//   invoices ─ markPaid, refund, export (CSV download)
+//   clients  ─ archive, reassign (to another client), export
+//   projects ─ archive, export   (no reassign — projects
+//              reassign requires a separate owner picker)
 const DEFAULT_ACTIONS = {
     invoices: [
         { id: 'markPaid',  label: 'Mark as paid',     tone: 'emerald' },
         { id: 'refund',    label: 'Refund',           tone: 'rose' },
-        { id: 'exportCsv', label: 'Export selected',  tone: 'slate',  clientOnly: true },
+        { id: 'exportCsv', label: 'Export CSV',       tone: 'slate' },
     ],
     clients: [
         { id: 'archive',   label: 'Archive',          tone: 'amber' },
         { id: 'reassign',  label: 'Reassign…',        tone: 'blue' },
-        { id: 'exportCsv', label: 'Export selected',  tone: 'slate',  clientOnly: true },
+        { id: 'exportCsv', label: 'Export CSV',       tone: 'slate' },
     ],
     projects: [
         { id: 'archive',   label: 'Archive',          tone: 'amber' },
-        { id: 'reassign',  label: 'Reassign owner…',  tone: 'blue' },
-        { id: 'exportCsv', label: 'Export selected',  tone: 'slate',  clientOnly: true },
+        { id: 'exportCsv', label: 'Export CSV',       tone: 'slate' },
     ],
 };
 
@@ -38,6 +42,34 @@ const TONES = {
     blue:    'bg-blue-600 hover:bg-blue-700 text-white',
     slate:   'bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 hover:border-accent text-gray-800 dark:text-white',
 };
+
+/**
+ * Turn an array of plain objects into a CSV blob and trigger a
+ * browser download. Used by the bulk export action.
+ */
+function downloadCsv(rows, filename) {
+    if (!rows || rows.length === 0) {
+        notify.info('Nothing to export.');
+        return;
+    }
+    const cols = Object.keys(rows[0]);
+    const esc = (v) => {
+        if (v === null || v === undefined) return '';
+        const s = String(v);
+        return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+    };
+    const csv = [
+        cols.join(','),
+        ...rows.map((r) => cols.map((c) => esc(r[c])).join(',')),
+    ].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+}
 
 /**
  * BulkActionBar — a sticky bottom bar that appears when the
@@ -61,30 +93,29 @@ const BulkActionBar = ({ resource = 'invoices', selectedIds = [], onClear, onSuc
 
     const actions = DEFAULT_ACTIONS[resource] || DEFAULT_ACTIONS.invoices;
     const visible = Array.isArray(selectedIds) && selectedIds.length > 0;
+    const supportsReassign = resource === 'clients';
 
     useEffect(() => {
-        if (!open || resource !== 'clients') return;
+        if (!open) return;
         const onClick = (e) => { if (dropdownRef.current && !dropdownRef.current.contains(e.target)) setOpen(false); };
         document.addEventListener('mousedown', onClick);
         return () => document.removeEventListener('mousedown', onClick);
-    }, [open, resource]);
+    }, [open]);
 
-    // Load client list for "Reassign" picker
+    // Load the client list once, used for the reassign picker.
     useEffect(() => {
-        if (resource === 'clients' && clients.length === 0) {
-            api.get('/clients?limit=200').then((res) => {
-                if (res.ok) setClients(res.data || []);
-            });
-        }
-    }, [resource, clients.length]);
+        if (!supportsReassign || clients.length > 0) return;
+        api.get('/clients?limit=200').then((res) => {
+            if (res.ok) setClients(res.data || []);
+        });
+    }, [supportsReassign, clients.length]);
 
     const runAction = async (actionId) => {
         if (actionId === 'exportCsv') {
-            // Client-side CSV export — no round-trip needed.
-            exportSelected();
-            return;
+            return runExport();
         }
         if (actionId === 'reassign') {
+            // Just open the dropdown — actual reassign is in runReassign.
             setOpen((o) => !o);
             return;
         }
@@ -95,7 +126,7 @@ const BulkActionBar = ({ resource = 'invoices', selectedIds = [], onClear, onSuc
         });
         setBusy(false);
         if (res.ok) {
-            notify.success(`Bulk ${actionId} complete — ${res.data?.affected || selectedIds.length} item(s).`);
+            notify.success(`Bulk ${actionId} complete — ${res.data?.affected ?? selectedIds.length} item(s).`);
             onSuccess?.();
             onClear?.();
         } else {
@@ -103,10 +134,20 @@ const BulkActionBar = ({ resource = 'invoices', selectedIds = [], onClear, onSuc
         }
     };
 
-    const exportSelected = () => {
-        // The host page is expected to provide its own exportSelected
-        // by listening to the `onExport` event. Fallback: alert.
-        notify.info(`Export ${selectedIds.length} row(s) — wire the host page's exporter.`);
+    const runExport = async () => {
+        setBusy(true);
+        const res = await api.post(`/admin/bulk/${resource}`, {
+            ids: selectedIds,
+            action: 'export',
+        });
+        setBusy(false);
+        if (res.ok && res.data?.rows) {
+            const stamp = new Date().toISOString().slice(0, 10);
+            downloadCsv(res.data.rows, `${resource}-export-${stamp}.csv`);
+            notify.success(`Exported ${res.data.rows.length} row(s).`);
+        } else {
+            notify.error(res.error || 'Export failed.');
+        }
     };
 
     const runReassign = async () => {
@@ -115,7 +156,7 @@ const BulkActionBar = ({ resource = 'invoices', selectedIds = [], onClear, onSuc
             return;
         }
         setBusy(true);
-        const res = await api.post(`/admin/${resource}`, {
+        const res = await api.post(`/admin/bulk/clients`, {
             ids: selectedIds,
             action: 'reassign',
             assignTo: reassignTo,
@@ -123,7 +164,7 @@ const BulkActionBar = ({ resource = 'invoices', selectedIds = [], onClear, onSuc
         setBusy(false);
         setOpen(false);
         if (res.ok) {
-            notify.success(`Reassigned ${res.data?.affected || selectedIds.length} item(s).`);
+            notify.success(`Reassigned ${res.data?.affected ?? selectedIds.length} item(s).`);
             onSuccess?.();
             onClear?.();
         } else {

@@ -38,13 +38,15 @@ const ProtectedRoute = ({ children }) => {
                 setStatus('denied');
                 return;
             }
-            // Transient (network error, timeout, 5xx) — retry without clearing the token.
+            // Transient (network error, timeout, 5xx) — retry once
+            // before deciding. If the retry also fails, surface
+            // the failure (deny) instead of letting the user land
+            // on a broken admin page.
             if (attempt < 2) {
                 setTimeout(() => verify(attempt + 1), 800);
             } else {
-                // Still failing after retry, but token may still be valid.
-                // Let the user through — individual API calls will handle auth errors.
-                setStatus('authenticated');
+                clearAuth();
+                setStatus('denied');
             }
         };
         verify();

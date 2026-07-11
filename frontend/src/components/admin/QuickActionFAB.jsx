@@ -13,11 +13,24 @@ const Icon = {
 
 const ACTIONS = [
     { id: 'today',     label: 'View today',   icon: Icon.Today,   to: '/admin' },
-    { id: 'lead',      label: 'New lead',     icon: Icon.Lead,    to: '/admin/clients' },
-    { id: 'invoice',   label: 'New invoice',  icon: Icon.Invoice, to: '/admin/invoices' },
-    { id: 'project',   label: 'New project',  icon: Icon.Project, to: '/admin/projects' },
+    { id: 'lead',      label: 'New lead',     icon: Icon.Lead,    to: '/admin/clients?action=new' },
+    { id: 'invoice',   label: 'New invoice',  icon: Icon.Invoice, to: '/admin/invoices?action=new' },
+    { id: 'project',   label: 'New project',  icon: Icon.Project, to: '/admin/projects?action=new' },
     { id: 'message',   label: 'Open inbox',   icon: Icon.Mail,    to: '/admin/inbox' },
 ];
+
+/**
+ * Returns true if the key event originated inside an editable
+ * element (input, textarea, contenteditable, select). Used to
+ * avoid hijacking the `?` keystroke when the user is typing.
+ */
+function isTypingTarget(target) {
+    if (!target) return false;
+    const tag = (target.tagName || '').toLowerCase();
+    if (tag === 'input' || tag === 'textarea' || tag === 'select') return true;
+    if (target.isContentEditable) return true;
+    return false;
+}
 
 /**
  * QuickActionFAB — the floating "+" in the lower-right of the
@@ -30,18 +43,28 @@ const QuickActionFAB = () => {
     const navigate = useNavigate();
     const ref = useRef(null);
 
-    // Close on outside click / Esc
+    // Keyboard + outside-click listeners stay mounted for the
+    // lifetime of the component; gating happens inside the
+    // handlers. Single effect → no listener re-attach churn.
     useEffect(() => {
-        if (!open) return;
-        const onClick = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
-        const onEsc = (e) => { if (e.key === 'Escape') setOpen(false); };
-        const onKey = (e) => { if (e.key === '?') setOpen((o) => !o); };
+        const onClick = (e) => {
+            if (open && ref.current && !ref.current.contains(e.target)) setOpen(false);
+        };
+        const onKey = (e) => {
+            if (e.key === 'Escape' && open) {
+                setOpen(false);
+                return;
+            }
+            // `?` is the toggle — but never while the user is typing.
+            if (e.key === '?' && !e.ctrlKey && !e.metaKey && !e.altKey && !isTypingTarget(e.target)) {
+                e.preventDefault();
+                setOpen((o) => !o);
+            }
+        };
         document.addEventListener('mousedown', onClick);
-        document.addEventListener('keydown', onEsc);
         document.addEventListener('keydown', onKey);
         return () => {
             document.removeEventListener('mousedown', onClick);
-            document.removeEventListener('keydown', onEsc);
             document.removeEventListener('keydown', onKey);
         };
     }, [open]);

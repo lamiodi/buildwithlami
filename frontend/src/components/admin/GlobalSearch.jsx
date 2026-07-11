@@ -39,15 +39,22 @@ const GlobalSearch = () => {
 
     // Flatten the categorised results into a single array of
     // { id, label, sublabel, category, path, onClick } so we
-    // can arrow-key through the whole list and Enter on any item.
+    // can arrow-key through the whole list and Enter on any
+    // item. We also build an O(1) `flatIdxById` map so the
+    // render loop doesn't have to call `flat.list.findIndex`
+    // for every row (which would be O(n²) total).
     const flat = React.useMemo(() => {
-        if (!results) return [];
+        if (!results) return { list: [], flatIdxById: {} };
         const list = [];
+        const flatIdxById = {};
         CATEGORIES.forEach((cat) => {
             const items = results[cat.key] || [];
             items.forEach((item) => {
+                const id = `${cat.key}-${item.id}`;
+                flatIdxById[id] = list.length;
                 list.push({
-                    id: `${cat.key}-${item.id}`,
+                    id,
+                    item,
                     cat: cat.key,
                     catLabel: cat.label,
                     icon: cat.icon,
@@ -57,7 +64,7 @@ const GlobalSearch = () => {
                 });
             });
         });
-        return list;
+        return { list, flatIdxById };
     }, [results]);
 
     // ── Open / close on ⌘K + Esc ──────────────────────────
@@ -79,6 +86,7 @@ const GlobalSearch = () => {
         } else {
             setQ('');
             setResults(null);
+            setLoading(false);
         }
     }, [open]);
 
@@ -86,6 +94,9 @@ const GlobalSearch = () => {
     useEffect(() => {
         const trimmed = q.trim();
         if (trimmed.length < 2) {
+            // Don't leave `loading` stuck on when the user clears
+            // the input or types under the minimum length.
+            setLoading(false);
             setResults(null);
             return;
         }
@@ -102,17 +113,18 @@ const GlobalSearch = () => {
 
     // ── Arrow-key navigation through the flat list ───────
     const onKeyDown = (e) => {
+        const list = flat.list;
         if (e.key === 'ArrowDown') {
             e.preventDefault();
-            setActiveIdx((i) => Math.min(flat.length - 1, i + 1));
+            setActiveIdx((i) => Math.min(list.length - 1, i + 1));
         } else if (e.key === 'ArrowUp') {
             e.preventDefault();
             setActiveIdx((i) => Math.max(0, i - 1));
-        } else if (e.key === 'Enter' && flat[activeIdx]) {
+        } else if (e.key === 'Enter' && list[activeIdx]) {
             e.preventDefault();
-            const item = flat[activeIdx];
+            const row = list[activeIdx];
             setOpen(false);
-            navigate(item.path);
+            navigate(row.path);
         }
     };
 
@@ -167,7 +179,7 @@ const GlobalSearch = () => {
                                     <div className="px-4 py-8 text-center text-sm text-gray-500">Type at least 2 characters to search.</div>
                                 ) : !results ? (
                                     <div className="px-4 py-8 text-center text-sm text-gray-500">Searching…</div>
-                                ) : flat.length === 0 ? (
+                                ) : flat.list.length === 0 ? (
                                     <div className="px-4 py-8 text-center text-sm text-gray-500">No results for "{q}".</div>
                                 ) : (
                                     CATEGORIES.map((cat) => {
@@ -180,7 +192,8 @@ const GlobalSearch = () => {
                                                     {cat.label}
                                                 </h4>
                                                 {items.map((item) => {
-                                                    const flatIdx = flat.findIndex((f) => f.id === `${cat.key}-${item.id}`);
+                                                    // O(1) lookup using the precomputed map.
+                                                    const flatIdx = flat.flatIdxById[`${cat.key}-${item.id}`];
                                                     const isActive = flatIdx === activeIdx;
                                                     return (
                                                         <button
