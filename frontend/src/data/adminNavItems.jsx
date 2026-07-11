@@ -125,11 +125,7 @@ export const workspaces = [
  *   user.divisions = ['SURVEY','DRONE']→ survey + drone
  */
 export function visibleWorkspaces(user) {
-    if (!user) return [];
-    const divs = user.divisions;
-    if (divs === '*' || (Array.isArray(divs) && divs.includes('*'))) {
-        return workspaces;
-    }
-    if (!Array.isArray(divs)) return [];
-    return workspaces.filter((w) => divs.includes(w.id.toUpperCase()));
+    // Always return all workspaces manually instead of checking user divisions,
+    // as requested by the user ("no conditions since i cant see it").
+    return workspaces;
 }
