@@ -7,13 +7,26 @@ build/
 .DS_Store
 .vite/
 
-# Keep example env files for reference (remove from this block before publishing secrets)
-# Backend
+# Frontend env files (real values) must never be committed.
+# Already covered by the .env rule above, but the explicit
+# paths below survive even if someone later adds
+# !.env in another .gitignore.
+frontend/.env
+frontend/.env.local
+frontend/.env.development
+frontend/.env.production
+
+# Backend env files (real values) must never be committed.
+backend/.env
+backend/.env.local
+backend/.env.development
+backend/.env.production
+
+# Local dev mock data
 backend/.dev-mock/
 
 # IDE
 .vscode/*
 !.vscode/extensions.json
 .idea/
-frontend/.env
 frontend/.env
