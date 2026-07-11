@@ -140,11 +140,14 @@ function App() {
     }
   }
 
+  // Determine if the current route should hide the global Navbar and Footer
+  const hideGlobalLayout = location.pathname === '/drone' || location.pathname === '/survey';
+
   return (
     <AuthProvider>
     <div className="min-h-screen bg-gray-50 text-gray-900 dark:bg-background dark:text-white font-body selection:bg-accent selection:text-white transition-colors duration-500">
       <ErrorBoundary>
-        <Navbar isDark={isDark} toggleTheme={toggleTheme} />
+        {!hideGlobalLayout && <Navbar isDark={isDark} toggleTheme={toggleTheme} />}
         <main>
           <Suspense fallback={<Preloader />}>
             <AnimatePresence mode="wait">
@@ -204,7 +207,7 @@ function App() {
             </AnimatePresence>
           </Suspense>
         </main>
-        <Footer />
+        {!hideGlobalLayout && <Footer />}
         <WhatsAppWidget />
         <ThemeToast
           message={toastMessage}

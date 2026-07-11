@@ -1,7 +1,8 @@
-import React from 'react';
-import { Search, User, ShoppingBag, Menu, Crosshair, Target, Camera, ArrowRight } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Search, User, ShoppingBag, Menu, Crosshair, Target, Camera, ArrowRight, ArrowUpRight, Plus, Minus, Mail, Phone, MapPin } from 'lucide-react';
 
 const DroneHomePage = () => {
+  // -- Data for Lami Drone Division --
   const services = [
     { icon: '🛩️', number: '01', title: 'Aerial Surveying & Mapping', description: 'High-resolution orthomosaic maps and DEMs from drone-captured imagery using photogrammetry.' },
     { icon: '📸', number: '02', title: 'Aerial Photography & Video', description: 'Cinematic 4K aerial footage and high-resolution stills for real estate, events, and marketing.' },
@@ -14,27 +15,79 @@ const DroneHomePage = () => {
     { icon: '🏛️', number: '09', title: '3D Modelling & Visualisation', description: 'Photorealistic 3D models of structures and terrain for planning, analysis, and virtual tours.' },
   ];
 
+  const portfolio = [
+    { title: "Lekki Coastal Mapping", category: "Surveying", location: "Lagos, Nigeria", year: "2025" },
+    { title: "Dangote Refinery Inspection", category: "Inspection", location: "Lekki, Nigeria", year: "2025" },
+    { title: "Lulu Island Event Coverage", category: "Photography", location: "Lagos, Nigeria", year: "2024" },
+    { title: "Kogi Agricultural Survey", category: "Agriculture", location: "Kogi, Nigeria", year: "2024" },
+  ];
+
+  const fleet = [
+    { name: "DJI Matrice 350", spec: "RTK / LiDAR" },
+    { name: "Autel EVO Lite+", spec: "6K Cinematic" },
+    { name: "Parrot Anafi USA", category: "Thermal Sensor" },
+    { name: "WingtraOne Gen II", spec: "PPK Mapping" },
+  ];
+
+  const stats = [
+    { value: "450+", label: "Flights Completed" },
+    { value: "12,000", label: "Hectares Mapped" },
+    { value: "98%", label: "Client Retention" },
+    { value: "1.2cm", label: "RTK Accuracy" },
+  ];
+
+  const faqs = [
+    { q: "Are your pilots fully licensed?", a: "Yes. Every operation is led by NCAA-certified drone pilots with valid pilot licenses and full operational permits." },
+    { q: "What is your maximum flight endurance?", a: "Our fleet includes long-endurance platforms capable of up to 55 minutes per flight, with hot-swappable batteries for zero downtime." },
+    { q: "How quickly can you deploy?", a: "We maintain rapid-deployment readiness for missions anywhere in Nigeria, typically launching within 48 hours of confirmation." },
+    { q: "Do you provide post-flight deliverables?", a: "Absolutely. We provide fully processed orthomosaics, point clouds, thermal reports, and high-resolution media within tight SLAs." },
+  ];
+
+  // -- State Management --
+  const [openFaq, setOpenFaq] = useState(null);
+  const toggleFaq = (i) => setOpenFaq(openFaq === i ? null : i);
+
+  const sectionsRef = useRef({});
+  const scrollTo = (id) => {
+    const el = sectionsRef.current[id];
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  // Simple intersection observer for reveal animations
+  const [visibleElements, setVisibleElements] = useState(new Set());
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setVisibleElements((prev) => new Set([...prev, entry.target.dataset.id]));
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+    document.querySelectorAll('.drone-observe').forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <div className="bg-[#0a0a0a] min-h-screen p-4 md:p-6 flex flex-col font-sans">
-      {/* Main Card */}
+      {/* Main Card - Card-like container matching the template's look */}
       <div className="flex-1 bg-[#f4f4f4] rounded-[2.5rem] overflow-y-auto overflow-x-hidden flex flex-col relative shadow-2xl scrollbar-hide">
         
-        {/* Navbar inside the card */}
+        {/* ==== NAVBAR ==== */}
         <header className="flex justify-between items-center px-6 md:px-12 py-8 z-40 relative sticky top-0 bg-[#f4f4f4]/90 backdrop-blur-md">
-          {/* Left side navbar */}
           <div className="flex items-center gap-12 w-full md:w-1/2">
             <div className="flex items-center gap-2 font-black text-2xl tracking-tighter">
               <Crosshair className="w-6 h-6" /> Dronea<sup className="text-xs -ml-1">&reg;</sup>
             </div>
             <nav className="hidden lg:flex gap-8 text-sm text-gray-500 font-medium">
-              <a href="#" className="hover:text-black transition-colors">Services</a>
-              <a href="#" className="hover:text-black transition-colors">Portfolio</a>
-              <a href="#" className="hover:text-black transition-colors">Equipment</a>
-              <a href="#" className="hover:text-black transition-colors">Support</a>
+              <button onClick={() => scrollTo('services')} className="hover:text-black transition-colors">Services</button>
+              <button onClick={() => scrollTo('portfolio')} className="hover:text-black transition-colors">Portfolio</button>
+              <button onClick={() => scrollTo('fleet')} className="hover:text-black transition-colors">Fleet</button>
+              <button onClick={() => scrollTo('contact')} className="hover:text-black transition-colors">Contact</button>
             </nav>
           </div>
-
-          {/* Right side navbar */}
           <div className="flex items-center gap-3 w-auto md:w-1/2 justify-end">
             <div className="relative hidden md:block mr-2">
               <input 
@@ -50,11 +103,9 @@ const DroneHomePage = () => {
           </div>
         </header>
 
-        {/* Hero Section */}
-        <div className="relative min-h-[600px] lg:min-h-[800px] flex flex-col shrink-0">
-          {/* Split Content Area */}
+        {/* ==== HERO SECTION ==== */}
+        <section className="relative min-h-[600px] lg:min-h-[800px] flex flex-col shrink-0">
           <div className="flex flex-1 relative z-10">
-            {/* Center line separator */}
             <div className="absolute left-1/2 top-0 bottom-0 w-[1px] bg-gray-200 -translate-x-1/2 z-0 hidden md:block" />
 
             {/* Left Pane */}
@@ -64,11 +115,11 @@ const DroneHomePage = () => {
                 Professional drone services for surveying, inspection, and monitoring across multiple industries.
               </h2>
               <div className="flex flex-wrap items-center gap-6">
-                <button className="bg-black text-white rounded-full py-3 px-6 md:py-4 md:px-8 flex items-center gap-4 hover:bg-gray-800 transition-colors group">
-                  <span className="font-medium text-sm">Explore Services</span>
+                <button onClick={() => scrollTo('contact')} className="bg-black text-white rounded-full py-3 px-6 md:py-4 md:px-8 flex items-center gap-4 hover:bg-gray-800 transition-colors group">
+                  <span className="font-medium text-sm">Book a Flight</span>
                   <span className="bg-white text-black rounded-full w-8 h-8 flex items-center justify-center group-hover:translate-x-1 transition-transform"><ArrowRight className="w-4 h-4" /></span>
                 </button>
-                <a href="#" className="font-semibold text-sm underline decoration-2 underline-offset-4 hover:text-gray-500 transition-colors">See Demo</a>
+                <button onClick={() => scrollTo('portfolio')} className="font-semibold text-sm underline decoration-2 underline-offset-4 hover:text-gray-500 transition-colors">View Portfolio</button>
               </div>
             </div>
 
@@ -83,7 +134,7 @@ const DroneHomePage = () => {
             </div>
           </div>
 
-          {/* Center Drone Image Area - Positioned absolutely to overlap both columns */}
+          {/* Center Drone Image Area */}
           <div className="absolute top-[45%] left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 w-[90%] md:w-[70%] max-w-5xl pointer-events-none">
             <div className="relative w-full pb-[60%]">
               <img 
@@ -93,28 +144,21 @@ const DroneHomePage = () => {
               />
               
               {/* Annotations */}
-              {/* Top Left */}
               <div className="absolute top-[10%] left-[5%] flex items-center gap-2 hidden lg:flex">
                 <span className="text-[10px] text-gray-500 font-medium w-24 text-right leading-tight">Photogrammetry<br/>Mapping</span>
                 <div className="w-16 h-[1px] bg-gray-300"></div>
                 <div className="w-2 h-2 rounded-full border-2 border-gray-400 bg-[#f4f4f4]"></div>
               </div>
-              
-              {/* Bottom Left */}
               <div className="absolute top-[60%] left-[-5%] flex items-center gap-2 hidden lg:flex">
                 <span className="text-[10px] text-gray-500 font-medium">Thermal Inspection</span>
                 <div className="w-24 h-[1px] bg-gray-300 transform -rotate-12 origin-left"></div>
                 <div className="w-2 h-2 rounded-full border-2 border-gray-400 bg-[#f4f4f4] transform -translate-y-2"></div>
               </div>
-
-              {/* Top Right */}
               <div className="absolute top-[20%] right-[0%] flex items-center gap-2 hidden lg:flex flex-row-reverse">
                 <span className="text-[10px] text-gray-500 font-medium w-24 leading-tight">Multispectral<br/>Sensors</span>
                 <div className="w-20 h-[1px] bg-gray-300"></div>
                 <div className="w-2 h-2 rounded-full border-2 border-gray-400 bg-[#f4f4f4]"></div>
               </div>
-
-              {/* Bottom Right */}
               <div className="absolute top-[50%] right-[-10%] flex items-center gap-2 hidden lg:flex flex-row-reverse">
                 <span className="text-[10px] text-gray-500 font-medium">LiDAR Scanning</span>
                 <div className="w-32 h-[1px] bg-gray-300 transform rotate-12 origin-right"></div>
@@ -139,26 +183,52 @@ const DroneHomePage = () => {
               <img src="https://coresg-normal.trae.ai/api/ide/v1/text_to_image?prompt=small%20black%20stealth%20drone%20angled%20view%20transparent%20background&image_size=square" alt="Thumb 2" className="w-full h-full object-contain" />
             </div>
           </div>
-        </div>
+        </section>
 
-        {/* Services Section */}
-        <div className="bg-white px-6 md:px-12 py-24 z-30 relative rounded-t-[3rem] shadow-[0_-10px_40px_rgba(0,0,0,0.03)] shrink-0">
+        {/* ==== STATS BANNER ==== */}
+        <section className="bg-black text-white px-6 md:px-12 py-12 mx-6 md:mx-12 rounded-[2rem] my-8 grid grid-cols-2 md:grid-cols-4 gap-8">
+          {stats.map((stat, idx) => (
+            <div 
+              key={idx} 
+              className={`drone-observe text-center md:text-left ${visibleElements.has(`stat-${idx}`) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'} transition-all duration-700`}
+              data-id={`stat-${idx}`}
+              style={{ transitionDelay: `${idx * 100}ms` }}
+            >
+              <p className="text-3xl md:text-4xl font-black tracking-tight mb-2">{stat.value}</p>
+              <p className="text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] text-gray-400">{stat.label}</p>
+            </div>
+          ))}
+        </section>
+
+        {/* ==== SERVICES SECTION ==== */}
+        <section 
+          ref={(el) => (sectionsRef.current['services'] = el)} 
+          className="bg-white px-6 md:px-12 py-24 z-30 relative rounded-t-[3rem] shadow-[0_-10px_40px_rgba(0,0,0,0.03)] shrink-0"
+        >
           <div className="max-w-7xl mx-auto">
-            <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
+            <div className={`drone-observe flex flex-col md:flex-row justify-between items-end mb-16 gap-8 ${visibleElements.has('services-header') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'} transition-all duration-1000`} data-id="services-header">
               <div>
-                <h2 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter text-gray-900 mb-6">Drone Services</h2>
+                <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-500 mb-4">— Capabilities</p>
+                <h2 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter text-gray-900 mb-6 leading-[0.95]">
+                  Drone<br/>Services
+                </h2>
                 <p className="text-gray-500 max-w-xl text-base leading-relaxed font-medium">
                   Nine specialised drone service lines — from photogrammetry mapping to thermal inspection — all delivered by NCAA-licensed pilots.
                 </p>
               </div>
-              <button className="bg-black text-white rounded-full py-4 px-8 text-sm font-bold tracking-wide hover:bg-gray-800 transition-colors shadow-lg shadow-black/20">
+              <button onClick={() => scrollTo('contact')} className="bg-black text-white rounded-full py-4 px-8 text-sm font-bold tracking-wide hover:bg-accent transition-colors shadow-lg shadow-black/20">
                 Book a Flight
               </button>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {services.map((service, index) => (
-                <div key={index} className="bg-[#f4f4f4] rounded-[2rem] p-8 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group border border-transparent hover:border-gray-200">
+                <div 
+                  key={index} 
+                  className={`drone-observe bg-[#f4f4f4] rounded-[2rem] p-8 hover:shadow-xl hover:-translate-y-1 transition-all duration-500 group border border-transparent hover:border-gray-200 ${visibleElements.has(`service-${index}`) ? 'opacity-100' : 'opacity-0'}`}
+                  data-id={`service-${index}`}
+                  style={{ transitionDelay: `${index * 100}ms` }}
+                >
                   <div className="flex justify-between items-start mb-12">
                     <span className="text-5xl group-hover:scale-110 transition-transform duration-300 origin-bottom-left">{service.icon}</span>
                     <span className="text-gray-300 font-bold font-mono text-xl">{service.number}</span>
@@ -169,26 +239,197 @@ const DroneHomePage = () => {
               ))}
             </div>
           </div>
-        </div>
+        </section>
 
+        {/* ==== PORTFOLIO SECTION ==== */}
+        <section 
+          ref={(el) => (sectionsRef.current['portfolio'] = el)} 
+          className="px-6 md:px-12 py-24 max-w-7xl mx-auto w-full shrink-0"
+        >
+          <div className={`drone-observe flex flex-col md:flex-row justify-between items-end mb-16 gap-6 ${visibleElements.has('portfolio-header') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'} transition-all duration-1000`} data-id="portfolio-header">
+            <div>
+              <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-500 mb-4">— Selected Missions</p>
+              <h2 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter text-gray-900 leading-[0.95]">
+                Flight<br/>Portfolio
+              </h2>
+            </div>
+            <button onClick={() => scrollTo('contact')} className="text-sm font-bold underline decoration-2 underline-offset-4 hover:text-gray-500 transition-colors">View All Projects</button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {portfolio.map((proj, idx) => (
+              <div 
+                key={idx}
+                className={`drone-observe group relative overflow-hidden bg-white rounded-[2rem] border border-gray-100 hover:shadow-2xl transition-all duration-500 ${visibleElements.has(`proj-${idx}`) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
+                data-id={`proj-${idx}`}
+                style={{ transitionDelay: `${idx * 100}ms` }}
+              >
+                <div className="relative h-72 overflow-hidden rounded-t-[2rem]">
+                  <img 
+                    src={`https://coresg-normal.trae.ai/api/ide/v1/text_to_image?prompt=Aerial%20drone%20shot%20of%20${encodeURIComponent(proj.title)},%20${encodeURIComponent(proj.category)},%20photorealistic,%20cinematic%20lighting&image_size=landscape_4_3`}
+                    alt={proj.title} 
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
+                  />
+                  <div className="absolute top-4 left-4 bg-white text-black px-3 py-1 text-[10px] font-bold uppercase tracking-widest rounded-full">
+                    {proj.category}
+                  </div>
+                  <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-sm text-white w-10 h-10 flex items-center justify-center rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                    <ArrowUpRight className="w-4 h-4" />
+                  </div>
+                </div>
+                <div className="p-6 flex justify-between items-start">
+                  <div>
+                    <h3 className="text-lg font-black text-gray-900 mb-1">{proj.title}</h3>
+                    <p className="text-xs text-gray-500 font-medium">{proj.location}</p>
+                  </div>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">{proj.year}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ==== FLEET / EQUIPMENT ==== */}
+        <section 
+          ref={(el) => (sectionsRef.current['fleet'] = el)} 
+          className="px-6 md:px-12 py-24 max-w-7xl mx-auto w-full shrink-0"
+        >
+          <div className={`drone-observe mb-16 ${visibleElements.has('fleet-header') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'} transition-all duration-1000`} data-id="fleet-header">
+            <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-500 mb-4">— Hardware</p>
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter text-gray-900 leading-[0.95]">
+              The<br/>Fleet
+            </h2>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {fleet.map((eq, idx) => (
+              <div 
+                key={idx}
+                className={`drone-observe text-center group ${visibleElements.has(`fleet-${idx}`) ? 'opacity-100' : 'opacity-0'} transition-all duration-700`}
+                data-id={`fleet-${idx}`}
+                style={{ transitionDelay: `${idx * 100}ms` }}
+              >
+                <div className="aspect-square bg-white rounded-3xl mb-4 border border-gray-100 group-hover:border-black transition-colors flex items-center justify-center overflow-hidden">
+                  <img 
+                    src={`https://coresg-normal.trae.ai/api/ide/v1/text_to_image?prompt=Professional%20${encodeURIComponent(eq.name)}%20drone%20product%20shot%20white%20background%20studio%20lighting&image_size=square`}
+                    alt={eq.name}
+                    className="w-full h-full object-cover p-4 group-hover:scale-110 transition-transform duration-500"
+                  />
+                </div>
+                <h3 className="text-xs font-black uppercase tracking-wider text-gray-900">{eq.name}</h3>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mt-1">{eq.spec || eq.category}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ==== FAQ SECTION ==== */}
+        <section 
+          ref={(el) => (sectionsRef.current['faq'] = el)} 
+          className="bg-white px-6 md:px-12 py-24 shrink-0"
+        >
+          <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-24">
+            <div className={`drone-observe ${visibleElements.has('faq-header') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'} transition-all duration-1000`} data-id="faq-header">
+              <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-500 mb-4">— Questions</p>
+              <h2 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter text-gray-900 leading-[0.95]">
+                Frequent<br/>Asked
+              </h2>
+            </div>
+
+            <div className="space-y-0">
+              {faqs.map((faq, idx) => (
+                <div 
+                  key={idx} 
+                  className={`drone-observe border-b border-gray-200 transition-all duration-700 ${visibleElements.has(`faq-${idx}`) ? 'opacity-100' : 'opacity-0'}`}
+                  data-id={`faq-${idx}`}
+                  style={{ transitionDelay: `${idx * 100}ms` }}
+                >
+                  <button 
+                    onClick={() => toggleFaq(idx)}
+                    className="w-full py-6 flex justify-between items-center text-left group"
+                  >
+                    <span className="text-lg font-bold text-gray-900 group-hover:text-accent transition-colors pr-4">
+                      {faq.q}
+                    </span>
+                    {openFaq === idx ? (
+                      <Minus className="w-5 h-5 text-accent shrink-0" />
+                    ) : (
+                      <Plus className="w-5 h-5 text-accent shrink-0" />
+                    )}
+                  </button>
+                  <div 
+                    className={`overflow-hidden transition-all duration-500 ease-in-out ${
+                      openFaq === idx ? 'max-h-48 pb-6' : 'max-h-0'
+                    }`}
+                  >
+                    <p className="text-gray-600 leading-relaxed pr-12">
+                      {faq.a}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ==== CONTACT / CTA SECTION ==== */}
+        <section 
+          ref={(el) => (sectionsRef.current['contact'] = el)} 
+          className="px-6 md:px-12 py-24 max-w-7xl mx-auto w-full shrink-0"
+        >
+          <div className="bg-black text-white rounded-[2.5rem] p-8 md:p-16 grid grid-cols-1 md:grid-cols-2 gap-12">
+            <div>
+              <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-400 mb-4">— Get In Touch</p>
+              <h2 className="text-4xl md:text-5xl font-black tracking-tighter leading-[0.95] mb-6">
+                Ready For<br/>Takeoff?
+              </h2>
+              <p className="text-gray-400 leading-relaxed mb-8 max-w-md">
+                Tell us about your aerial project and we'll provide a detailed flight plan and quote within 24 hours.
+              </p>
+              
+              <div className="space-y-4">
+                <a href="mailto:drone@buildwithlami.com" className="flex items-center gap-3 text-sm hover:text-accent transition-colors">
+                  <div className="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center"><Mail className="w-4 h-4" /></div>
+                  <span>drone@buildwithlami.com</span>
+                </a>
+                <a href="tel:+234800000000" className="flex items-center gap-3 text-sm hover:text-accent transition-colors">
+                  <div className="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center"><Phone className="w-4 h-4" /></div>
+                  <span>+234 (0) 800 DRONE-LAMI</span>
+                </a>
+                <div className="flex items-center gap-3 text-sm">
+                  <div className="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center"><MapPin className="w-4 h-4" /></div>
+                  <span>Victoria Island, Lagos, NG</span>
+                </div>
+              </div>
+            </div>
+
+            <form className="space-y-5" onSubmit={(e) => e.preventDefault()}>
+              <input type="text" placeholder="Full name *" required className="w-full bg-transparent border-b-2 border-white/20 py-3 text-white placeholder-white/40 focus:outline-none focus:border-accent transition-colors" />
+              <input type="email" placeholder="Email address *" required className="w-full bg-transparent border-b-2 border-white/20 py-3 text-white placeholder-white/40 focus:outline-none focus:border-accent transition-colors" />
+              <select required className="w-full bg-transparent border-b-2 border-white/20 py-3 text-white focus:outline-none focus:border-accent transition-colors appearance-none">
+                <option value="" className="text-gray-900">— Select Service —</option>
+                {services.map((s, i) => <option key={i} value={s.title} className="text-gray-900">{s.title}</option>)}
+              </select>
+              <input type="text" placeholder="Project location" className="w-full bg-transparent border-b-2 border-white/20 py-3 text-white placeholder-white/40 focus:outline-none focus:border-accent transition-colors" />
+              <textarea rows="3" placeholder="Tell us about your mission..." className="w-full bg-transparent border-b-2 border-white/20 py-3 text-white placeholder-white/40 focus:outline-none focus:border-accent transition-colors resize-none"></textarea>
+              <button type="submit" className="w-full bg-white text-black py-4 text-sm font-bold uppercase tracking-[0.2em] hover:bg-accent hover:text-white transition-colors rounded-full flex items-center justify-center gap-3 group">
+                Submit Request
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-2 transition-transform" />
+              </button>
+            </form>
+          </div>
+        </section>
       </div>
 
-      {/* Footer outside the card */}
+      {/* ==== FOOTER ==== */}
       <footer className="mt-6 flex flex-col lg:flex-row justify-between items-center text-gray-500 text-xs px-2 md:px-8 gap-6 pb-2 shrink-0">
         <div className="font-medium tracking-wide">
-          Trusted By 100+ Companies:
+          © 2026 Lami Drone Division // Precision from above
         </div>
-        <div className="flex flex-wrap justify-center gap-x-8 gap-y-4 items-center opacity-60 font-bold uppercase tracking-widest text-[10px]">
-          <span className="flex items-center gap-1"><span className="text-lg">☁</span> GitHub</span>
-          <span>Basecamp</span>
-          <span>attentive</span>
-          <span>gumroad</span>
-          <span>classpass</span>
-          <span>TESLA</span>
-          <span>Medium</span>
-          <span>SPACEX</span>
-          <span>Uber</span>
-          <span>descript</span>
+        <div className="flex flex-wrap justify-center gap-x-8 gap-y-4 items-center font-bold uppercase tracking-widest text-[10px]">
+          <a href="#" className="hover:text-gray-300 transition-colors">Instagram</a>
+          <a href="#" className="hover:text-gray-300 transition-colors">LinkedIn</a>
+          <a href="#" className="hover:text-gray-300 transition-colors">X</a>
+          <a href="#" className="hover:text-gray-300 transition-colors">YouTube</a>
         </div>
       </footer>
 
