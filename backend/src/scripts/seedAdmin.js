@@ -27,12 +27,18 @@ async function seed() {
         // Hash the password
         const passwordHash = await bcrypt.hash(ADMIN_PASSWORD, SALT_ROUNDS);
 
-        // Upsert — safe to run more than once
+        // Upsert — safe to run more than once.
+        // Writes the canonical role name ('Owner') so the admin
+        // can immediately hit role-gated endpoints like
+        // /api/dashboard without needing v22_normalize_admin_roles
+        // to run. The v22 migration is still idempotent for any
+        // other admin rows that pre-date this fix.
         const { rows } = await pool.query(
             `INSERT INTO users (email, password, role)
-       VALUES ($1, $2, 'ADMIN')
+       VALUES ($1, $2, 'Owner')
        ON CONFLICT (email) DO UPDATE
          SET password   = EXCLUDED.password,
+             role       = 'Owner',
              updated_at = NOW()
        RETURNING id, email, role`,
             [ADMIN_EMAIL, passwordHash],

@@ -3,6 +3,30 @@ import bcrypt from 'bcrypt';
 import { z } from 'zod';
 import pool from '../config/db.js';
 
+// ── Role normalisation ───────────────────────────────────
+// Maps every recognised role name (legacy + new casing) to
+// the canonical titlecase. Mirrors the helper in
+// `authMiddleware.js` — keeping a copy here means we can
+// normalise before signing the JWT so a token issued to a
+// row that still reads 'ADMIN' / 'OWNER' will still carry
+// the canonical role. The v22 migration normalises the DB
+// row, but doing it here too provides defence in depth in
+// case a re-seed reintroduced a legacy value.
+const CANONICAL_ROLES = new Set([
+    'Owner', 'Administrator', 'Project Manager', 'Developer',
+    'Survey Manager', 'Surveyor', 'Drone Manager', 'Drone Pilot',
+    'Finance', 'Client',
+]);
+function canonicalRole(role) {
+    if (!role) return role;
+    if (CANONICAL_ROLES.has(role)) return role;
+    const lower = String(role).toLowerCase();
+    for (const r of CANONICAL_ROLES) {
+        if (r.toLowerCase() === lower) return r;
+    }
+    return role; // unknown — let downstream handle the 403
+}
+
 // ── Validation Schemas ───────────────────────────────────
 const loginSchema = z.object({
     email: z.string().email(),
@@ -32,6 +56,11 @@ export async function login(req, res) {
         }
 
         const user = rows[0];
+        // Normalise legacy casings (e.g. 'ADMIN' → 'Administrator',
+        // 'OWNER' → 'Owner') so a token issued today works against
+        // every role-gated route, even if the DB row still has a
+        // legacy value. Mirrors v22_normalize_admin_roles.sql.
+        user.role = canonicalRole(user.role);
 
         const passwordMatch = await bcrypt.compare(password, user.password);
         if (!passwordMatch) {
@@ -141,12 +170,15 @@ function divisionsForRole(role) {
 }
 
 export async function getMe(req, res) {
-    // req.user is set by the verifyToken middleware
+    // req.user is set by the verifyToken middleware (which already
+    // normalises the role). Re-normalise here as a safety net in case
+    // a token was issued before the normalisation fix landed.
+    const role = canonicalRole(req.user.role);
     return res.json({
         id: req.user.id,
         email: req.user.email,
-        role: req.user.role,
-        divisions: divisionsForRole(req.user.role),
+        role,
+        divisions: divisionsForRole(role),
     });
 }
 

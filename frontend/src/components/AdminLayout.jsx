@@ -10,6 +10,19 @@ import { useAuth } from '../contexts/AuthContext';
 import { coreNav, visibleWorkspaces } from '../data/adminNavItems.jsx';
 
 const WORKSPACE_STORAGE_KEY = 'bwl:admin:workspace';
+const ALL_WORKSPACE_ID = 'all';
+
+// All-icon used as the marker for the "All workspaces" option.
+// Defined here (not in adminNavItems.jsx) because that file is
+// pure data and doesn't import the Code icon for this purpose.
+const AllIcon = (p) => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}>
+        <rect x="3" y="3" width="7" height="7" />
+        <rect x="14" y="3" width="7" height="7" />
+        <rect x="3" y="14" width="7" height="7" />
+        <rect x="14" y="14" width="7" height="7" />
+    </svg>
+);
 
 const Icon = {
     Users: (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>,
@@ -32,10 +45,18 @@ const Icon = {
 
 // Module-level nav arrays (core + per-workspace) live in
 // `data/adminNavItems.js`. The visible nav is composed at
-// runtime from `useAuth().user.divisions` and merges the
-// nav items from EVERY visible workspace (deduped by `to`)
-// — the WorkspaceSelector badge is now an identity marker,
-// not a filter, since BuildWithLami is a solo-CEO setup.
+// runtime from `useAuth().user.divisions` and from the
+// current value of the workspace selector.
+//
+// The selector drives a manual filter:
+//   "all"      → core + every visible workspace, deduped
+//   "software" → core + software only
+//   "survey"   → core + survey only
+//   "drone"    → core + drone only
+//
+// If the persisted workspace is not in the user's allowed
+// set, we fall back to "all" so the selector always has
+// a meaningful option.
 
 const AdminLayout = ({ isDark, toggleTheme }) => {
     const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -46,33 +67,59 @@ const AdminLayout = ({ isDark, toggleTheme }) => {
     // Active workspace — read from localStorage on first mount,
     // then re-evaluate when the user/their divisions change.
     const [activeWorkspace, setActiveWorkspace] = useState(() => {
-        try { return localStorage.getItem(WORKSPACE_STORAGE_KEY) || 'software'; } catch { return 'software'; }
+        try { return localStorage.getItem(WORKSPACE_STORAGE_KEY) || ALL_WORKSPACE_ID; } catch { return ALL_WORKSPACE_ID; }
     });
+
+    // Persist activeWorkspace so it survives a reload.
+    const handleWorkspaceChange = (id) => {
+        setActiveWorkspace(id);
+        try { localStorage.setItem(WORKSPACE_STORAGE_KEY, id); } catch {}
+    };
+
+    // Compute the list of options the selector can show.
+    // Always include "all" as the first option; the per-division
+    // options are filtered by the user's allowed divisions.
+    const workspaceOptions = useMemo(() => {
+        const allowed = visibleWorkspaces(user);
+        const divisionOptions = allowed.map((w) => ({
+            id: w.id,
+            label: w.label,
+            icon: w.icon,
+            description: `Only ${w.label.toLowerCase()} items`,
+        }));
+        return [
+            { id: ALL_WORKSPACE_ID, label: 'All Workspaces', icon: AllIcon, description: 'Every division' },
+            ...divisionOptions,
+        ];
+    }, [user]);
 
     // Reset to a valid workspace if the persisted one isn't in
     // the user's allowed set (e.g. role changed).
     useEffect(() => {
-        const allowed = visibleWorkspaces(user);
-        if (allowed.length === 0) return;
-        if (!allowed.find(w => w.id === activeWorkspace)) {
-            const fallback = allowed[0].id;
-            try {
-                if (localStorage.getItem(WORKSPACE_STORAGE_KEY) !== fallback) {
-                    localStorage.setItem(WORKSPACE_STORAGE_KEY, fallback);
-                }
-            } catch {}
-            setActiveWorkspace(fallback);
+        const ids = workspaceOptions.map((o) => o.id);
+        if (ids.length === 0) return;
+        if (!ids.includes(activeWorkspace)) {
+            handleWorkspaceChange(ALL_WORKSPACE_ID);
         }
-    }, [user, activeWorkspace]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [user]);
 
-    // Compose the visible nav: core (always) + the union of
-    // every visible workspace's items. De-duplicate by `to` so
-    // a core item that also lives in a workspace's nav still
-    // appears exactly once.
+    // Compose the visible nav. When "all" is active, we union
+    // core + every allowed workspace. When a specific workspace
+    // is active, we show only core + that workspace's nav.
+    // Either way, the result is de-duplicated by `to` so a core
+    // item that also lives in a workspace's nav still appears
+    // exactly once.
     const navItems = useMemo(() => {
         if (!user) return [];
         const allowed = visibleWorkspaces(user);
-        const wsNav = allowed.flatMap((w) => w.nav);
+        let wsNav = [];
+        if (activeWorkspace === ALL_WORKSPACE_ID) {
+            wsNav = allowed.flatMap((w) => w.nav);
+        } else {
+            const selected = allowed.find((w) => w.id === activeWorkspace);
+            wsNav = selected ? selected.nav : [];
+        }
         const combined = [...coreNav, ...wsNav];
         const seen = new Set();
         return combined.filter((it) => {
@@ -80,7 +127,7 @@ const AdminLayout = ({ isDark, toggleTheme }) => {
             seen.add(it.to);
             return true;
         });
-    }, [user]);
+    }, [user, activeWorkspace]);
 
     // Generate breadcrumbs from pathname
     const paths = location.pathname.split('/').filter(Boolean);
@@ -105,10 +152,16 @@ const AdminLayout = ({ isDark, toggleTheme }) => {
                     )}
                 </div>
 
-                {/* Workspace identity badge (static, non-interactive). */}
+                {/* Manual workspace switcher. The active value is owned
+                    by this layout; the selector stays a pure presentational
+                    component and just renders the options we hand it. */}
                 {sidebarOpen && (
                     <div className="px-3 pt-4">
-                        <WorkspaceSelector />
+                        <WorkspaceSelector
+                            activeId={activeWorkspace}
+                            onChange={handleWorkspaceChange}
+                            options={workspaceOptions}
+                        />
                     </div>
                 )}
 
@@ -174,6 +227,13 @@ const AdminLayout = ({ isDark, toggleTheme }) => {
                                 <button onClick={() => setMobileMenuOpen(false)} className="text-gray-500">
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                                 </button>
+                            </div>
+                            <div className="px-4 pt-4">
+                                <WorkspaceSelector
+                                    activeId={activeWorkspace}
+                                    onChange={handleWorkspaceChange}
+                                    options={workspaceOptions}
+                                />
                             </div>
                             <div className="flex-1 py-6 flex flex-col gap-2 px-4 overflow-y-auto">
                                 {navItems.map(item => (
