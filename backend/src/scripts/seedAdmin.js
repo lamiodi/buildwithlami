@@ -11,6 +11,7 @@ import pool from '../config/db.js';
 
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@devagency.os';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+const SHOW_PASSWORD = process.argv.includes('--show-password');
 
 if (!ADMIN_PASSWORD) {
     console.error('❌  Missing ADMIN_PASSWORD environment variable.');
@@ -40,7 +41,11 @@ async function seed() {
         console.log('✅  Admin user ready:');
         console.table(rows);
         console.log(`\n   Email:    ${ADMIN_EMAIL}`);
-        console.log(`   Password: ${ADMIN_PASSWORD}`);
+        if (SHOW_PASSWORD) {
+            console.log(`   Password: ${ADMIN_PASSWORD}`);
+        } else {
+            console.log('   Password: (hidden — re-run with --show-password to reveal)');
+        }
         console.log(`\n   ⚠️  Change this password immediately after first login!\n`);
     } catch (err) {
         console.error('❌  Seed failed:', err.message);

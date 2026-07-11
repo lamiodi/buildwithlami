@@ -42,11 +42,10 @@ function normaliseRole(role) {
 /**
  * Protect routes — requires a valid Bearer token.
  *
- * Client tokens are signed with `JWT_SECRET + trackingId`; admin/owner tokens
- * are signed with `JWT_SECRET` alone. We don't know which one the token uses
- * without first decoding, so we attempt the CLIENT variant first and fall
- * back to the plain admin secret. The verify call itself enforces signature
- * integrity, so no trust is placed in the unverified payload.
+ * All tokens (admin/owner/client) are signed with the single `JWT_SECRET`.
+ * The `role` and (for clients) `trackingId` claims are part of the signed
+ * payload, so we read them only after `jwt.verify()` succeeds. No trust is
+ * placed in any data decoded before signature verification.
  */
 export function verifyToken(req, res, next) {
     const header = req.headers.authorization;
@@ -68,12 +67,12 @@ export function verifyToken(req, res, next) {
 
     try {
         const verified = jwt.verify(token, baseSecret);
-        
+
         // Double check for client roles to ensure trackingId is present
         if (verified.role === 'CLIENT' && !verified.trackingId) {
             return res.status(401).json({ error: 'Invalid client token.' });
         }
-        
+
         req.user = { ...verified, role: normaliseRole(verified.role) };
         return next();
     } catch (_err) {
