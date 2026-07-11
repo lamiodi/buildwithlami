@@ -26,6 +26,7 @@
 import express from 'express';
 import rateLimit from 'express-rate-limit';
 import { verifyToken, requireRole } from '../middlewares/authMiddleware.js';
+import { withCache, cacheInvalidatePrefix } from '../utils/cache.js';
 import {
     getPages,
     getPageBySlug,
@@ -57,12 +58,22 @@ const publicReadLimiter = rateLimit({
     message: { error: 'Too many requests. Please slow down.' },
 });
 
-// ── Public read endpoints ────────────────────────────────
-router.get('/pages', publicReadLimiter, getPages);
-router.get('/pages/:slug', publicReadLimiter, getPageBySlug);
-router.get('/testimonials', publicReadLimiter, getTestimonials);
-router.get('/equipment', publicReadLimiter, getEquipment);
-router.get('/industries', publicReadLimiter, getIndustries);
+// ── Public read endpoints (cached) ───────────────────────
+// Marketing content changes weekly at most; serve from a
+// 60-120s in-memory cache and set Cache-Control so Vercel's
+// edge absorbs repeat traffic. The `X-Cache` header is for
+// debugging — `HIT` means we skipped Postgres.
+const pagesCache    = withCache({ ttlMs: 60_000,  keyPrefix: 'cms:pages' });
+const pageBySlug    = withCache({ ttlMs: 60_000,  keyPrefix: 'cms:page' });
+const testimonials  = withCache({ ttlMs: 120_000, keyPrefix: 'cms:testimonials' });
+const equipment     = withCache({ ttlMs: 120_000, keyPrefix: 'cms:equipment' });
+const industries    = withCache({ ttlMs: 300_000, keyPrefix: 'cms:industries' });
+
+router.get('/pages', publicReadLimiter, pagesCache, getPages);
+router.get('/pages/:slug', publicReadLimiter, pageBySlug, getPageBySlug);
+router.get('/testimonials', publicReadLimiter, testimonials, getTestimonials);
+router.get('/equipment', publicReadLimiter, equipment, getEquipment);
+router.get('/industries', publicReadLimiter, industries, getIndustries);
 
 // ── Admin (write) endpoints ──────────────────────────────
 router.use(verifyToken);
@@ -88,5 +99,19 @@ router.delete('/equipment/:id', deleteEquipment);
 router.post('/industries', createIndustry);
 router.put('/industries/:id', updateIndustry);
 router.delete('/industries/:id', deleteIndustry);
+
+// ── Cache invalidation ───────────────────────────────────
+// On any write, drop the matching prefix so the next public
+// read sees fresh data. Failures here are non-fatal — the
+// stale cache will expire on its TTL (max 5 min) anyway.
+const invalidateAfterWrite = (req, res, next) => {
+    res.on('finish', () => {
+        if (res.statusCode < 400) {
+            cacheInvalidatePrefix('cms:');
+        }
+    });
+    next();
+};
+router.use(invalidateAfterWrite);
 
 export default router;

@@ -95,7 +95,7 @@ const Testimonials = () => {
               <p className="text-gray-700 dark:text-gray-300 italic mb-6 relative z-10">"{testimonial.quote}"</p>
               <div className="flex items-center">
                 {testimonial.avatar && (
-                  <img src={testimonial.avatar} alt={testimonial.client_name} className="w-12 h-12 rounded-full mr-4 object-cover" />
+                  <img src={testimonial.avatar} alt={testimonial.client_name} className="w-12 h-12 rounded-full mr-4 object-cover" loading="lazy" decoding="async" width="48" height="48" />
                 )}
                 <div>
                   <h4 className="font-bold text-gray-900 dark:text-white">{testimonial.client_name}</h4>

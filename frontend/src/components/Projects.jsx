@@ -71,12 +71,14 @@ const Projects = () => {
 
           {/* Project Image */}
           <motion.div variants={item} className="w-full h-64 md:h-[500px] bg-gray-200 dark:bg-gray-800 mb-8 overflow-hidden rounded-sm border border-gray-200 dark:border-none shadow-md">
-             <img 
-                src={featuredProject.image_url || featuredProject.image} 
-                alt={featuredProject.title} 
+             <img
+                src={featuredProject.image_url || featuredProject.image}
+                alt={featuredProject.title}
                 className="w-full h-full object-cover object-top hover:scale-105 transition-transform duration-700"
                 width="800"
                 height="500"
+                loading="lazy"
+                decoding="async"
               />
           </motion.div>
 

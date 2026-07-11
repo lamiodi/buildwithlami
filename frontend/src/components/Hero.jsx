@@ -54,10 +54,14 @@ const Hero = () => {
         transition={{ duration: shouldReduce ? 0 : 0.7, delay: shouldReduce ? 0 : 0.4, ease: 'easeOut' }}
       >
         <div className="w-56 h-72 sm:w-64 sm:h-80 md:w-80 md:h-96 bg-gray-800 relative overflow-visible shadow-2xl">
-          <img 
-            src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=2070&auto=format&fit=crop" 
-            alt="Eugene Odibenuah" 
+          <img
+            src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=2070&auto=format&fit=crop"
+            alt="Eugene Odibenuah"
             className="w-full h-full object-cover"
+            width="1280"
+            height="1920"
+            fetchpriority="high"
+            decoding="async"
           />
           <div className="absolute -bottom-6 -right-6 bg-white text-black text-xl font-bold px-4 py-2 font-handwritten transform -rotate-6 shadow-lg z-20">
             Meet The Founder

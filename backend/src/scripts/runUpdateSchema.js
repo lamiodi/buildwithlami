@@ -41,6 +41,7 @@ const MIGRATIONS = [
     'v18_payment_proofs.sql',
     'v19_fx_live_source.sql',
     'v20_schema_cleanup.sql',
+    'v21_pages_perf_index.sql',
 ];
 
 const run = async () => {
