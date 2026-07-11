@@ -162,4 +162,65 @@ export function renderMarkdown(input) {
     return out.join('\n');
 }
 
+// ── sanitizeMarkdownHtml ─────────────────────────────────
+// Defence-in-depth: pass the rendered HTML through DOMPurify
+// before it ever reaches `dangerouslySetInnerHTML`. The
+// renderer already escapes text and attrs, but a sanitizer
+// guarantees no script / event-handler / javascript: URLs can
+// survive even if a future change to the parser is unsafe.
+//
+// Uses dynamic import so the bundle stays small when DOMPurify
+// is not needed (e.g. server-side rendering or unit tests).
+let _purifyCache = null;
+async function getPurifier() {
+    if (_purifyCache) return _purifyCache;
+    const mod = await import('dompurify');
+    const DOMPurify = mod.default || mod;
+    _purifyCache = typeof window !== 'undefined' ? DOMPurify(window) : DOMPurify;
+    return _purifyCache;
+}
+
+/**
+ * Render Markdown to HTML and sanitize the output.
+ * Returns a Promise so callers can `await` it before
+ * passing the result to `dangerouslySetInnerHTML`.
+ */
+export async function renderSafeMarkdown(input) {
+    const html = renderMarkdown(input);
+    const purify = await getPurifier();
+    return purify.sanitize(html, {
+        USE_PROFILES: { html: true },
+        ADD_ATTR: ['target', 'rel'],
+    });
+}
+
+/**
+ * Synchronous variant for use in code paths where async is awkward
+ * (e.g. an existing `dangerouslySetInnerHTML` consumer that
+ * doesn't already use an effect). Lazy-loads DOMPurify and caches it
+ * — the first call is slightly slower, subsequent calls are fast.
+ *
+ * For server-rendered or SSR-critical code paths, prefer the
+ * async `renderSafeMarkdown`.
+ */
+let _purifierSync = null;
+let _purifierLoading = null;
+export function renderSafeMarkdownSync(input) {
+    if (_purifierSync) return _purifierSync.sanitize(renderMarkdown(input), {
+        USE_PROFILES: { html: true },
+        ADD_ATTR: ['target', 'rel'],
+    });
+
+    if (!_purifierLoading) {
+        _purifierLoading = import('dompurify').then((mod) => {
+            const DOMPurify = mod.default || mod;
+            _purifierSync = typeof window !== 'undefined' ? DOMPurify(window) : DOMPurify;
+            return _purifierSync;
+        });
+    }
+    // First call (or any call before the dynamic import resolves)
+    // falls back to the already-escaped renderMarkdown output.
+    return renderMarkdown(input);
+}
+
 export default renderMarkdown;

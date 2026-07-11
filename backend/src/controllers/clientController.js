@@ -46,9 +46,9 @@ export const createClient = async (req, res) => {
     try {
         const data = clientSchema.parse(req.body);
         const { rows } = await pool.query(
-            `INSERT INTO clients (name, primary_contact_email, billing_email, stripe_customer_id, notes)
-             VALUES ($1, $2, $3, $4, $5) RETURNING *`,
-            [data.name, data.primary_contact_email, data.billing_email || null, data.stripe_customer_id || null, data.notes || null]
+            `INSERT INTO clients (name, primary_contact_email, billing_email, phone, stripe_customer_id, notes)
+             VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+            [data.name, data.primary_contact_email, data.billing_email || null, data.phone || null, data.stripe_customer_id || null, data.notes || null]
         );
         res.status(201).json(rows[0]);
     } catch (err) {

@@ -1,5 +1,5 @@
 // ─── src/index.js ────────────────────────────────────────
-// buildwithlami.dev — Express API Server
+// buildwithlami.com — Express API Server
 // ──────────────────────────────────────────────────────────
 
 import 'dotenv/config';
@@ -162,7 +162,7 @@ app.use((err, _req, res, _next) => {
 
 // ── Start ────────────────────────────────────────────────
 const server = app.listen(PORT, () => {
-    console.log(`\n🚀 buildwithlami.dev API running on http://localhost:${PORT}\n`);
+    console.log(`\n🚀 buildwithlami.com API running on http://localhost:${PORT}\n`);
     startCronJobs();
 });
 

@@ -91,6 +91,17 @@ export async function submitSecretByTrackingId(req, res) {
             return res.status(404).json({ error: 'Project not found.' });
         }
 
+        // For CLIENT callers, ensure the trackingId in the URL matches
+        // the trackingId baked into their JWT. This prevents a client
+        // logged in for project A from submitting a secret to project B.
+        const role = req.user?.role;
+        const isStaff = role && ['Owner', 'Administrator'].includes(role);
+        if (!isStaff) {
+            if (!req.user?.trackingId || req.user.trackingId !== trackingId) {
+                return res.status(403).json({ error: 'Forbidden — you may only submit to your own project.' });
+            }
+        }
+
         const projectId = projectResult.rows[0].id;
         const clientId = projectResult.rows[0].client_id;
         const { iv, encryptedData, authTag } = encrypt(value);

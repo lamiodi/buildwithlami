@@ -1,7 +1,28 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Menu, ArrowRight, ArrowLeft, Plus, Minus } from 'lucide-react';
+import { api } from '../../services/api';
 
 const SurveyHomePage = () => {
+  // -- Booking form state (fixes dead form) --
+  const [booking, setBooking] = useState({
+    full_name: '', email: '', phone: '', service: '', location: '', preferred_date: '', notes: '',
+  });
+  const [bookingStatus, setBookingStatus] = useState('idle'); // idle | submitting | success | error
+
+  const handleBooking = async (e) => {
+    e.preventDefault();
+    setBookingStatus('submitting');
+    const res = await api.post('/bookings', { ...booking, division: 'SURVEY' });
+    if (res.ok) {
+      setBookingStatus('success');
+      setBooking({ full_name: '', email: '', phone: '', service: '', location: '', preferred_date: '', notes: '' });
+      setTimeout(() => setBookingStatus('idle'), 5000);
+    } else {
+      setBookingStatus('error');
+      setTimeout(() => setBookingStatus('idle'), 5000);
+    }
+  };
+
   // -- Data specific to Lami Survey Division --
   const services = [
     {
@@ -409,30 +430,56 @@ const SurveyHomePage = () => {
           </div>
 
           <div className="w-full md:w-1/2">
-            <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
+            <form className="space-y-6" onSubmit={handleBooking}>
               <div>
                 <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2 block">Full Name *</label>
-                <input type="text" required className="w-full bg-transparent border-b-2 border-black py-3 text-sm font-bold uppercase tracking-wider focus:outline-none focus:border-gray-500 transition-colors" />
+                <input type="text" required value={booking.full_name} onChange={e => setBooking({ ...booking, full_name: e.target.value })} className="w-full bg-transparent border-b-2 border-black py-3 text-sm font-bold uppercase tracking-wider focus:outline-none focus:border-gray-500 transition-colors" />
               </div>
               <div>
                 <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2 block">Email *</label>
-                <input type="email" required className="w-full bg-transparent border-b-2 border-black py-3 text-sm font-bold uppercase tracking-wider focus:outline-none focus:border-gray-500 transition-colors" />
+                <input type="email" required value={booking.email} onChange={e => setBooking({ ...booking, email: e.target.value })} className="w-full bg-transparent border-b-2 border-black py-3 text-sm font-bold uppercase tracking-wider focus:outline-none focus:border-gray-500 transition-colors" />
+              </div>
+              <div>
+                <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2 block">Phone</label>
+                <input type="tel" value={booking.phone} onChange={e => setBooking({ ...booking, phone: e.target.value })} className="w-full bg-transparent border-b-2 border-black py-3 text-sm font-bold uppercase tracking-wider focus:outline-none focus:border-gray-500 transition-colors" />
               </div>
               <div>
                 <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2 block">Service Required *</label>
-                <select required className="w-full bg-transparent border-b-2 border-black py-3 text-sm font-bold uppercase tracking-wider focus:outline-none focus:border-gray-500 transition-colors appearance-none">
+                <select required value={booking.service} onChange={e => setBooking({ ...booking, service: e.target.value })} className="w-full bg-transparent border-b-2 border-black py-3 text-sm font-bold uppercase tracking-wider focus:outline-none focus:border-gray-500 transition-colors appearance-none">
                   <option value="">— Select Service —</option>
                   {services.map((s, i) => <option key={i} value={s.title}>{s.title}</option>)}
                 </select>
               </div>
               <div>
-                <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2 block">Project Notes</label>
-                <textarea rows="4" className="w-full bg-transparent border-b-2 border-black py-3 text-sm font-bold uppercase tracking-wider focus:outline-none focus:border-gray-500 transition-colors resize-none"></textarea>
+                <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2 block">Project Location</label>
+                <input type="text" value={booking.location} onChange={e => setBooking({ ...booking, location: e.target.value })} className="w-full bg-transparent border-b-2 border-black py-3 text-sm font-bold uppercase tracking-wider focus:outline-none focus:border-gray-500 transition-colors" />
               </div>
-              <button type="submit" className="bg-black text-white px-10 py-4 text-[11px] font-black uppercase tracking-[0.3em] hover:bg-accent transition-colors flex items-center gap-3 group">
-                Submit Brief
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-2 transition-transform" />
+              <div>
+                <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2 block">Preferred Date</label>
+                <input type="date" value={booking.preferred_date} onChange={e => setBooking({ ...booking, preferred_date: e.target.value })} className="w-full bg-transparent border-b-2 border-black py-3 text-sm font-bold uppercase tracking-wider focus:outline-none focus:border-gray-500 transition-colors" />
+              </div>
+              <div>
+                <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2 block">Project Notes</label>
+                <textarea rows="4" value={booking.notes} onChange={e => setBooking({ ...booking, notes: e.target.value })} className="w-full bg-transparent border-b-2 border-black py-3 text-sm font-bold uppercase tracking-wider focus:outline-none focus:border-gray-500 transition-colors resize-none"></textarea>
+              </div>
+              <button type="submit" disabled={bookingStatus === 'submitting'} className={`px-10 py-4 text-[11px] font-black uppercase tracking-[0.3em] flex items-center gap-3 group transition-colors ${
+                bookingStatus === 'success'
+                  ? 'bg-green-600 text-white'
+                  : bookingStatus === 'error'
+                  ? 'bg-red-600 text-white'
+                  : bookingStatus === 'submitting'
+                  ? 'bg-gray-500 text-white cursor-not-allowed'
+                  : 'bg-black text-white hover:bg-accent'
+              }`}>
+                {bookingStatus === 'success' ? '✓ Request Sent' : bookingStatus === 'error' ? '✗ Try Again' : bookingStatus === 'submitting' ? 'Sending...' : 'Submit Brief'}
+                {bookingStatus === 'idle' && <ArrowRight className="w-4 h-4 group-hover:translate-x-2 transition-transform" />}
               </button>
+              {bookingStatus === 'error' && (
+                <p className="text-xs text-red-600 font-bold uppercase tracking-wider">Something went wrong. Please try again or email us directly.</p>
+              )}
+              {bookingStatus === 'success' && (
+                <p className="text-xs text-green-700 font-bold uppercase tracking-wider">We'll respond within 24 hours.</p>
+              )}
             </form>
           </div>
         </div>

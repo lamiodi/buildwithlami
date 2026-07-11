@@ -50,6 +50,71 @@ const PaymentPage = () => {
         submitted_email: '',
     });
 
+    const handlePrint = () => window.print();
+
+    const handleDownloadInvoice = () => {
+        // Generate a clean, self-contained HTML invoice and trigger
+        // a download. PDF generation is left to the browser's
+        // "Print → Save as PDF" so we don't need a heavyweight
+        // client-side PDF library. The downloaded HTML is also
+        // useful for accounting packages that ingest structured
+        // invoice data.
+        const { invoice } = data || {};
+        if (!invoice) return;
+        const symbol = invoice.currency === 'NGN' ? '₦' : invoice.currency === 'USD' ? '$' : invoice.currency === 'GBP' ? '£' : '';
+        const amount = `${symbol}${Number(invoice.amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        const invoiceNo = invoice.invoice_number || invoice.id.slice(0, 8).toUpperCase();
+        const issued = new Date().toLocaleDateString();
+        const due = invoice.due_date ? new Date(invoice.due_date).toLocaleDateString() : '—';
+        const html = `<!doctype html><html><head><meta charset="utf-8"/><title>Invoice ${invoiceNo}</title>
+<style>
+  body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#111;max-width:760px;margin:32px auto;padding:0 24px}
+  h1{font-size:24px;margin:0 0 4px}
+  table{width:100%;border-collapse:collapse;margin-top:24px}
+  td,th{padding:10px 12px;border-bottom:1px solid #e5e7eb;text-align:left;vertical-align:top}
+  th{background:#f9fafb;font-size:12px;text-transform:uppercase;letter-spacing:0.05em;color:#6b7280}
+  .row{display:flex;justify-content:space-between;gap:24px;margin-top:8px}
+  .muted{color:#6b7280;font-size:12px;text-transform:uppercase;letter-spacing:0.05em}
+  .amount{font-size:32px;font-weight:800}
+  .footer{margin-top:48px;border-top:1px solid #e5e7eb;padding-top:16px;color:#6b7280;font-size:12px}
+</style></head><body>
+  <div class="row">
+    <div>
+      <p class="muted">BuildWithLami.com</p>
+      <h1>Invoice ${invoiceNo}</h1>
+      ${invoice.project_name ? `<p>Project: <strong>${invoice.project_name}</strong></p>` : ''}
+      ${invoice.client_name ? `<p>For: <strong>${invoice.client_name}</strong></p>` : ''}
+    </div>
+    <div style="text-align:right">
+      <p class="muted">Amount Due</p>
+      <p class="amount">${amount}</p>
+      <p>${invoice.currency}</p>
+      <p class="muted">Issued ${issued} · Due ${due}</p>
+    </div>
+  </div>
+  <table>
+    <thead><tr><th>Description</th><th>Amount</th></tr></thead>
+    <tbody><tr>
+      <td>${invoice.project_name ? `Services — ${invoice.project_name}` : 'Services rendered'}</td>
+      <td>${amount}</td>
+    </tr></tbody>
+  </table>
+  <div class="footer">
+    <p>Status: <strong>${invoice.status || 'PENDING'}</strong></p>
+    <p>BuildWithLami · Lami Survey & Drone Division · Lagos, Nigeria</p>
+  </div>
+</body></html>`;
+        const blob = new Blob([html], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Invoice-${invoiceNo}.html`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+    };
+
     useEffect(() => {
         const load = async () => {
             const res = await apiFetch(`/api/payments/public/${token}`);
@@ -131,6 +196,15 @@ const PaymentPage = () => {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 font-body">
+            {/* Print stylesheet — strips the header/footer/wrapper
+                so a printed page is just the invoice. */}
+            <style dangerouslySetInnerHTML={{ __html: `
+                @media print {
+                    body { background: #fff !important; }
+                    header, footer, .print\\:hidden { display: none !important; }
+                    main { max-width: 100% !important; padding: 0 !important; }
+                }
+            ` }} />
             {/* Header — minimal branding, no public nav (intentional) */}
             <header className="border-b border-gray-200 bg-white/80 backdrop-blur-md">
                 <div className="max-w-3xl mx-auto px-6 py-5 flex items-center justify-between">
@@ -190,6 +264,25 @@ const PaymentPage = () => {
                             </div>
                         </div>
                     )}
+
+                    {/* Print / Download — works in any state. Useful for the
+                        client's records and for the "Save as PDF" workflow. */}
+                    <div className="mt-6 pt-6 border-t border-gray-200 flex flex-wrap gap-3 print:hidden">
+                        <button
+                            type="button"
+                            onClick={handlePrint}
+                            className="inline-flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase tracking-widest border border-gray-300 rounded-full hover:bg-gray-50 transition-colors"
+                        >
+                            🖨 Print Invoice
+                        </button>
+                        <button
+                            type="button"
+                            onClick={handleDownloadInvoice}
+                            className="inline-flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase tracking-widest border border-gray-300 rounded-full hover:bg-gray-50 transition-colors"
+                        >
+                            ⬇ Download Invoice
+                        </button>
+                    </div>
                 </motion.div>
 
                 {/* Already-submitted-proof banner (reviewing) */}

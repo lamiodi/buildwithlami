@@ -18,12 +18,13 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { api } from '../services/api';
-import { renderMarkdown } from '../utils/markdown';
+import { renderSafeMarkdown } from '../utils/markdown';
 
 const CMSPage = ({ slug, title, fallback }) => {
     const [page, setPage] = useState(null);
     const [loading, setLoading] = useState(true);
     const [notFound, setNotFound] = useState(false);
+    const [safeBody, setSafeBody] = useState('');
 
     useEffect(() => {
         let cancelled = false;
@@ -90,7 +91,7 @@ const CMSPage = ({ slug, title, fallback }) => {
             )}
             <article
                 className="prose-content text-gray-800 dark:text-gray-200 font-body"
-                dangerouslySetInnerHTML={{ __html: renderMarkdown(page.body || '') }}
+                dangerouslySetInnerHTML={{ __html: safeBody }}
             />
             <p className="text-xs text-gray-400 mt-12 italic">
                 Last updated {new Date(page.updated_at).toLocaleDateString()}

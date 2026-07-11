@@ -95,32 +95,30 @@ CREATE TRIGGER touch_invoice_on_proof
     FOR EACH ROW
     EXECUTE FUNCTION trg_touch_invoice_on_proof();
 
--- ── 5. Seed the admin's actual bank accounts ────────────
--- These are the CEO's real Grey (grey.co) settlement accounts.
--- They are intentionally NOT published on the public site —
--- the PaymentPage is token-protected and only reveals them
--- after the client picks a currency. The admin can edit or
--- deactivate any row from AdminSettings.
---
--- All amounts the admin edits here take effect on the next
--- page load (no redeploy required). If a bank ever changes,
--- update the row + rotate the live account with Grey.
+-- ── 5. Seed the bank-accounts table with SAFE placeholders ────
+-- Real Grey (grey.co) settlement details are NEVER committed to
+-- the repo. They are populated from the .env seed script or the
+-- Admin Dashboard (AdminSettings → Bank Accounts) after deploy.
+-- The rows below exist only so /api/payments/public/* can be
+-- smoke-tested locally without exposing real account numbers.
+-- They use obviously-fake values (0000000000 / PLACEHOLDER) and
+-- are skipped in production by setting ADMIN_SEED_DEMO_DATA=false.
 INSERT INTO bank_accounts (
     currency, provider, account_name, bank_name, account_number,
     routing_code, sort_code, swift_code, iban, reference_hint, is_active
 ) VALUES
-    -- USD — Lead Bank via Grey
+    -- USD — placeholder. Replace via Admin Dashboard before going live.
     (
-        'USD', 'GREY', 'Eugene Odibenuah', 'Lead',
-        '210837680768', '101019644', NULL, NULL, NULL,
+        'USD', 'GREY', 'PLACEHOLDER NAME', 'Lead',
+        '0000000000', '000000000', NULL, NULL, NULL,
         'Use your invoice number (e.g. INV-2026-001) as the payment reference.',
-        TRUE
+        FALSE
     ),
-    -- GBP — Clear Junction Limited via Grey
+    -- GBP — placeholder. Replace via Admin Dashboard before going live.
     (
-        'GBP', 'GREY', 'Eugene Odibenuah', 'Clear Junction Limited',
-        '43014342', NULL, '04-13-07', 'CLJUGB21XXX', 'GB55CLJU04130743014342',
+        'GBP', 'GREY', 'PLACEHOLDER NAME', 'Clear Junction Limited',
+        '00000000', NULL, '00-00-00', 'XXXXXXXX', 'GB00XXXX00000000000000',
         'Use your invoice number (e.g. INV-2026-001) as the payment reference.',
-        TRUE
+        FALSE
     )
 ON CONFLICT (currency, provider) DO NOTHING;

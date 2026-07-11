@@ -15,7 +15,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { api } from '../../services/api';
 import { notify } from '../../services/notify';
-import { renderMarkdown } from '../../utils/markdown';
+import { renderSafeMarkdownSync } from '../../utils/markdown';
 
 const Icon = {
     Plus: (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>,
@@ -303,7 +303,7 @@ const AdminCMS = () => {
                                     )}
                                     <article
                                         className="prose-content text-gray-800 dark:text-gray-200 font-body"
-                                        dangerouslySetInnerHTML={{ __html: renderMarkdown(edit.body || '*Nothing to preview yet.*') }}
+                                        dangerouslySetInnerHTML={{ __html: renderSafeMarkdownSync(edit.body || '*Nothing to preview yet.*') }}
                                     />
                                 </div>
                             )}

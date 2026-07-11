@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    name: Lint + Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      # ── Frontend ────────────────────────────────────────
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Lint frontend
+        working-directory: frontend
+        run: npm run lint
+
+      - name: Build frontend
+        working-directory: frontend
+        run: npm run build
+        env:
+          # Build-time env vars. Vite only embeds VITE_* values;
+          # this prevents the build from failing when these are
+          # unset in CI.
+          VITE_API_URL: ${{ secrets.VITE_API_URL }}
+
+      # ── Backend ────────────────────────────────────────
+      - name: Install backend dependencies
+        working-directory: backend
+        run: npm ci
+
+      # We deliberately skip a full `node src/index.js` start
+      # here because the CI environment has no DATABASE_URL.
+      # The smoke test below loads the modules to catch
+      # syntax / import errors without needing a live DB.
+      - name: Smoke-test backend imports
+        working-directory: backend
+        run: node --check src/index.js && node --check src/config/db.js

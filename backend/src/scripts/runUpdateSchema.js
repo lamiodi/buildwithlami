@@ -43,6 +43,7 @@ const MIGRATIONS = [
     'v20_schema_cleanup.sql',
     'v21_pages_perf_index.sql',
     'v22_normalize_admin_roles.sql',
+    'v23_jsonb_gin_indexes.sql',
 ];
 
 const run = async () => {

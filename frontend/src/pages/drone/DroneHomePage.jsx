@@ -1,7 +1,28 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Search, User, ShoppingBag, Menu, Crosshair, Target, Camera, ArrowRight, ArrowUpRight, Plus, Minus, Mail, Phone, MapPin } from 'lucide-react';
+import { api } from '../../services/api';
 
 const DroneHomePage = () => {
+  // -- Booking form state (fixes dead form) --
+  const [booking, setBooking] = useState({
+    full_name: '', email: '', phone: '', service: '', location: '', preferred_date: '', notes: '',
+  });
+  const [bookingStatus, setBookingStatus] = useState('idle'); // idle | submitting | success | error
+
+  const handleBooking = async (e) => {
+    e.preventDefault();
+    setBookingStatus('submitting');
+    const res = await api.post('/bookings', { ...booking, division: 'DRONE' });
+    if (res.ok) {
+      setBookingStatus('success');
+      setBooking({ full_name: '', email: '', phone: '', service: '', location: '', preferred_date: '', notes: '' });
+      setTimeout(() => setBookingStatus('idle'), 5000);
+    } else {
+      setBookingStatus('error');
+      setTimeout(() => setBookingStatus('idle'), 5000);
+    }
+  };
+
   // -- Data for Lami Drone Division --
   const services = [
     { icon: '🛩️', number: '01', title: 'Aerial Surveying & Mapping', description: 'High-resolution orthomosaic maps and DEMs from drone-captured imagery using photogrammetry.' },
@@ -402,19 +423,32 @@ const DroneHomePage = () => {
               </div>
             </div>
 
-            <form className="space-y-5" onSubmit={(e) => e.preventDefault()}>
-              <input type="text" placeholder="Full name *" required className="w-full bg-transparent border-b-2 border-white/20 py-3 text-white placeholder-white/40 focus:outline-none focus:border-accent transition-colors" />
-              <input type="email" placeholder="Email address *" required className="w-full bg-transparent border-b-2 border-white/20 py-3 text-white placeholder-white/40 focus:outline-none focus:border-accent transition-colors" />
-              <select required className="w-full bg-transparent border-b-2 border-white/20 py-3 text-white focus:outline-none focus:border-accent transition-colors appearance-none">
+            <form className="space-y-5" onSubmit={handleBooking}>
+              <input type="text" placeholder="Full name *" required value={booking.full_name} onChange={e => setBooking({ ...booking, full_name: e.target.value })} className="w-full bg-transparent border-b-2 border-white/20 py-3 text-white placeholder-white/40 focus:outline-none focus:border-accent transition-colors" />
+              <input type="email" placeholder="Email address *" required value={booking.email} onChange={e => setBooking({ ...booking, email: e.target.value })} className="w-full bg-transparent border-b-2 border-white/20 py-3 text-white placeholder-white/40 focus:outline-none focus:border-accent transition-colors" />
+              <input type="tel" placeholder="Phone" value={booking.phone} onChange={e => setBooking({ ...booking, phone: e.target.value })} className="w-full bg-transparent border-b-2 border-white/20 py-3 text-white placeholder-white/40 focus:outline-none focus:border-accent transition-colors" />
+              <select required value={booking.service} onChange={e => setBooking({ ...booking, service: e.target.value })} className="w-full bg-transparent border-b-2 border-white/20 py-3 text-white focus:outline-none focus:border-accent transition-colors appearance-none">
                 <option value="" className="text-gray-900">— Select Service —</option>
                 {services.map((s, i) => <option key={i} value={s.title} className="text-gray-900">{s.title}</option>)}
               </select>
-              <input type="text" placeholder="Project location" className="w-full bg-transparent border-b-2 border-white/20 py-3 text-white placeholder-white/40 focus:outline-none focus:border-accent transition-colors" />
-              <textarea rows="3" placeholder="Tell us about your mission..." className="w-full bg-transparent border-b-2 border-white/20 py-3 text-white placeholder-white/40 focus:outline-none focus:border-accent transition-colors resize-none"></textarea>
-              <button type="submit" className="w-full bg-white text-black py-4 text-sm font-bold uppercase tracking-[0.2em] hover:bg-accent hover:text-white transition-colors rounded-full flex items-center justify-center gap-3 group">
-                Submit Request
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-2 transition-transform" />
+              <input type="text" placeholder="Project location" value={booking.location} onChange={e => setBooking({ ...booking, location: e.target.value })} className="w-full bg-transparent border-b-2 border-white/20 py-3 text-white placeholder-white/40 focus:outline-none focus:border-accent transition-colors" />
+              <input type="date" placeholder="Preferred date" value={booking.preferred_date} onChange={e => setBooking({ ...booking, preferred_date: e.target.value })} className="w-full bg-transparent border-b-2 border-white/20 py-3 text-white placeholder-white/40 focus:outline-none focus:border-accent transition-colors" />
+              <textarea rows="3" placeholder="Tell us about your mission..." value={booking.notes} onChange={e => setBooking({ ...booking, notes: e.target.value })} className="w-full bg-transparent border-b-2 border-white/20 py-3 text-white placeholder-white/40 focus:outline-none focus:border-accent transition-colors resize-none"></textarea>
+              <button type="submit" disabled={bookingStatus === 'submitting'} className={`w-full py-4 text-sm font-bold uppercase tracking-[0.2em] rounded-full flex items-center justify-center gap-3 group transition-colors ${
+                bookingStatus === 'success'
+                  ? 'bg-green-500 text-white'
+                  : bookingStatus === 'error'
+                  ? 'bg-red-500 text-white'
+                  : bookingStatus === 'submitting'
+                  ? 'bg-white/20 text-white/50 cursor-not-allowed'
+                  : 'bg-white text-black hover:bg-accent hover:text-white'
+              }`}>
+                {bookingStatus === 'success' ? '✓ Request Sent — We\'ll respond in 24h' : bookingStatus === 'error' ? '✗ Try Again' : bookingStatus === 'submitting' ? 'Sending...' : 'Submit Request'}
+                {bookingStatus === 'idle' && <ArrowRight className="w-4 h-4 group-hover:translate-x-2 transition-transform" />}
               </button>
+              {bookingStatus === 'error' && (
+                <p className="text-xs text-red-300 font-medium text-center">Something went wrong. Please try again or email us directly.</p>
+              )}
             </form>
           </div>
         </section>

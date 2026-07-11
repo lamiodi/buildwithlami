@@ -255,7 +255,7 @@ async function sendReplyEmail({ to, toName, projectName, clientComment, adminRep
     );
 
     const mail = {
-        from: process.env.EMAIL_FROM || '"Lami Odi" <no-reply@buildwithlami.dev>',
+        from: process.env.EMAIL_FROM || '"Lami Odi" <no-reply@buildwithlami.com>',
         to,
         subject: `Update on ${projectName}`,
         text: `Hi ${toName},\n\nHere's the update you asked about on ${projectName}:\n\n${adminReply}\n\n— Lami Odi`,

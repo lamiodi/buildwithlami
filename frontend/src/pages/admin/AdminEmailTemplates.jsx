@@ -35,11 +35,11 @@ const PLACEHOLDER_RE = /{{\s*([a-zA-Z0-9_]+)\s*}}/g;
 // template would look like fully rendered.
 const DEFAULT_SAMPLE = {
     client_name: 'Mr. Adekunle',
-    project_name: 'buildwithlami.dev Redesign',
+    project_name: 'buildwithlami.com Platform',
     amount: '₦1,500,000',
     invoice_number: 'INV-2026-0042',
     payment_url: 'https://paystack.com/pay/abc123',
-    live_url: 'https://buildwithlami.dev',
+    live_url: 'https://buildwithlami.com',
 };
 
 function extractPlaceholders(text) {

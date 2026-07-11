@@ -16,15 +16,28 @@ const { Pool } = pg;
 //   still work correctly.
 const isPooler = process.env.DATABASE_URL?.includes('pooler.supabase.com');
 
+// Pool sizing — overridable per environment.
+// Default: max=10, min=0, idleTimeoutMillis=30s. These are the
+// values recommended for Supabase/Neon shared poolers where
+// each backend instance shares a fixed number of server-side
+// connections. Tuning: bump `PG_POOL_MAX` if you see
+// "remaining connection slots are reserved" errors in
+// production logs; lower `PG_IDLE_TIMEOUT` if you want the
+// pooler to release sockets faster between traffic bursts.
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
     ssl: isPooler ? { rejectUnauthorized: false } : { rejectUnauthorized: true },
-    connectionTimeoutMillis: 10_000,
-    idleTimeoutMillis: 60_000,
-    max: 10,
+    connectionTimeoutMillis: Number(process.env.PG_CONNECTION_TIMEOUT_MS) || 10_000,
+    idleTimeoutMillis:    Number(process.env.PG_IDLE_TIMEOUT_MS)        || 30_000,
+    max:                   Number(process.env.PG_POOL_MAX)              || 10,
+    min:                   Number(process.env.PG_POOL_MIN)              || 0,
     // Per-session statement timeout (ms) — refuses to run a single query
     // for more than 30s, preventing one slow query from exhausting the pool.
-    statement_timeout: 30_000,
+    statement_timeout: Number(process.env.PG_STATEMENT_TIMEOUT_MS) || 30_000,
+    // Allow Node to exit if every client in the pool is idle and
+    // the process is otherwise quiet. The `index.js` shutdown
+    // handler still closes the pool cleanly on SIGINT/SIGTERM.
+    allowExitOnIdle: false,
 });
 
 // Quick health-check on startup

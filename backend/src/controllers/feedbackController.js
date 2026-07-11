@@ -15,13 +15,48 @@ const replySchema = z.object({
     status: z.enum(['OPEN', 'RESOLVED']).optional()
 });
 
+/**
+ * Resolve the projectId in a request to a real UUID, ensuring
+ * a CLIENT-role caller can only access projects they own
+ * (i.e. their JWT `trackingId` maps to this project).
+ *
+ * Returns the resolved projectId, or sends an error response and returns null.
+ */
+async function authorizeProjectAccess(req, res, requestedProjectId) {
+    if (!isUuid(requestedProjectId)) {
+        res.status(400).json({ error: 'Invalid projectId.' });
+        return null;
+    }
+    const role = req.user?.role;
+    // Admin / Owner are unrestricted.
+    const isStaff = role && ['Owner', 'Administrator'].includes(role);
+    if (!isStaff) {
+        // For CLIENT, enforce that the projectId matches the JWT's trackingId.
+        const jwtTrackingId = req.user?.trackingId;
+        if (!jwtTrackingId) {
+            res.status(403).json({ error: 'Forbidden — no trackingId on token.' });
+            return null;
+        }
+        const { rows } = await pool.query(
+            'SELECT id FROM client_projects WHERE tracking_id = $1',
+            [jwtTrackingId]
+        );
+        if (rows.length === 0 || rows[0].id !== requestedProjectId) {
+            res.status(403).json({ error: 'Forbidden — you may only access your own project.' });
+            return null;
+        }
+    }
+    return requestedProjectId;
+}
+
 export const getFeedbackByProject = async (req, res) => {
     const { projectId } = req.params;
-    if (!isUuid(projectId)) return res.status(400).json({ error: 'Invalid ID format.' });
     try {
+        const authorized = await authorizeProjectAccess(req, res, projectId);
+        if (!authorized) return;
         const { rows } = await pool.query(
             `SELECT * FROM project_feedback WHERE project_id = $1 ORDER BY created_at ASC`,
-            [projectId]
+            [authorized]
         );
         res.json(rows);
     } catch (err) {
@@ -33,10 +68,11 @@ export const getFeedbackByProject = async (req, res) => {
 export const submitFeedback = async (req, res) => {
     try {
         const { projectId, stageIndex, clientComment } = feedbackSchema.parse(req.body);
-        if (!isUuid(projectId)) return res.status(400).json({ error: 'Invalid projectId.' });
+        const authorized = await authorizeProjectAccess(req, res, projectId);
+        if (!authorized) return;
 
         // Verify the project exists so we don't insert orphan feedback rows.
-        const project = await pool.query('SELECT id FROM client_projects WHERE id = $1', [projectId]);
+        const project = await pool.query('SELECT id FROM client_projects WHERE id = $1', [authorized]);
         if (project.rows.length === 0) {
             return res.status(404).json({ error: 'Project not found.' });
         }
@@ -44,7 +80,7 @@ export const submitFeedback = async (req, res) => {
         const { rows } = await pool.query(
             `INSERT INTO project_feedback (project_id, stage_index, client_comment)
              VALUES ($1, $2, $3) RETURNING *`,
-            [projectId, stageIndex, clientComment]
+            [authorized, stageIndex, clientComment]
         );
 
         res.status(201).json(rows[0]);
