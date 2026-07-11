@@ -1,6 +1,5 @@
 import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import AdminLayout from '../../components/AdminLayout';
 
 // ── AdminHelp — In-app reference for common tasks (Phase 9) ──
 // Single-page, no API calls. The intent is "the answers you
@@ -163,9 +162,8 @@ const AdminHelp = () => {
     const labelClass = "block text-[10px] font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2";
 
     return (
-        <AdminLayout title="Help & Reference">
-            <div className="max-w-4xl mx-auto w-full">
-                <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
+        <div className="max-w-4xl mx-auto w-full">
+            <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
                     <div className="mb-8">
                         <h1 className="text-4xl font-extrabold font-heading bg-gradient-to-r from-accent to-orange-500 bg-clip-text text-transparent">
                             Help & Reference
@@ -270,7 +268,6 @@ const AdminHelp = () => {
                     </ul>
                 </div>
             </div>
-        </AdminLayout>
     );
 };
 

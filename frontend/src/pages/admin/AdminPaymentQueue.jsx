@@ -1,5 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
-import AdminLayout from '../../components/AdminLayout';
+import React, { useState, useEffect, useMemo } from 'react';
 import { api } from '../../services/api';
 import { notify } from '../../services/notify';
 
@@ -59,7 +58,7 @@ const AdminPaymentQueue = () => {
     };
 
     return (
-        <AdminLayout title="Payment Proofs">
+        <React.Fragment>
             <div className="max-w-7xl mx-auto w-full">
                 <div className="mb-6">
                     <h1 className="text-3xl font-extrabold font-heading bg-gradient-to-r from-accent to-orange-500 bg-clip-text text-transparent">
@@ -235,7 +234,7 @@ const AdminPaymentQueue = () => {
                     </div>
                 </div>
             )}
-        </AdminLayout>
+        </React.Fragment>
     );
 };
 

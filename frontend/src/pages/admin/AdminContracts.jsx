@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import AdminLayout from '../../components/AdminLayout';
 import { api } from '../../services/api';
 
 const AdminContracts = () => {
@@ -79,7 +78,7 @@ const AdminContracts = () => {
   };
 
   return (
-    <AdminLayout title="Contracts (Zoho Sign)">
+    <>
       <div className="bg-white dark:bg-gray-800 shadow-sm border border-gray-200 dark:border-gray-700 rounded-sm">
         <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
           <h2 className="text-lg font-bold text-gray-900 dark:text-white">All Contracts</h2>
@@ -214,7 +213,7 @@ const AdminContracts = () => {
           </div>
         </div>
       )}
-    </AdminLayout>
+    </>
   );
 };
 
