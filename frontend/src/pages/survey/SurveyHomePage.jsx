@@ -2,7 +2,51 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Menu, ArrowRight, ArrowLeft, Plus, Minus } from 'lucide-react';
 import { api } from '../../services/api';
 
+// ── Survey-page fonts ────────────────────────────────────
+// "Manrope" for headings, "Mulish" for body text. Both are
+// loaded page-scoped (not globally) so the rest of the app
+// doesn't pay for the font weight downloads.
+const FONT_HREF = 'https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&family=Mulish:ital,wght@0,200..1000;1,200..1000&display=swap';
+
+const useFontsEffect = () => {
+    useEffect(() => {
+        if (typeof document === 'undefined') return undefined;
+
+        const created = [];
+        const add = (node) => { document.head.appendChild(node); created.push(node); };
+
+        const preconnect1 = document.createElement('link');
+        preconnect1.rel = 'preconnect';
+        preconnect1.href = 'https://fonts.googleapis.com';
+        add(preconnect1);
+
+        const preconnect2 = document.createElement('link');
+        preconnect2.rel = 'preconnect';
+        preconnect2.href = 'https://fonts.gstatic.com';
+        preconnect2.crossOrigin = 'anonymous';
+        add(preconnect2);
+
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = FONT_HREF;
+        add(link);
+
+        const style = document.createElement('style');
+        style.setAttribute('data-survey-fonts', '');
+        style.textContent = `
+            .survey-heading { font-family: "Manrope", sans-serif; font-optical-sizing: auto; font-weight: 700; font-style: normal; letter-spacing: -0.01em; }
+            .survey-body    { font-family: "Mulish",  sans-serif; font-optical-sizing: auto; font-style: normal; }
+        `;
+        add(style);
+
+        return () => {
+            created.forEach((n) => n.parentNode && n.parentNode.removeChild(n));
+        };
+    }, []);
+};
+
 const SurveyHomePage = () => {
+    useFontsEffect();
   // -- Booking form state (fixes dead form) --
   const [booking, setBooking] = useState({
     full_name: '', email: '', phone: '', service: '', location: '', preferred_date: '', notes: '',
@@ -103,7 +147,7 @@ const SurveyHomePage = () => {
   }, []);
 
   return (
-    <div className="bg-[#f2f2f2] text-black font-sans selection:bg-black selection:text-white">
+    <div className="bg-[#f2f2f2] text-black font-sans selection:bg-black selection:text-white survey-body">
       
       {/* ==== HERO SECTION (3 Column Editorial Layout) ==== */}
       <section className="min-h-screen flex justify-center p-4 md:p-8 pt-4">
@@ -125,7 +169,7 @@ const SurveyHomePage = () => {
               <div className="absolute left-[-2rem] top-1/2 -translate-y-1/2 -rotate-90 origin-center text-[10px] font-bold tracking-[0.4em] uppercase text-black">
                 SURVEY
               </div>
-              <h1 className="text-[5rem] md:text-[6rem] lg:text-[8rem] font-black leading-[0.85] tracking-tighter uppercase">
+              <h1 className="survey-heading text-[5rem] md:text-[6rem] lg:text-[8rem] font-black leading-[0.85] tracking-tighter uppercase">
                 PRE<br />CI<br />SION
               </h1>
             </div>
@@ -176,7 +220,7 @@ const SurveyHomePage = () => {
               <div className="w-2 h-2 rounded-full bg-gray-300 mt-[2px]"></div>
             </div>
             <div className="flex-1">
-              <h2 className="text-xl font-bold uppercase tracking-wider mb-6">Featured Project</h2>
+              <h2 className="survey-heading text-xl font-bold uppercase tracking-wider mb-6">Featured Project</h2>
               <p className="text-[10px] font-bold uppercase tracking-widest leading-relaxed text-gray-600 mb-12 max-w-[250px]">
                 High-resolution orthomosaic maps and DEMs from drone-captured imagery for precise terrain analysis.
               </p>
@@ -228,7 +272,7 @@ const SurveyHomePage = () => {
           <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
             <div>
               <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-500 mb-4">— What We Do</p>
-              <h2 className="text-6xl md:text-8xl font-black tracking-tighter uppercase leading-[0.85]">
+              <h2 className="survey-heading text-6xl md:text-8xl font-black tracking-tighter uppercase leading-[0.85]">
                 Serv<br />ices
               </h2>
             </div>
@@ -251,7 +295,7 @@ const SurveyHomePage = () => {
                   <span className="text-4xl font-black text-gray-200 group-hover:text-black transition-colors duration-500">0{idx + 1}</span>
                   <ArrowRight className="w-6 h-6 text-gray-300 group-hover:text-black group-hover:translate-x-2 transition-all duration-500" />
                 </div>
-                <h3 className="text-2xl font-black uppercase tracking-tight mb-4">{service.title}</h3>
+                <h3 className="survey-heading text-2xl font-black uppercase tracking-tight mb-4">{service.title}</h3>
                 <p className="text-xs font-semibold text-gray-600 leading-relaxed uppercase tracking-wider">
                   {service.description}
                 </p>
@@ -270,7 +314,7 @@ const SurveyHomePage = () => {
           <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
             <div>
               <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-500 mb-4">— Selected Works</p>
-              <h2 className="text-6xl md:text-8xl font-black tracking-tighter uppercase leading-[0.85]">
+              <h2 className="survey-heading text-6xl md:text-8xl font-black tracking-tighter uppercase leading-[0.85]">
                 Port<br />folio
               </h2>
             </div>
@@ -304,7 +348,7 @@ const SurveyHomePage = () => {
               </div>
               <div className="flex justify-between items-start border-b border-gray-300 pb-4">
                 <div>
-                  <h3 className="text-xl font-black uppercase tracking-tight mb-2">{proj.title}</h3>
+                  <h3 className="survey-heading text-xl font-black uppercase tracking-tight mb-2">{proj.title}</h3>
                   <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">{proj.location}</p>
                 </div>
                 <div className="text-right">
@@ -324,7 +368,7 @@ const SurveyHomePage = () => {
       >
         <div className={`observe ${visibleElements.has('equipment-header') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'} transition-all duration-1000`} data-id="equipment-header">
           <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-500 mb-4">— The Tools</p>
-          <h2 className="text-6xl md:text-8xl font-black tracking-tighter uppercase leading-[0.85] mb-16">
+          <h2 className="survey-heading text-6xl md:text-8xl font-black tracking-tighter uppercase leading-[0.85] mb-16">
             Equip<br />ment
           </h2>
         </div>
@@ -342,7 +386,7 @@ const SurveyHomePage = () => {
                   <span className="text-2xl font-black group-hover:text-white transition-colors duration-500">⚙</span>
                 </div>
               </div>
-              <h3 className="text-sm font-black uppercase tracking-tight">{eq.name}</h3>
+              <h3 className="survey-heading text-sm font-black uppercase tracking-tight">{eq.name}</h3>
               <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">{eq.spec}</p>
             </div>
           ))}
@@ -357,7 +401,7 @@ const SurveyHomePage = () => {
         <div className="grid grid-cols-1 md:grid-cols-[1fr_2fr] gap-12 md:gap-24">
           <div className={`observe ${visibleElements.has('faq-header') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'} transition-all duration-1000`} data-id="faq-header">
             <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-500 mb-4">— Q & A</p>
-            <h2 className="text-6xl md:text-8xl font-black tracking-tighter uppercase leading-[0.85]">
+            <h2 className="survey-heading text-6xl md:text-8xl font-black tracking-tighter uppercase leading-[0.85]">
               Freq<br />uent<br />Ask
             </h2>
           </div>
@@ -406,7 +450,7 @@ const SurveyHomePage = () => {
         <div className="flex flex-col md:flex-row gap-16 items-start">
           <div className="w-full md:w-1/2">
             <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-500 mb-4">— Get In Touch</p>
-            <h2 className="text-6xl md:text-8xl font-black tracking-tighter uppercase leading-[0.85] mb-8">
+            <h2 className="survey-heading text-6xl md:text-8xl font-black tracking-tighter uppercase leading-[0.85] mb-8">
               Start<br />A<br />Project
             </h2>
             <p className="text-xs font-bold uppercase tracking-widest leading-loose text-gray-700 max-w-md mb-12">

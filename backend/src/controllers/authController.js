@@ -2,30 +2,7 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import { z } from 'zod';
 import pool from '../config/db.js';
-
-// ── Role normalisation ───────────────────────────────────
-// Maps every recognised role name (legacy + new casing) to
-// the canonical titlecase. Mirrors the helper in
-// `authMiddleware.js` — keeping a copy here means we can
-// normalise before signing the JWT so a token issued to a
-// row that still reads 'ADMIN' / 'OWNER' will still carry
-// the canonical role. The v22 migration normalises the DB
-// row, but doing it here too provides defence in depth in
-// case a re-seed reintroduced a legacy value.
-const CANONICAL_ROLES = new Set([
-    'Owner', 'Administrator', 'Project Manager', 'Developer',
-    'Survey Manager', 'Surveyor', 'Drone Manager', 'Drone Pilot',
-    'Finance', 'Client',
-]);
-function canonicalRole(role) {
-    if (!role) return role;
-    if (CANONICAL_ROLES.has(role)) return role;
-    const lower = String(role).toLowerCase();
-    for (const r of CANONICAL_ROLES) {
-        if (r.toLowerCase() === lower) return r;
-    }
-    return role; // unknown — let downstream handle the 403
-}
+import { canonicalRole, divisionsForRole } from '../config/roles.js';
 
 // ── Validation Schemas ───────────────────────────────────
 const loginSchema = z.object({
@@ -79,7 +56,7 @@ export async function login(req, res) {
             return res.json({
                 requires2fa: true,
                 challengeToken,
-                user: { id: user.id, email: user.email, role: user.role },
+                user: { id: user.id, email: user.email, role: user.role, divisions: divisionsForRole(user.role) },
             });
         }
 
@@ -89,7 +66,7 @@ export async function login(req, res) {
             { expiresIn: process.env.JWT_EXPIRES_IN || '30m' },
         );
 
-        return res.json({ token, user: { id: user.id, email: user.email, role: user.role } });
+        return res.json({ token, user: { id: user.id, email: user.email, role: user.role, divisions: divisionsForRole(user.role) } });
     } catch (err) {
         if (err instanceof z.ZodError) {
             return res.status(400).json({ error: err.errors });
@@ -146,28 +123,6 @@ export async function changePassword(req, res) {
 // the user can act on. The list is derived from the role
 // (mirrors `authMiddleware.js#ROLE_DIVISIONS`) so the
 // frontend can stay in sync without a separate API call.
-const ROLE_DIVISIONS = {
-    'Owner':             ['*'],
-    'Administrator':     ['*'],
-    'Project Manager':   ['SOFTWARE', 'SURVEY', 'DRONE'],
-    'Developer':         ['SOFTWARE'],
-    'Survey Manager':    ['SURVEY'],
-    'Surveyor':          ['SURVEY'],
-    'Drone Manager':     ['DRONE'],
-    'Drone Pilot':       ['DRONE'],
-    'Finance':           ['SOFTWARE', 'SURVEY', 'DRONE'],
-    'Client':            [],
-};
-
-function divisionsForRole(role) {
-    if (!role) return [];
-    if (ROLE_DIVISIONS[role]) return ROLE_DIVISIONS[role];
-    const lower = String(role).toLowerCase();
-    for (const [k, v] of Object.entries(ROLE_DIVISIONS)) {
-        if (k.toLowerCase() === lower) return v;
-    }
-    return [];
-}
 
 export async function getMe(req, res) {
     // req.user is set by the verifyToken middleware (which already
@@ -198,6 +153,6 @@ export async function refresh(req, res) {
     );
     return res.json({
         token,
-        user: { id: req.user.id, email: req.user.email, role: req.user.role },
+        user: { id: req.user.id, email: req.user.email, role: req.user.role, divisions: divisionsForRole(req.user.role) },
     });
 }

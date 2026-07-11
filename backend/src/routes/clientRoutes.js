@@ -4,7 +4,7 @@ import { verifyToken, requireRole } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 
-router.use(verifyToken, requireRole('ADMIN', 'OWNER'));
+router.use(verifyToken, requireRole('Administrator', 'Owner'));
 
 router.get('/', getClients);
 router.get('/:id', getClientById);

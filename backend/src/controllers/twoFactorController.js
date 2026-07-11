@@ -12,6 +12,7 @@
 // ──────────────────────────────────────────────────────────
 
 import pool from '../config/db.js';
+import { canonicalRole, divisionsForRole } from '../config/roles.js';
 import {
     generateSecret,
     verifyCode,
@@ -215,6 +216,8 @@ export async function verifyLoginTwoFactor(req, res) {
     if (rows.length === 0) return res.status(404).json({ error: 'User not found.' });
 
     const user = rows[0];
+    user.role = canonicalRole(user.role);
+
     const token = jwt.sign(
         { id: user.id, email: user.email, role: user.role },
         process.env.JWT_SECRET,
@@ -231,7 +234,7 @@ export async function verifyLoginTwoFactor(req, res) {
 
     return res.json({
         token,
-        user: { id: user.id, email: user.email, role: user.role },
+        user: { id: user.id, email: user.email, role: user.role, divisions: divisionsForRole(user.role) },
         method: result.kind, // 'totp' or 'recovery'
     });
 }

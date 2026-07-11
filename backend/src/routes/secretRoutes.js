@@ -6,10 +6,10 @@ const router = express.Router();
 
 // Public route for clients to securely submit keys via their tracking link (write-only)
 // Protected with verifyToken to ensure only authenticated clients with valid JWT can submit
-router.post('/track/:trackingId/submit', verifyToken, requireRole('CLIENT', 'ADMIN', 'OWNER'), submitSecretByTrackingId);
+router.post('/track/:trackingId/submit', verifyToken, requireRole('Client', 'Administrator', 'Owner'), submitSecretByTrackingId);
 
 // Only authenticated admins can access secrets
-router.post('/', verifyToken, requireRole('ADMIN', 'OWNER'), createSecret);
-router.get('/:clientId', verifyToken, requireRole('ADMIN', 'OWNER'), getSecretsByClient);
+router.post('/', verifyToken, requireRole('Administrator', 'Owner'), createSecret);
+router.get('/:clientId', verifyToken, requireRole('Administrator', 'Owner'), getSecretsByClient);
 
 export default router;

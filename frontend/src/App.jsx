@@ -46,7 +46,7 @@ const AdminSurveyBookings = React.lazy(() => import('./pages/admin/survey/AdminS
 const AdminSurveyProjects = React.lazy(() => import('./pages/admin/survey/AdminSurveyProjects'));
 const AdminDroneBookings = React.lazy(() => import('./pages/admin/drone/AdminDroneBookings'));
 const AdminDroneFlightMissions = React.lazy(() => import('./pages/admin/drone/AdminDroneFlightMissions'));
-import AdminLayout from './components/AdminLayout';
+const AdminLayout = React.lazy(() => import('./components/AdminLayout'));
 const ClientProjectTracker = React.lazy(() => import('./pages/ClientProjectTracker'));
 const ClientIntakeForm = React.lazy(() => import('./pages/ClientIntakeForm'));
 const LoginPage = React.lazy(() => import('./pages/LoginPage'));
@@ -141,7 +141,7 @@ function App() {
   }
 
   // Determine if the current route should hide the global Navbar and Footer
-  const hideGlobalLayout = location.pathname === '/drone' || location.pathname === '/survey';
+  const hideGlobalLayout = location.pathname === '/drone' || location.pathname === '/survey' || location.pathname.startsWith('/admin') || location.pathname === '/login';
 
   return (
     <AuthProvider>

@@ -2,7 +2,59 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Search, User, ShoppingBag, Menu, Crosshair, Target, Camera, ArrowRight, ArrowUpRight, Plus, Minus, Mail, Phone, MapPin } from 'lucide-react';
 import { api } from '../../services/api';
 
+// ── Drone-page fonts ─────────────────────────────────────
+// "Michroma" for headings and "Geomini" for body text.
+// Both are loaded page-scoped (not globally) so the rest of
+// the app doesn't pay for the font weight downloads.
+//
+//   • useFontsEffect adds the Google Fonts <link> tags and
+//     a tiny <style> block with the two CSS classes from
+//     the design spec. It tracks every node it injected and
+//     removes them on unmount so navigating away cleans up.
+const FONT_HREF = 'https://fonts.googleapis.com/css2?family=Geomini:wght@200..800&family=Michroma&display=swap';
+
+const useFontsEffect = () => {
+    useEffect(() => {
+        if (typeof document === 'undefined') return undefined;
+
+        const created = [];
+        const add = (node) => { document.head.appendChild(node); created.push(node); };
+
+        // preconnect for the two origins Google Fonts uses
+        const preconnect1 = document.createElement('link');
+        preconnect1.rel = 'preconnect';
+        preconnect1.href = 'https://fonts.googleapis.com';
+        add(preconnect1);
+
+        const preconnect2 = document.createElement('link');
+        preconnect2.rel = 'preconnect';
+        preconnect2.href = 'https://fonts.gstatic.com';
+        preconnect2.crossOrigin = 'anonymous';
+        add(preconnect2);
+
+        // the actual stylesheet
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = FONT_HREF;
+        add(link);
+
+        // local CSS classes per the design spec
+        const style = document.createElement('style');
+        style.setAttribute('data-drone-fonts', '');
+        style.textContent = `
+            .drone-heading { font-family: "Michroma", sans-serif; font-weight: 400; font-style: normal; letter-spacing: 0.02em; }
+            .drone-body    { font-family: "Geomini", sans-serif;  font-optical-sizing: auto; font-style: normal; }
+        `;
+        add(style);
+
+        return () => {
+            created.forEach((n) => n.parentNode && n.parentNode.removeChild(n));
+        };
+    }, []);
+};
+
 const DroneHomePage = () => {
+    useFontsEffect();
   // -- Booking form state (fixes dead form) --
   const [booking, setBooking] = useState({
     full_name: '', email: '', phone: '', service: '', location: '', preferred_date: '', notes: '',
@@ -92,7 +144,7 @@ const DroneHomePage = () => {
   }, []);
 
   return (
-    <div className="bg-[#0a0a0a] min-h-screen p-4 md:p-6 flex flex-col font-sans">
+    <div className="bg-[#0a0a0a] min-h-screen p-4 md:p-6 flex flex-col font-sans drone-body">
       {/* Main Card - Card-like container matching the template's look */}
       <div className="flex-1 bg-[#f4f4f4] rounded-[2.5rem] overflow-y-auto overflow-x-hidden flex flex-col relative shadow-2xl scrollbar-hide">
         
@@ -132,7 +184,7 @@ const DroneHomePage = () => {
             {/* Left Pane */}
             <div className="w-full md:w-1/2 flex flex-col justify-end px-6 md:px-16 pb-16 md:pb-32 z-10">
               <p className="text-gray-400 text-xs uppercase tracking-widest font-semibold mb-4">NCAA-Licensed Operations</p>
-              <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold leading-[1.1] mb-10 max-w-md text-gray-900 tracking-tight">
+              <h2 className="drone-heading text-3xl md:text-4xl lg:text-5xl font-bold leading-[1.1] mb-10 max-w-md text-gray-900 tracking-tight">
                 Professional drone services for surveying, inspection, and monitoring across multiple industries.
               </h2>
               <div className="flex flex-wrap items-center gap-6">
@@ -146,7 +198,7 @@ const DroneHomePage = () => {
 
             {/* Right Pane */}
             <div className="w-full md:w-1/2 flex flex-col justify-end px-6 md:px-16 pb-16 md:pb-32 z-10 hidden md:flex">
-              <h1 className="text-5xl lg:text-7xl font-black tracking-tighter leading-[0.9] mb-6 text-gray-900">
+              <h1 className="drone-heading text-5xl lg:text-7xl font-black tracking-tighter leading-[0.9] mb-6 text-gray-900">
                 Professional<br />Aerial<br /><span className="text-gray-400">Intelligence</span>
               </h1>
               <p className="text-gray-500 leading-relaxed max-w-md text-sm font-medium">
@@ -230,7 +282,7 @@ const DroneHomePage = () => {
             <div className={`drone-observe flex flex-col md:flex-row justify-between items-end mb-16 gap-8 ${visibleElements.has('services-header') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'} transition-all duration-1000`} data-id="services-header">
               <div>
                 <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-500 mb-4">— Capabilities</p>
-                <h2 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter text-gray-900 mb-6 leading-[0.95]">
+                <h2 className="drone-heading text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter text-gray-900 mb-6 leading-[0.95]">
                   Drone<br/>Services
                 </h2>
                 <p className="text-gray-500 max-w-xl text-base leading-relaxed font-medium">
@@ -254,7 +306,7 @@ const DroneHomePage = () => {
                     <span className="text-5xl group-hover:scale-110 transition-transform duration-300 origin-bottom-left">{service.icon}</span>
                     <span className="text-gray-300 font-bold font-mono text-xl">{service.number}</span>
                   </div>
-                  <h3 className="text-xl font-black text-gray-900 mb-3 tracking-tight">{service.title}</h3>
+                  <h3 className="drone-heading text-xl font-black text-gray-900 mb-3 tracking-tight">{service.title}</h3>
                   <p className="text-gray-500 text-sm leading-relaxed font-medium">{service.description}</p>
                 </div>
               ))}
@@ -270,7 +322,7 @@ const DroneHomePage = () => {
           <div className={`drone-observe flex flex-col md:flex-row justify-between items-end mb-16 gap-6 ${visibleElements.has('portfolio-header') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'} transition-all duration-1000`} data-id="portfolio-header">
             <div>
               <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-500 mb-4">— Selected Missions</p>
-              <h2 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter text-gray-900 leading-[0.95]">
+              <h2 className="drone-heading text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter text-gray-900 leading-[0.95]">
                 Flight<br/>Portfolio
               </h2>
             </div>
@@ -300,7 +352,7 @@ const DroneHomePage = () => {
                 </div>
                 <div className="p-6 flex justify-between items-start">
                   <div>
-                    <h3 className="text-lg font-black text-gray-900 mb-1">{proj.title}</h3>
+                    <h3 className="drone-heading text-lg font-black text-gray-900 mb-1">{proj.title}</h3>
                     <p className="text-xs text-gray-500 font-medium">{proj.location}</p>
                   </div>
                   <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">{proj.year}</p>
@@ -317,7 +369,7 @@ const DroneHomePage = () => {
         >
           <div className={`drone-observe mb-16 ${visibleElements.has('fleet-header') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'} transition-all duration-1000`} data-id="fleet-header">
             <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-500 mb-4">— Hardware</p>
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter text-gray-900 leading-[0.95]">
+            <h2 className="drone-heading text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter text-gray-900 leading-[0.95]">
               The<br/>Fleet
             </h2>
           </div>
@@ -336,7 +388,7 @@ const DroneHomePage = () => {
                     className="w-full h-full object-cover p-4 group-hover:scale-110 transition-transform duration-500"
                   />
                 </div>
-                <h3 className="text-xs font-black uppercase tracking-wider text-gray-900">{eq.name}</h3>
+                <h3 className="drone-heading text-xs font-black uppercase tracking-wider text-gray-900">{eq.name}</h3>
                 <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mt-1">{eq.spec || eq.category}</p>
               </div>
             ))}
@@ -351,7 +403,7 @@ const DroneHomePage = () => {
           <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-24">
             <div className={`drone-observe ${visibleElements.has('faq-header') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'} transition-all duration-1000`} data-id="faq-header">
               <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-500 mb-4">— Questions</p>
-              <h2 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter text-gray-900 leading-[0.95]">
+              <h2 className="drone-heading text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter text-gray-900 leading-[0.95]">
                 Frequent<br/>Asked
               </h2>
             </div>
@@ -400,7 +452,7 @@ const DroneHomePage = () => {
           <div className="bg-black text-white rounded-[2.5rem] p-8 md:p-16 grid grid-cols-1 md:grid-cols-2 gap-12">
             <div>
               <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-400 mb-4">— Get In Touch</p>
-              <h2 className="text-4xl md:text-5xl font-black tracking-tighter leading-[0.95] mb-6">
+              <h2 className="drone-heading text-4xl md:text-5xl font-black tracking-tighter leading-[0.95] mb-6">
                 Ready For<br/>Takeoff?
               </h2>
               <p className="text-gray-400 leading-relaxed mb-8 max-w-md">

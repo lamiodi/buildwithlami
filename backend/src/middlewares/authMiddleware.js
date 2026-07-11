@@ -4,40 +4,7 @@
 // ──────────────────────────────────────────────────────────
 
 import jwt from 'jsonwebtoken';
-
-/**
- * Map of role → divisions the role is allowed to act on.
- * `*` means the role has access to every division (e.g. Owner).
- *
- * Source of truth: ROADMAP.md Phase 1 + UPDATE.md §11.1.
- * Keep in sync with `backend/migrations/v7_roles_rbac.sql`.
- */
-const ROLE_DIVISIONS = {
-    'Owner':             ['*'],
-    'Administrator':     ['*'],
-    'Project Manager':   ['SOFTWARE', 'SURVEY', 'DRONE'],
-    'Developer':         ['SOFTWARE'],
-    'Survey Manager':    ['SURVEY'],
-    'Surveyor':          ['SURVEY'],
-    'Drone Manager':     ['DRONE'],
-    'Drone Pilot':       ['DRONE'],
-    'Finance':           ['SOFTWARE', 'SURVEY', 'DRONE'],
-    'Client':            [], // clients only see their own project — gated at resource level
-};
-
-/**
- * Normalise a role string so legacy ('ADMIN', 'OWNER') and new
- * ('Owner', 'Administrator') spellings resolve to the same value.
- * Returns the canonical titlecase name, or the original input if
- * we don't recognise it.
- */
-function normaliseRole(role) {
-    if (typeof role !== 'string') return role;
-    const trimmed = role.trim();
-    const known = Object.keys(ROLE_DIVISIONS);
-    const lower = trimmed.toLowerCase();
-    return known.find((k) => k.toLowerCase() === lower) || trimmed;
-}
+import { ROLE_DIVISIONS, canonicalRole } from '../config/roles.js';
 
 /**
  * Protect routes — requires a valid Bearer token.
@@ -73,7 +40,7 @@ export function verifyToken(req, res, next) {
             return res.status(401).json({ error: 'Invalid client token.' });
         }
 
-        req.user = { ...verified, role: normaliseRole(verified.role) };
+        req.user = { ...verified, role: canonicalRole(verified.role) };
         return next();
     } catch (_err) {
         return res.status(401).json({ error: 'Invalid or expired token.' });

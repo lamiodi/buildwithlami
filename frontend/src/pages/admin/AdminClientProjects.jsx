@@ -29,7 +29,7 @@ const Icon = {
     ),
     Send: (p) => (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}>
-            <line x1="22" y1="2" x2="11" x1="12" /><polygon points="22 2 15 22 11 13 2 9 22 2" />
+            <line x1="22" y1="2" x2="11" y2="13" /><polygon points="22 2 15 22 11 13 2 9 22 2" />
         </svg>
     ),
 };
@@ -154,8 +154,7 @@ const AdminClientProjects = () => {
   };
 
   const handleStageChange = (index, status) => {
-    const newStages = [...formData.stages];
-    newStages[index].status = status;
+    const newStages = formData.stages.map((s, i) => i === index ? { ...s, status } : s);
     const completed = newStages.filter(s => s.status === 'COMPLETED').length;
     const progress = Math.round((completed / newStages.length) * 100);
     setFormData(prev => ({ ...prev, stages: newStages, progress }));

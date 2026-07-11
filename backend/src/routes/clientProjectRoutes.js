@@ -12,7 +12,7 @@ import {
     regenerateTrackingId,
     generatePortalLink
 } from '../controllers/clientProjectController.js';
-import { verifyToken } from '../middlewares/authMiddleware.js';
+import { verifyToken, requireRole } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 
@@ -31,14 +31,15 @@ router.get('/track/:trackingId', getProjectByTrackingId);
 router.post('/track/:trackingId/auth', portalAuthLimiter, authClientPortal);
 
 // Protected admin routes
-router.get('/', verifyToken, getClientProjects);
-router.get('/:id/dashboard', verifyToken, getProjectDashboard);
-router.get('/:id', verifyToken, getClientProjectById);
-router.post('/', verifyToken, createClientProject);
-router.put('/:id', verifyToken, updateClientProject);
-router.patch('/:id', verifyToken, updateClientProject);
-router.delete('/:id', verifyToken, deleteClientProject);
-router.post('/:id/regenerate-tracking', verifyToken, regenerateTrackingId);
-router.get('/:id/portal-link', verifyToken, generatePortalLink);
+const adminRole = requireRole('Owner', 'Administrator', 'Project Manager');
+router.get('/', verifyToken, adminRole, getClientProjects);
+router.get('/:id/dashboard', verifyToken, adminRole, getProjectDashboard);
+router.get('/:id', verifyToken, adminRole, getClientProjectById);
+router.post('/', verifyToken, adminRole, createClientProject);
+router.put('/:id', verifyToken, adminRole, updateClientProject);
+router.patch('/:id', verifyToken, adminRole, updateClientProject);
+router.delete('/:id', verifyToken, requireRole('Owner', 'Administrator'), deleteClientProject);
+router.post('/:id/regenerate-tracking', verifyToken, requireRole('Owner', 'Administrator'), regenerateTrackingId);
+router.get('/:id/portal-link', verifyToken, adminRole, generatePortalLink);
 
 export default router;
