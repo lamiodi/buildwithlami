@@ -3,15 +3,19 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getAuthToken, clearAuth, getAuthUser } from '../services/auth';
 
+// Live pages only. /portfolio is the public showcase backed
+// by the admin-managed `projects` table (software + survey +
+// drone) — it's where "Projects" lands the visitor. The
+// old /projects, /resources and /pricing pages are reachable
+// by direct URL but not promoted from the global nav.
 const NAV_LINKS = [
-  { name: 'Home', path: '#home', type: 'anchor' },
-  { name: 'Projects', path: '/projects', type: 'link' },
-  { name: 'About', path: '/about', type: 'link' },
-  { name: 'Services', path: '/services', type: 'link' },
-  { name: 'Portfolio', path: '/portfolio', type: 'link' },
-  { name: 'Resources', path: '/resources', type: 'link' },
-  { name: 'Pricing', path: '/pricing', type: 'link' },
-  { name: 'Contact', path: '/contact', type: 'link' },
+  { name: 'Home',     path: '#home',     type: 'anchor' },
+  { name: 'About',    path: '/about',    type: 'link'   },
+  { name: 'Services', path: '/services', type: 'link'   },
+  { name: 'Projects', path: '/portfolio',type: 'link'   },
+  { name: 'Contact',  path: '/contact',  type: 'link'   },
+  { name: 'Survey',   path: '/survey',   type: 'link'   },
+  { name: 'Drone',    path: '/drone',    type: 'link'   },
 ];
 
 const Navbar = ({ isDark, toggleTheme }) => {

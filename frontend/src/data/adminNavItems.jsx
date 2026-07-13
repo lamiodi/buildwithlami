@@ -40,7 +40,6 @@ export const softwareNav = [
     { to: '/admin/clients', label: 'Clients', icon: Icon.Users },
     { to: '/admin/projects', label: 'Client Projects', icon: Icon.Folder },
     { to: '/admin/portfolio', label: 'Portfolio', icon: Icon.FileText },
-    { to: '/admin/resources', label: 'Resources', icon: Icon.FileText },
     { to: '/admin/pricing', label: 'Pricing Tiers', icon: Icon.CreditCard },
     { to: '/admin/invoices', label: 'Invoices', icon: Icon.CreditCard },
     { to: '/admin/templates', label: 'Forms & Intake', icon: Icon.FileText },

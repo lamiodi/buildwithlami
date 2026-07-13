@@ -35,11 +35,9 @@ const AdminTwoFactorSetup = React.lazy(() => import('./pages/admin/AdminTwoFacto
 const AdminCRM = React.lazy(() => import('./pages/admin/AdminCRM'));
 const AdminEmailTemplates = React.lazy(() => import('./pages/admin/AdminEmailTemplates'));
 const AdminHelp = React.lazy(() => import('./pages/admin/AdminHelp'));
-const AdminResources = React.lazy(() => import('./pages/admin/AdminResources'));
 const AdminPricing = React.lazy(() => import('./pages/admin/AdminPricing'));
 const AdminPaymentQueue = React.lazy(() => import('./pages/admin/AdminPaymentQueue'));
 const PaymentPage = React.lazy(() => import('./pages/PaymentPage'));
-const ResourcesPage = React.lazy(() => import('./pages/ResourcesPage'));
 const PortfolioPage = React.lazy(() => import('./pages/PortfolioPage'));
 const PricingPage = React.lazy(() => import('./pages/PricingPage'));
 const AdminSurveyBookings = React.lazy(() => import('./pages/admin/survey/AdminSurveyBookings'));
@@ -160,7 +158,6 @@ function App() {
               <Routes location={location} key={location.pathname}>
                 <Route path="/" element={<PageWrapper><HomePage /></PageWrapper>} />
                 <Route path="/projects" element={<PageWrapper><ProjectsPage /></PageWrapper>} />
-                <Route path="/resources" element={<PageWrapper><ResourcesPage /></PageWrapper>} />
                 <Route path="/portfolio" element={<PageWrapper><PortfolioPage /></PageWrapper>} />
                 <Route path="/pricing" element={<PageWrapper><PricingPage /></PageWrapper>} />
                 <Route path="/contact" element={<PageWrapper><ContactPage /></PageWrapper>} />
@@ -177,7 +174,6 @@ function App() {
                   <Route index element={<AdminDashboard />} />
                   <Route path="crm" element={<AdminCRM />} />
                   <Route path="email-templates" element={<AdminEmailTemplates />} />
-                  <Route path="resources" element={<AdminResources />} />
                   <Route path="pricing" element={<AdminPricing />} />
                   {/* Phase 6 — workspace-scoped admin pages */}
                   <Route path="survey/bookings" element={<AdminSurveyBookings />} />
