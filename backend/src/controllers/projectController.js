@@ -22,6 +22,7 @@ const createProjectSchema = z.object({
     image_url: z.string().url().optional(),
     live_url: z.string().url().optional(),
     repo_url: z.string().url().optional(),
+    division: z.enum(['SOFTWARE', 'SURVEY', 'DRONE']).default('SOFTWARE'),
     featured: z.boolean().optional(),
     status: z.enum(['DRAFT', 'PUBLISHED', 'ARCHIVED']).optional()
 });
@@ -35,6 +36,7 @@ const updateProjectSchema = z.object({
     image_url: z.string().url().optional().nullable(),
     live_url: z.string().url().optional().nullable(),
     repo_url: z.string().url().optional().nullable(),
+    division: z.enum(['SOFTWARE', 'SURVEY', 'DRONE']).optional(),
     featured: z.boolean().optional(),
     status: z.enum(['DRAFT', 'PUBLISHED', 'ARCHIVED']).optional()
 });
@@ -44,6 +46,7 @@ export async function getProjects(req, res) {
     try {
         let query = `SELECT * FROM projects`;
         const vals = [];
+        const conditions = [];
 
         // Auth middleware normalises the role to the canonical titlecase
         // name from ROLE_DIVISIONS (e.g. 'Owner', 'Administrator'). For
@@ -53,7 +56,17 @@ export async function getProjects(req, res) {
         const privRoles = ['Owner', 'Administrator', 'Project Manager', 'Finance'];
         const isPrivileged = req.user && privRoles.includes(req.user.role);
         if (!isPrivileged) {
-            query += ` WHERE status = 'PUBLISHED'`;
+            conditions.push(`status = 'PUBLISHED'`);
+        }
+
+        // Add division filter if provided
+        if (req.query.division && ['SOFTWARE', 'SURVEY', 'DRONE'].includes(req.query.division)) {
+            vals.push(req.query.division);
+            conditions.push(`division = $${vals.length}`);
+        }
+
+        if (conditions.length > 0) {
+            query += ` WHERE ` + conditions.join(' AND ');
         }
 
         query += ` ORDER BY created_at DESC`;
@@ -98,8 +111,8 @@ export async function createProject(req, res) {
     try {
         const data = createProjectSchema.parse(req.body);
         const { rows } = await pool.query(
-            `INSERT INTO projects (title, slug, summary, content, tech_stack, image_url, live_url, repo_url, featured, status)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+            `INSERT INTO projects (title, slug, summary, content, tech_stack, image_url, live_url, repo_url, division, featured, status)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
        RETURNING *`,
             [
                 data.title,
@@ -110,6 +123,7 @@ export async function createProject(req, res) {
                 data.image_url || null,
                 data.live_url || null,
                 data.repo_url || null,
+                data.division || 'SOFTWARE',
                 data.featured ?? false,
                 data.status || 'DRAFT'
             ]

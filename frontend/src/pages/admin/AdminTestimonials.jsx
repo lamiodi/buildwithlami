@@ -11,11 +11,13 @@ import { motion } from 'framer-motion';
 import { api } from '../../services/api';
 import { notify } from '../../services/notify';
 
+import { ActionIcon, MiscIcon } from '../../data/adminIcons.jsx';
+
 const Icon = {
-    Plus: (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>,
-    Trash: (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>,
-    Star: (p) => <svg viewBox="0 0 24 24" fill="currentColor" {...p}><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>,
-    X: (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>,
+    Plus: ActionIcon.Plus,
+    Trash: ActionIcon.Trash,
+    Star: MiscIcon.Star,
+    X: ActionIcon.X,
 };
 
 const inputClass = "w-full p-3 text-sm border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900 outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-colors font-body";
@@ -29,15 +31,20 @@ const AdminTestimonials = () => {
     const [editing, setEditing] = useState(null);
     const [draft, setDraft] = useState(emptyDraft);
     const [filter, setFilter] = useState('all');
+    const [divisionFilter, setDivisionFilter] = useState('all');
 
     const fetch = async () => {
         setLoading(true);
-        const res = await api.get('/cms/testimonials');
+        const params = {};
+        if (divisionFilter !== 'all') {
+            params.division = divisionFilter;
+        }
+        const res = await api.get('/cms/testimonials', { params });
         if (res.ok) setItems(Array.isArray(res.data) ? res.data : []);
         setLoading(false);
     };
 
-    useEffect(() => { fetch(); }, []);
+    useEffect(() => { fetch(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [divisionFilter]);
 
     const startNew = () => { setEditing(null); setDraft(emptyDraft); };
     const startEdit = (t) => {

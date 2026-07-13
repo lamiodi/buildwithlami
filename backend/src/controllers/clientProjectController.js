@@ -32,12 +32,24 @@ const UPDATABLE_COLUMNS = new Set([
 
 export const getClientProjects = async (req, res) => {
     try {
+        const conditions = [];
+        const params = [];
+        
+        // Add division filter if provided
+        if (req.query.division && ['SOFTWARE', 'SURVEY', 'DRONE'].includes(req.query.division)) {
+            params.push(req.query.division);
+            conditions.push(`p.division = $${params.length}`);
+        }
+        
+        const where = conditions.length > 0 ? ' WHERE ' + conditions.join(' AND ') : '';
+        
         const result = await pool.query(`
             SELECT p.*, c.name as client_name
             FROM client_projects p
             LEFT JOIN clients c ON p.client_id = c.id
+            ${where}
             ORDER BY p.created_at DESC
-        `);
+        `, params);
         res.json(result.rows);
     } catch (err) {
         console.error('[ClientProjects] getClientProjects error:', err.message);

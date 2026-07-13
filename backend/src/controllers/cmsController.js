@@ -29,6 +29,7 @@ const pageSchema = z.object({
     body: z.string().optional().nullable(),
     hero_image: z.string().url().optional().nullable(),
     meta_description: z.string().max(300).optional().nullable(),
+    division: z.enum(['SOFTWARE', 'SURVEY', 'DRONE']).default('SOFTWARE'),
     status: z.enum(['DRAFT', 'PUBLISHED', 'ARCHIVED']).optional(),
 });
 
@@ -58,20 +59,25 @@ const industrySchema = z.object({
 
 // ─────────────────────────── PAGES ─────────────────────────────
 /**
- * GET /api/cms/pages?status=PUBLISHED
+ * GET /api/cms/pages?status=PUBLISHED&division=SOFTWARE
  * Public — but admins see DRAFT rows for their own slugs too.
  * Status filter defaults to PUBLISHED; pass `status=` (empty) or
  * `all` to get every row (admin use).
+ * Division filter is optional - if not provided, returns all divisions.
  */
 export async function getPages(req, res) {
     try {
-        const { status, slug } = req.query;
+        const { status, slug, division } = req.query;
         const conditions = [];
         const params = [];
 
         if (slug) {
             params.push(slug);
             conditions.push(`slug = $${params.length}`);
+        }
+        if (division && ['SOFTWARE', 'SURVEY', 'DRONE'].includes(division)) {
+            params.push(division);
+            conditions.push(`division = $${params.length}`);
         }
         if (status && status !== 'all' && status !== '') {
             params.push(status);
@@ -135,18 +141,18 @@ export async function createPage(req, res) {
     try {
         const data = pageSchema.parse(req.body);
         const { rows } = await pool.query(
-            `INSERT INTO pages (slug, title, body, hero_image, meta_description, status, published_at)
-             VALUES ($1, $2, $3, $4, $5, COALESCE($6, 'DRAFT'),
-                     CASE WHEN $6 = 'PUBLISHED' THEN NOW() ELSE NULL END)
+            `INSERT INTO pages (slug, title, body, hero_image, meta_description, division, status, published_at)
+             VALUES ($1, $2, $3, $4, $5, $6, COALESCE($7, 'DRAFT'),
+                     CASE WHEN $7 = 'PUBLISHED' THEN NOW() ELSE NULL END)
              RETURNING *`,
-            [data.slug, data.title, data.body || null, data.hero_image || null, data.meta_description || null, data.status || 'DRAFT']
+            [data.slug, data.title, data.body || null, data.hero_image || null, data.meta_description || null, data.division || 'SOFTWARE', data.status || 'DRAFT']
         );
 
         await writeAuditLog({
             action: 'CMS_PAGE_CREATED',
             entityType: 'pages',
             entityId: rows[0].id,
-            details: { slug: data.slug, status: data.status || 'DRAFT' },
+            details: { slug: data.slug, division: data.division, status: data.status || 'DRAFT' },
             user: req.user,
             ipAddress: getClientIp(req),
         });
@@ -169,16 +175,16 @@ export async function updatePage(req, res) {
         const { rows } = await pool.query(
             `UPDATE pages
                 SET slug = $1, title = $2, body = $3, hero_image = $4,
-                    meta_description = $5, status = $6,
+                    meta_description = $5, division = $6, status = $7,
                     published_at = CASE
-                        WHEN $6 = 'PUBLISHED' AND published_at IS NULL THEN NOW()
-                        WHEN $6 <> 'PUBLISHED' THEN NULL
+                        WHEN $7 = 'PUBLISHED' AND published_at IS NULL THEN NOW()
+                        WHEN $7 <> 'PUBLISHED' THEN NULL
                         ELSE published_at
                     END,
                     updated_at = NOW()
-              WHERE id = $7
+              WHERE id = $8
               RETURNING *`,
-            [data.slug, data.title, data.body || null, data.hero_image || null, data.meta_description || null, data.status || 'DRAFT', id]
+            [data.slug, data.title, data.body || null, data.hero_image || null, data.meta_description || null, data.division || 'SOFTWARE', data.status || 'DRAFT', id]
         );
         if (rows.length === 0) return res.status(404).json({ error: 'Page not found.' });
 
@@ -186,7 +192,7 @@ export async function updatePage(req, res) {
             action: 'CMS_PAGE_UPDATED',
             entityType: 'pages',
             entityId: id,
-            details: { slug: data.slug, status: data.status || 'DRAFT' },
+            details: { slug: data.slug, division: data.division, status: data.status || 'DRAFT' },
             user: req.user,
             ipAddress: getClientIp(req),
         });

@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { api } from '../../services/api';
 import { notify } from '../../services/notify';
 import { FRONTEND_URL } from '../../config/frontend.js';
+import { ActionIcon } from '../../data/adminIcons.jsx';
 const DEFAULT_STAGES = [
   { name: 'Discovery & Planning', status: 'PENDING' },
   { name: 'Design & Mockups', status: 'PENDING' },
@@ -22,16 +23,8 @@ const DEFAULT_OFFBOARDING = {
 };
 
 const Icon = {
-    Copy: (p) => (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}>
-            <rect x="9" y="9" width="13" height="13" rx="2" ry="2" /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-        </svg>
-    ),
-    Send: (p) => (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}>
-            <line x1="22" y1="2" x2="11" y2="13" /><polygon points="22 2 15 22 11 13 2 9 22 2" />
-        </svg>
-    ),
+    Copy: ActionIcon.Copy,
+    Send: ActionIcon.Send,
 };
 
 const AdminClientProjects = () => {

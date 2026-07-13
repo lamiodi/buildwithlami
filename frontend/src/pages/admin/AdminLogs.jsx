@@ -3,12 +3,10 @@ import { motion } from 'framer-motion';
 import { api } from '../../services/api';
 import { notify } from '../../services/notify';
 
+import { ActionIcon } from '../../data/adminIcons.jsx';
+
 const Icon = {
-    RefreshCw: (p) => (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}>
-            <polyline points="23 4 23 10 17 10" /><path d="M1 18a17 17 0 0 0 19-14l-9 9" />
-        </svg>
-    ),
+    RefreshCw: ActionIcon.Refresh,
 };
 
 const ACTION_LABELS = {

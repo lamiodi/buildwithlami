@@ -44,6 +44,7 @@ const MIGRATIONS = [
     'v21_pages_perf_index.sql',
     'v22_normalize_admin_roles.sql',
     'v23_jsonb_gin_indexes.sql',
+    'v24_pages_division.sql',
 ];
 
 const run = async () => {

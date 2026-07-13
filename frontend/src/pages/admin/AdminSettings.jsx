@@ -3,22 +3,12 @@ import { motion } from 'framer-motion';
 import { api } from '../../services/api';
 import { notify } from '../../services/notify';
 
+import { DashboardIcon, ActionIcon } from '../../data/adminIcons.jsx';
+
 const Icon = {
-    User: (p) => (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}>
-            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" />
-        </svg>
-    ),
-    Link: (p) => (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}>
-            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7-7l-1.41 1.41" /><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7 7l1.41-1.41" />
-        </svg>
-    ),
-    Save: (p) => (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}>
-            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" /><polyline points="17 21 17 7 9 7" /><polyline points="7 10 12 15 17 10" />
-        </svg>
-    ),
+    User: DashboardIcon.SingleUser,
+    Link: ActionIcon.Link,
+    Save: ActionIcon.SaveAlt,
 };
 
 const PasswordSection = () => {

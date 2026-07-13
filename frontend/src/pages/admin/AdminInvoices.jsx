@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { api } from '../../services/api';
 import { notify } from '../../services/notify';
 import { toCSV, downloadCSV } from '../../utils/csv.jsx';
+import { ActionIcon, AliasedIcon } from '../../data/adminIcons.jsx';
 
 const formatCurrency = (n, curr = 'NGN') => {
     try {
@@ -23,56 +24,16 @@ const convertToNGN = (amount, currency, rates) => {
 };
 
 const Icon = {
-    Plus: (p) => (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}>
-            <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
-        </svg>
-    ),
-    Search: (p) => (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}>
-            <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
-        </svg>
-    ),
-    Download: (p) => (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}>
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" />
-        </svg>
-    ),
-    Filter: (p) => (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}>
-            <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
-        </svg>
-    ),
-    External: (p) => (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}>
-            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" /><polyline points="15 3 21 3 21 9" /><line x1="10" y1="14" x2="21" y2="3" />
-        </svg>
-    ),
-    X: (p) => (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}>
-            <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
-        </svg>
-    ),
-    Check: (p) => (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}>
-            <polyline points="20 6 9 17 4 12" />
-        </svg>
-    ),
-    Refresh: (p) => (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}>
-            <polyline points="23 4 23 10 17 10" /><path d="M1 18a17 17 0 0 0 19-14l-9 9" />
-        </svg>
-    ),
-    Copy: (p) => (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}>
-            <rect x="9" y="9" width="13" height="13" rx="2" ry="2" /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-        </svg>
-    ),
-    File: (p) => (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}>
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" />
-        </svg>
-    ),
+    Plus: ActionIcon.Plus,
+    Search: ActionIcon.Search,
+    Download: ActionIcon.Download,
+    Filter: ActionIcon.Filter,
+    External: ActionIcon.ExternalLink,
+    X: ActionIcon.X,
+    Check: ActionIcon.Check,
+    Refresh: ActionIcon.Refresh,
+    Copy: ActionIcon.Copy,
+    File: AliasedIcon.File,
 };
 
 const StatusPill = ({ status, isOverdue }) => {
@@ -112,6 +73,7 @@ const AdminInvoices = () => {
     const [error, setError] = useState('');
     const [search, setSearch] = useState('');
     const [statusFilter, setStatusFilter] = useState('all');
+    const [divisionFilter, setDivisionFilter] = useState('all');
     const [showForm, setShowForm] = useState(false);
     const [submitting, setSubmitting] = useState(false);
     const [projects, setProjects] = useState([]);
@@ -119,7 +81,11 @@ const AdminInvoices = () => {
     const [formData, setFormData] = useState({ project_id: '', amount: '', currency: 'NGN', dueDate: '' });
 
     const fetchInvoices = async () => {
-        const res = await api.get('/invoices');
+        const params = {};
+        if (divisionFilter !== 'all') {
+            params.division = divisionFilter;
+        }
+        const res = await api.get('/invoices', { params });
         if (res.ok && res.data) setInvoices(res.data);
         else setError(res.error || 'Failed to load invoices.');
         setLoading(false);
@@ -139,7 +105,8 @@ const AdminInvoices = () => {
         fetchInvoices();
         fetchProjects();
         fetchFxRates();
-    }, []);
+        /* eslint-disable-next-line react-hooks/exhaustive-deps */
+    }, [divisionFilter]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -358,6 +325,16 @@ const AdminInvoices = () => {
                         <Icon.Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                         <input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by project, client, or invoice ID…" className="w-full pl-9 pr-4 py-2.5 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-accent focus:border-accent outline-none transition-colors font-body" />
                     </div>
+                    <select
+                        value={divisionFilter}
+                        onChange={(e) => setDivisionFilter(e.target.value)}
+                        className="px-3 py-2.5 text-sm font-bold bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-accent focus:border-accent outline-none transition-colors font-body"
+                    >
+                        <option value="all">All Divisions</option>
+                        <option value="SOFTWARE">Software</option>
+                        <option value="SURVEY">Survey</option>
+                        <option value="DRONE">Drone</option>
+                    </select>
                     <div className="flex items-center gap-2">
                         <div className="flex items-center gap-1.5 text-[10px] font-extrabold uppercase tracking-widest text-gray-400 dark:text-gray-500">
                             <Icon.Filter className="w-3.5 h-3.5" />
@@ -402,6 +379,7 @@ const AdminInvoices = () => {
                                         <th className="py-4 px-6">Invoice</th>
                                         <th className="py-4 px-6">Project</th>
                                         <th className="py-4 px-6">Client</th>
+                                        <th className="py-4 px-6 text-center">Division</th>
                                         <th className="py-4 px-6 text-right">Amount</th>
                                         <th className="py-4 px-6 text-center">Status</th>
                                         <th className="py-4 px-6">Due</th>
@@ -422,6 +400,17 @@ const AdminInvoices = () => {
                                                 </td>
                                                 <td className="py-4 px-6">
                                                     <span className="text-sm text-gray-700 dark:text-gray-300">{inv.client_name || '—'}</span>
+                                                </td>
+                                                <td className="py-4 px-6 text-center">
+                                                    {inv.division && (
+                                                        <span className={`text-[9px] font-extrabold uppercase tracking-widest px-1.5 py-0.5 rounded ${
+                                                            inv.division === 'SURVEY' ? 'bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300' :
+                                                            inv.division === 'DRONE' ? 'bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300' :
+                                                            'bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300'
+                                                        }`}>
+                                                            {inv.division}
+                                                        </span>
+                                                    )}
                                                 </td>
                                                 <td className="py-4 px-6 text-right">
                                                     <span className="font-bold font-mono text-gray-900 dark:text-white">{formatCurrency(inv.amount, inv.currency || 'NGN')}</span>

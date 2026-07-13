@@ -6,15 +6,20 @@ import { HighlightedText } from '../../utils/csv.jsx';
 const AdminClients = () => {
   const [clients, setClients] = useState([]);
   const [formData, setFormData] = useState({
-    name: '', primary_contact_email: '', billing_email: '', phone: '', paystack_customer_code: '', notes: ''
+    name: '', primary_contact_email: '', billing_email: '', phone: '', paystack_customer_code: '', notes: '', division: 'SOFTWARE'
   });
   const [editingId, setEditingId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const [divisionFilter, setDivisionFilter] = useState('all');
 
   const fetchClients = async () => {
-    const res = await api.get('/clients');
+    const params = {};
+    if (divisionFilter !== 'all') {
+      params.division = divisionFilter;
+    }
+    const res = await api.get('/clients', { params });
     if (res.ok && res.data) setClients(res.data);
     else if (!res.ok) setError(res.error || 'Failed to fetch clients.');
     setLoading(false);
@@ -22,7 +27,8 @@ const AdminClients = () => {
 
   useEffect(() => {
     fetchClients();
-  }, []);
+    /* eslint-disable-next-line react-hooks/exhaustive-deps */
+  }, [divisionFilter]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -37,7 +43,8 @@ const AdminClients = () => {
       billing_email: client.billing_email || '',
       phone: client.phone || '',
       paystack_customer_code: client.paystack_customer_code || '',
-      notes: client.notes || ''
+      notes: client.notes || '',
+      division: client.division || 'SOFTWARE'
     });
     window.scrollTo(0, 0);
   };
@@ -56,7 +63,7 @@ const AdminClients = () => {
       fetchClients();
       setEditingId(null);
       setFormData({
-        name: '', primary_contact_email: '', billing_email: '', paystack_customer_code: '', notes: ''
+        name: '', primary_contact_email: '', billing_email: '', phone: '', paystack_customer_code: '', notes: '', division: 'SOFTWARE'
       });
     } else {
       notify.error(res.error || 'Error saving client. Check logs.');
@@ -81,15 +88,27 @@ const AdminClients = () => {
           <h1 className="text-4xl font-extrabold bg-gradient-to-r from-accent to-orange-500 bg-clip-text text-transparent font-heading">
             Client Directory
           </h1>
-          <div className="relative w-full md:w-72">
-            <input
-              type="text"
-              placeholder="Search clients..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900 outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-colors font-body"
-            />
-            <svg className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 1114 0z" /></svg>
+          <div className="flex gap-2 items-center w-full md:w-auto">
+            <select
+              value={divisionFilter}
+              onChange={(e) => setDivisionFilter(e.target.value)}
+              className="px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900 outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-colors font-body font-bold"
+            >
+              <option value="all">All Divisions</option>
+              <option value="SOFTWARE">Software</option>
+              <option value="SURVEY">Survey</option>
+              <option value="DRONE">Drone</option>
+            </select>
+            <div className="relative flex-1 md:w-72 md:flex-none">
+              <input
+                type="text"
+                placeholder="Search clients..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900 outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-colors font-body"
+              />
+              <svg className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 1114 0z" /></svg>
+            </div>
           </div>
         </div>
 
@@ -162,6 +181,20 @@ const AdminClients = () => {
                 />
               </div>
 
+              <div>
+                <label className="block text-[10px] font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2">Division</label>
+                <select
+                  name="division"
+                  value={formData.division}
+                  onChange={handleChange}
+                  className="w-full p-3 text-sm border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-900 outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-colors font-body"
+                >
+                  <option value="SOFTWARE">Software</option>
+                  <option value="SURVEY">Survey</option>
+                  <option value="DRONE">Drone</option>
+                </select>
+              </div>
+
               <div className="flex gap-3 pt-2">
                 <button
                   type="submit"
@@ -174,7 +207,7 @@ const AdminClients = () => {
                     type="button"
                     onClick={() => {
                       setEditingId(null);
-                      setFormData({ name: '', primary_contact_email: '', billing_email: '', phone: '', paystack_customer_code: '', notes: '' });
+                      setFormData({ name: '', primary_contact_email: '', billing_email: '', phone: '', paystack_customer_code: '', notes: '', division: 'SOFTWARE' });
                     }}
                     className="bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 px-4 py-3 rounded-xl transition-all text-sm font-bold font-body"
                   >
@@ -202,6 +235,7 @@ const AdminClients = () => {
                     <thead>
                       <tr className="bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 text-xs font-bold text-gray-500 uppercase tracking-wider font-body">
                         <th className="py-4 px-6">Client Name & Email</th>
+                        <th className="py-4 px-6 text-center">Division</th>
                         <th className="py-4 px-6 text-center">Projects</th>
                         <th className="py-4 px-6 text-right">Total Billed</th>
                         <th className="py-4 px-6 text-right">Actions</th>
@@ -213,7 +247,7 @@ const AdminClients = () => {
                         c.primary_contact_email.toLowerCase().includes(searchQuery.toLowerCase())
                       ).length === 0 ? (
                         <tr>
-                          <td colSpan="4" className="py-12 text-center text-gray-500 font-body">No clients found matching your search.</td>
+                          <td colSpan="5" className="py-12 text-center text-gray-500 font-body">No clients found matching your search.</td>
                         </tr>
                       ) : clients.filter(c => 
                         c.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
@@ -227,6 +261,17 @@ const AdminClients = () => {
                             <p className="text-sm text-gray-500 dark:text-gray-400 font-body">
                               <HighlightedText text={client.primary_contact_email} search={searchQuery} />
                             </p>
+                          </td>
+                          <td className="py-4 px-6 text-center">
+                            {client.division && (
+                              <span className={`text-[9px] font-extrabold uppercase tracking-widest px-1.5 py-0.5 rounded ${
+                                client.division === 'SURVEY' ? 'bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300' :
+                                client.division === 'DRONE' ? 'bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300' :
+                                'bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300'
+                              }`}>
+                                {client.division}
+                              </span>
+                            )}
                           </td>
                           <td className="py-4 px-6 text-center">
                             <span className="inline-flex items-center justify-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300 font-body">

@@ -17,19 +17,21 @@ import { api } from '../../services/api';
 import { notify } from '../../services/notify';
 import { renderSafeMarkdownSync } from '../../utils/markdown';
 
+import { ActionIcon, DashboardIcon } from '../../data/adminIcons.jsx';
+
 const Icon = {
-    Plus: (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>,
-    Trash: (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>,
-    Save: (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>,
-    Eye: (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>,
-    Upload: (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>,
-    X: (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>,
+    Plus: ActionIcon.Plus,
+    Trash: ActionIcon.Trash,
+    Save: ActionIcon.Save,
+    Eye: DashboardIcon.Eye,
+    Upload: ActionIcon.Upload,
+    X: ActionIcon.X,
 };
 
 const inputClass = "w-full p-3 text-sm border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900 outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-colors font-body";
 const labelClass = "block text-[10px] font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2";
 
-const emptyDraft = { slug: '', title: '', body: '', hero_image: '', meta_description: '', status: 'DRAFT' };
+const emptyDraft = { slug: '', title: '', body: '', hero_image: '', meta_description: '', division: 'SOFTWARE', status: 'DRAFT' };
 
 const AdminCMS = () => {
     const [pages, setPages] = useState([]);
@@ -38,17 +40,22 @@ const AdminCMS = () => {
     const [edit, setEdit] = useState(emptyDraft);
     const [saving, setSaving] = useState(false);
     const [filter, setFilter] = useState('all');
+    const [divisionFilter, setDivisionFilter] = useState('all');
     const [uploadingHero, setUploadingHero] = useState(false);
     const [showPreview, setShowPreview] = useState(true);
 
     const fetchPages = async () => {
         setLoading(true);
-        const res = await api.get('/cms/pages', { params: { status: 'all' } });
+        const params = { status: 'all' };
+        if (divisionFilter !== 'all') {
+            params.division = divisionFilter;
+        }
+        const res = await api.get('/cms/pages', { params });
         if (res.ok) setPages(Array.isArray(res.data) ? res.data : []);
         setLoading(false);
     };
 
-    useEffect(() => { fetchPages(); }, []);
+    useEffect(() => { fetchPages(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [divisionFilter]);
 
     const filtered = useMemo(() => {
         if (filter === 'all') return pages;
@@ -68,6 +75,7 @@ const AdminCMS = () => {
             body: p.body || '',
             hero_image: p.hero_image || '',
             meta_description: p.meta_description || '',
+            division: p.division || 'SOFTWARE',
             status: p.status || 'DRAFT',
         });
     };
@@ -125,6 +133,7 @@ const AdminCMS = () => {
           edit.body !== (selected.body || '') ||
           edit.hero_image !== (selected.hero_image || '') ||
           edit.meta_description !== (selected.meta_description || '') ||
+          edit.division !== (selected.division || 'SOFTWARE') ||
           edit.status !== selected.status
         : edit.slug || edit.title || edit.body;
 
@@ -154,6 +163,16 @@ const AdminCMS = () => {
                     {/* List */}
                     <div className="w-72 shrink-0 flex flex-col bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 overflow-hidden">
                         <div className="p-3 border-b border-gray-100 dark:border-gray-700 flex gap-1.5 flex-wrap">
+                            <select
+                                value={divisionFilter}
+                                onChange={(e) => setDivisionFilter(e.target.value)}
+                                className="text-[10px] font-extrabold uppercase tracking-widest px-2 py-1 rounded bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 border-none outline-none"
+                            >
+                                <option value="all">All Divisions</option>
+                                <option value="SOFTWARE">Software</option>
+                                <option value="SURVEY">Survey</option>
+                                <option value="DRONE">Drone</option>
+                            </select>
                             {['all', 'DRAFT', 'PUBLISHED', 'ARCHIVED'].map(s => (
                                 <button
                                     key={s}
@@ -180,7 +199,7 @@ const AdminCMS = () => {
                                             selected?.id === p.id ? 'bg-accent/5 border-l-2 border-l-accent' : ''
                                         }`}
                                     >
-                                        <div className="flex items-center justify-between gap-2">
+                                        <div className="flex items-center justify-between gap-2 mb-1">
                                             <p className="text-sm font-bold text-gray-900 dark:text-white truncate">{p.title}</p>
                                             <span className={`shrink-0 text-[9px] font-extrabold uppercase tracking-widest px-1.5 py-0.5 rounded ${
                                                 p.status === 'PUBLISHED' ? 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300' :
@@ -190,7 +209,16 @@ const AdminCMS = () => {
                                                 {p.status}
                                             </span>
                                         </div>
-                                        <p className="text-[10px] text-gray-500 dark:text-gray-400 truncate mt-0.5">/{p.slug}</p>
+                                        <div className="flex items-center justify-between gap-2">
+                                            <p className="text-[10px] text-gray-500 dark:text-gray-400 truncate">/{p.slug}</p>
+                                            <span className={`text-[9px] font-extrabold uppercase tracking-widest px-1.5 py-0.5 rounded ${
+                                                p.division === 'SURVEY' ? 'bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300' :
+                                                p.division === 'DRONE' ? 'bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300' :
+                                                'bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300'
+                                            }`}>
+                                                {p.division || 'SOFTWARE'}
+                                            </span>
+                                        </div>
                                     </button>
                                 ))
                             )}
@@ -238,6 +266,16 @@ const AdminCMS = () => {
                                         />
                                         <p className="text-[10px] text-gray-400 mt-1">URL: /{edit.slug || 'your-slug'}</p>
                                     </div>
+                                    <div>
+                                        <label className={labelClass}>Division</label>
+                                        <select value={edit.division} onChange={(e) => setEdit({ ...edit, division: e.target.value })} className={inputClass}>
+                                            <option value="SOFTWARE">Software</option>
+                                            <option value="SURVEY">Survey</option>
+                                            <option value="DRONE">Drone</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div className="grid grid-cols-2 gap-3">
                                     <div>
                                         <label className={labelClass}>Status</label>
                                         <select value={edit.status} onChange={(e) => setEdit({ ...edit, status: e.target.value })} className={inputClass}>

@@ -8,40 +8,10 @@ import QuickActionFAB from './admin/QuickActionFAB';
 import WorkspaceSelector from './admin/WorkspaceSelector';
 import { useAuth } from '../contexts/AuthContext';
 import { coreNav, visibleWorkspaces } from '../data/adminNavItems.jsx';
+import { CoreIcon as Icon } from '../data/adminIcons.jsx';
 
 const WORKSPACE_STORAGE_KEY = 'bwl:admin:workspace';
 const ALL_WORKSPACE_ID = 'all';
-
-// All-icon used as the marker for the "All workspaces" option.
-// Defined here (not in adminNavItems.jsx) because that file is
-// pure data and doesn't import the Code icon for this purpose.
-const AllIcon = (p) => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}>
-        <rect x="3" y="3" width="7" height="7" />
-        <rect x="14" y="3" width="7" height="7" />
-        <rect x="3" y="14" width="7" height="7" />
-        <rect x="14" y="14" width="7" height="7" />
-    </svg>
-);
-
-const Icon = {
-    Users: (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>,
-    Activity: (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><polyline points="22 12 18 12 15 21"/><path d="M5.03 21a9.99 9.99 0 1 1 .02-18 7 7 0 1 0 6.97 7"/><polyline points="3 4 3 10 9 10"/></svg>,
-    Bell: (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>,
-    Moon: (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>,
-    Sun: (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>,
-    Menu: (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>,
-    Settings: (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>,
-    LogOut: (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>,
-    Dashboard: (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>,
-    Folder: (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>,
-    Kanban: (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/></svg>,
-    Mail: (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>,
-    CreditCard: (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>,
-    FileText: (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>,
-    BarChart: (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>,
-    Shield: (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>,
-};
 
 // Module-level nav arrays (core + per-workspace) live in
 // `data/adminNavItems.js`. The visible nav is composed at
@@ -67,30 +37,34 @@ const AdminLayout = ({ isDark, toggleTheme }) => {
     // Active workspace — read from localStorage on first mount,
     // then re-evaluate when the user/their divisions change.
     const [activeWorkspace, setActiveWorkspace] = useState(() => {
-        try { return localStorage.getItem(WORKSPACE_STORAGE_KEY) || ALL_WORKSPACE_ID; } catch { return ALL_WORKSPACE_ID; }
+        try { 
+            const saved = localStorage.getItem(WORKSPACE_STORAGE_KEY);
+            // Only use saved value if it's a valid workspace (not 'all')
+            if (saved && saved !== ALL_WORKSPACE_ID) {
+                return saved;
+            }
+        } catch {}
+        // Default to first available workspace
+        return 'software';
     });
 
     // Persist activeWorkspace so it survives a reload.
     const handleWorkspaceChange = (id) => {
         setActiveWorkspace(id);
+        setMobileMenuOpen(false);  // Close mobile sidebar on workspace switch
         try { localStorage.setItem(WORKSPACE_STORAGE_KEY, id); } catch {}
     };
 
     // Compute the list of options the selector can show.
-    // Always include "all" as the first option; the per-division
-    // options are filtered by the user's allowed divisions.
+    // Only show division-specific options (no "All Workspaces").
     const workspaceOptions = useMemo(() => {
         const allowed = visibleWorkspaces(user);
-        const divisionOptions = allowed.map((w) => ({
+        return allowed.map((w) => ({
             id: w.id,
             label: w.label,
             icon: w.icon,
             description: `Only ${w.label.toLowerCase()} items`,
         }));
-        return [
-            { id: ALL_WORKSPACE_ID, label: 'All Workspaces', icon: AllIcon, description: 'Every division' },
-            ...divisionOptions,
-        ];
     }, [user]);
 
     // Reset to a valid workspace if the persisted one isn't in
@@ -99,27 +73,20 @@ const AdminLayout = ({ isDark, toggleTheme }) => {
         const ids = workspaceOptions.map((o) => o.id);
         if (ids.length === 0) return;
         if (!ids.includes(activeWorkspace)) {
-            handleWorkspaceChange(ALL_WORKSPACE_ID);
+            handleWorkspaceChange(ids[0]);
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [user]);
 
-    // Compose the visible nav. When "all" is active, we union
-    // core + every allowed workspace. When a specific workspace
-    // is active, we show only core + that workspace's nav.
-    // Either way, the result is de-duplicated by `to` so a core
+    // Compose the visible nav. Show core + selected workspace's nav.
+    // The result is de-duplicated by `to` so a core
     // item that also lives in a workspace's nav still appears
     // exactly once.
     const navItems = useMemo(() => {
         if (!user) return [];
         const allowed = visibleWorkspaces(user);
-        let wsNav = [];
-        if (activeWorkspace === ALL_WORKSPACE_ID) {
-            wsNav = allowed.flatMap((w) => w.nav);
-        } else {
-            const selected = allowed.find((w) => w.id === activeWorkspace);
-            wsNav = selected ? selected.nav : [];
-        }
+        const selected = allowed.find((w) => w.id === activeWorkspace);
+        const wsNav = selected ? selected.nav : [];
         const combined = [...coreNav, ...wsNav];
         const seen = new Set();
         return combined.filter((it) => {
@@ -162,6 +129,9 @@ const AdminLayout = ({ isDark, toggleTheme }) => {
                             onChange={handleWorkspaceChange}
                             options={workspaceOptions}
                         />
+                        <p className="text-[10px] text-gray-400 dark:text-gray-500 mt-2 px-1">
+                            Select a workspace to focus the sidebar on only that division's items
+                        </p>
                     </div>
                 )}
 
@@ -303,9 +273,9 @@ const AdminLayout = ({ isDark, toggleTheme }) => {
                         {/* User Avatar */}
                         <div className="flex items-center gap-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 p-1 pr-3 rounded-full transition-colors">
                             <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-white flex items-center justify-center font-bold text-sm shadow-sm">
-                                AD
+                                {user ? (user.name || user.email || '?').charAt(0).toUpperCase() : '?'}
                             </div>
-                            <span className="text-sm font-bold hidden sm:block">Admin</span>
+                            <span className="text-sm font-bold hidden sm:block">{user?.name || 'Admin'}</span>
                         </div>
                     </div>
                 </header>

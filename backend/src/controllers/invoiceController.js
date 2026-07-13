@@ -147,17 +147,29 @@ export const createInvoice = async (req, res) => {
 // Admin: Get all invoices (with client + project names for display)
 export const getAllInvoices = async (req, res) => {
     try {
+        const conditions = [];
+        const params = [];
+        
+        // Add division filter if provided
+        if (req.query.division && ['SOFTWARE', 'SURVEY', 'DRONE'].includes(req.query.division)) {
+            params.push(req.query.division);
+            conditions.push(`i.division = $${params.length}`);
+        }
+        
+        const where = conditions.length > 0 ? ' WHERE ' + conditions.join(' AND ') : '';
+        
         const { rows } = await pool.query(`
             SELECT i.id, i.project_id, i.client_id, i.amount, i.currency, i.status,
                    i.due_date, i.payment_url, i.paystack_reference, i.paid_at,
-                   i.created_at,
+                   i.division, i.created_at,
                    c.name AS client_name,
                    p.project_name
             FROM invoices i
             LEFT JOIN clients c ON i.client_id = c.id
             LEFT JOIN client_projects p ON i.project_id = p.id
+            ${where}
             ORDER BY i.created_at DESC
-        `);
+        `, params);
         res.json(rows);
     } catch (err) {
         console.error('[Invoices] getAllInvoices error:', err.message);
