@@ -7,7 +7,7 @@
 // ──────────────────────────────────────────────────────────
 
 import { z } from 'zod';
-import { pool } from '../config/db.js';
+import pool from '../config/db.js';
 
 const createSchema = z.object({
     name: z.string().min(1),
