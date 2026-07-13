@@ -32,7 +32,6 @@ const Projects = () => {
   // home page is now driven entirely by the admin-managed
   // `projects` table.
   const hasContent = projects.length > 0;
-
   const featuredProject = hasContent ? projects[0] : null;
   const moreProjects = hasContent ? projects.slice(1, 4) : [];
 
@@ -41,6 +40,27 @@ const Projects = () => {
   // render nothing rather than the legacy hardcoded list — see
   // /admin/portfolio → New Project → division SOFTWARE.
   if (!loading && !hasContent) return null;
+
+  // While loading OR when no featured project exists yet, show
+  // a skeleton block instead of trying to read .title on null.
+  // The two return paths are split so the children JSX (which
+  // dereferences featuredProject.title) is only ever evaluated
+  // when featuredProject is non-null.
+  if (!featuredProject) {
+    return (
+      <section id="projects" className="px-6 md:px-12 max-w-7xl mx-auto py-24">
+        <h3 className="text-2xl font-heading font-bold mb-8 text-black dark:text-white">Projects</h3>
+        <div className="space-y-16">
+          <ProjectCardSkeleton />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <ProjectCardSkeleton />
+            <ProjectCardSkeleton />
+            <ProjectCardSkeleton />
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section id="projects" className="px-6 md:px-12 max-w-7xl mx-auto py-24">
