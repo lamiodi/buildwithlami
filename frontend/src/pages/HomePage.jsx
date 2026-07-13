@@ -7,7 +7,6 @@ import WhyChoose from '../components/WhyChoose';
 import Pricing from '../components/Pricing';
 import SaaSProducts from '../components/SaaSProducts';
 import Projects from '../components/Projects';
-import Testimonials from '../components/Testimonials';
 import FAQ from '../components/FAQ';
 import Contact from '../components/Contact';
 
@@ -30,7 +29,6 @@ const HomePage = () => {
       <Pricing />
       <SaaSProducts />
       <Projects />
-      <Testimonials />
       <FAQ />
       <Contact />
     </>

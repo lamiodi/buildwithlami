@@ -30,11 +30,12 @@ import adminInboxRoutes from './routes/adminInboxRoutes.js';
 import bookingRoutes from './routes/bookingRoutes.js';
 import crmRoutes from './routes/crmRoutes.js';
 import emailTemplateRoutes from './routes/emailTemplateRoutes.js';
-import cmsRoutes from './routes/cmsRoutes.js';
 import divisionRoutes from './routes/divisionRoutes.js';
 import contractRoutes from './routes/contractRoutes.js';
 import fxRateRoutes from './routes/fxRateRoutes.js';
 import paymentRoutes from './routes/paymentRoutes.js';
+import resourceRoutes from './routes/resourceRoutes.js';
+import pricingRoutes from './routes/pricingRoutes.js';
 import pool from './config/db.js';
 import { startCronJobs } from './services/cronService.js';
 
@@ -126,9 +127,6 @@ app.use('/api/crm', apiLimiter, crmRoutes);
 // Email templates (Phase 3). All endpoints are admin-gated.
 app.use('/api/email-templates', apiLimiter, emailTemplateRoutes);
 
-// CMS (Phase 4). Public reads + admin writes handled inside the router.
-app.use('/api/cms', apiLimiter, cmsRoutes);
-
 // Division-scoped admin reads (Phase 6). The router itself
 // applies `requireDivision` so a Survey Manager token can only
 // reach /api/divisions/survey/* and a Drone Pilot only
@@ -148,6 +146,13 @@ app.use('/api/fx-rates', apiLimiter, fxRateRoutes);
 // bank transfers + manual proof review). The /public/* routes
 // are intentionally unauthenticated — the URL token is the auth.
 app.use('/api/payments', apiLimiter, paymentRoutes);
+
+// Marketing knowledge base + pricing tiers. Public reads
+// (PUBLISHED only) on /api/resources and /api/pricing — admin
+// CRUD endpoints live behind verifyToken + requireRole in the
+// routers themselves.
+app.use('/api/resources', apiLimiter, resourceRoutes);
+app.use('/api/pricing', apiLimiter, pricingRoutes);
 
 // ── 404 fallback ─────────────────────────────────────────
 app.use((_req, res) => {

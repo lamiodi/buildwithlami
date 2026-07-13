@@ -1,13 +1,11 @@
 // ─── src/utils/cache.js ───────────────────────────────────
-// Tiny in-memory TTL cache for the public, low-mutation CMS
-// reads. Marketing content (testimonials, equipment, pages)
-// changes weekly at most; a 60-120s cache is invisible to
-// visitors and removes those endpoints from the DB hot path.
+// Tiny in-memory TTL cache for the public, low-mutation
+// marketing reads. State is per-process.
 //
-// State is per-process. If the backend ever scales to multiple
-// nodes, swap this for a shared store (Redis or a small
-// `cms_cache` table). For a single Render instance, the in-memory
-// map is the right trade-off — no new infra, no network hops.
+// If the backend ever scales to multiple nodes, swap this for
+// a shared store (Redis or a small `cache` table). For a
+// single Render instance, the in-memory map is the right
+// trade-off — no new infra, no network hops.
 // ──────────────────────────────────────────────────────────
 
 const store = new Map();

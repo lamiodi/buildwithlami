@@ -30,8 +30,11 @@ const Footer = () => {
           <Link to="/about" className="hover:text-accent transition-colors">About</Link>
           <Link to="/services" className="hover:text-accent transition-colors">Services</Link>
           <Link to="/projects" className="hover:text-accent transition-colors">Projects</Link>
-          <Link to="/services#pricing" className="hover:text-accent transition-colors">Pricing</Link>
+          <Link to="/portfolio" className="hover:text-accent transition-colors">Portfolio</Link>
+          <Link to="/pricing" className="hover:text-accent transition-colors">Pricing</Link>
           <Link to="/resources" className="hover:text-accent transition-colors">Resources</Link>
+          <Link to="/survey" className="hover:text-accent transition-colors">Survey</Link>
+          <Link to="/drone" className="hover:text-accent transition-colors">Drone</Link>
         </nav>
 
         {/* Massive Branding Headline — clamp(min, vw, max) + nowrap = one line always */}

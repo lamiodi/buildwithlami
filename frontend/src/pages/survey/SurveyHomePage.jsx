@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Menu, ArrowRight, ArrowLeft, Plus, Minus } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Menu, ArrowRight, ArrowLeft, ArrowUpRight, Plus, Minus } from 'lucide-react';
 import { api } from '../../services/api';
 
 // ── Survey-page fonts ────────────────────────────────────
@@ -95,12 +96,32 @@ const SurveyHomePage = () => {
     }
   ];
 
-  const projects = [
-    { title: "Eko Atlantic Coastal Survey", area: "850 Ha", type: "Hydrographic", location: "Lagos" },
-    { title: "Abuja Phase IV Layout", area: "1,200 Ha", type: "Cadastral", location: "FCT" },
-    { title: "Dangote Refinery Pipeline", area: "150 KM", type: "Engineering", location: "Lekki" },
-    { title: "Lekki-Epe Topography", area: "600 Ha", type: "Topographic", location: "Lagos" },
+  // Fallback projects shown if the API is unreachable or empty.
+  // Keeps the page presentable until the admin publishes real
+  // entries from /admin/portfolio.
+  const fallbackProjects = [
+    { id: 'fallback-1', title: "Eko Atlantic Coastal Survey", summary: 'Hydrographic survey of the reclaimed peninsula', area: "850 Ha", tags: ['Hydrographic'], location: "Lagos" },
+    { id: 'fallback-2', title: "Abuja Phase IV Layout",       summary: 'Cadastral layout for the new federal district', area: "1,200 Ha", tags: ['Cadastral'], location: "FCT" },
+    { id: 'fallback-3', title: "Dangote Refinery Pipeline",  summary: 'Engineering survey for the 150km pipeline',     area: "150 KM",  tags: ['Engineering'], location: "Lekki" },
+    { id: 'fallback-4', title: "Lekki-Epe Topography",       summary: 'Topographic baseline for the corridor',          area: "600 Ha",  tags: ['Topographic'], location: "Lagos" },
   ];
+
+  // Live projects fetched from /api/projects/division/SURVEY.
+  // The endpoint only returns PUBLISHED rows; see projectRoutes.js.
+  const [apiProjects, setApiProjects] = useState([]);
+  useEffect(() => {
+    const load = async () => {
+      const res = await api.get('/projects/division/SURVEY');
+      if (res.ok && Array.isArray(res.data)) setApiProjects(res.data);
+    };
+    load();
+  }, []);
+
+  // What we actually render: API results if any, otherwise the
+  // hardcoded fallback. The home page must always have a grid
+  // to fill so a transient API hiccup doesn't leave a blank
+  // section.
+  const projects = apiProjects.length > 0 ? apiProjects : fallbackProjects;
 
   const equipment = [
     { name: "Trimble R12i", spec: "RTK GNSS Receiver" },
@@ -330,34 +351,61 @@ const SurveyHomePage = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {projects.map((proj, idx) => (
-            <div 
-              key={idx}
-              className={`observe ${visibleElements.has(`proj-${idx}`) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'} transition-all duration-1000`}
-              data-id={`proj-${idx}`}
-            >
-              <div className="bg-[#e6e6e6] aspect-[4/3] mb-6 relative overflow-hidden group">
-                <img 
-                  src={`https://coresg-normal.trae.ai/api/ide/v1/text_to_image?prompt=Architectural%20minimalist%20topographic%20map%20rendering%20of%20${encodeURIComponent(proj.title)}%20in%20${encodeURIComponent(proj.location)},%20grayscale,%20clean%20lines&image_size=landscape_4_3`}
-                  alt={proj.title} 
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                />
-                <div className="absolute top-4 left-4 bg-white px-3 py-1 text-[9px] font-bold tracking-widest uppercase">
-                  {proj.type}
+          {projects.map((proj, idx) => {
+            // API rows are an object with `id` (uuid). Fallback
+            // rows have `id: 'fallback-N'` and a string `type`
+            // — we map that to a single-element `tags` array so
+            // the badge below renders the same way.
+            const isFallback = typeof proj.id === 'string' && proj.id.startsWith('fallback-');
+            const tag = (proj.tags && proj.tags[0]) || proj.type || 'Survey';
+            const imgSrc = proj.image_url
+              || `https://coresg-normal.trae.ai/api/ide/v1/text_to_image?prompt=Architectural%20minimalist%20topographic%20map%20rendering%20of%20${encodeURIComponent(proj.title)}%20in%20${encodeURIComponent(proj.location || 'Nigeria')},%20grayscale,%20clean%20lines&image_size=landscape_4_3`;
+
+            const cardInner = (
+                <>
+                    <div className="bg-[#e6e6e6] aspect-[4/3] mb-6 relative overflow-hidden group">
+                        <img
+                            src={imgSrc}
+                            alt={proj.title}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                        />
+                        <div className="absolute top-4 left-4 bg-white px-3 py-1 text-[9px] font-bold tracking-widest uppercase">
+                            {tag}
+                        </div>
+                    </div>
+                    <div className="flex justify-between items-start border-b border-gray-300 pb-4">
+                        <div>
+                            <h3 className="survey-heading text-xl font-black uppercase tracking-tight mb-2">{proj.title}</h3>
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">{proj.location || 'Nigeria'}</p>
+                        </div>
+                        {proj.area ? (
+                            <div className="text-right">
+                                <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Area</p>
+                                <p className="text-sm font-black tracking-widest uppercase">{proj.area}</p>
+                            </div>
+                        ) : (
+                            <ArrowUpRight className="w-5 h-5 text-gray-500 group-hover:text-black transition-colors" />
+                        )}
+                    </div>
+                </>
+            );
+
+            return (
+                <div
+                    key={proj.id || idx}
+                    className={`observe ${visibleElements.has(`proj-${idx}`) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'} transition-all duration-1000`}
+                    data-id={`proj-${idx}`}
+                >
+                    {isFallback ? (
+                        <div className="block">{cardInner}</div>
+                    ) : (
+                        <Link to={`/survey/projects/${proj.id}`} className="block group">
+                            {cardInner}
+                        </Link>
+                    )}
                 </div>
-              </div>
-              <div className="flex justify-between items-start border-b border-gray-300 pb-4">
-                <div>
-                  <h3 className="survey-heading text-xl font-black uppercase tracking-tight mb-2">{proj.title}</h3>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">{proj.location}</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Area</p>
-                  <p className="text-sm font-black tracking-widest uppercase">{proj.area}</p>
-                </div>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </section>
 

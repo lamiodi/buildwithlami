@@ -16,6 +16,8 @@ const ProjectDetailPage = React.lazy(() => import('./pages/ProjectDetailPage'));
 const NotFoundPage = React.lazy(() => import('./pages/NotFoundPage'));
 const SurveyHomePage = React.lazy(() => import('./pages/survey/SurveyHomePage'));
 const DroneHomePage = React.lazy(() => import('./pages/drone/DroneHomePage'));
+const SurveyProjectDetailPage = React.lazy(() => import('./pages/survey/SurveyProjectDetailPage'));
+const DroneProjectDetailPage = React.lazy(() => import('./pages/drone/DroneProjectDetailPage'));
 import ThemeToast from './components/ThemeToast';
 const AdminClientProjects = React.lazy(() => import('./pages/admin/AdminClientProjects'));
 const AdminClients = React.lazy(() => import('./pages/admin/AdminClients'));
@@ -32,11 +34,9 @@ const AdminContracts = React.lazy(() => import('./pages/admin/AdminContracts'));
 const AdminTwoFactorSetup = React.lazy(() => import('./pages/admin/AdminTwoFactorSetup'));
 const AdminCRM = React.lazy(() => import('./pages/admin/AdminCRM'));
 const AdminEmailTemplates = React.lazy(() => import('./pages/admin/AdminEmailTemplates'));
-const AdminCMS = React.lazy(() => import('./pages/admin/AdminCMS'));
-const AdminTestimonials = React.lazy(() => import('./pages/admin/AdminTestimonials'));
-const AdminEquipment = React.lazy(() => import('./pages/admin/AdminEquipment'));
-const AdminIndustries = React.lazy(() => import('./pages/admin/AdminIndustries'));
 const AdminHelp = React.lazy(() => import('./pages/admin/AdminHelp'));
+const AdminResources = React.lazy(() => import('./pages/admin/AdminResources'));
+const AdminPricing = React.lazy(() => import('./pages/admin/AdminPricing'));
 const AdminPaymentQueue = React.lazy(() => import('./pages/admin/AdminPaymentQueue'));
 const PaymentPage = React.lazy(() => import('./pages/PaymentPage'));
 const ResourcesPage = React.lazy(() => import('./pages/ResourcesPage'));
@@ -131,7 +131,7 @@ function App() {
     return () => clearTimeout(t);
   }, [showPreloader]);
 
-  if (showPreloader && !preloaderTimedOut) {
+  if (showPreloader && !preloaderTimedOut && !location.pathname.startsWith('/admin')) {
     try {
       return <Preloader onComplete={() => setShowPreloader(false)} />;
     } catch (err) {
@@ -141,7 +141,13 @@ function App() {
   }
 
   // Determine if the current route should hide the global Navbar and Footer
-  const hideGlobalLayout = location.pathname === '/drone' || location.pathname === '/survey' || location.pathname.startsWith('/admin') || location.pathname === '/login';
+  const hideGlobalLayout =
+    location.pathname === '/drone' ||
+    location.pathname === '/survey' ||
+    location.pathname.startsWith('/drone/projects') ||
+    location.pathname.startsWith('/survey/projects') ||
+    location.pathname.startsWith('/admin') ||
+    location.pathname === '/login';
 
   return (
     <AuthProvider>
@@ -149,7 +155,7 @@ function App() {
       <ErrorBoundary>
         {!hideGlobalLayout && <Navbar isDark={isDark} toggleTheme={toggleTheme} />}
         <main>
-          <Suspense fallback={<Preloader />}>
+          <Suspense fallback={location.pathname.startsWith('/admin') ? <div className="min-h-[60vh] flex items-center justify-center"><div className="w-8 h-8 rounded-full border-2 border-accent border-t-transparent animate-spin" /></div> : <Preloader />}>
             <AnimatePresence mode="wait">
               <Routes location={location} key={location.pathname}>
                 <Route path="/" element={<PageWrapper><HomePage /></PageWrapper>} />
@@ -162,17 +168,17 @@ function App() {
                 <Route path="/services" element={<PageWrapper><ServicesPage /></PageWrapper>} />
                 <Route path="/projects/:id" element={<PageWrapper><ProjectDetailPage /></PageWrapper>} />
                 <Route path="/survey" element={<PageWrapper><SurveyHomePage /></PageWrapper>} />
+                <Route path="/survey/projects/:id" element={<PageWrapper><SurveyProjectDetailPage /></PageWrapper>} />
                 <Route path="/drone" element={<PageWrapper><DroneHomePage /></PageWrapper>} />
+                <Route path="/drone/projects/:id" element={<PageWrapper><DroneProjectDetailPage /></PageWrapper>} />
                 
                 {/* Admin Routes — Protected by JWT verification */}
                 <Route path="/admin" element={<ProtectedRoute><AdminLayout isDark={isDark} toggleTheme={toggleTheme} /></ProtectedRoute>}>
                   <Route index element={<AdminDashboard />} />
                   <Route path="crm" element={<AdminCRM />} />
                   <Route path="email-templates" element={<AdminEmailTemplates />} />
-                  <Route path="cms" element={<AdminCMS />} />
-                  <Route path="testimonials" element={<AdminTestimonials />} />
-                  <Route path="equipment" element={<AdminEquipment />} />
-                  <Route path="industries" element={<AdminIndustries />} />
+                  <Route path="resources" element={<AdminResources />} />
+                  <Route path="pricing" element={<AdminPricing />} />
                   {/* Phase 6 — workspace-scoped admin pages */}
                   <Route path="survey/bookings" element={<AdminSurveyBookings />} />
                   <Route path="survey/projects" element={<AdminSurveyProjects />} />

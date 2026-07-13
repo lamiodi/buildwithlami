@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import { motion, useReducedMotion } from 'framer-motion';
 import CheckIcon from './CheckIcon';
 import { api } from '../services/api';
-import fallbackProjects from '../data/fallbackProjects';
 import { ProjectCardSkeleton, SkeletonTransition } from './Skeleton';
 import { staggerContainer, fadeUpItem, cardHover, cardHoverTransition, buttonHover, buttonTap, sectionViewport, reducedMotionVariants } from '../utils/motion';
 
@@ -16,11 +15,11 @@ const Projects = () => {
 
   useEffect(() => {
     const fetchProjects = async () => {
-      const res = await api.get('/projects');
-      if (res.ok && res.data && res.data.length > 0) {
+      // Home page section is software-only; survey and drone
+      // have their own home pages.
+      const res = await api.get('/projects/division/SOFTWARE');
+      if (res.ok && Array.isArray(res.data) && res.data.length > 0) {
         setProjects(res.data);
-      } else {
-        setProjects(fallbackProjects);
       }
       setLoading(false);
     };
@@ -28,9 +27,20 @@ const Projects = () => {
     fetchProjects();
   }, []);
 
-  const featuredProject = projects.length > 0 ? projects[0] : fallbackProjects[0];
+  // Show a short skeleton if the API is empty / slow. We
+  // intentionally do not fall back to a hardcoded list — the
+  // home page is now driven entirely by the admin-managed
+  // `projects` table.
+  const hasContent = projects.length > 0;
 
-  const moreProjects = projects.length > 1 ? projects.slice(1, 4) : fallbackProjects.slice(1, 4);
+  const featuredProject = hasContent ? projects[0] : null;
+  const moreProjects = hasContent ? projects.slice(1, 4) : [];
+
+  // The home page is now driven by the admin-managed `projects`
+  // table. If there are no published software projects yet we
+  // render nothing rather than the legacy hardcoded list — see
+  // /admin/portfolio → New Project → division SOFTWARE.
+  if (!loading && !hasContent) return null;
 
   return (
     <section id="projects" className="px-6 md:px-12 max-w-7xl mx-auto py-24">

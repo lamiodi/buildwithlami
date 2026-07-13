@@ -11,8 +11,13 @@ const AdminPortfolio = () => {
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [editingProject, setEditingProject] = useState(null);
     const [formData, setFormData] = useState({
-        title: '', slug: '', summary: '', content: '', image_url: '', live_url: '', repo_url: '', division: 'SOFTWARE', status: 'DRAFT'
+        title: '', slug: '', summary: '', content: '',
+        image_url: '', live_url: '', repo_url: '',
+        division: 'SOFTWARE', status: 'DRAFT',
+        location: '', client_name: '',
+        display_order: 0, tags: [],
     });
+    const [tagsInput, setTagsInput] = useState('');
     const [uploading, setUploading] = useState(false);
     const [divisionFilter, setDivisionFilter] = useState('all');
     const [apiProjects, setApiProjects] = useState([]);
@@ -50,13 +55,23 @@ const AdminPortfolio = () => {
                 live_url: project.live_url || '',
                 repo_url: project.repo_url || '',
                 division: project.division || 'SOFTWARE',
-                status: project.status || 'DRAFT'
+                status: project.status || 'DRAFT',
+                location: project.location || '',
+                client_name: project.client_name || '',
+                display_order: project.display_order || 0,
+                tags: project.tags || [],
             });
+            setTagsInput((project.tags || []).join(', '));
         } else {
             setEditingProject(null);
             setFormData({
-                title: '', slug: '', summary: '', content: '', image_url: '', live_url: '', repo_url: '', division: 'SOFTWARE', status: 'DRAFT'
+                title: '', slug: '', summary: '', content: '',
+                image_url: '', live_url: '', repo_url: '',
+                division: 'SOFTWARE', status: 'DRAFT',
+                location: '', client_name: '',
+                display_order: 0, tags: [],
             });
+            setTagsInput('');
         }
         setIsEditModalOpen(true);
     };
@@ -90,9 +105,27 @@ const AdminPortfolio = () => {
         e.preventDefault();
         try {
             const url = editingProject ? `/projects/${editingProject}` : '/projects';
-            const res = editingProject 
-                ? await api.put(url, formData)
-                : await api.post(url, formData);
+            const payload = {
+                ...formData,
+                // Convert comma-separated tags input into the
+                // array the API expects. Trim + drop empties so
+                // accidental double-spaces don't create blanks.
+                tags: tagsInput
+                    .split(',')
+                    .map((t) => t.trim())
+                    .filter(Boolean),
+                // Empty string → null so the URL validator
+                // doesn't reject the empty form.
+                image_url: formData.image_url || null,
+                live_url: formData.live_url || null,
+                repo_url: formData.repo_url || null,
+                location: formData.location || null,
+                client_name: formData.client_name || null,
+                display_order: Number(formData.display_order) || 0,
+            };
+            const res = editingProject
+                ? await api.put(url, payload)
+                : await api.post(url, payload);
 
             if (!res.ok) throw new Error(res.error || 'Failed to save project');
             await fetchProjects();
@@ -219,6 +252,28 @@ const AdminPortfolio = () => {
                                 <div>
                                     <label className="block text-sm font-bold mb-1">Summary</label>
                                     <textarea value={formData.summary} onChange={e => setFormData({...formData, summary: e.target.value})} className="w-full p-2 rounded-lg border dark:border-gray-800 bg-transparent" rows={2} />
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-sm font-bold mb-1">Location <span className="text-gray-400 font-normal text-xs">(Survey / Drone)</span></label>
+                                        <input value={formData.location} onChange={e => setFormData({...formData, location: e.target.value})} className="w-full p-2 rounded-lg border dark:border-gray-800 bg-transparent" placeholder="e.g. Lagos, Nigeria" />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-bold mb-1">Client / Site Name</label>
+                                        <input value={formData.client_name} onChange={e => setFormData({...formData, client_name: e.target.value})} className="w-full p-2 rounded-lg border dark:border-gray-800 bg-transparent" />
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-sm font-bold mb-1">Tags <span className="text-gray-400 font-normal text-xs">(comma separated)</span></label>
+                                        <input value={tagsInput} onChange={e => setTagsInput(e.target.value)} className="w-full p-2 rounded-lg border dark:border-gray-800 bg-transparent" placeholder="e.g. aerial-survey, lidar, ncaa" />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-bold mb-1">Display Order</label>
+                                        <input type="number" min="0" value={formData.display_order} onChange={e => setFormData({...formData, display_order: e.target.value})} className="w-full p-2 rounded-lg border dark:border-gray-800 bg-transparent" />
+                                    </div>
                                 </div>
 
                                 <div>

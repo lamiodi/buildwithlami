@@ -40,9 +40,9 @@ export const softwareNav = [
     { to: '/admin/clients', label: 'Clients', icon: Icon.Users },
     { to: '/admin/projects', label: 'Client Projects', icon: Icon.Folder },
     { to: '/admin/portfolio', label: 'Portfolio', icon: Icon.FileText },
+    { to: '/admin/resources', label: 'Resources', icon: Icon.FileText },
+    { to: '/admin/pricing', label: 'Pricing Tiers', icon: Icon.CreditCard },
     { to: '/admin/invoices', label: 'Invoices', icon: Icon.CreditCard },
-    { to: '/admin/cms', label: 'CMS Pages', icon: Icon.FileText },
-    { to: '/admin/testimonials', label: 'Testimonials', icon: Icon.Users },
     { to: '/admin/templates', label: 'Forms & Intake', icon: Icon.FileText },
     { to: '/admin/contracts', label: 'Contracts', icon: Icon.FileText },
     { to: '/admin/reports', label: 'Reports', icon: Icon.BarChart },
@@ -56,7 +56,7 @@ export const softwareNav = [
 export const surveyNav = [
     { to: '/admin/survey/bookings', label: 'Bookings', icon: Icon.Calendar },
     { to: '/admin/survey/projects', label: 'Survey Projects', icon: Icon.Satellite },
-    { to: '/admin/equipment', label: 'Equipment', icon: Icon.Folder },
+    { to: '/admin/portfolio', label: 'Portfolio', icon: Icon.FileText },
     { to: '/admin/clients', label: 'Clients', icon: Icon.Users },
     { to: '/admin/invoices', label: 'Invoices', icon: Icon.CreditCard },
 ];
@@ -67,8 +67,7 @@ export const surveyNav = [
 export const droneNav = [
     { to: '/admin/drone/bookings', label: 'Bookings', icon: Icon.Calendar },
     { to: '/admin/drone/missions', label: 'Flight Missions', icon: Icon.Plane },
-    { to: '/admin/equipment', label: 'Equipment', icon: Icon.Folder },
-    { to: '/admin/industries', label: 'Industries', icon: Icon.BarChart },
+    { to: '/admin/portfolio', label: 'Portfolio', icon: Icon.FileText },
     { to: '/admin/clients', label: 'Clients', icon: Icon.Users },
     { to: '/admin/invoices', label: 'Invoices', icon: Icon.CreditCard },
 ];

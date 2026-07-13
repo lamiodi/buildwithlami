@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import { Search, User, ShoppingBag, Menu, Crosshair, Target, Camera, ArrowRight, ArrowUpRight, Plus, Minus, Mail, Phone, MapPin } from 'lucide-react';
 import { api } from '../../services/api';
 
@@ -88,12 +89,25 @@ const DroneHomePage = () => {
     { icon: '🏛️', number: '09', title: '3D Modelling & Visualisation', description: 'Photorealistic 3D models of structures and terrain for planning, analysis, and virtual tours.' },
   ];
 
-  const portfolio = [
-    { title: "Lekki Coastal Mapping", category: "Surveying", location: "Lagos, Nigeria", year: "2025" },
-    { title: "Dangote Refinery Inspection", category: "Inspection", location: "Lekki, Nigeria", year: "2025" },
-    { title: "Lulu Island Event Coverage", category: "Photography", location: "Lagos, Nigeria", year: "2024" },
-    { title: "Kogi Agricultural Survey", category: "Agriculture", location: "Kogi, Nigeria", year: "2024" },
+  const fallbackPortfolio = [
+    { id: 'fallback-1', title: "Lekki Coastal Mapping",      summary: 'Orthomosaic survey of the coastal corridor', category: "Surveying",    location: "Lagos, Nigeria", year: "2025" },
+    { id: 'fallback-2', title: "Dangote Refinery Inspection", summary: 'Close-range thermal inspection of pipework', category: "Inspection",  location: "Lekki, Nigeria", year: "2025" },
+    { id: 'fallback-3', title: "Lulu Island Event Coverage",  summary: 'Cinematic 4K aerial coverage of the festival', category: "Photography", location: "Lagos, Nigeria", year: "2024" },
+    { id: 'fallback-4', title: "Kogi Agricultural Survey",    summary: 'NDVI crop health mapping across 1,200 Ha',    category: "Agriculture",  location: "Kogi, Nigeria", year: "2024" },
   ];
+
+  // Live projects fetched from /api/projects/division/DRONE.
+  // Only PUBLISHED rows come back; see projectRoutes.js.
+  const [apiPortfolio, setApiPortfolio] = useState([]);
+  useEffect(() => {
+    const load = async () => {
+      const res = await api.get('/projects/division/DRONE');
+      if (res.ok && Array.isArray(res.data)) setApiPortfolio(res.data);
+    };
+    load();
+  }, []);
+
+  const portfolio = apiPortfolio.length > 0 ? apiPortfolio : fallbackPortfolio;
 
   const fleet = [
     { name: "DJI Matrice 350", spec: "RTK / LiDAR" },
@@ -330,35 +344,57 @@ const DroneHomePage = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {portfolio.map((proj, idx) => (
-              <div 
-                key={idx}
-                className={`drone-observe group relative overflow-hidden bg-white rounded-[2rem] border border-gray-100 hover:shadow-2xl transition-all duration-500 ${visibleElements.has(`proj-${idx}`) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
-                data-id={`proj-${idx}`}
-                style={{ transitionDelay: `${idx * 100}ms` }}
-              >
-                <div className="relative h-72 overflow-hidden rounded-t-[2rem]">
-                  <img 
-                    src={`https://coresg-normal.trae.ai/api/ide/v1/text_to_image?prompt=Aerial%20drone%20shot%20of%20${encodeURIComponent(proj.title)},%20${encodeURIComponent(proj.category)},%20photorealistic,%20cinematic%20lighting&image_size=landscape_4_3`}
-                    alt={proj.title} 
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
-                  />
-                  <div className="absolute top-4 left-4 bg-white text-black px-3 py-1 text-[10px] font-bold uppercase tracking-widest rounded-full">
-                    {proj.category}
+            {portfolio.map((proj, idx) => {
+              const isFallback = typeof proj.id === 'string' && proj.id.startsWith('fallback-');
+              const tag = (proj.tags && proj.tags[0]) || proj.category || 'Drone';
+              const year = proj.year || (proj.published_at ? new Date(proj.published_at).getFullYear() : '');
+              const imgSrc = proj.image_url
+                || `https://coresg-normal.trae.ai/api/ide/v1/text_to_image?prompt=Aerial%20drone%20shot%20of%20${encodeURIComponent(proj.title)},%20${encodeURIComponent(tag)},%20photorealistic,%20cinematic%20lighting&image_size=landscape_4_3`;
+
+              const cardInner = (
+                <>
+                  <div className="relative h-72 overflow-hidden rounded-t-[2rem]">
+                    <img
+                      src={imgSrc}
+                      alt={proj.title}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                    />
+                    <div className="absolute top-4 left-4 bg-white text-black px-3 py-1 text-[10px] font-bold uppercase tracking-widest rounded-full">
+                      {tag}
+                    </div>
+                    {!isFallback && (
+                      <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-sm text-white w-10 h-10 flex items-center justify-center rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                        <ArrowUpRight className="w-4 h-4" />
+                      </div>
+                    )}
                   </div>
-                  <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-sm text-white w-10 h-10 flex items-center justify-center rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                    <ArrowUpRight className="w-4 h-4" />
+                  <div className="p-6 flex justify-between items-start">
+                    <div>
+                      <h3 className="drone-heading text-lg font-black text-gray-900 mb-1">{proj.title}</h3>
+                      <p className="text-xs text-gray-500 font-medium">{proj.location || 'Nigeria'}</p>
+                    </div>
+                    {year && <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">{year}</p>}
                   </div>
+                </>
+              );
+
+              return (
+                <div
+                  key={proj.id || idx}
+                  className={`drone-observe group relative overflow-hidden bg-white rounded-[2rem] border border-gray-100 hover:shadow-2xl transition-all duration-500 ${visibleElements.has(`proj-${idx}`) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
+                  data-id={`proj-${idx}`}
+                  style={{ transitionDelay: `${idx * 100}ms` }}
+                >
+                  {isFallback ? (
+                    <div className="block">{cardInner}</div>
+                  ) : (
+                    <Link to={`/drone/projects/${proj.id}`} className="block">
+                      {cardInner}
+                    </Link>
+                  )}
                 </div>
-                <div className="p-6 flex justify-between items-start">
-                  <div>
-                    <h3 className="drone-heading text-lg font-black text-gray-900 mb-1">{proj.title}</h3>
-                    <p className="text-xs text-gray-500 font-medium">{proj.location}</p>
-                  </div>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">{proj.year}</p>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </section>
 

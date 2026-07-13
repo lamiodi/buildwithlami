@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, useReducedMotion } from 'framer-motion';
 import { api } from '../services/api';
-import fallbackProjects from '../data/fallbackProjects';
 import { CONTACT } from '../config/contact';
 import { ProjectCardSkeleton, SkeletonTransition } from '../components/Skeleton';
 import { staggerContainer, fadeUpItem, cardHover, cardHoverTransition, buttonHover, buttonTap, sectionViewport, reducedMotionVariants } from '../utils/motion';
@@ -24,13 +23,11 @@ const ProjectsPage = () => {
     if (metaDesc) {
       metaDesc.setAttribute("content", "Explore a curated collection of selected works by Eugene Odibenuah, ranging from full-stack ERP systems to premium e-commerce ecosystems and professional portals.");
     }
+    // Public /projects page is software-only — survey/drone
+    // have their own division pages.
     const fetchProjects = async () => {
-      const res = await api.get('/projects');
-      if (res.ok && res.data && res.data.length > 0) {
-        setProjects(res.data);
-      } else {
-        setProjects(fallbackProjects);
-      }
+      const res = await api.get('/projects/division/SOFTWARE');
+      if (res.ok && Array.isArray(res.data)) setProjects(res.data);
       setLoading(false);
     };
     fetchProjects();

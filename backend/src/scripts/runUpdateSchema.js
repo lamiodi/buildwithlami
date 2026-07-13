@@ -45,6 +45,10 @@ const MIGRATIONS = [
     'v22_normalize_admin_roles.sql',
     'v23_jsonb_gin_indexes.sql',
     'v24_pages_division.sql',
+    'v25_drop_cms.sql',
+    'v26_portfolio_fields.sql',
+    'v27_portfolio_polish.sql',
+    'v28_resources_pricing.sql',
 ];
 
 const run = async () => {

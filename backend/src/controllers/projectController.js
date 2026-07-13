@@ -19,12 +19,16 @@ const createProjectSchema = z.object({
     summary: z.string().optional(),
     content: z.string().optional(),
     tech_stack: z.array(z.string()).optional(),
-    image_url: z.string().url().optional(),
-    live_url: z.string().url().optional(),
-    repo_url: z.string().url().optional(),
+    image_url: z.string().url().optional().or(z.literal('')),
+    live_url: z.string().url().optional().or(z.literal('')),
+    repo_url: z.string().url().optional().or(z.literal('')),
     division: z.enum(['SOFTWARE', 'SURVEY', 'DRONE']).default('SOFTWARE'),
     featured: z.boolean().optional(),
-    status: z.enum(['DRAFT', 'PUBLISHED', 'ARCHIVED']).optional()
+    status: z.enum(['DRAFT', 'PUBLISHED', 'ARCHIVED']).optional(),
+    location: z.string().optional().nullable(),
+    client_name: z.string().optional().nullable(),
+    display_order: z.number().int().optional().default(0),
+    tags: z.array(z.string()).optional().default([]),
 });
 
 const updateProjectSchema = z.object({
@@ -33,12 +37,16 @@ const updateProjectSchema = z.object({
     summary: z.string().optional().nullable(),
     content: z.string().optional().nullable(),
     tech_stack: z.array(z.string()).optional().nullable(),
-    image_url: z.string().url().optional().nullable(),
-    live_url: z.string().url().optional().nullable(),
-    repo_url: z.string().url().optional().nullable(),
+    image_url: z.string().url().optional().nullable().or(z.literal('')),
+    live_url: z.string().url().optional().nullable().or(z.literal('')),
+    repo_url: z.string().url().optional().nullable().or(z.literal('')),
     division: z.enum(['SOFTWARE', 'SURVEY', 'DRONE']).optional(),
     featured: z.boolean().optional(),
-    status: z.enum(['DRAFT', 'PUBLISHED', 'ARCHIVED']).optional()
+    status: z.enum(['DRAFT', 'PUBLISHED', 'ARCHIVED']).optional(),
+    location: z.string().optional().nullable(),
+    client_name: z.string().optional().nullable(),
+    display_order: z.number().int().optional(),
+    tags: z.array(z.string()).optional(),
 });
 
 // ── List all projects ────────────────────────────────────
@@ -84,7 +92,19 @@ export async function getProjectById(req, res) {
     try {
         if (!validateUUID(req.params.id, res)) return;
 
-        const { rows } = await pool.query(`SELECT * FROM projects WHERE id = $1`, [req.params.id]);
+        // Public read: only PUBLISHED rows. Admins (Owner /
+        // Administrator / Project Manager / Finance) can read
+        // any status — the route layer enforces auth before
+        // hitting this branch, so unauthenticated callers can
+        // only see PUBLISHED content.
+        const privRoles = ['Owner', 'Administrator', 'Project Manager', 'Finance'];
+        const isPrivileged = req.user && privRoles.includes(req.user.role);
+        const whereStatus = isPrivileged ? '' : `AND status = 'PUBLISHED'`;
+
+        const { rows } = await pool.query(
+            `SELECT * FROM projects WHERE id = $1 ${whereStatus}`,
+            [req.params.id]
+        );
         if (rows.length === 0) return res.status(404).json({ error: 'Project not found.' });
 
         return res.json(rows[0]);
@@ -111,9 +131,16 @@ export async function createProject(req, res) {
     try {
         const data = createProjectSchema.parse(req.body);
         const { rows } = await pool.query(
-            `INSERT INTO projects (title, slug, summary, content, tech_stack, image_url, live_url, repo_url, division, featured, status)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-       RETURNING *`,
+            `INSERT INTO projects (
+                title, slug, summary, content, tech_stack,
+                image_url, live_url, repo_url,
+                division, featured, status,
+                location, client_name, display_order, tags,
+                published_at
+            )
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15,
+                    CASE WHEN $11 = 'PUBLISHED' THEN NOW() ELSE NULL END)
+            RETURNING *`,
             [
                 data.title,
                 data.slug,
@@ -125,7 +152,11 @@ export async function createProject(req, res) {
                 data.repo_url || null,
                 data.division || 'SOFTWARE',
                 data.featured ?? false,
-                data.status || 'DRAFT'
+                data.status || 'DRAFT',
+                data.location || null,
+                data.client_name || null,
+                data.display_order ?? 0,
+                data.tags || [],
             ]
         );
         return res.status(201).json(rows[0]);
@@ -152,6 +183,16 @@ export async function updateProject(req, res) {
         }
 
         if (fields.length === 0) return res.status(400).json({ error: 'No fields to update.' });
+
+        // Maintain published_at: stamp it the first time the row
+        // becomes PUBLISHED; clear it on ARCHIVED.
+        fields.push(`published_at = CASE
+            WHEN $${idx}::text = 'PUBLISHED' AND published_at IS NULL THEN NOW()
+            WHEN $${idx}::text IN ('DRAFT', 'ARCHIVED') THEN NULL
+            ELSE published_at
+        END`);
+        values.push(data.status ?? 'DRAFT');
+        idx++;
 
         fields.push(`updated_at = NOW()`);
         values.push(req.params.id);
