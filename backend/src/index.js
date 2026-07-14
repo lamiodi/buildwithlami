@@ -34,7 +34,6 @@ import divisionRoutes from './routes/divisionRoutes.js';
 import contractRoutes from './routes/contractRoutes.js';
 import fxRateRoutes from './routes/fxRateRoutes.js';
 import paymentRoutes from './routes/paymentRoutes.js';
-import pricingRoutes from './routes/pricingRoutes.js';
 import pool from './config/db.js';
 import { startCronJobs } from './services/cronService.js';
 
@@ -145,11 +144,6 @@ app.use('/api/fx-rates', apiLimiter, fxRateRoutes);
 // bank transfers + manual proof review). The /public/* routes
 // are intentionally unauthenticated — the URL token is the auth.
 app.use('/api/payments', apiLimiter, paymentRoutes);
-
-// Marketing pricing tiers. Public reads (PUBLISHED only) on
-// /api/pricing — admin CRUD endpoints live behind verifyToken
-// + requireRole in the router itself.
-app.use('/api/pricing', apiLimiter, pricingRoutes);
 
 // ── 404 fallback ─────────────────────────────────────────
 app.use((_req, res) => {

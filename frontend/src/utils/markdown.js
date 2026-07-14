@@ -15,9 +15,8 @@
 // applied, so user input never produces live HTML/JS. The only
 // exception is the final link `href` — that is also escaped.
 //
-// This is the public-facing renderer used by the division
-// project detail pages (Survey, Drone) and by AdminPortfolio
-// when previewing a project body. Admin editing uses a plain
+// This is the public-facing renderer used by /resources,
+// /portfolio, and /pricing. Admin editing uses a plain
 // `<textarea>` with a "Preview" button that reuses the same
 // function.
 // ──────────────────────────────────────────────────────────

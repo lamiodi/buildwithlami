@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion, useReducedMotion } from 'framer-motion';
 import CheckIcon from './CheckIcon';
 import { api } from '../services/api';
+import fallbackProjects from '../data/fallbackProjects';
 import { ProjectCardSkeleton, SkeletonTransition } from './Skeleton';
 import { staggerContainer, fadeUpItem, cardHover, cardHoverTransition, buttonHover, buttonTap, sectionViewport, reducedMotionVariants } from '../utils/motion';
 
@@ -15,11 +16,11 @@ const Projects = () => {
 
   useEffect(() => {
     const fetchProjects = async () => {
-      // Home page section is software-only; survey and drone
-      // have their own home pages.
-      const res = await api.get('/projects/division/SOFTWARE');
-      if (res.ok && Array.isArray(res.data) && res.data.length > 0) {
+      const res = await api.get('/projects');
+      if (res.ok && res.data && res.data.length > 0) {
         setProjects(res.data);
+      } else {
+        setProjects(fallbackProjects);
       }
       setLoading(false);
     };
@@ -27,40 +28,9 @@ const Projects = () => {
     fetchProjects();
   }, []);
 
-  // Show a short skeleton if the API is empty / slow. We
-  // intentionally do not fall back to a hardcoded list — the
-  // home page is now driven entirely by the admin-managed
-  // `projects` table.
-  const hasContent = projects.length > 0;
-  const featuredProject = hasContent ? projects[0] : null;
-  const moreProjects = hasContent ? projects.slice(1, 4) : [];
+  const featuredProject = projects.length > 0 ? projects[0] : fallbackProjects[0];
 
-  // The home page is now driven by the admin-managed `projects`
-  // table. If there are no published software projects yet we
-  // render nothing rather than the legacy hardcoded list — see
-  // /admin/portfolio → New Project → division SOFTWARE.
-  if (!loading && !hasContent) return null;
-
-  // While loading OR when no featured project exists yet, show
-  // a skeleton block instead of trying to read .title on null.
-  // The two return paths are split so the children JSX (which
-  // dereferences featuredProject.title) is only ever evaluated
-  // when featuredProject is non-null.
-  if (!featuredProject) {
-    return (
-      <section id="projects" className="px-6 md:px-12 max-w-7xl mx-auto py-24">
-        <h3 className="text-2xl font-heading font-bold mb-8 text-black dark:text-white">Projects</h3>
-        <div className="space-y-16">
-          <ProjectCardSkeleton />
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <ProjectCardSkeleton />
-            <ProjectCardSkeleton />
-            <ProjectCardSkeleton />
-          </div>
-        </div>
-      </section>
-    );
-  }
+  const moreProjects = projects.length > 1 ? projects.slice(1, 4) : fallbackProjects.slice(1, 4);
 
   return (
     <section id="projects" className="px-6 md:px-12 max-w-7xl mx-auto py-24">

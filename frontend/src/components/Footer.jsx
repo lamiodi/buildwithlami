@@ -24,17 +24,14 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* Navigation Links — only live pages. "Projects" lands
-            on /portfolio, the admin-managed showcase that lists
-            software, survey, and drone work. */}
+        {/* Navigation Links */}
         <nav className="flex flex-wrap gap-x-8 gap-y-4 mb-12 text-[11px] md:text-[12px] tracking-[0.5em] font-black uppercase border-b border-white/10 pb-10">
           <Link to="/" className="hover:text-accent transition-colors">Home</Link>
           <Link to="/about" className="hover:text-accent transition-colors">About</Link>
           <Link to="/services" className="hover:text-accent transition-colors">Services</Link>
-          <Link to="/portfolio" className="hover:text-accent transition-colors">Projects</Link>
-          <Link to="/contact" className="hover:text-accent transition-colors">Contact</Link>
-          <Link to="/survey" className="hover:text-accent transition-colors">Survey</Link>
-          <Link to="/drone" className="hover:text-accent transition-colors">Drone</Link>
+          <Link to="/projects" className="hover:text-accent transition-colors">Projects</Link>
+          <Link to="/services#pricing" className="hover:text-accent transition-colors">Pricing</Link>
+          <Link to="/resources" className="hover:text-accent transition-colors">Resources</Link>
         </nav>
 
         {/* Massive Branding Headline — clamp(min, vw, max) + nowrap = one line always */}

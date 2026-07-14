@@ -3,6 +3,7 @@ import { motion, useReducedMotion } from 'framer-motion';
 import { useParams, Link } from 'react-router-dom';
 import SecurityPopup from '../components/SecurityPopup';
 import { api } from '../services/api';
+import fallbackProjects from '../data/fallbackProjects';
 import { Skeleton, SkeletonTransition } from '../components/Skeleton';
 import { staggerContainer as centralStaggerContainer, fadeUpItem, cardHover, cardHoverTransition, buttonHover, buttonTap, sectionViewport, reducedMotionVariants } from '../utils/motion';
 
@@ -89,7 +90,12 @@ const ProjectDetailPage = () => {
       const res = await api.get(`/projects/${id}`);
       if (res.ok && res.data) {
         setProject(res.data);
+        setLoading(false);
+        return;
       }
+      // Fallback
+      const found = fallbackProjects.find(p => p.id.toString() === id);
+      setProject(found || fallbackProjects[0]);
       setLoading(false);
     };
     fetchProject();
