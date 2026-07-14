@@ -8,7 +8,6 @@ const NAV_LINKS = [
   { name: 'Projects', path: '/projects', type: 'link' },
   { name: 'About', path: '/about', type: 'link' },
   { name: 'Services', path: '/services', type: 'link' },
-  { name: 'Portfolio', path: '/portfolio', type: 'link' },
   { name: 'SaaS Products', path: '#saas', type: 'anchor' },
   { name: 'Pricing', path: '#pricing', type: 'anchor' },
   { name: 'Contact', path: '/contact', type: 'link' },

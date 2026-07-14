@@ -1,10 +1,34 @@
+// ─── src/pages/admin/AdminPortfolio.jsx ─────────────────
+// Workspace-aware portfolio editor.
+//
+//   <AdminPortfolio />                  → /admin/portfolio            (SOFTWARE, all)
+//   <AdminPortfolio lockedDivision="SOFTWARE" />
+//   <AdminPortfolio lockedDivision="SURVEY" />           (via /admin/survey/portfolio)
+//   <AdminPortfolio lockedDivision="DRONE" />            (via /admin/drone/portfolio)
+//
+// When `lockedDivision` is supplied the page:
+//   • hides the top "All Divisions" filter,
+//   • hides the Division select in the create/edit form,
+//   • forces every new / saved item to that division.
+//
+// That keeps each workspace’s portfolio fully isolated, so a
+// Survey manager can only manage Survey showcase items, etc.
+// ──────────────────────────────────────────────────────────
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { api } from '../../services/api';
 
 const API_BASE = import.meta.env.VITE_API_URL || '/api';
 
-const AdminPortfolio = () => {
+const DIVISION_META = {
+    SOFTWARE: { label: 'Software', tone: 'blue' },
+    SURVEY:   { label: 'Survey',   tone: 'amber' },
+    DRONE:    { label: 'Drone',    tone: 'indigo' },
+};
+
+const AdminPortfolio = ({ lockedDivision }) => {
+    const isLocked = Boolean(lockedDivision);
     const [projects, setProjects] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -13,13 +37,15 @@ const AdminPortfolio = () => {
     const [formData, setFormData] = useState({
         title: '', slug: '', summary: '', content: '',
         image_url: '', live_url: '', repo_url: '',
-        division: 'SOFTWARE', status: 'DRAFT',
+        division: lockedDivision || 'SOFTWARE', status: 'DRAFT',
         location: '', client_name: '',
         display_order: 0, tags: [],
     });
     const [tagsInput, setTagsInput] = useState('');
     const [uploading, setUploading] = useState(false);
-    const [divisionFilter, setDivisionFilter] = useState('all');
+    // Filter dropdown is only meaningful in the un-locked view
+    // (i.e. the SOFTWARE workspace's "all divisions" mode).
+    const [divisionFilter, setDivisionFilter] = useState(isLocked ? lockedDivision : 'all');
     const [apiProjects, setApiProjects] = useState([]);
 
     useEffect(() => {
@@ -29,8 +55,14 @@ const AdminPortfolio = () => {
     const fetchProjects = async () => {
         try {
             setLoading(true);
+            // When a workspace locks the page to a single division
+            // we still send `?division=` so the backend never has
+            // to guess — the route is the source of truth, this
+            // just keeps the network call aligned with the UI.
             const params = {};
-            if (divisionFilter !== 'all') {
+            if (isLocked) {
+                params.division = lockedDivision;
+            } else if (divisionFilter !== 'all') {
                 params.division = divisionFilter;
             }
             const res = await api.get('/projects', { params });
@@ -54,7 +86,7 @@ const AdminPortfolio = () => {
                 image_url: project.image_url || '',
                 live_url: project.live_url || '',
                 repo_url: project.repo_url || '',
-                division: project.division || 'SOFTWARE',
+                division: project.division || lockedDivision || 'SOFTWARE',
                 status: project.status || 'DRAFT',
                 location: project.location || '',
                 client_name: project.client_name || '',
@@ -67,7 +99,7 @@ const AdminPortfolio = () => {
             setFormData({
                 title: '', slug: '', summary: '', content: '',
                 image_url: '', live_url: '', repo_url: '',
-                division: 'SOFTWARE', status: 'DRAFT',
+                division: lockedDivision || 'SOFTWARE', status: 'DRAFT',
                 location: '', client_name: '',
                 display_order: 0, tags: [],
             });
@@ -122,6 +154,10 @@ const AdminPortfolio = () => {
                 location: formData.location || null,
                 client_name: formData.client_name || null,
                 display_order: Number(formData.display_order) || 0,
+                // Force the division to the workspace lock so a
+                // stale form value can never let a Survey item
+                // be saved into the Drone grid (or vice versa).
+                division: isLocked ? lockedDivision : (formData.division || 'SOFTWARE'),
             };
             const res = editingProject
                 ? await api.put(url, payload)
@@ -147,28 +183,45 @@ const AdminPortfolio = () => {
     };
 
     const projectList = useMemo(() => {
+        // When the page is locked to a division (Survey or Drone
+        // workspace), the API call already filtered for us, but
+        // we re-filter defensively so a stale cache / race can
+        // never leak a foreign-division row into the grid.
+        if (isLocked) return apiProjects.filter((p) => p.division === lockedDivision);
         if (divisionFilter === 'all') return apiProjects;
         return apiProjects.filter(p => p.division === divisionFilter);
-    }, [apiProjects, divisionFilter]);
+    }, [apiProjects, divisionFilter, isLocked, lockedDivision]);
 
     if (loading) return <div>Loading...</div>;
 
+    const headerTitle = isLocked
+        ? `${DIVISION_META[lockedDivision]?.label || lockedDivision} Portfolio`
+        : 'Portfolio Projects';
+    const headerSubtitle = isLocked
+        ? `Manage the showcase items visible on the public ${DIVISION_META[lockedDivision]?.label || lockedDivision} homepage.`
+        : 'Manage the showcase items visible on the public Software homepage.';
+
     return (
         <div className="space-y-6">
-            <div className="flex justify-between items-center">
-                <h1 className="text-2xl font-bold">Portfolio Projects</h1>
+            <div className="flex justify-between items-center gap-3 flex-wrap">
+                <div>
+                    <h1 className="text-2xl font-bold">{headerTitle}</h1>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{headerSubtitle}</p>
+                </div>
                 <div className="flex gap-2 items-center">
-                    <select
-                        value={divisionFilter}
-                        onChange={(e) => setDivisionFilter(e.target.value)}
-                        className="px-3 py-2 rounded-lg border dark:border-gray-800 bg-transparent text-sm font-bold"
-                    >
-                        <option value="all">All Divisions</option>
-                        <option value="SOFTWARE">Software</option>
-                        <option value="SURVEY">Survey</option>
-                        <option value="DRONE">Drone</option>
-                    </select>
-                    <button 
+                    {!isLocked && (
+                        <select
+                            value={divisionFilter}
+                            onChange={(e) => setDivisionFilter(e.target.value)}
+                            className="px-3 py-2 rounded-lg border dark:border-gray-800 bg-transparent text-sm font-bold"
+                        >
+                            <option value="all">All Divisions</option>
+                            <option value="SOFTWARE">Software</option>
+                            <option value="SURVEY">Survey</option>
+                            <option value="DRONE">Drone</option>
+                        </select>
+                    )}
+                    <button
                         onClick={() => handleOpenEdit()}
                         className="px-4 py-2 bg-blue-600 text-white rounded-lg font-bold"
                     >
@@ -231,14 +284,33 @@ const AdminPortfolio = () => {
                                     </div>
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block text-sm font-bold mb-1">Division</label>
-                                        <select value={formData.division} onChange={e => setFormData({...formData, division: e.target.value})} className="w-full p-2 rounded-lg border dark:border-gray-800 bg-transparent">
-                                            <option value="SOFTWARE">Software</option>
-                                            <option value="SURVEY">Survey</option>
-                                            <option value="DRONE">Drone</option>
-                                        </select>
-                                    </div>
+                                    {isLocked ? (
+                                        // Locked view: division is fixed by the
+                                        // workspace, so we just show a read-only
+                                        // pill. The save handler below also
+                                        // forces the value back to the lock.
+                                        <div>
+                                            <label className="block text-sm font-bold mb-1">Division</label>
+                                            <div className={`w-full p-2 rounded-lg border dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-sm font-bold flex items-center gap-2`}>
+                                                <span className={`w-2 h-2 rounded-full ${
+                                                    lockedDivision === 'SURVEY' ? 'bg-amber-500' :
+                                                    lockedDivision === 'DRONE'  ? 'bg-indigo-500' :
+                                                                                 'bg-blue-500'
+                                                }`} />
+                                                {DIVISION_META[lockedDivision]?.label || lockedDivision}
+                                                <span className="ml-auto text-[10px] uppercase tracking-widest text-gray-400">locked</span>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div>
+                                            <label className="block text-sm font-bold mb-1">Division</label>
+                                            <select value={formData.division} onChange={e => setFormData({...formData, division: e.target.value})} className="w-full p-2 rounded-lg border dark:border-gray-800 bg-transparent">
+                                                <option value="SOFTWARE">Software</option>
+                                                <option value="SURVEY">Survey</option>
+                                                <option value="DRONE">Drone</option>
+                                            </select>
+                                        </div>
+                                    )}
                                     <div>
                                         <label className="block text-sm font-bold mb-1">Status</label>
                                         <select value={formData.status} onChange={e => setFormData({...formData, status: e.target.value})} className="w-full p-2 rounded-lg border dark:border-gray-800 bg-transparent">

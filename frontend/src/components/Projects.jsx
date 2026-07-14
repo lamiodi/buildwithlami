@@ -16,7 +16,9 @@ const Projects = () => {
 
   useEffect(() => {
     const fetchProjects = async () => {
-      const res = await api.get('/projects');
+      // Software-division scoped feed — keeps the homepage
+      // showcase isolated from the Survey and Drone divisions.
+      const res = await api.get('/projects/division/SOFTWARE');
       if (res.ok && res.data && res.data.length > 0) {
         setProjects(res.data);
       } else {
