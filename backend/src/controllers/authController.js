@@ -4,6 +4,15 @@ import { z } from 'zod';
 import pool from '../config/db.js';
 import { canonicalRole, divisionsForRole } from '../config/roles.js';
 
+// Cookie options for HttpOnly JWT cookie
+const COOKIE_OPTIONS = {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    maxAge: 30 * 60 * 1000, // 30 minutes (matches JWT_EXPIRES_IN)
+    path: '/'
+};
+
 // ── Validation Schemas ───────────────────────────────────
 const loginSchema = z.object({
     email: z.string().email(),
@@ -65,6 +74,9 @@ export async function login(req, res) {
             process.env.JWT_SECRET,
             { expiresIn: process.env.JWT_EXPIRES_IN || '30m' },
         );
+
+        // Set HttpOnly cookie for browser clients
+        res.cookie('access_token', token, COOKIE_OPTIONS);
 
         return res.json({ token, user: { id: user.id, email: user.email, role: user.role, divisions: divisionsForRole(user.role) } });
     } catch (err) {
@@ -151,6 +163,10 @@ export async function refresh(req, res) {
         process.env.JWT_SECRET,
         { expiresIn: process.env.JWT_EXPIRES_IN || '30m' },
     );
+    
+    // Set HttpOnly cookie for browser clients
+    res.cookie('access_token', token, COOKIE_OPTIONS);
+    
     return res.json({
         token,
         user: { id: req.user.id, email: req.user.email, role: req.user.role, divisions: divisionsForRole(req.user.role) },

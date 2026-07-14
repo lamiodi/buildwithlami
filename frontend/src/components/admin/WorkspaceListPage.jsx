@@ -42,22 +42,48 @@ const WorkspaceListPage = ({
     columns,
     searchFields = ['title', 'name', 'full_name', 'client_name', 'service', 'location', 'email', 'summary'],
     extraParams = {},
+    limit = 50,
 }) => {
     const [items, setItems] = useState([]);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
     const [error, setError] = useState(null);
+    const [page, setPage] = useState(1);
+    const [pagination, setPagination] = useState({
+        page: 1,
+        limit,
+        total: 0,
+        totalPages: 1,
+        hasMore: false
+    });
 
     const fetch = async () => {
         setLoading(true);
         setError(null);
-        const res = await api.get(endpoint, { params: extraParams });
-        if (res.ok) setItems(Array.isArray(res.data) ? res.data : []);
-        else setError(res.error || 'Failed to load.');
+        const res = await api.get(endpoint, { params: { ...extraParams, page, limit: pagination.limit } });
+        if (res.ok) {
+            // Handle both old format (array) and new format (object with data + pagination)
+            if (Array.isArray(res.data)) {
+                setItems(res.data);
+            } else {
+                setItems(res.data.data || []);
+                if (res.data.pagination) {
+                    setPagination(prev => ({ ...prev, ...res.data.pagination }));
+                }
+            }
+        } else {
+            setError(res.error || 'Failed to load.');
+            setItems([]);
+        }
         setLoading(false);
     };
 
-    useEffect(() => { fetch(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [endpoint, JSON.stringify(extraParams)]);
+    useEffect(() => { fetch(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [endpoint, JSON.stringify(extraParams), page]);
+
+    // Reset to page 1 when search changes
+    useEffect(() => {
+        setPage(1);
+    }, [search]);
 
     const filtered = useMemo(() => {
         if (!search.trim()) return items;
@@ -149,8 +175,33 @@ const WorkspaceListPage = ({
                 )}
             </div>
 
+            {/* Pagination Controls */}
+            {pagination.totalPages > 1 && (
+                <div className="flex items-center justify-between mt-4 px-2">
+                    <p className="text-xs text-gray-400 font-body">
+                        Page {pagination.page} of {pagination.totalPages} — {pagination.total} total
+                    </p>
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={() => setPage(p => Math.max(1, p - 1))}
+                            disabled={!pagination.hasMore || pagination.page <= 1}
+                            className="px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-accent disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        >
+                            ← Prev
+                        </button>
+                        <button
+                            onClick={() => setPage(p => Math.min(pagination.totalPages, p + 1))}
+                            disabled={!pagination.hasMore || pagination.page >= pagination.totalPages}
+                            className="px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-accent disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        >
+                            Next →
+                        </button>
+                    </div>
+                </div>
+            )}
+            
             <p className="text-xs text-gray-400 mt-3 font-body text-right">
-                Showing {filtered.length} of {items.length}
+                Showing {filtered.length} of {items.length} (page {pagination.page})
             </p>
         </div>
     );

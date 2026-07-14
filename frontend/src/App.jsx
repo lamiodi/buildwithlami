@@ -49,6 +49,7 @@ const ClientIntakeForm = React.lazy(() => import('./pages/ClientIntakeForm'));
 const LoginPage = React.lazy(() => import('./pages/LoginPage'));
 import ProtectedRoute from './components/ProtectedRoute';
 import { AuthProvider } from './contexts/AuthContext';
+import { api } from './services/api.js';
 
 // Page transition wrapper
 const PageWrapper = ({ children }) => {
@@ -69,6 +70,11 @@ function App() {
   const [toastMessage, setToastMessage] = useState(null);
   const [showPreloader, setShowPreloader] = useState(true);
   const location = useLocation();
+
+  // Initialize API client: fetch CSRF token on app start
+  useEffect(() => {
+    api.init();
+  }, []);
 
   // Read theme state from the DOM (set instantly by index.html inline script)
   const [isDark, setIsDark] = useState(() =>
@@ -180,7 +186,7 @@ function App() {
                   <Route path="drone/bookings" element={<AdminDroneBookings />} />
                   <Route path="drone/missions" element={<AdminDroneFlightMissions />} />
                   <Route path="drone/portfolio" element={<AdminPortfolio lockedDivision="DRONE" />} />
-                  <Route path="portfolio" element={<AdminPortfolio />} />
+                  <Route path="portfolio" element={<AdminPortfolio lockedDivision="SOFTWARE" />} />
                   <Route path="projects" element={<AdminClientProjects />} />
                   <Route path="clients" element={<AdminClients />} />
                   <Route path="projects/:id" element={<AdminProjectDetail />} />

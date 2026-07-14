@@ -1,4 +1,27 @@
-@import url('https://fonts.googleapis.com/css2?family=Advent+Pro:ital,wght@0,100..900;1,100..900&family=Space+Grotesk:wght@300..700&family=Caveat:wght@400..700&display=swap');
+/* Global webfont CSS is loaded in index.html with preconnect + preload
+   (avoids blocking the first paint + the FOUT that a CSS @import causes). */
+
+/* Local font fallback so pages render even before the webfont CSS
+   finishes downloading. The @font-face with `local()` lets the
+   browser reuse a system-installed copy of the same family when one
+   exists, then quietly upgrade to the webfont when it arrives. */
+@font-face {
+  font-family: 'Advent Pro Fallback';
+  src: local('Arial'), local('Helvetica'), local('sans-serif');
+  size-adjust: 105%;
+  ascent-override: 92%;
+  descent-override: 24%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: 'Space Grotesk Fallback';
+  src: local('Arial'), local('Helvetica'), local('sans-serif');
+  size-adjust: 105%;
+  ascent-override: 95%;
+  descent-override: 25%;
+  line-gap-override: 0%;
+}
 
 @tailwind base;
 @tailwind components;

@@ -19,6 +19,7 @@ import { Link, useParams } from 'react-router-dom';
 import { ArrowRight, ArrowUpRight } from 'lucide-react';
 import { api } from '../../services/api';
 import { renderSafeMarkdownSync } from '../../utils/markdown';
+import { dronePlaceholder } from '../../utils/placeholders';
 
 const FONT_HREF = 'https://fonts.googleapis.com/css2?family=Geomini:wght@200..800&family=Michroma&display=swap';
 
@@ -146,7 +147,7 @@ const DroneProjectDetailPage = () => {
         );
     }
 
-    const heroImage = project.image_url || `https://coresg-normal.trae.ai/api/ide/v1/text_to_image?prompt=Cinematic%20aerial%20drone%20photograph%20of%20${encodeURIComponent(project.title)},%20${encodeURIComponent(project.tags?.[0] || 'survey')},%20photorealistic,%20golden%20hour%20lighting&image_size=landscape_16_9`;
+    const heroImage = project.image_url || dronePlaceholder({ width: 1200, height: 675, label: project.title });
 
     return (
         <div className="bg-white text-gray-900 drone-body min-h-screen">
@@ -295,7 +296,7 @@ const DroneProjectDetailPage = () => {
                             >
                                 <div className="h-56 overflow-hidden">
                                     <img
-                                        src={p.image_url || `https://coresg-normal.trae.ai/api/ide/v1/text_to_image?prompt=Cinematic%20aerial%20drone%20photograph%20of%20${encodeURIComponent(p.title)},%20photorealistic&image_size=landscape_4_3`}
+                                        src={p.image_url || dronePlaceholder({ width: 600, height: 450, label: p.title })}
                                         alt={p.title}
                                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                                     />

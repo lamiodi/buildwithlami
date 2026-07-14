@@ -84,6 +84,29 @@ const GlobalSearch = () => {
         if (open) {
             setActiveIdx(0);
             setTimeout(() => inputRef.current?.focus(), 50);
+            // Focus trap: keep Tab/Shift+Tab cycling inside the
+            // dialog so keyboard users can't escape into the page
+            // underneath (where there's an invisible modal layer).
+            const onKeyDown = (e) => {
+                if (e.key !== 'Tab') return;
+                const dialog = document.getElementById('global-search-dialog');
+                if (!dialog) return;
+                const focusable = dialog.querySelectorAll(
+                    'input, button, [href], [tabindex]:not([tabindex="-1"])'
+                );
+                if (focusable.length === 0) return;
+                const first = focusable[0];
+                const last = focusable[focusable.length - 1];
+                if (e.shiftKey && document.activeElement === first) {
+                    e.preventDefault();
+                    last.focus();
+                } else if (!e.shiftKey && document.activeElement === last) {
+                    e.preventDefault();
+                    first.focus();
+                }
+            };
+            document.addEventListener('keydown', onKeyDown);
+            return () => document.removeEventListener('keydown', onKeyDown);
         } else {
             setQ('');
             setResults(null);
@@ -91,25 +114,46 @@ const GlobalSearch = () => {
         }
     }, [open]);
 
-    // ── Debounced search ─────────────────────────────────
+    // ── Debounced search with request cancellation ─────────
+    // Each new keystroke aborts the in-flight request from the
+    // previous keystroke. Without this, the user can type 8
+    // characters and trigger 7 racing requests — only the last
+    // one matters, but the network still pays for the rest.
     useEffect(() => {
         const trimmed = q.trim();
         if (trimmed.length < 2) {
-            // Don't leave `loading` stuck on when the user clears
-            // the input or types under the minimum length.
             setLoading(false);
             setResults(null);
             return;
         }
+
         setLoading(true);
+        const controller = new AbortController();
         const id = setTimeout(async () => {
-            const res = await api.get('/admin/search', { params: { q: trimmed }, timeout: 5000 });
-            if (res.ok && res.data) setResults(res.data);
-            else setResults({ leads: [], clients: [], projects: [], invoices: [], messages: [] });
-            setLoading(false);
-            setActiveIdx(0);
+            try {
+                const res = await api.get('/admin/search', {
+                    params: { q: trimmed },
+                    timeout: 5000,
+                    signal: controller.signal,
+                });
+                if (res.ok && res.data) setResults(res.data);
+                else setResults({ leads: [], clients: [], projects: [], invoices: [], messages: [] });
+                setLoading(false);
+                setActiveIdx(0);
+            } catch (err) {
+                // AbortError is expected when a new keystroke
+                // cancels the previous request. Don't pollute the
+                // console or the UI with it.
+                if (err?.name === 'AbortError' || err?.code === 20) return;
+                console.warn('[GlobalSearch] failed:', err.message);
+                setResults({ leads: [], clients: [], projects: [], invoices: [], messages: [] });
+                setLoading(false);
+            }
         }, DEBOUNCE_MS);
-        return () => clearTimeout(id);
+        return () => {
+            clearTimeout(id);
+            controller.abort();
+        };
     }, [q]);
 
     // ── Arrow-key navigation through the flat list ───────
@@ -154,6 +198,10 @@ const GlobalSearch = () => {
                         onClick={(e) => { if (e.target === e.currentTarget) setOpen(false); }}
                     >
                         <motion.div
+                            id="global-search-dialog"
+                            role="dialog"
+                            aria-modal="true"
+                            aria-label="Global search"
                             initial={{ opacity: 0, y: -12, scale: 0.97 }}
                             animate={{ opacity: 1, y: 0, scale: 1 }}
                             exit={{ opacity: 0, y: -12, scale: 0.97 }}

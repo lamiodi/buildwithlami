@@ -1,8 +1,9 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, Suspense, lazy } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useReducedMotion } from 'framer-motion';
-import Pricing from '../components/Pricing';
 import { staggerContainer, fadeUpItem, cardHover, cardHoverTransition, buttonHover, buttonTap, sectionViewport, reducedMotionVariants } from '../utils/motion';
+
+const Pricing = lazy(() => import('../components/Pricing'));
 
 const ServicesPage = () => {
   const shouldReduce = useReducedMotion();
@@ -230,7 +231,7 @@ const ServicesPage = () => {
                     </span>
                   )}
                 </h2>
-                <p className="inline-flex items-center bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 px-4 py-2 text-[11px] uppercase tracking-widest text-gray-700 dark:text-gray-300 font-bold">
+                <p className="inline-flex items-center bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 px-4 py-2 text-xs uppercase tracking-widest text-gray-700 dark:text-gray-300 font-bold">
                   {service.bestFor}
                 </p>
                 <p className="text-gray-800 dark:text-gray-200 text-lg leading-relaxed font-light opacity-95">
@@ -299,15 +300,15 @@ const ServicesPage = () => {
                     </h3>
                     <div className="space-y-4">
                       <div className="border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-black/20 p-4">
-                        <p className="text-[11px] uppercase tracking-widest text-gray-700 dark:text-gray-300 mb-2 font-bold">Best For</p>
+                        <p className="text-xs uppercase tracking-widest text-gray-700 dark:text-gray-300 mb-2 font-bold">Best For</p>
                         <p className="text-sm text-gray-800 dark:text-gray-200">{service.bestFor}</p>
                       </div>
                       <div className="border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-black/20 p-4">
-                        <p className="text-[11px] uppercase tracking-widest text-gray-700 dark:text-gray-300 mb-2 font-bold">Expected Outcome</p>
+                        <p className="text-xs uppercase tracking-widest text-gray-700 dark:text-gray-300 mb-2 font-bold">Expected Outcome</p>
                         <p className="text-sm text-gray-800 dark:text-gray-200">{service.outcome}</p>
                       </div>
                       <div className="border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-black/20 p-4">
-                        <p className="text-[11px] uppercase tracking-widest text-gray-700 dark:text-gray-300 mb-3 font-bold">Common Deliverables</p>
+                        <p className="text-xs uppercase tracking-widest text-gray-700 dark:text-gray-300 mb-3 font-bold">Common Deliverables</p>
                         <ul className="space-y-2">
                           {service.features.slice(0, 3).map((feature) => (
                             <li key={feature} className="flex items-start gap-2 text-sm text-gray-800 dark:text-gray-200">
@@ -369,7 +370,7 @@ const ServicesPage = () => {
           {trustItems.map((trustItem) => (
             <div
               key={trustItem}
-              className="border border-gray-200 dark:border-white/10 bg-white dark:bg-[#0a0a0a] px-5 py-4 text-center text-[11px] font-bold uppercase tracking-widest text-gray-700 dark:text-gray-300"
+              className="border border-gray-200 dark:border-white/10 bg-white dark:bg-[#0a0a0a] px-5 py-4 text-center text-xs font-bold uppercase tracking-widest text-gray-700 dark:text-gray-300"
             >
               {trustItem}
             </div>
@@ -378,7 +379,9 @@ const ServicesPage = () => {
       </div>
 
       {/* Pricing Section - Full Width */}
-      <Pricing />
+      <Suspense fallback={<div className="h-96 flex items-center justify-center"><div className="animate-spin rounded-full h-12 w-12 border-4 border-accent border-t-transparent" /></div>}>
+        <Pricing />
+      </Suspense>
 
       <div className="max-w-7xl mx-auto px-6 md:px-12">
         {/* CTA Section */}

@@ -2,5 +2,12 @@
 User-agent: *
 Allow: /
 Disallow: /api/
+Disallow: /admin/
+Disallow: /admin
+Disallow: /login
+Disallow: /account/
+
+# Crawl-delay polite to common bots (1s for any other crawler)
+Crawl-delay: 1
 
 Sitemap: https://buildwithlami.dev/sitemap.xml

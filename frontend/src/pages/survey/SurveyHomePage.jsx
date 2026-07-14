@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Menu, ArrowRight, ArrowLeft, ArrowUpRight, Plus, Minus } from 'lucide-react';
 import { api } from '../../services/api';
+import { surveyPlaceholder, projectPlaceholder, equipmentPlaceholder } from '../../utils/placeholders';
+import { validateBooking, validateField } from '../../utils/formValidation';
 
 // ── Survey-page fonts ────────────────────────────────────
 // "Manrope" for headings, "Mulish" for body text. Both are
@@ -53,10 +55,35 @@ const SurveyHomePage = () => {
     full_name: '', email: '', phone: '', service: '', location: '', preferred_date: '', notes: '',
   });
   const [bookingStatus, setBookingStatus] = useState('idle'); // idle | submitting | success | error
+  const [bookingErrors, setBookingErrors] = useState({});
+
+  const handleBookingFieldChange = (field, value) => {
+    setBooking({ ...booking, [field]: value });
+    if (bookingErrors[field]) {
+      setBookingErrors({ ...bookingErrors, [field]: '' });
+    }
+  };
+
+  const handleBookingFieldBlur = (field) => {
+    const error = validateField(field, booking[field]);
+    setBookingErrors((prev) => ({ ...prev, [field]: error }));
+  };
 
   const handleBooking = async (e) => {
     e.preventDefault();
+
+    // Client-side validation
+    const validation = validateBooking(booking);
+    if (!validation.valid) {
+      setBookingErrors(validation.errors);
+      const firstError = Object.keys(validation.errors)[0];
+      const el = document.querySelector(`[name="survey_booking_${firstError}"]`);
+      if (el) el.focus();
+      return;
+    }
+
     setBookingStatus('submitting');
+    setBookingErrors({});
     const res = await api.post('/bookings', { ...booking, division: 'SURVEY' });
     if (res.ok) {
       setBookingStatus('success');
@@ -109,12 +136,17 @@ const SurveyHomePage = () => {
   // Live projects fetched from /api/projects/division/SURVEY.
   // The endpoint only returns PUBLISHED rows; see projectRoutes.js.
   const [apiProjects, setApiProjects] = useState([]);
+  const [projectsLoading, setProjectsLoading] = useState(true);
   useEffect(() => {
+    let cancelled = false;
     const load = async () => {
       const res = await api.get('/projects/division/SURVEY');
+      if (cancelled) return;
       if (res.ok && Array.isArray(res.data)) setApiProjects(res.data);
+      setProjectsLoading(false);
     };
     load();
+    return () => { cancelled = true; };
   }, []);
 
   // What we actually render: API results if any, otherwise the
@@ -151,20 +183,38 @@ const SurveyHomePage = () => {
   };
 
   // Simple parallax/intersection observer hook for fade-in elements
+  // Guard: a ref + state check prevents duplicate observers when
+  // the effect re-runs due to dependency churn (the previous
+  // version would have re-attached the same observer multiple
+  // times and re-fired all entries for every navigation).
+  const observerRef = useRef(null);
   const [visibleElements, setVisibleElements] = useState(new Set());
   useEffect(() => {
+    if (observerRef.current) return;
     const observer = new IntersectionObserver(
       (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setVisibleElements((prev) => new Set([...prev, entry.target.dataset.id]));
+        setVisibleElements((prev) => {
+          const next = new Set(prev);
+          for (const entry of entries) {
+            if (entry.isIntersecting && entry.target.dataset.id) {
+              next.add(entry.target.dataset.id);
+            }
           }
+          return next;
         });
       },
-      { threshold: 0.1 }
+      { threshold: 0.1, rootMargin: '0px 0px -50px 0px' }
     );
-    document.querySelectorAll('.observe').forEach((el) => observer.observe(el));
-    return () => observer.disconnect();
+    const id = requestAnimationFrame(() => {
+      document.querySelectorAll('.observe').forEach((el) => observer.observe(el));
+    });
+    observerRef.current = { observer, raf: id };
+    return () => {
+      const { observer: o, raf: r } = observerRef.current || {};
+      if (r) cancelAnimationFrame(r);
+      if (o) o.disconnect();
+      observerRef.current = null;
+    };
   }, []);
 
   return (
@@ -213,7 +263,7 @@ const SurveyHomePage = () => {
           <div className="w-full md:w-[35%] bg-[#e6e6e6] flex flex-col border-b md:border-b-0 md:border-r border-gray-300">
             <div className="w-full h-[50vh] md:h-[70%] bg-gray-200 overflow-hidden">
               <img 
-                src="https://coresg-normal.trae.ai/api/ide/v1/text_to_image?prompt=Minimalist%20high%20contrast%203d%20render%20of%20a%20modern%20geometric%20building%20with%20a%20red%20door%20and%20a%20single%20red%20tree,%20clean%20white%20background,%20architectural%20visualization&image_size=portrait_4_3" 
+                src={surveyPlaceholder({ width: 600, height: 800, label: 'Architectural Survey' })}
                 alt="Architectural Survey" 
                 className="w-full h-full object-cover grayscale-[20%] contrast-125"
               />
@@ -272,13 +322,16 @@ const SurveyHomePage = () => {
               </button>
             </div>
             <div className="absolute bottom-8 right-8 w-32 h-32 hidden lg:flex items-center justify-center">
-              <svg className="w-full h-full animate-[spin_20s_linear_infinite]" viewBox="0 0 100 100">
+              {/* Decorative rotating text — hidden from screen readers
+                  because it's purely visual (the "LAMI SURV" overlay
+                  below is the actual content). */}
+              <svg className="w-full h-full animate-[spin_20s_linear_infinite]" viewBox="0 0 100 100" aria-hidden="true">
                 <path id="circlePath" fill="none" d="M 50, 50 m -35, 0 a 35,35 0 1,1 70,0 a 35,35 0 1,1 -70,0" />
                 <text className="text-[8.5px] font-bold tracking-[0.2em] uppercase">
                   <textPath href="#circlePath" startOffset="0%">• LAMI SURVEY DIVISION • PRECISION AND ACCURACY</textPath>
                 </text>
               </svg>
-              <div className="absolute font-black text-sm uppercase text-center leading-none">LAMI<br />SURV</div>
+              <div className="absolute font-black text-sm uppercase text-center leading-none" aria-label="Lami Survey Division">LAMI<br />SURV</div>
             </div>
           </div>
         </div>
@@ -350,8 +403,20 @@ const SurveyHomePage = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {projects.map((proj, idx) => {
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8" role="region" aria-label="Survey portfolio projects" aria-busy={projectsLoading}>
+          {projectsLoading && projects.length === 0 ? (
+            <>
+              {[0, 1, 2, 3].map((i) => (
+                <div key={`skel-${i}`} className="animate-pulse">
+                  <div className="aspect-[4/3] bg-gray-200 dark:bg-gray-700 rounded-2xl mb-4" />
+                  <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/3 mb-3" />
+                  <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-2" />
+                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full mb-1" />
+                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-2/3" />
+                </div>
+              ))}
+            </>
+          ) : projects.map((proj, idx) => {
             // API rows are an object with `id` (uuid). Fallback
             // rows have `id: 'fallback-N'` and a string `type`
             // — we map that to a single-element `tags` array so
@@ -359,7 +424,7 @@ const SurveyHomePage = () => {
             const isFallback = typeof proj.id === 'string' && proj.id.startsWith('fallback-');
             const tag = (proj.tags && proj.tags[0]) || proj.type || 'Survey';
             const imgSrc = proj.image_url
-              || `https://coresg-normal.trae.ai/api/ide/v1/text_to_image?prompt=Architectural%20minimalist%20topographic%20map%20rendering%20of%20${encodeURIComponent(proj.title)}%20in%20${encodeURIComponent(proj.location || 'Nigeria')},%20grayscale,%20clean%20lines&image_size=landscape_4_3`;
+              || projectPlaceholder({ width: 600, height: 450, label: proj.title });
 
             const cardInner = (
                 <>
@@ -522,55 +587,143 @@ const SurveyHomePage = () => {
           </div>
 
           <div className="w-full md:w-1/2">
-            <form className="space-y-6" onSubmit={handleBooking}>
+            <form className="space-y-6" onSubmit={handleBooking} noValidate aria-label="Survey service booking request">
               <div>
-                <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2 block">Full Name *</label>
-                <input type="text" required value={booking.full_name} onChange={e => setBooking({ ...booking, full_name: e.target.value })} className="w-full bg-transparent border-b-2 border-black py-3 text-sm font-bold uppercase tracking-wider focus:outline-none focus:border-gray-500 transition-colors" />
+                <label htmlFor="survey_booking_full_name" className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2 block">Full Name *</label>
+                <input
+                  id="survey_booking_full_name"
+                  name="survey_booking_full_name"
+                  type="text"
+                  required
+                  value={booking.full_name}
+                  onChange={e => handleBookingFieldChange('full_name', e.target.value)}
+                  onBlur={() => handleBookingFieldBlur('full_name')}
+                  aria-invalid={!!bookingErrors.full_name}
+                  aria-describedby={bookingErrors.full_name ? 'survey_err_full_name' : undefined}
+                  className={`w-full bg-transparent border-b-2 py-3 text-sm font-bold uppercase tracking-wider focus:outline-none transition-colors ${
+                    bookingErrors.full_name ? 'border-red-500' : 'border-black focus:border-gray-500'
+                  }`}
+                />
+                {bookingErrors.full_name && <p id="survey_err_full_name" role="alert" className="text-xs text-red-600 mt-1">{bookingErrors.full_name}</p>}
               </div>
               <div>
-                <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2 block">Email *</label>
-                <input type="email" required value={booking.email} onChange={e => setBooking({ ...booking, email: e.target.value })} className="w-full bg-transparent border-b-2 border-black py-3 text-sm font-bold uppercase tracking-wider focus:outline-none focus:border-gray-500 transition-colors" />
+                <label htmlFor="survey_booking_email" className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2 block">Email *</label>
+                <input
+                  id="survey_booking_email"
+                  name="survey_booking_email"
+                  type="email"
+                  required
+                  value={booking.email}
+                  onChange={e => handleBookingFieldChange('email', e.target.value)}
+                  onBlur={() => handleBookingFieldBlur('email')}
+                  aria-invalid={!!bookingErrors.email}
+                  aria-describedby={bookingErrors.email ? 'survey_err_email' : undefined}
+                  className={`w-full bg-transparent border-b-2 py-3 text-sm font-bold uppercase tracking-wider focus:outline-none transition-colors ${
+                    bookingErrors.email ? 'border-red-500' : 'border-black focus:border-gray-500'
+                  }`}
+                />
+                {bookingErrors.email && <p id="survey_err_email" role="alert" className="text-xs text-red-600 mt-1">{bookingErrors.email}</p>}
               </div>
               <div>
-                <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2 block">Phone</label>
-                <input type="tel" value={booking.phone} onChange={e => setBooking({ ...booking, phone: e.target.value })} className="w-full bg-transparent border-b-2 border-black py-3 text-sm font-bold uppercase tracking-wider focus:outline-none focus:border-gray-500 transition-colors" />
+                <label htmlFor="survey_booking_phone" className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2 block">Phone</label>
+                <input
+                  id="survey_booking_phone"
+                  name="survey_booking_phone"
+                  type="tel"
+                  value={booking.phone}
+                  onChange={e => handleBookingFieldChange('phone', e.target.value)}
+                  onBlur={() => handleBookingFieldBlur('phone')}
+                  aria-invalid={!!bookingErrors.phone}
+                  aria-describedby={bookingErrors.phone ? 'survey_err_phone' : undefined}
+                  className={`w-full bg-transparent border-b-2 py-3 text-sm font-bold uppercase tracking-wider focus:outline-none transition-colors ${
+                    bookingErrors.phone ? 'border-red-500' : 'border-black focus:border-gray-500'
+                  }`}
+                />
+                {bookingErrors.phone && <p id="survey_err_phone" role="alert" className="text-xs text-red-600 mt-1">{bookingErrors.phone}</p>}
               </div>
               <div>
-                <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2 block">Service Required *</label>
-                <select required value={booking.service} onChange={e => setBooking({ ...booking, service: e.target.value })} className="w-full bg-transparent border-b-2 border-black py-3 text-sm font-bold uppercase tracking-wider focus:outline-none focus:border-gray-500 transition-colors appearance-none">
-                  <option value="">— Select Service —</option>
+                <label htmlFor="survey_booking_service" className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2 block">Service Required *</label>
+                <select
+                  id="survey_booking_service"
+                  name="survey_booking_service"
+                  required
+                  value={booking.service}
+                  onChange={e => handleBookingFieldChange('service', e.target.value)}
+                  onBlur={() => handleBookingFieldBlur('service')}
+                  aria-invalid={!!bookingErrors.service}
+                  aria-describedby={bookingErrors.service ? 'survey_err_service' : undefined}
+                  className={`w-full bg-transparent border-b-2 py-3 text-sm font-bold uppercase tracking-wider focus:outline-none transition-colors appearance-none ${
+                    bookingErrors.service ? 'border-red-500' : 'border-black focus:border-gray-500'
+                  }`}
+                >
+                  <option value="" disabled>— Select Service —</option>
                   {services.map((s, i) => <option key={i} value={s.title}>{s.title}</option>)}
                 </select>
+                {bookingErrors.service && <p id="survey_err_service" role="alert" className="text-xs text-red-600 mt-1">{bookingErrors.service}</p>}
               </div>
               <div>
-                <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2 block">Project Location</label>
-                <input type="text" value={booking.location} onChange={e => setBooking({ ...booking, location: e.target.value })} className="w-full bg-transparent border-b-2 border-black py-3 text-sm font-bold uppercase tracking-wider focus:outline-none focus:border-gray-500 transition-colors" />
+                <label htmlFor="survey_booking_location" className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2 block">Project Location</label>
+                <input
+                  id="survey_booking_location"
+                  name="survey_booking_location"
+                  type="text"
+                  value={booking.location}
+                  onChange={e => handleBookingFieldChange('location', e.target.value)}
+                  className="w-full bg-transparent border-b-2 border-black py-3 text-sm font-bold uppercase tracking-wider focus:outline-none focus:border-gray-500 transition-colors"
+                />
               </div>
               <div>
-                <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2 block">Preferred Date</label>
-                <input type="date" value={booking.preferred_date} onChange={e => setBooking({ ...booking, preferred_date: e.target.value })} className="w-full bg-transparent border-b-2 border-black py-3 text-sm font-bold uppercase tracking-wider focus:outline-none focus:border-gray-500 transition-colors" />
+                <label htmlFor="survey_booking_preferred_date" className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2 block">Preferred Date</label>
+                <input
+                  id="survey_booking_preferred_date"
+                  name="survey_booking_preferred_date"
+                  type="date"
+                  min={new Date().toISOString().split('T')[0]}
+                  value={booking.preferred_date}
+                  onChange={e => handleBookingFieldChange('preferred_date', e.target.value)}
+                  onBlur={() => handleBookingFieldBlur('preferred_date')}
+                  aria-invalid={!!bookingErrors.preferred_date}
+                  aria-describedby={bookingErrors.preferred_date ? 'survey_err_preferred_date' : undefined}
+                  className={`w-full bg-transparent border-b-2 py-3 text-sm font-bold uppercase tracking-wider focus:outline-none transition-colors ${
+                    bookingErrors.preferred_date ? 'border-red-500' : 'border-black focus:border-gray-500'
+                  }`}
+                />
+                {bookingErrors.preferred_date && <p id="survey_err_preferred_date" role="alert" className="text-xs text-red-600 mt-1">{bookingErrors.preferred_date}</p>}
               </div>
               <div>
-                <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2 block">Project Notes</label>
-                <textarea rows="4" value={booking.notes} onChange={e => setBooking({ ...booking, notes: e.target.value })} className="w-full bg-transparent border-b-2 border-black py-3 text-sm font-bold uppercase tracking-wider focus:outline-none focus:border-gray-500 transition-colors resize-none"></textarea>
+                <label htmlFor="survey_booking_notes" className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2 block">Project Notes</label>
+                <textarea
+                  id="survey_booking_notes"
+                  name="survey_booking_notes"
+                  rows="4"
+                  maxLength={1000}
+                  value={booking.notes}
+                  onChange={e => handleBookingFieldChange('notes', e.target.value)}
+                  className="w-full bg-transparent border-b-2 border-black py-3 text-sm font-bold uppercase tracking-wider focus:outline-none focus:border-gray-500 transition-colors resize-none"
+                ></textarea>
               </div>
-              <button type="submit" disabled={bookingStatus === 'submitting'} className={`px-10 py-4 text-[11px] font-black uppercase tracking-[0.3em] flex items-center gap-3 group transition-colors ${
-                bookingStatus === 'success'
-                  ? 'bg-green-600 text-white'
-                  : bookingStatus === 'error'
-                  ? 'bg-red-600 text-white'
-                  : bookingStatus === 'submitting'
-                  ? 'bg-gray-500 text-white cursor-not-allowed'
-                  : 'bg-black text-white hover:bg-accent'
-              }`}>
+              <button
+                type="submit"
+                disabled={bookingStatus === 'submitting'}
+                aria-busy={bookingStatus === 'submitting'}
+                className={`px-10 py-4 text-[11px] font-black uppercase tracking-[0.3em] flex items-center gap-3 group transition-colors ${
+                  bookingStatus === 'success'
+                    ? 'bg-green-600 text-white'
+                    : bookingStatus === 'error'
+                    ? 'bg-red-600 text-white'
+                    : bookingStatus === 'submitting'
+                    ? 'bg-gray-500 text-white cursor-not-allowed'
+                    : 'bg-black text-white hover:bg-accent'
+                }`}
+              >
                 {bookingStatus === 'success' ? '✓ Request Sent' : bookingStatus === 'error' ? '✗ Try Again' : bookingStatus === 'submitting' ? 'Sending...' : 'Submit Brief'}
                 {bookingStatus === 'idle' && <ArrowRight className="w-4 h-4 group-hover:translate-x-2 transition-transform" />}
               </button>
               {bookingStatus === 'error' && (
-                <p className="text-xs text-red-600 font-bold uppercase tracking-wider">Something went wrong. Please try again or email us directly.</p>
+                <p role="alert" className="text-xs text-red-600 font-bold uppercase tracking-wider">Something went wrong. Please try again or email us directly.</p>
               )}
               {bookingStatus === 'success' && (
-                <p className="text-xs text-green-700 font-bold uppercase tracking-wider">We'll respond within 24 hours.</p>
+                <p role="status" className="text-xs text-green-700 font-bold uppercase tracking-wider">We'll respond within 24 hours.</p>
               )}
             </form>
           </div>

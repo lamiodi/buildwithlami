@@ -18,6 +18,7 @@ import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, ArrowUpRight, MapPin, Ruler, Calendar, Building2 } from 'lucide-react';
 import { api } from '../../services/api';
 import { renderSafeMarkdownSync } from '../../utils/markdown';
+import { surveyPlaceholder, projectPlaceholder } from '../../utils/placeholders';
 
 const FONT_HREF = 'https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&family=Mulish:ital,wght@0,200..1000;1,200..1000&display=swap';
 
@@ -149,7 +150,7 @@ const SurveyProjectDetailPage = () => {
         );
     }
 
-    const heroImage = project.image_url || `https://coresg-normal.trae.ai/api/ide/v1/text_to_image?prompt=Architectural%20minimalist%20topographic%20map%20rendering%20of%20${encodeURIComponent(project.title)}%20in%20${encodeURIComponent(project.location || 'Nigeria')},%20grayscale,%20clean%20lines&image_size=landscape_16_9`;
+    const heroImage = project.image_url || surveyPlaceholder({ width: 1200, height: 800, label: project.title });
 
     return (
         <div className="bg-[#f2f2f2] text-black survey-body min-h-screen">
@@ -299,7 +300,7 @@ const SurveyProjectDetailPage = () => {
                             >
                                 <div className="bg-[#e6e6e6] aspect-[4/3] mb-4 overflow-hidden">
                                     <img
-                                        src={p.image_url || `https://coresg-normal.trae.ai/api/ide/v1/text_to_image?prompt=Architectural%20topographic%20rendering%20of%20${encodeURIComponent(p.title)},%20grayscale,%20clean%20lines&image_size=landscape_4_3`}
+                                        src={p.image_url || projectPlaceholder({ width: 600, height: 450, label: p.title })}
                                         alt={p.title}
                                         className="w-full h-full object-cover grayscale-[20%] contrast-125 group-hover:scale-105 transition-transform duration-700"
                                     />

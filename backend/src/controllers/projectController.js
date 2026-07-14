@@ -83,8 +83,34 @@ export async function getProjects(req, res) {
 
         query += ` ORDER BY created_at DESC`;
 
+        // Pagination support
+        const page = Math.max(1, parseInt(req.query.page) || 1);
+        const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 50));
+        const offset = (page - 1) * limit;
+
+        // Count total for pagination metadata
+        let countQuery = `SELECT COUNT(*) FROM projects`;
+        if (conditions.length > 0) {
+            countQuery += ` WHERE ` + conditions.join(' AND ');
+        }
+        const countResult = await pool.query(countQuery, vals);
+        const total = parseInt(countResult.rows[0].count);
+
+        query += ` LIMIT $${vals.length + 1} OFFSET $${vals.length + 2}`;
+        vals.push(limit, offset);
+
         const { rows } = await pool.query(query, vals);
-        return res.json(rows);
+        
+        return res.json({
+            data: rows,
+            pagination: {
+                page,
+                limit,
+                total,
+                totalPages: Math.ceil(total / limit),
+                hasMore: page < Math.ceil(total / limit)
+            }
+        });
     } catch (err) {
         console.error('[Project] getProjects error:', err.message);
         return res.status(500).json({ error: 'Internal server error.' });

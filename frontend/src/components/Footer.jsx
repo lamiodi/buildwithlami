@@ -69,7 +69,7 @@ const Footer = () => {
 
           {/* Copyright */}
           <div className="opacity-90 font-medium lowercase tracking-[0.15em]">
-            copyright {displayYear} // built with precision by lami
+            copyright {displayYear} // built by Eugene
           </div>
         </div>
       </div>

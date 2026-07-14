@@ -5,9 +5,22 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <!-- Preconnect to the unsplash image origin so the first
-         image request doesn't pay the DNS+TLS round-trip cost. -->
+    <!-- Preconnect to image + font origins. The DNS+TLS round-trip
+         for fonts.googleapis.com / fonts.gstatic.com blocks the
+         first paint when fonts aren't preconnect-ed, causing FOUT. -->
     <link rel="preconnect" href="https://images.unsplash.com" crossorigin />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <!-- Preload the global webfont CSS so the browser fetches it
+         in parallel with the rest of the head, before it sees the
+         @import in index.css. -->
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Advent+Pro:ital,wght@0,100..900;1,100..900&family=Space+Grotesk:wght@300..700&family=Caveat:wght@400..700&display=swap" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Advent+Pro:ital,wght@0,100..900;1,100..900&family=Space+Grotesk:wght@300..700&family=Caveat:wght@400..700&display=swap"
+    />
+
     <title>Eugene Odibenuah | Full-Stack Web Developer</title>
     <meta name="description" content="Portfolio of Eugene Odibenuah, a Nigerian full-stack developer building fast, scalable web apps." />
 

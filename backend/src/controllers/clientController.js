@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import pool from '../config/db.js';
+import { writeAuditLog, getClientIp } from '../utils/auditLog.js';
 
 const clientSchema = z.object({
     name: z.string().min(1, "Name is required"),
@@ -63,6 +64,14 @@ export const createClient = async (req, res) => {
              VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
             [data.name, data.primary_contact_email, data.billing_email || null, data.phone || null, data.stripe_customer_id || null, data.division || 'SOFTWARE', data.notes || null]
         );
+        writeAuditLog({
+            action: 'CLIENT_CREATED',
+            entityType: 'clients',
+            entityId: rows[0].id,
+            details: { name: data.name, division: data.division },
+            user: req.user,
+            ipAddress: getClientIp(req),
+        }).catch(() => {});
         res.status(201).json(rows[0]);
     } catch (err) {
         if (err instanceof z.ZodError) return res.status(400).json({ error: err.errors });
@@ -75,6 +84,8 @@ export const updateClient = async (req, res) => {
     try {
         const { id } = req.params;
         const data = clientSchema.parse(req.body);
+        // Capture the pre-update state for the audit diff.
+        const before = await pool.query('SELECT * FROM clients WHERE id = $1', [id]);
         const { rows } = await pool.query(
             `UPDATE clients
              SET name = $1, primary_contact_email = $2, billing_email = $3, phone = $4, stripe_customer_id = $5, division = $6, notes = $7, updated_at = NOW()
@@ -82,6 +93,14 @@ export const updateClient = async (req, res) => {
             [data.name, data.primary_contact_email, data.billing_email || null, data.phone || null, data.stripe_customer_id || null, data.division || 'SOFTWARE', data.notes || null, id]
         );
         if (rows.length === 0) return res.status(404).json({ error: 'Client not found' });
+        writeAuditLog({
+            action: 'CLIENT_UPDATED',
+            entityType: 'clients',
+            entityId: id,
+            details: { before: before.rows[0], after: rows[0] },
+            user: req.user,
+            ipAddress: getClientIp(req),
+        }).catch(() => {});
         res.json(rows[0]);
     } catch (err) {
         if (err instanceof z.ZodError) return res.status(400).json({ error: err.errors });
@@ -93,11 +112,20 @@ export const updateClient = async (req, res) => {
 export const deleteClient = async (req, res) => {
     try {
         const { id } = req.params;
+        const before = await pool.query('SELECT * FROM clients WHERE id = $1', [id]);
         const { rowCount } = await pool.query(
             `DELETE FROM clients WHERE id = $1`,
             [id]
         );
         if (rowCount === 0) return res.status(404).json({ error: 'Client not found' });
+        writeAuditLog({
+            action: 'CLIENT_DELETED',
+            entityType: 'clients',
+            entityId: id,
+            details: { deletedClient: before.rows[0] },
+            user: req.user,
+            ipAddress: getClientIp(req),
+        }).catch(() => {});
         res.status(204).send();
     } catch (err) {
         console.error('[Clients] deleteClient error:', err.message);

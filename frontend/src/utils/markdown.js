@@ -32,7 +32,21 @@ function escapeAttr(str) {
 }
 
 function renderInline(text) {
+    // IMPORTANT: the text coming in is already HTML-escaped at the
+    // line/paragraph level. The inline rules below are *structural*
+    // patterns (**, `, [, ]) that can survive escaping, so we don't
+    // need to re-escape inside their matches. The result is then
+    // treated as HTML, with the bold/italic markers replaced by
+    // <strong>/<em>. The reason this is safe: `**`, `__`, `*`, `_`,
+    // backtick, `[`, and `]` are not affected by `escapeHtml` (they
+    // don't appear in the escape map), so the pattern can still
+    // match user input that contains them. The captured text
+    // *between* the markers is already escaped when it was first
+    // written into the line buffer, so any HTML-looking payload
+    // (`<script>...`) between `**` markers has already become
+    // `&lt;script&gt;...` and survives the regex substitution.
     let s = text;
+
     // inline code first (so other rules don't touch its contents)
     s = s.replace(/`([^`]+)`/g, (_m, code) => `<code class="px-1 py-0.5 bg-gray-100 dark:bg-gray-800 text-accent rounded text-[0.9em]">${escapeHtml(code)}</code>`);
     // bold (** or __)
@@ -43,9 +57,33 @@ function renderInline(text) {
     s = s.replace(/(^|[^_])_([^_\n]+)_/g, '$1<em>$2</em>');
     // links [text](url)
     s = s.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (_m, label, url) => {
+        // The link target gets the strict URL allowlist check, not
+        // just HTML escaping. javascript:, data:, vbscript:, and
+        // any non-http(s) protocol is rejected so it can't be used
+        // to bypass the escapeAttr via browser quirks.
+        if (!isSafeUrl(url)) {
+            return escapeHtml(label);
+        }
         return `<a href="${escapeAttr(url)}" class="text-accent underline underline-offset-2 hover:opacity-80" target="_blank" rel="noopener noreferrer">${escapeHtml(label)}</a>`;
     });
     return s;
+}
+
+/**
+ * URL safety check for markdown link targets.
+ * Only http, https, and mailto schemes are allowed.
+ * Anything else (javascript:, data:, vbscript:, file:, …)
+ * is rejected so it can't be used to bypass the escapeAttr
+ * via browser quirks. Empty/invalid URLs are also rejected.
+ */
+function isSafeUrl(url) {
+    if (!url || typeof url !== 'string') return false;
+    const trimmed = url.trim();
+    if (!trimmed) return false;
+    // Strip leading control chars and whitespace the browser
+    // would also strip, so `javasc\nript:` is caught.
+    const cleaned = trimmed.replace(/[\x00-\x1f\s]/g, '').toLowerCase();
+    return /^(https?:|mailto:)/.test(cleaned);
 }
 
 export function renderMarkdown(input) {
@@ -200,8 +238,12 @@ export async function renderSafeMarkdown(input) {
  * doesn't already use an effect). Lazy-loads DOMPurify and caches it
  * — the first call is slightly slower, subsequent calls are fast.
  *
- * For server-rendered or SSR-critical code paths, prefer the
- * async `renderSafeMarkdown`.
+ * SECURITY: until DOMPurify finishes loading, the first call returns
+ * an empty string instead of the unsanitized render. The renderer's
+ * own escaping is mostly safe, but `dangerouslySetInnerHTML` consumers
+ * are the highest-value XSS targets, so we refuse to feed them
+ * un-sanitized HTML. The `useEffect` consumers should re-render once
+ * DOMPurify loads.
  */
 let _purifierSync = null;
 let _purifierLoading = null;
@@ -215,12 +257,25 @@ export function renderSafeMarkdownSync(input) {
         _purifierLoading = import('dompurify').then((mod) => {
             const DOMPurify = mod.default || mod;
             _purifierSync = typeof window !== 'undefined' ? DOMPurify(window) : DOMPurify;
+            // Dispatch a custom event so consumers can re-render.
+            // We don't have a direct handle to the React component
+            // tree, so the page itself listens for this event and
+            // updates its own state.
+            if (typeof window !== 'undefined') {
+                window.dispatchEvent(new CustomEvent('dompurify-ready'));
+            }
             return _purifierSync;
         });
     }
     // First call (or any call before the dynamic import resolves)
-    // falls back to the already-escaped renderMarkdown output.
-    return renderMarkdown(input);
+    // returns an empty string. This is a trade-off: prefer a brief
+    // empty render over a 0-day XSS surface. The page should
+    // re-render within a few milliseconds when the import resolves.
+    if (typeof window === 'undefined') {
+        // SSR-safe fallback: return the escaped-only output.
+        return renderMarkdown(input);
+    }
+    return '';
 }
 
 export default renderMarkdown;

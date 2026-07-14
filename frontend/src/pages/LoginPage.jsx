@@ -2,11 +2,12 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { api } from '../services/api';
-import { setAuthToken, getAuthToken } from '../services/auth';
+import { useAuth } from '../contexts/AuthContext';
 
 const LoginPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user, login } = useAuth();
 
   // ── Two-step state ──────────────────────────────────────
   // step 1: email + password
@@ -22,11 +23,11 @@ const LoginPage = () => {
   const codeInputRef = useRef(null);
 
   useEffect(() => {
-    if (getAuthToken()) {
+    if (user) {
       const from = location.state?.from || '/admin';
       navigate(from, { replace: true });
     }
-  }, [navigate, location.state]);
+  }, [user, navigate, location.state]);
 
   // Auto-focus the 2FA input as soon as we transition to step 2.
   useEffect(() => {
@@ -41,30 +42,25 @@ const LoginPage = () => {
     setSubmitting(true);
 
     if (step === 'password') {
-      const res = await api.post('/auth/login', { email, password });
-      if (res.ok && res.data) {
-        if (res.data.requires2fa) {
-          setChallengeToken(res.data.challengeToken);
+      const res = await login({ email, password });
+      if (res.ok) {
+        if (res.requires2fa) {
+          setChallengeToken(res.challengeToken);
           setStep('2fa');
           setSubmitting(false);
           return;
         }
-        if (res.data.token) {
-          setAuthToken(res.data.token, res.data.user);
-          const from = location.state?.from || '/admin';
-          navigate(from, { replace: true });
-        }
+        // Login succeeded - cookie is set, user state updated
+        const from = location.state?.from || '/admin';
+        navigate(from, { replace: true });
       } else {
         setError(res.error || 'Invalid credentials. Please try again.');
       }
     } else {
       // step === '2fa'
-      const res = await api.post('/auth/login/2fa', {
-        challengeToken,
-        code: twoFactorCode,
-      });
-      if (res.ok && res.data?.token) {
-        setAuthToken(res.data.token, res.data.user);
+      const res = await login({ twoFactorCode, challengeToken });
+      if (res.ok) {
+        // Cookie is set, user state updated
         const from = location.state?.from || '/admin';
         navigate(from, { replace: true });
       } else {

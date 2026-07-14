@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, User, ShoppingBag, Menu, Crosshair, Target, Camera, ArrowRight, ArrowUpRight, Plus, Minus, Mail, Phone, MapPin } from 'lucide-react';
 import { api } from '../../services/api';
+import { dronePlaceholder, equipmentPlaceholder } from '../../utils/placeholders';
+import { validateBooking, validateField } from '../../utils/formValidation';
 
 // ── Drone-page fonts ─────────────────────────────────────
 // "Michroma" for headings and "Geomini" for body text.
@@ -61,10 +63,37 @@ const DroneHomePage = () => {
     full_name: '', email: '', phone: '', service: '', location: '', preferred_date: '', notes: '',
   });
   const [bookingStatus, setBookingStatus] = useState('idle'); // idle | submitting | success | error
+  const [bookingErrors, setBookingErrors] = useState({});
+
+  const handleBookingFieldChange = (field, value) => {
+    setBooking({ ...booking, [field]: value });
+    // Clear error on change
+    if (bookingErrors[field]) {
+      setBookingErrors({ ...bookingErrors, [field]: '' });
+    }
+  };
+
+  const handleBookingFieldBlur = (field) => {
+    const error = validateField(field, booking[field]);
+    setBookingErrors((prev) => ({ ...prev, [field]: error }));
+  };
 
   const handleBooking = async (e) => {
     e.preventDefault();
+    
+    // Client-side validation
+    const validation = validateBooking(booking);
+    if (!validation.valid) {
+      setBookingErrors(validation.errors);
+      // Focus first error field
+      const firstError = Object.keys(validation.errors)[0];
+      const el = document.querySelector(`[name="booking_${firstError}"]`);
+      if (el) el.focus();
+      return;
+    }
+
     setBookingStatus('submitting');
+    setBookingErrors({});
     const res = await api.post('/bookings', { ...booking, division: 'DRONE' });
     if (res.ok) {
       setBookingStatus('success');
@@ -99,12 +128,17 @@ const DroneHomePage = () => {
   // Live projects fetched from /api/projects/division/DRONE.
   // Only PUBLISHED rows come back; see projectRoutes.js.
   const [apiPortfolio, setApiPortfolio] = useState([]);
+  const [portfolioLoading, setPortfolioLoading] = useState(true);
   useEffect(() => {
+    let cancelled = false;
     const load = async () => {
       const res = await api.get('/projects/division/DRONE');
+      if (cancelled) return;
       if (res.ok && Array.isArray(res.data)) setApiPortfolio(res.data);
+      setPortfolioLoading(false);
     };
     load();
+    return () => { cancelled = true; };
   }, []);
 
   const portfolio = apiPortfolio.length > 0 ? apiPortfolio : fallbackPortfolio;
@@ -141,20 +175,43 @@ const DroneHomePage = () => {
   };
 
   // Simple intersection observer for reveal animations
+  // Guard: a ref + state check prevents duplicate observers when
+  // the effect re-runs due to dependency churn (the previous
+  // version would have re-attached the same observer multiple
+  // times and re-fired all entries for every navigation).
+  const observerRef = useRef(null);
   const [visibleElements, setVisibleElements] = useState(new Set());
   useEffect(() => {
+    // Skip if we already have an observer attached (React strict
+    // mode double-mount in dev, or fast-refresh remount).
+    if (observerRef.current) return;
     const observer = new IntersectionObserver(
       (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setVisibleElements((prev) => new Set([...prev, entry.target.dataset.id]));
+        setVisibleElements((prev) => {
+          const next = new Set(prev);
+          for (const entry of entries) {
+            if (entry.isIntersecting && entry.target.dataset.id) {
+              next.add(entry.target.dataset.id);
+            }
           }
+          return next;
         });
       },
-      { threshold: 0.1 }
+      { threshold: 0.1, rootMargin: '0px 0px -50px 0px' }
     );
-    document.querySelectorAll('.drone-observe').forEach((el) => observer.observe(el));
-    return () => observer.disconnect();
+    // Wait one tick so the elements are mounted before observing.
+    // Without this, an early call to document.querySelectorAll
+    // returns an empty list and the observer attaches to nothing.
+    const id = requestAnimationFrame(() => {
+      document.querySelectorAll('.drone-observe').forEach((el) => observer.observe(el));
+    });
+    observerRef.current = { observer, raf: id };
+    return () => {
+      const { observer: o, raf: r } = observerRef.current || {};
+      if (r) cancelAnimationFrame(r);
+      if (o) o.disconnect();
+      observerRef.current = null;
+    };
   }, []);
 
   return (
@@ -225,7 +282,7 @@ const DroneHomePage = () => {
           <div className="absolute top-[45%] left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 w-[90%] md:w-[70%] max-w-5xl pointer-events-none">
             <div className="relative w-full pb-[60%]">
               <img 
-                src="https://coresg-normal.trae.ai/api/ide/v1/text_to_image?prompt=A%20sleek%20black%20stealth%20jet-powered%20military%20drone%20concept%20top-down%20view%20transparent%20background%20high%20detail&image_size=landscape_16_9" 
+                src={dronePlaceholder({ width: 800, height: 450, label: 'Jet-Powered ISR Drone' })}
                 alt="Jet-Powered ISR Drone Concept" 
                 className="absolute inset-0 w-full h-full object-contain drop-shadow-2xl scale-110" 
               />
@@ -264,10 +321,10 @@ const DroneHomePage = () => {
           {/* Thumbnails below the drone */}
           <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex gap-4 z-30 hidden md:flex pointer-events-auto">
             <div className="w-20 h-20 bg-white rounded-3xl shadow-sm border border-gray-100 flex items-center justify-center p-3 cursor-pointer hover:shadow-md transition-shadow">
-              <img src="https://coresg-normal.trae.ai/api/ide/v1/text_to_image?prompt=small%20black%20stealth%20drone%20top%20view%20transparent%20background&image_size=square" alt="Thumb 1" className="w-full h-full object-contain" />
+              <img src={dronePlaceholder({ width: 80, height: 80, label: '' })} alt="Thumb 1" className="w-full h-full object-contain" />
             </div>
             <div className="w-20 h-20 bg-white rounded-3xl shadow-sm border border-gray-100 flex items-center justify-center p-3 cursor-pointer hover:shadow-md transition-shadow">
-              <img src="https://coresg-normal.trae.ai/api/ide/v1/text_to_image?prompt=small%20black%20stealth%20drone%20angled%20view%20transparent%20background&image_size=square" alt="Thumb 2" className="w-full h-full object-contain" />
+              <img src={dronePlaceholder({ width: 80, height: 80, label: '' })} alt="Thumb 2" className="w-full h-full object-contain" />
             </div>
           </div>
         </section>
@@ -343,13 +400,25 @@ const DroneHomePage = () => {
             <button onClick={() => scrollTo('contact')} className="text-sm font-bold underline decoration-2 underline-offset-4 hover:text-gray-500 transition-colors">View All Projects</button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {portfolio.map((proj, idx) => {
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6" role="region" aria-label="Drone portfolio projects" aria-busy={portfolioLoading}>
+            {portfolioLoading && portfolio.length === 0 ? (
+              <>
+                {[0, 1, 2, 3].map((i) => (
+                  <div key={`skel-${i}`} className="animate-pulse">
+                    <div className="aspect-[4/3] bg-gray-200 dark:bg-gray-700 rounded-2xl mb-4" />
+                    <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/3 mb-3" />
+                    <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-2" />
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full mb-1" />
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-2/3" />
+                  </div>
+                ))}
+              </>
+            ) : portfolio.map((proj, idx) => {
               const isFallback = typeof proj.id === 'string' && proj.id.startsWith('fallback-');
               const tag = (proj.tags && proj.tags[0]) || proj.category || 'Drone';
               const year = proj.year || (proj.published_at ? new Date(proj.published_at).getFullYear() : '');
               const imgSrc = proj.image_url
-                || `https://coresg-normal.trae.ai/api/ide/v1/text_to_image?prompt=Aerial%20drone%20shot%20of%20${encodeURIComponent(proj.title)},%20${encodeURIComponent(tag)},%20photorealistic,%20cinematic%20lighting&image_size=landscape_4_3`;
+                || dronePlaceholder({ width: 600, height: 450, label: proj.title });
 
               const cardInner = (
                 <>
@@ -419,7 +488,7 @@ const DroneHomePage = () => {
               >
                 <div className="aspect-square bg-white rounded-3xl mb-4 border border-gray-100 group-hover:border-black transition-colors flex items-center justify-center overflow-hidden">
                   <img 
-                    src={`https://coresg-normal.trae.ai/api/ide/v1/text_to_image?prompt=Professional%20${encodeURIComponent(eq.name)}%20drone%20product%20shot%20white%20background%20studio%20lighting&image_size=square`}
+                    src={equipmentPlaceholder({ width: 200, height: 200, label: eq.name })}
                     alt={eq.name}
                     className="w-full h-full object-cover p-4 group-hover:scale-110 transition-transform duration-500"
                   />
@@ -511,31 +580,146 @@ const DroneHomePage = () => {
               </div>
             </div>
 
-            <form className="space-y-5" onSubmit={handleBooking}>
-              <input type="text" placeholder="Full name *" required value={booking.full_name} onChange={e => setBooking({ ...booking, full_name: e.target.value })} className="w-full bg-transparent border-b-2 border-white/20 py-3 text-white placeholder-white/40 focus:outline-none focus:border-accent transition-colors" />
-              <input type="email" placeholder="Email address *" required value={booking.email} onChange={e => setBooking({ ...booking, email: e.target.value })} className="w-full bg-transparent border-b-2 border-white/20 py-3 text-white placeholder-white/40 focus:outline-none focus:border-accent transition-colors" />
-              <input type="tel" placeholder="Phone" value={booking.phone} onChange={e => setBooking({ ...booking, phone: e.target.value })} className="w-full bg-transparent border-b-2 border-white/20 py-3 text-white placeholder-white/40 focus:outline-none focus:border-accent transition-colors" />
-              <select required value={booking.service} onChange={e => setBooking({ ...booking, service: e.target.value })} className="w-full bg-transparent border-b-2 border-white/20 py-3 text-white focus:outline-none focus:border-accent transition-colors appearance-none">
-                <option value="" className="text-gray-900">— Select Service —</option>
-                {services.map((s, i) => <option key={i} value={s.title} className="text-gray-900">{s.title}</option>)}
-              </select>
-              <input type="text" placeholder="Project location" value={booking.location} onChange={e => setBooking({ ...booking, location: e.target.value })} className="w-full bg-transparent border-b-2 border-white/20 py-3 text-white placeholder-white/40 focus:outline-none focus:border-accent transition-colors" />
-              <input type="date" placeholder="Preferred date" value={booking.preferred_date} onChange={e => setBooking({ ...booking, preferred_date: e.target.value })} className="w-full bg-transparent border-b-2 border-white/20 py-3 text-white placeholder-white/40 focus:outline-none focus:border-accent transition-colors" />
-              <textarea rows="3" placeholder="Tell us about your mission..." value={booking.notes} onChange={e => setBooking({ ...booking, notes: e.target.value })} className="w-full bg-transparent border-b-2 border-white/20 py-3 text-white placeholder-white/40 focus:outline-none focus:border-accent transition-colors resize-none"></textarea>
-              <button type="submit" disabled={bookingStatus === 'submitting'} className={`w-full py-4 text-sm font-bold uppercase tracking-[0.2em] rounded-full flex items-center justify-center gap-3 group transition-colors ${
-                bookingStatus === 'success'
-                  ? 'bg-green-500 text-white'
-                  : bookingStatus === 'error'
-                  ? 'bg-red-500 text-white'
-                  : bookingStatus === 'submitting'
-                  ? 'bg-white/20 text-white/50 cursor-not-allowed'
-                  : 'bg-white text-black hover:bg-accent hover:text-white'
-              }`}>
+            <form className="space-y-5" onSubmit={handleBooking} noValidate aria-label="Drone service booking request">
+              <div>
+                <label htmlFor="booking_full_name" className="sr-only">Full name</label>
+                <input
+                  id="booking_full_name"
+                  name="booking_full_name"
+                  type="text"
+                  placeholder="Full name *"
+                  required
+                  value={booking.full_name}
+                  onChange={e => handleBookingFieldChange('full_name', e.target.value)}
+                  onBlur={() => handleBookingFieldBlur('full_name')}
+                  aria-invalid={!!bookingErrors.full_name}
+                  aria-describedby={bookingErrors.full_name ? 'err_full_name' : undefined}
+                  className={`w-full bg-transparent border-b-2 py-3 text-white placeholder-white/40 focus:outline-none transition-colors ${
+                    bookingErrors.full_name ? 'border-red-400 focus:border-red-400' : 'border-white/20 focus:border-accent'
+                  }`}
+                />
+                {bookingErrors.full_name && <p id="err_full_name" role="alert" className="text-xs text-red-300 mt-1">{bookingErrors.full_name}</p>}
+              </div>
+              <div>
+                <label htmlFor="booking_email" className="sr-only">Email address</label>
+                <input
+                  id="booking_email"
+                  name="booking_email"
+                  type="email"
+                  placeholder="Email address *"
+                  required
+                  value={booking.email}
+                  onChange={e => handleBookingFieldChange('email', e.target.value)}
+                  onBlur={() => handleBookingFieldBlur('email')}
+                  aria-invalid={!!bookingErrors.email}
+                  aria-describedby={bookingErrors.email ? 'err_email' : undefined}
+                  className={`w-full bg-transparent border-b-2 py-3 text-white placeholder-white/40 focus:outline-none transition-colors ${
+                    bookingErrors.email ? 'border-red-400 focus:border-red-400' : 'border-white/20 focus:border-accent'
+                  }`}
+                />
+                {bookingErrors.email && <p id="err_email" role="alert" className="text-xs text-red-300 mt-1">{bookingErrors.email}</p>}
+              </div>
+              <div>
+                <label htmlFor="booking_phone" className="sr-only">Phone</label>
+                <input
+                  id="booking_phone"
+                  name="booking_phone"
+                  type="tel"
+                  placeholder="Phone (optional)"
+                  value={booking.phone}
+                  onChange={e => handleBookingFieldChange('phone', e.target.value)}
+                  onBlur={() => handleBookingFieldBlur('phone')}
+                  aria-invalid={!!bookingErrors.phone}
+                  aria-describedby={bookingErrors.phone ? 'err_phone' : undefined}
+                  className={`w-full bg-transparent border-b-2 py-3 text-white placeholder-white/40 focus:outline-none transition-colors ${
+                    bookingErrors.phone ? 'border-red-400 focus:border-red-400' : 'border-white/20 focus:border-accent'
+                  }`}
+                />
+                {bookingErrors.phone && <p id="err_phone" role="alert" className="text-xs text-red-300 mt-1">{bookingErrors.phone}</p>}
+              </div>
+              <div>
+                <label htmlFor="booking_service" className="sr-only">Service type</label>
+                <select
+                  id="booking_service"
+                  name="booking_service"
+                  required
+                  value={booking.service}
+                  onChange={e => handleBookingFieldChange('service', e.target.value)}
+                  onBlur={() => handleBookingFieldBlur('service')}
+                  aria-invalid={!!bookingErrors.service}
+                  aria-describedby={bookingErrors.service ? 'err_service' : undefined}
+                  className={`w-full bg-transparent border-b-2 py-3 text-white focus:outline-none transition-colors appearance-none ${
+                    bookingErrors.service ? 'border-red-400 focus:border-red-400' : 'border-white/20 focus:border-accent'
+                  }`}
+                >
+                  <option value="" disabled className="text-gray-900">— Select Service —</option>
+                  {services.map((s, i) => <option key={i} value={s.title} className="text-gray-900">{s.title}</option>)}
+                </select>
+                {bookingErrors.service && <p id="err_service" role="alert" className="text-xs text-red-300 mt-1">{bookingErrors.service}</p>}
+              </div>
+              <div>
+                <label htmlFor="booking_location" className="sr-only">Project location</label>
+                <input
+                  id="booking_location"
+                  name="booking_location"
+                  type="text"
+                  placeholder="Project location"
+                  value={booking.location}
+                  onChange={e => handleBookingFieldChange('location', e.target.value)}
+                  className="w-full bg-transparent border-b-2 border-white/20 py-3 text-white placeholder-white/40 focus:outline-none focus:border-accent transition-colors"
+                />
+              </div>
+              <div>
+                <label htmlFor="booking_preferred_date" className="sr-only">Preferred date</label>
+                <input
+                  id="booking_preferred_date"
+                  name="booking_preferred_date"
+                  type="date"
+                  placeholder="Preferred date"
+                  min={new Date().toISOString().split('T')[0]}
+                  value={booking.preferred_date}
+                  onChange={e => handleBookingFieldChange('preferred_date', e.target.value)}
+                  onBlur={() => handleBookingFieldBlur('preferred_date')}
+                  aria-invalid={!!bookingErrors.preferred_date}
+                  aria-describedby={bookingErrors.preferred_date ? 'err_preferred_date' : undefined}
+                  className={`w-full bg-transparent border-b-2 py-3 text-white placeholder-white/40 focus:outline-none transition-colors ${
+                    bookingErrors.preferred_date ? 'border-red-400 focus:border-red-400' : 'border-white/20 focus:border-accent'
+                  }`}
+                />
+                {bookingErrors.preferred_date && <p id="err_preferred_date" role="alert" className="text-xs text-red-300 mt-1">{bookingErrors.preferred_date}</p>}
+              </div>
+              <div>
+                <label htmlFor="booking_notes" className="sr-only">Mission details</label>
+                <textarea
+                  id="booking_notes"
+                  name="booking_notes"
+                  rows="3"
+                  maxLength={1000}
+                  placeholder="Tell us about your mission..."
+                  value={booking.notes}
+                  onChange={e => handleBookingFieldChange('notes', e.target.value)}
+                  className="w-full bg-transparent border-b-2 border-white/20 py-3 text-white placeholder-white/40 focus:outline-none focus:border-accent transition-colors resize-none"
+                ></textarea>
+              </div>
+              <button
+                type="submit"
+                disabled={bookingStatus === 'submitting'}
+                aria-busy={bookingStatus === 'submitting'}
+                className={`w-full py-4 text-sm font-bold uppercase tracking-[0.2em] rounded-full flex items-center justify-center gap-3 group transition-colors ${
+                  bookingStatus === 'success'
+                    ? 'bg-green-500 text-white'
+                    : bookingStatus === 'error'
+                    ? 'bg-red-500 text-white'
+                    : bookingStatus === 'submitting'
+                    ? 'bg-white/20 text-white/50 cursor-not-allowed'
+                    : 'bg-white text-black hover:bg-accent hover:text-white'
+                }`}
+              >
                 {bookingStatus === 'success' ? '✓ Request Sent — We\'ll respond in 24h' : bookingStatus === 'error' ? '✗ Try Again' : bookingStatus === 'submitting' ? 'Sending...' : 'Submit Request'}
                 {bookingStatus === 'idle' && <ArrowRight className="w-4 h-4 group-hover:translate-x-2 transition-transform" />}
               </button>
               {bookingStatus === 'error' && (
-                <p className="text-xs text-red-300 font-medium text-center">Something went wrong. Please try again or email us directly.</p>
+                <p role="alert" className="text-xs text-red-300 font-medium text-center">Something went wrong. Please try again or email us directly.</p>
               )}
             </form>
           </div>

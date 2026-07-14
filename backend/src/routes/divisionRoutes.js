@@ -31,18 +31,37 @@ droneRouter.use(verifyToken, requireDivision('DRONE'));
  * already uses on /api/bookings.
  */
 async function listBookingsByDivision(division, req, res) {
-    const { status, from, to } = req.query;
+    const { status, from, to, page = 1, limit = 50 } = req.query;
+    const pageNum = Math.max(1, parseInt(page));
+    const limitNum = Math.min(100, Math.max(1, parseInt(limit)));
+    const offset = (pageNum - 1) * limitNum;
+    
     const params = [division];
     const conditions = ['division = $1'];
     if (status) { params.push(status); conditions.push(`status = $${params.length}`); }
     if (from)   { params.push(from);   conditions.push(`created_at >= $${params.length}`); }
     if (to)     { params.push(to);     conditions.push(`created_at <= $${params.length}`); }
     try {
+        // Count total
+        const countQuery = `SELECT COUNT(*) FROM bookings WHERE ${conditions.join(' AND ')}`;
+        const countResult = await pool.query(countQuery, params);
+        const total = parseInt(countResult.rows[0].count);
+        
+        // Get paginated results
         const { rows } = await pool.query(
-            `SELECT * FROM bookings WHERE ${conditions.join(' AND ')} ORDER BY created_at DESC LIMIT 500`,
-            params
+            `SELECT * FROM bookings WHERE ${conditions.join(' AND ')} ORDER BY created_at DESC LIMIT $${params.length + 1} OFFSET $${params.length + 2}`,
+            [...params, limitNum, offset]
         );
-        return res.json(rows);
+        return res.json({
+            data: rows,
+            pagination: {
+                page: pageNum,
+                limit: limitNum,
+                total,
+                totalPages: Math.ceil(total / limitNum),
+                hasMore: pageNum < Math.ceil(total / limitNum)
+            }
+        });
     } catch (err) {
         console.error('[Division] listBookings error:', err.message);
         return res.status(500).json({ error: 'Internal server error.' });

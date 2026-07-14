@@ -4,6 +4,7 @@
 // ──────────────────────────────────────────────────────────
 
 import express from 'express';
+import rateLimit from 'express-rate-limit';
 import { z } from 'zod';
 import pool from '../config/db.js';
 import { verifyToken, requireRole } from '../middlewares/authMiddleware.js';
@@ -13,10 +14,30 @@ import {
     replyToInboxItem,
 } from '../controllers/adminInboxController.js';
 import { writeAuditLog, getClientIp } from '../utils/auditLog.js';
+import {
+    exportClients,
+    exportInvoices,
+    exportProjects,
+    exportFeedback,
+} from '../controllers/exportController.js';
 
 const router = express.Router();
 router.use(verifyToken);
 router.use(requireRole('Owner', 'Administrator'));
+
+// ── Search-specific rate limiter ────────────────────────
+// Search is read-only but expensive (5 ILIKE queries with
+// 5 wildcards per query). Cap each admin to 60 requests
+// per minute — enough for a real power user, low enough
+// to prevent accidental hammering while typing in Cmd-K.
+const searchLimiter = rateLimit({
+    windowMs: 60 * 1000, // 1 minute
+    max: 60,
+    keyGenerator: (req) => req.user?.id || req.ip,
+    message: { error: 'Search rate limit reached. Please slow down.' },
+    standardHeaders: true,
+    legacyHeaders: false,
+});
 
 // ── Unified inbox ───────────────────────────────────────
 router.get('/', getInbox);
@@ -84,7 +105,7 @@ const search = async (req, res) => {
         return res.status(500).json({ error: 'Search failed.' });
     }
 };
-router.get('/search', search);
+router.get('/search', searchLimiter, search);
 
 // ── Bulk actions ─────────────────────────────────────────
 // POST /api/admin/bulk/invoices
@@ -237,6 +258,51 @@ router.get('/backup-status', async (req, res) => {
         console.error('[Backup] error:', err.message);
         return res.status(500).json({ error: 'Failed to gather backup status.' });
     }
+});
+
+// ── CSV streaming exports ───────────────────────────────
+// GET /api/admin/export/:entity
+// Streams the entire table to the client as CSV via
+// pg-query-stream. Stays memory-flat even at 50k+ rows.
+router.get('/export/clients', (req, res, next) => {
+    writeAuditLog({
+        action: 'EXPORT_CLIENTS',
+        entityType: 'clients',
+        details: { count: 'streaming' },
+        user: req.user,
+        ipAddress: getClientIp(req),
+    }).catch(() => {/* fire-and-forget */});
+    return exportClients(req, res, next);
+});
+router.get('/export/invoices', (req, res, next) => {
+    writeAuditLog({
+        action: 'EXPORT_INVOICES',
+        entityType: 'invoices',
+        details: { count: 'streaming' },
+        user: req.user,
+        ipAddress: getClientIp(req),
+    }).catch(() => {/* fire-and-forget */});
+    return exportInvoices(req, res, next);
+});
+router.get('/export/projects', (req, res, next) => {
+    writeAuditLog({
+        action: 'EXPORT_PROJECTS',
+        entityType: 'projects',
+        details: { count: 'streaming' },
+        user: req.user,
+        ipAddress: getClientIp(req),
+    }).catch(() => {/* fire-and-forget */});
+    return exportProjects(req, res, next);
+});
+router.get('/export/feedback', (req, res, next) => {
+    writeAuditLog({
+        action: 'EXPORT_FEEDBACK',
+        entityType: 'project_feedback',
+        details: { count: 'streaming' },
+        user: req.user,
+        ipAddress: getClientIp(req),
+    }).catch(() => {/* fire-and-forget */});
+    return exportFeedback(req, res, next);
 });
 
 export default router;

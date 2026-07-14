@@ -8,6 +8,8 @@ import express from 'express';
 import cors from 'cors';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
+import cookieParser from 'cookie-parser';
+import csrf from 'csurf';
 
 // ── Route modules ────────────────────────────────────────
 import authRoutes from './routes/authRoutes.js';
@@ -41,6 +43,23 @@ import { startCronJobs } from './services/cronService.js';
 const app = express();
 app.set('trust proxy', 1);
 const PORT = process.env.PORT || 4000;
+
+// ── CSRF Protection ──────────────────────────────────────
+// Double-submit cookie pattern: CSRF token sent in cookie + header
+const csrfProtection = csrf({
+    cookie: {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        key: 'csrf-token'
+    }
+});
+
+// Helper to set CSRF token in response locals for templates
+app.use((req, res, next) => {
+    res.locals.csrfToken = req.csrfToken ? req.csrfToken() : null;
+    next();
+});
 
 // ── Rate limiters ────────────────────────────────────────
 const authLimiter = rateLimit({
@@ -83,6 +102,20 @@ app.use(cors({
     credentials: true,
 }));
 app.use(express.json({ limit: '100kb' }));
+app.use(cookieParser()); // Parse cookies for JWT + CSRF
+
+// Apply CSRF protection to all routes except auth login/refresh/logout
+app.use((req, res, next) => {
+    // Skip CSRF for safe methods and auth endpoints
+    const skipPaths = ['/api/auth/login', '/api/auth/refresh', '/api/auth/logout', '/api/auth/2fa'];
+    const isAuthEndpoint = skipPaths.some(path => req.path.startsWith(path));
+    const isSafeMethod = ['GET', 'HEAD', 'OPTIONS'].includes(req.method);
+    
+    if (isAuthEndpoint || isSafeMethod) {
+        return next();
+    }
+    csrfProtection(req, res, next);
+});
 
 // ── Health-check (legacy, no DB) ─────────────────────────
 app.get('/api/health', (_req, res) => {
@@ -145,6 +178,11 @@ app.use('/api/fx-rates', apiLimiter, fxRateRoutes);
 // are intentionally unauthenticated — the URL token is the auth.
 app.use('/api/payments', apiLimiter, paymentRoutes);
 
+// ── CSRF token endpoint for frontend ─────────────────────
+app.get('/api/csrf-token', (req, res) => {
+    res.json({ csrfToken: req.csrfToken ? req.csrfToken() : null });
+});
+
 // ── 404 fallback ─────────────────────────────────────────
 app.use((_req, res) => {
     res.status(404).json({ error: 'Route not found.' });
@@ -152,6 +190,10 @@ app.use((_req, res) => {
 
 // ── Global error handler ─────────────────────────────────
 app.use((err, _req, res, _next) => {
+    // CSRF error handling
+    if (err.code === 'EBADCSRFTOKEN') {
+        return res.status(403).json({ error: 'Invalid CSRF token. Please refresh the page.' });
+    }
     console.error('[Server] Unhandled error:', err);
     res.status(500).json({ error: 'Internal server error.' });
 });
