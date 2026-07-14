@@ -37,7 +37,7 @@ const AdminEmailTemplates = React.lazy(() => import('./pages/admin/AdminEmailTem
 const AdminHelp = React.lazy(() => import('./pages/admin/AdminHelp'));
 const AdminPaymentQueue = React.lazy(() => import('./pages/admin/AdminPaymentQueue'));
 const PaymentPage = React.lazy(() => import('./pages/PaymentPage'));
-const ResourcesPage = React.lazy(() => import('./pages/ResourcesPage'));
+
 const PricingPage = React.lazy(() => import('./pages/PricingPage'));
 const AdminSurveyBookings = React.lazy(() => import('./pages/admin/survey/AdminSurveyBookings'));
 const AdminSurveyProjects = React.lazy(() => import('./pages/admin/survey/AdminSurveyProjects'));
@@ -157,7 +157,7 @@ function App() {
               <Routes location={location} key={location.pathname}>
                 <Route path="/" element={<PageWrapper><HomePage /></PageWrapper>} />
                 <Route path="/projects" element={<PageWrapper><ProjectsPage /></PageWrapper>} />
-                <Route path="/resources" element={<PageWrapper><ResourcesPage /></PageWrapper>} />
+
                 <Route path="/pricing" element={<PageWrapper><PricingPage /></PageWrapper>} />
                 <Route path="/contact" element={<PageWrapper><ContactPage /></PageWrapper>} />
                 <Route path="/about" element={<PageWrapper><AboutPage /></PageWrapper>} />

@@ -33,6 +33,8 @@ CREATE TABLE IF NOT EXISTS projects (
   summary     TEXT,
   content     TEXT,
   tech_stack  TEXT[],
+  features    TEXT[],
+  category    TEXT,
   image_url   TEXT,
   live_url    TEXT,
   repo_url    TEXT,

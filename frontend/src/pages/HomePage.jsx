@@ -5,7 +5,7 @@ import About from '../components/About';
 import Services from '../components/Services';
 import WhyChoose from '../components/WhyChoose';
 import Pricing from '../components/Pricing';
-import SaaSProducts from '../components/SaaSProducts';
+
 import Projects from '../components/Projects';
 import FAQ from '../components/FAQ';
 import Contact from '../components/Contact';
@@ -27,7 +27,7 @@ const HomePage = () => {
       <Services />
       <WhyChoose />
       <Pricing />
-      <SaaSProducts />
+
       <Projects />
       <FAQ />
       <Contact />

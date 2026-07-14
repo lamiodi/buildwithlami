@@ -38,10 +38,12 @@ const AdminPortfolio = ({ lockedDivision }) => {
         title: '', slug: '', summary: '', content: '',
         image_url: '', live_url: '', repo_url: '',
         division: lockedDivision || 'SOFTWARE', status: 'DRAFT',
-        location: '', client_name: '',
-        display_order: 0, tags: [],
+        location: '', client_name: '', category: '',
+        display_order: 0, tags: [], tech_stack: [], features: [],
     });
     const [tagsInput, setTagsInput] = useState('');
+    const [techStackInput, setTechStackInput] = useState('');
+    const [featuresInput, setFeaturesInput] = useState('');
     const [uploading, setUploading] = useState(false);
     // Filter dropdown is only meaningful in the un-locked view
     // (i.e. the SOFTWARE workspace's "all divisions" mode).
@@ -90,20 +92,27 @@ const AdminPortfolio = ({ lockedDivision }) => {
                 status: project.status || 'DRAFT',
                 location: project.location || '',
                 client_name: project.client_name || '',
+                category: project.category || '',
                 display_order: project.display_order || 0,
                 tags: project.tags || [],
+                tech_stack: project.tech_stack || [],
+                features: project.features || [],
             });
             setTagsInput((project.tags || []).join(', '));
+            setTechStackInput((project.tech_stack || []).join(', '));
+            setFeaturesInput((project.features || []).join(', '));
         } else {
             setEditingProject(null);
             setFormData({
                 title: '', slug: '', summary: '', content: '',
                 image_url: '', live_url: '', repo_url: '',
                 division: lockedDivision || 'SOFTWARE', status: 'DRAFT',
-                location: '', client_name: '',
-                display_order: 0, tags: [],
+                location: '', client_name: '', category: '',
+                display_order: 0, tags: [], tech_stack: [], features: [],
             });
             setTagsInput('');
+            setTechStackInput('');
+            setFeaturesInput('');
         }
         setIsEditModalOpen(true);
     };
@@ -146,6 +155,15 @@ const AdminPortfolio = ({ lockedDivision }) => {
                     .split(',')
                     .map((t) => t.trim())
                     .filter(Boolean),
+                tech_stack: techStackInput
+                    .split(',')
+                    .map((t) => t.trim())
+                    .filter(Boolean),
+                features: featuresInput
+                    .split(',')
+                    .map((t) => t.trim())
+                    .filter(Boolean),
+                category: formData.category || null,
                 // Empty string → null so the URL validator
                 // doesn't reject the empty form.
                 image_url: formData.image_url || null,
@@ -343,9 +361,28 @@ const AdminPortfolio = ({ lockedDivision }) => {
                                         <input value={tagsInput} onChange={e => setTagsInput(e.target.value)} className="w-full p-2 rounded-lg border dark:border-gray-800 bg-transparent" placeholder="e.g. aerial-survey, lidar, ncaa" />
                                     </div>
                                     <div>
+                                        <label className="block text-sm font-bold mb-1">Category</label>
+                                        <input value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})} className="w-full p-2 rounded-lg border dark:border-gray-800 bg-transparent" placeholder="e.g. Full-Stack, E-Commerce" />
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-sm font-bold mb-1">Tech Stack <span className="text-gray-400 font-normal text-xs">(comma separated)</span></label>
+                                        <input value={techStackInput} onChange={e => setTechStackInput(e.target.value)} className="w-full p-2 rounded-lg border dark:border-gray-800 bg-transparent" placeholder="e.g. React, Node.js, PostgreSQL" />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-bold mb-1">Features <span className="text-gray-400 font-normal text-xs">(comma separated)</span></label>
+                                        <input value={featuresInput} onChange={e => setFeaturesInput(e.target.value)} className="w-full p-2 rounded-lg border dark:border-gray-800 bg-transparent" placeholder="e.g. Real-time chat, GPS tracking" />
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
                                         <label className="block text-sm font-bold mb-1">Display Order</label>
                                         <input type="number" min="0" value={formData.display_order} onChange={e => setFormData({...formData, display_order: e.target.value})} className="w-full p-2 rounded-lg border dark:border-gray-800 bg-transparent" />
                                     </div>
+                                    <div></div>
                                 </div>
 
                                 <div>

@@ -19,6 +19,8 @@ const createProjectSchema = z.object({
     summary: z.string().optional(),
     content: z.string().optional(),
     tech_stack: z.array(z.string()).optional(),
+    features: z.array(z.string()).optional(),
+    category: z.string().optional().nullable(),
     image_url: z.string().url().optional().or(z.literal('')),
     live_url: z.string().url().optional().or(z.literal('')),
     repo_url: z.string().url().optional().or(z.literal('')),
@@ -37,6 +39,8 @@ const updateProjectSchema = z.object({
     summary: z.string().optional().nullable(),
     content: z.string().optional().nullable(),
     tech_stack: z.array(z.string()).optional().nullable(),
+    features: z.array(z.string()).optional().nullable(),
+    category: z.string().optional().nullable(),
     image_url: z.string().url().optional().nullable().or(z.literal('')),
     live_url: z.string().url().optional().nullable().or(z.literal('')),
     repo_url: z.string().url().optional().nullable().or(z.literal('')),
@@ -132,14 +136,14 @@ export async function createProject(req, res) {
         const data = createProjectSchema.parse(req.body);
         const { rows } = await pool.query(
             `INSERT INTO projects (
-                title, slug, summary, content, tech_stack,
+                title, slug, summary, content, tech_stack, features, category,
                 image_url, live_url, repo_url,
                 division, featured, status,
                 location, client_name, display_order, tags,
                 published_at
             )
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15,
-                    CASE WHEN $11 = 'PUBLISHED' THEN NOW() ELSE NULL END)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17,
+                    CASE WHEN $13 = 'PUBLISHED' THEN NOW() ELSE NULL END)
             RETURNING *`,
             [
                 data.title,
@@ -147,6 +151,8 @@ export async function createProject(req, res) {
                 data.summary || null,
                 data.content || null,
                 data.tech_stack || [],
+                data.features || [],
+                data.category || null,
                 data.image_url || null,
                 data.live_url || null,
                 data.repo_url || null,
