@@ -41,53 +41,6 @@ const Icon = {
     Filter: ActionIcon.Filter,
 };
 
-const StatusPill = ({ status }) => {
-    const map = {
-        ONBOARDING: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300',
-        PLANNING: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300',
-        DESIGN: 'bg-pink-100 text-pink-800 dark:bg-pink-900/30 dark:text-pink-300',
-        DEVELOPMENT: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300',
-        REVIEW: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300',
-        LAUNCHED: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300',
-        MAINTENANCE: 'bg-cyan-100 text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-300',
-        ARCHIVED: 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400',
-    };
-    return (
-        <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider whitespace-nowrap ${map[status] || 'bg-gray-100 text-gray-600'}`}>
-            {status}
-        </span>
-    );
-};
-
-const StatCard = ({ label, value, hint, icon: IconComp, accent = 'blue', isCurrency }) => {
-    const accents = {
-        blue: { grad: 'from-blue-500 to-indigo-600', ring: 'ring-blue-500/10' },
-        emerald: { grad: 'from-emerald-500 to-teal-600', ring: 'ring-emerald-500/10' },
-        amber: { grad: 'from-amber-500 to-orange-600', ring: 'ring-amber-500/10' },
-        purple: { grad: 'from-purple-500 to-fuchsia-600', ring: 'ring-purple-500/10' },
-        rose: { grad: 'from-rose-500 to-pink-600', ring: 'ring-rose-500/10' },
-        slate: { grad: 'from-slate-500 to-gray-700', ring: 'ring-slate-500/10' },
-    };
-    const a = accents[accent] || accents.blue;
-    return (
-        <div className={`bg-white dark:bg-gray-800 p-5 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 ring-1 ${a.ring}`}>
-            <div className="flex items-start justify-between mb-3">
-                <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${a.grad} text-white flex items-center justify-center shadow-sm`}>
-                    {IconComp && <IconComp className="w-5 h-5" />}
-                </div>
-                {isCurrency && (
-                    <span className="text-[9px] font-extrabold uppercase tracking-widest text-gray-400 dark:text-gray-500">Money</span>
-                )}
-            </div>
-            <div className={`text-2xl md:text-3xl font-extrabold text-gray-900 dark:text-white ${isCurrency ? 'whitespace-nowrap' : ''}`}>{value}</div>
-            <div className="flex items-center justify-between mt-1">
-                <p className="text-xs text-gray-500 dark:text-gray-400">{label}</p>
-                {hint && <p className="text-[10px] text-gray-400 dark:text-gray-500 font-medium">{hint}</p>}
-            </div>
-        </div>
-    );
-};
-
 // ── Time-of-day greeting (deterministic from the local hour) ──
 const useGreeting = () => {
     return useMemo(() => {
