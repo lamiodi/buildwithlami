@@ -5,10 +5,11 @@ import pool from '../config/db.js';
 import { canonicalRole, divisionsForRole } from '../config/roles.js';
 
 // Cookie options for HttpOnly JWT cookie
+// sameSite: 'none' + secure: true required for cross-origin cookies (Vercel → Render)
 const COOKIE_OPTIONS = {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict',
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
     maxAge: 30 * 60 * 1000, // 30 minutes (matches JWT_EXPIRES_IN)
     path: '/'
 };

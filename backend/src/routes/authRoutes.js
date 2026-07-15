@@ -10,11 +10,11 @@ router.get('/me', verifyToken, getMe);
 router.post('/refresh', verifyToken, refresh);
 router.put('/password', verifyToken, changePassword);
 router.post('/logout', verifyToken, (req, res) => {
-    // Clear the HttpOnly access_token cookie
+    // Clear the HttpOnly access_token cookie with same options as when set
     res.clearCookie('access_token', {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
         path: '/'
     });
     res.json({ success: true, message: 'Logged out successfully' });

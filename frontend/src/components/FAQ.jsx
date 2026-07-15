@@ -5,7 +5,7 @@ import { staggerContainer, fadeUpItem, sectionViewport, reducedMotionVariants } 
 const faqs = [
   {
     question: "What is your typical project timeline?",
-    answer: "Most web applications take between 6 to 12 weeks from kickoff to launch. Simple corporate websites might take 3-4 weeks, while complex enterprise platforms could require 4-6 months. We provide a detailed timeline during the proposal phase."
+    answer: "Our delivery timeline depends on the project's size and complexity:\n\nLanding Pages: 1–2 weeks\nBusiness Websites: 2–6 weeks\nE-commerce Websites: 4–8 weeks\nCustom Web Applications: 6–12 weeks\nEnterprise Platforms & SaaS: 3–6 months\n\nAfter our discovery session, we'll provide a tailored project schedule with key milestones, review stages, and an estimated launch date."
   },
   {
     question: "Do you offer post-launch support and maintenance?",

@@ -46,11 +46,12 @@ const PORT = process.env.PORT || 4000;
 
 // ── CSRF Protection ──────────────────────────────────────
 // Double-submit cookie pattern: CSRF token sent in cookie + header
+// sameSite: 'none' + secure: true required for cross-origin cookies (Vercel → Render)
 const csrfProtection = csrf({
     cookie: {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
         key: 'csrf-token'
     }
 });
