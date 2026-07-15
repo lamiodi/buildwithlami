@@ -1,6 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
-import { Search, User, ShoppingBag, Menu, Crosshair, Target, Camera, ArrowRight, ArrowUpRight, Plus, Minus, Mail, Phone, MapPin, Download } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react'; import { Link } from 'react-router-dom';
+import { Crosshair, ArrowRight, ArrowUpRight, Plus, Minus, Mail, Phone, MapPin, Download } from 'lucide-react';
 import { api } from '../../services/api';
 import { dronePlaceholder, equipmentPlaceholder } from '../../utils/placeholders';
 import { validateBooking, validateField } from '../../utils/formValidation';
@@ -232,19 +231,6 @@ const DroneHomePage = () => {
               <button onClick={() => scrollTo('contact')} className="hover:text-black transition-colors">Contact</button>
             </nav>
           </div>
-          <div className="flex items-center gap-3 w-auto md:w-1/2 justify-end">
-            <div className="relative hidden md:block mr-2">
-              <input 
-                type="text" 
-                placeholder="Search" 
-                className="bg-white rounded-full py-2.5 pl-5 pr-10 text-sm w-48 lg:w-64 focus:outline-none shadow-sm" 
-              />
-              <Search className="absolute right-4 top-2.5 w-4 h-4 text-gray-400" />
-            </div>
-            <button className="p-3 bg-white rounded-full hover:bg-gray-50 transition-colors shadow-sm"><User className="w-4 h-4" /></button>
-            <button className="p-3 bg-white rounded-full hover:bg-gray-50 transition-colors shadow-sm"><ShoppingBag className="w-4 h-4" /></button>
-            <button className="p-3 bg-white rounded-full hover:bg-gray-50 transition-colors shadow-sm"><Menu className="w-4 h-4" /></button>
-          </div>
         </header>
 
         {/* ==== HERO SECTION ==== */}
@@ -254,7 +240,6 @@ const DroneHomePage = () => {
 
             {/* Left Pane */}
             <div className="w-full md:w-1/2 flex flex-col justify-end px-6 md:px-16 pb-16 md:pb-32 z-10">
-              <p className="text-gray-400 text-xs uppercase tracking-widest font-semibold mb-4">NCAA-Licensed Operations</p>
               <h2 className="drone-heading text-3xl md:text-4xl lg:text-5xl font-bold leading-[1.1] mb-10 max-w-md text-gray-900 tracking-tight">
                 Professional drone services for surveying, inspection, and monitoring across multiple industries.
               </h2>
@@ -319,13 +304,6 @@ const DroneHomePage = () => {
                 <div className="w-2 h-2 rounded-full border-2 border-gray-400 bg-[#f4f4f4] transform translate-y-3"></div>
               </div>
             </div>
-          </div>
-
-          {/* Right Floating Socials */}
-          <div className="absolute right-6 top-1/2 -translate-y-1/2 flex flex-col gap-3 z-30 hidden md:flex pointer-events-auto">
-            <button className="p-2.5 bg-white rounded-xl shadow-sm hover:bg-gray-50 transition-colors border border-gray-100"><Target className="w-4 h-4 text-gray-600" /></button>
-            <button className="p-2.5 bg-white rounded-xl shadow-sm hover:bg-gray-50 transition-colors border border-gray-100"><Crosshair className="w-4 h-4 text-gray-600" /></button>
-            <button className="p-2.5 bg-white rounded-xl shadow-sm hover:bg-gray-50 transition-colors border border-gray-100"><Camera className="w-4 h-4 text-gray-600" /></button>
           </div>
 
           {/* Thumbnails below the drone */}

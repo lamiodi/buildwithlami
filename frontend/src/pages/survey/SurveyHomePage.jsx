@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { Menu, ArrowRight, ArrowLeft, ArrowUpRight, Plus, Minus, Download } from 'lucide-react';
+import { ArrowRight, ArrowUpRight, Plus, Minus, Download } from 'lucide-react';
 import { api } from '../../services/api';
 import { surveyPlaceholder, projectPlaceholder, equipmentPlaceholder } from '../../utils/placeholders';
 import { validateBooking, validateField } from '../../utils/formValidation';
@@ -292,9 +292,6 @@ const SurveyHomePage = () => {
 
           {/* Right Column - Project Details */}
           <div className="w-full md:w-[30%] bg-[#f2f2f2] p-8 md:p-12 flex flex-col relative min-h-[600px]">
-            <div className="flex justify-end mb-16">
-              <button className="hover:opacity-60 transition-opacity"><Menu className="w-8 h-8" strokeWidth={1.5} /></button>
-            </div>
             <div className="flex gap-2 mb-12">
               <div className="w-2.5 h-2.5 rounded-full border-2 border-black flex items-center justify-center"><div className="w-1 h-1 bg-black rounded-full"></div></div>
               <div className="w-2 h-2 rounded-full bg-gray-300 mt-[2px]"></div>
@@ -401,14 +398,6 @@ const SurveyHomePage = () => {
               <h2 className="survey-heading text-6xl md:text-8xl font-black tracking-tighter uppercase leading-[0.85]">
                 Port<br />folio
               </h2>
-            </div>
-            <div className="flex gap-4">
-              <button className="w-12 h-12 border border-black flex items-center justify-center hover:bg-black hover:text-white transition-colors">
-                <ArrowLeft className="w-4 h-4" />
-              </button>
-              <button className="w-12 h-12 border border-black flex items-center justify-center hover:bg-black hover:text-white transition-colors">
-                <ArrowRight className="w-4 h-4" />
-              </button>
             </div>
           </div>
         </div>
