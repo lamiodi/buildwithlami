@@ -81,7 +81,11 @@ const Services = () => {
         viewport={sectionViewport}
       >
         <motion.div variants={item}>
-          <p className="text-gray-800 dark:text-gray-200 tracking-widest uppercase text-sm mb-4 font-semibold">What I Can Build For You</p>
+          <p className="text-gray-800 dark:text-gray-200 tracking-widest uppercase text-sm mb-4 font-semibold flex items-center gap-2">
+            <span className="text-accent">✦</span>
+            What I Can Build For You
+            <span className="text-accent">✦</span>
+          </p>
           <h3 className="text-3xl md:text-5xl font-heading font-bold mb-6 text-black dark:text-white leading-tight">
             Need A Website, Platform, Or Audit?
           </h3>
@@ -91,18 +95,22 @@ const Services = () => {
         </motion.div>
 
         <motion.div variants={item} className="bg-white dark:bg-[#111] border border-gray-200 dark:border-gray-800 p-6 md:p-8 shadow-sm">
-          <p className="text-[11px] font-bold uppercase tracking-[0.24em] text-accent mb-3">How I Help</p>
+          <p className="text-[11px] font-bold uppercase tracking-[0.24em] text-accent mb-3 flex items-center gap-2">
+            <span className="text-accent">❖</span>
+            How I Help
+            <span className="text-accent">❖</span>
+          </p>
           <ul className="space-y-4 text-sm md:text-base text-gray-800 dark:text-gray-200">
             <li className="flex items-start">
-              <span className="text-accent mr-3 mt-1 text-[10px]">■</span>
+              <span className="text-accent mr-3 mt-1 text-[10px]">✓</span>
               Clarify what to build first and what can wait.
             </li>
             <li className="flex items-start">
-              <span className="text-accent mr-3 mt-1 text-[10px]">■</span>
+              <span className="text-accent mr-3 mt-1 text-[10px]">▸</span>
               Turn rough ideas into a defined scope and launch plan.
             </li>
             <li className="flex items-start">
-              <span className="text-accent mr-3 mt-1 text-[10px]">■</span>
+              <span className="text-accent mr-3 mt-1 text-[10px]">⦿</span>
               Improve existing websites, platforms, and technical foundations.
             </li>
           </ul>

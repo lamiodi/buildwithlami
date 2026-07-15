@@ -25,7 +25,7 @@ const faqs = [
   },
   {
     question: "What are your payment terms?",
-    answer: "Typically, we structure payments in milestones: 40% upfront to secure a spot in our schedule and begin work, 30% halfway through development, and 30% prior to final launch and handover."
+    answer: "Typically, we structure payments: 60% upfront to secure a spot in our schedule and begin work, and 40% prior to final launch and handover."
   }
 ];
 

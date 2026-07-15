@@ -164,32 +164,16 @@ const Pricing = () => {
           <motion.h2 variants={item} className="text-4xl md:text-5xl font-heading font-bold text-black dark:text-white mb-6">
             Transparent <span className="italic">Pricing</span>
           </motion.h2>
-          
-          {/* Currency Toggle */}
-          <motion.div variants={item} className="flex items-center justify-center gap-4 mb-10">
-            <span className={`text-xs font-bold uppercase tracking-widest ${currency === 'NGN' ? 'text-accent' : 'text-gray-500 dark:text-gray-300'}`}>NGN</span>
-            <button 
-              onClick={handleCurrencyToggle}
-              aria-label="Toggle pricing currency"
-              className="w-12 h-6 bg-gray-200 dark:bg-white/15 rounded-full relative p-1 transition-colors"
-            >
-              <div className={`w-4 h-4 bg-accent rounded-full transition-transform duration-300 ${currency === 'USD' ? 'translate-x-6' : 'translate-x-0'}`}></div>
-            </button>
-            <span className={`text-xs font-bold uppercase tracking-widest ${currency === 'USD' ? 'text-accent' : 'text-gray-500 dark:text-gray-300'}`}>USD</span>
-          </motion.div>
 
           <motion.p variants={item} className="text-gray-700 dark:text-gray-200 max-w-2xl mx-auto font-light leading-relaxed opacity-95">
             Quality software is an investment. I offer competitive, value-based pricing for high-end custom development.
           </motion.p>
-          <motion.p variants={item} className="mt-3 text-[11px] uppercase tracking-widest text-gray-500 dark:text-gray-300">
-            Auto-detected currency. Switch anytime.
-          </motion.p>
 
-          {/* 50/50 Payment Split Badge (Brutalist Theme) */}
+          {/* 60/40 Payment Split Badge (Brutalist Theme) */}
           <motion.div variants={item} className="mt-8 inline-block border border-gray-200 dark:border-white/10 bg-white dark:bg-[#0a0a0a] px-6 py-3 shadow-sm">
             <p className="text-[11px] font-bold uppercase tracking-widest text-gray-800 dark:text-gray-200">
               <span className="text-accent mr-2">✦</span>
-              Flexible Payments: <span className="font-medium text-gray-600 dark:text-gray-300">50% upfront, 50% upon launch</span>
+              Flexible Payments: <span className="font-medium text-gray-600 dark:text-gray-300">60% upfront, 40% upon launch</span>
             </p>
           </motion.div>
         </motion.div>

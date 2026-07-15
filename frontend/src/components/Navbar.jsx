@@ -88,24 +88,8 @@ const Navbar = ({ isDark, toggleTheme }) => {
         {NAV_LINKS.map(link => renderLink(link, "hover:text-accent transition-colors"))}
         
         {isLoggedIn ? (
-          <>
-            <Link to="/admin/projects" className="hover:text-accent transition-colors">Admin</Link>
-            <button
-              onClick={handleLogout}
-              className="border border-red-500/40 text-red-500 px-3 py-1.5 hover:bg-red-500 hover:text-white transition-colors font-bold text-xs rounded-lg"
-              title={user?.email || 'Sign out'}
-            >
-              Logout
-            </button>
-          </>
-        ) : (
-          <Link
-            to="/login"
-            className="border border-gray-800 dark:border-white/20 px-4 py-2 hover:bg-accent hover:text-white dark:hover:bg-accent dark:hover:border-accent transition-colors font-bold"
-          >
-            Sign In
-          </Link>
-        )}
+          <Link to="/admin/projects" className="hover:text-accent transition-colors">Admin</Link>
+        ) : null}
 
         <ThemeToggle isDark={isDark} toggleTheme={toggleTheme} />
 
@@ -148,30 +132,14 @@ const Navbar = ({ isDark, toggleTheme }) => {
             {NAV_LINKS.map(link => renderLink(link, "text-2xl font-heading font-bold uppercase tracking-[0.2em] hover:text-accent transition-colors", closeMenu))}
             
             {isLoggedIn ? (
-              <>
-                <Link
-                  to="/admin"
-                  onClick={closeMenu}
-                  className="text-2xl font-heading font-bold uppercase tracking-[0.2em] hover:text-accent transition-colors"
-                >
-                  Admin
-                </Link>
-                <button
-                  onClick={handleLogout}
-                  className="mt-4 border-2 border-red-500 text-red-500 px-8 py-4 text-lg font-bold uppercase tracking-widest hover:bg-red-500 hover:text-white transition-colors"
-                >
-                  Logout
-                </button>
-              </>
-            ) : (
               <Link
-                to="/login"
+                to="/admin"
                 onClick={closeMenu}
-                className="mt-4 border-2 border-black dark:border-white px-8 py-4 text-lg font-bold uppercase tracking-widest hover:bg-accent hover:border-accent hover:text-white transition-colors"
+                className="text-2xl font-heading font-bold uppercase tracking-[0.2em] hover:text-accent transition-colors"
               >
-                Sign In
+                Admin
               </Link>
-            )}
+            ) : null}
 
             <a 
               href="/full-stack-developer.pdf" 
