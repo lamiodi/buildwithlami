@@ -105,7 +105,7 @@ const DroneProjectDetailPage = () => {
             }
             setLoading(false);
 
-            document.title = `${res.data?.title || 'Mission'} | Lami Drone`;
+            document.title = `${res.data?.title || 'Mission'} | BuildWithLami Drone`;
         };
         load();
     }, [id]);

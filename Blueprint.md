@@ -1,4 +1,4 @@
-# buildwithlami.dev — Technical Blueprint v3.0 (Agency Operating System)
+# BuildWithLami Enterprise Platform Blueprint v3.0 (Agency Operating System)
 
 > **Last Updated:** July 2026
 > **Status:** All 12 phases shipped. **Phase 12 (Schema Audit & Cleanup) complete.** System in maintenance.
@@ -8,7 +8,7 @@
 
 ## 1. Executive Summary
 
-**Project Name:** buildwithlami.dev
+**Project Name:** BuildWithLami (buildwithlami.com)
 **Type:** Personal Portfolio & High-Performance Agency Operating System
 **Stack:** React 19 (Vite) + Express.js + PostgreSQL (raw `pg` client) + Cloudinary + Zoho Sign (stub mode) + Matter.js
 
@@ -130,7 +130,7 @@ Provide a top-tier visual experience for visitors while acting as a robust, secu
 | **Activity & Audit** | `activity_logs`, `audit_logs`, `notifications` |
 
 ### B. Migration Timeline
-
+ 
 | # | Migration | Date | Purpose |
 | :--- | :--- | :--- | :--- |
 | — | `init.sql` + `createMissingTables.sql` | Phase 0 | Baseline: users, profile, projects, messages, clients, client_projects, invoices, intake_*, project_secrets, project_feedback |
@@ -142,7 +142,7 @@ Provide a top-tier visual experience for visitors while acting as a robust, secu
 | 8 | `v9_leads.sql` | Phase 3 | `leads` (8-stage CRM pipeline) |
 | 9 | `v10_notifications.sql` | Phase 3 | `notifications` (in-app bell) |
 | 10 | `v11_audit_logs.sql` | Phase 4 | `audit_logs` (security record) |
-| 11 | `v12_cms.sql` | Phase 5 | 8 CMS tables (pages, testimonials, equipment, industries, email_templates, contracts, resources, conversations) |
+| 11 | `v12_cms.sql` | Phase 5 | CMS tables (pages, testimonials, equipment, industries, email_templates, contracts, resources, conversations) — **Dropped in v25** |
 | 12 | `v13_two_factor.sql` | Phase 6 | 2FA TOTP columns on `users` |
 | 13 | `v14_client_phone.sql` | Phase 6 | `clients.phone` (WhatsApp deep-links) |
 | 14 | `v15_invoice_currency.sql` | Phase 7 | `invoices.currency` (NGN/USD/EUR/GBP) |
@@ -150,7 +150,14 @@ Provide a top-tier visual experience for visitors while acting as a robust, secu
 | 16 | `v17_contract_signed_pdf.sql` | Phase 8 | `contracts.signed_pdf` as `bytea` |
 | 17 | `v18_payment_proofs.sql` | Phase 10 | `invoices.pay_token`, `bank_accounts`, `payment_proofs` + trigger |
 | 18 | `v19_fx_live_source.sql` | Phase 11 | `fx_rates.source` + `fetched_at` |
-| 19 | `v20_schema_cleanup.sql` | Phase 12 | **Adds `invoices.invoice_number` + `invoices.paid_at`, creates `activity_logs` table, drops unused `conversations`, adds 16 performance indexes** |
+| 19 | `v20_schema_cleanup.sql` | Phase 12 | Adds `invoices.invoice_number` + `invoices.paid_at`, creates `activity_logs` table, drops `conversations`, adds 16 performance indexes |
+| 20 | `v21_pages_perf_index.sql` | Phase 12 | Composite index `(status, updated_at DESC)` on `pages` for public list query |
+| 21 | `v22_normalize_admin_roles.sql` | Phase 12 | Normalises legacy role casing (`ADMIN` → `Administrator`, `OWNER` → `Owner`, etc.) |
+| 22 | `v23_jsonb_gin_indexes.sql` | Phase 12 | GIN indexes on `client_projects.stages`, `client_projects.offboarding_checklist`, `intake_submissions.responses` for admin filters |
+| 23 | `v24_pages_division.sql` | Phase 12 | Adds `division` column to `pages` (SOFTWARE/SURVEY/DRONE) for workspace filtering — **table later dropped in v25** |
+| 24 | `v25_drop_cms.sql` | Phase 12 | **Drops `pages`, `testimonials`, `equipment`, `industries`** — CMS replaced by hardcoded content on `/survey` and `/drone`; portfolio moved to `client_projects` |
+| 25 | `v26_portfolio_fields.sql` | Phase 12 | Adds portfolio fields to `client_projects`: `cover_image`, `summary`, `location`, `client_name`, `is_portfolio`, `display_order`, `tags`, `published_at` + partial index |
+| 26 | `v27_portfolio_polish.sql` | Phase 12 | Adds matching portfolio fields to `projects`: `location`, `client_name`, `display_order`, `tags`, `published_at` + composite index |
 
 ### C. Notable Schema Decisions
 
@@ -421,11 +428,11 @@ NODE_ENV=production
 # ── Auth ──────────────────────────────────────────────────
 JWT_SECRET=<32+ char random>
 ENCRYPTION_KEY=<32-byte hex, 64 chars>        # AES-256-GCM
-COOKIE_DOMAIN=.buildwithlami.dev
+COOKIE_DOMAIN=.buildwithlami.com
 
 # ── CORS ──────────────────────────────────────────────────
-FRONTEND_URL=https://buildwithlami.vercel.app
-ALLOWED_ORIGINS=https://buildwithlami.vercel.app,https://buildwithlami.com
+FRONTEND_URL=https://buildwithlami.com
+ALLOWED_ORIGINS=https://buildwithlami.com,https://buildwithlami.vercel.app
 
 # ── Email (Nodemailer SMTP) ───────────────────────────────
 SMTP_HOST=smtp.gmail.com
@@ -448,7 +455,7 @@ ZOHO_SIGN_TOKEN=                              # leave empty for stub mode
 ZOHO_SIGN_API_URL=https://sign.zoho.com/api/v1
 
 # ── Frontend (Vercel) ─────────────────────────────────────
-VITE_API_URL=https://api.buildwithlami.dev
+VITE_API_URL=https://api.buildwithlami.com
 ```
 
 > **Note:** The Blueprint's earlier v2.0 `WHATSAPP_*` env vars are no longer used. WhatsApp deep-links are now built from `clients.phone` on the fly (no API needed). The `STRIPE_*` and `paystackService.js` refund variables were intentionally skipped per [`UPDATE.md` lessons learned](file:///c:/Users/nuke/Documents/buildwithlami/UPDATE.md).

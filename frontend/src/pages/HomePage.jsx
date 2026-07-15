@@ -12,10 +12,10 @@ import Contact from '../components/Contact';
 
 const HomePage = () => {
   useEffect(() => {
-    document.title = "Eugene Odibenuah | Premium Full-Stack Developer & SEO Strategist";
+    document.title = "BuildWithLami — Software, Survey & Drone Services";
     const metaDesc = document.querySelector('meta[name="description"]');
     if (metaDesc) {
-      metaDesc.setAttribute("content", "Portfolio of Eugene Odibenuah, a premium full-stack developer specialized in building enterprise-grade web applications and high-performance digital experiences.");
+      metaDesc.setAttribute("content", "BuildWithLami is the official platform of Eugene Odibenuah — software development, land surveying, and drone services for ambitious teams.");
     }
   }, []);
 

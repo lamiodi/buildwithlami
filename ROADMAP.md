@@ -680,11 +680,6 @@ These are **design references only** — do not copy text, brand names, or third
    - Frontend: display amount in selected currency; convert using a static rate (or fetch from an API)
    - Skip live FX for now; use a settings table with manual rates
 
-6. **Uptime monitoring**
-   - Sign up for UptimeRobot (free tier)
-   - Add monitor: ping `https://buildwithlami.vercel.app/api/health` every 5 min
-   - Configure alert email: `EUGENEODIBENUAH@GMAIL.COM`
-   - Document in `docs/UPTIME.md`
 
 ## Files
 

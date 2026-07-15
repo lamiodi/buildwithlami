@@ -17,7 +17,7 @@ import { generateSecret as otpGenerateSecret, generateURI, verifySync } from 'ot
 import QRCode from 'qrcode';
 import pool from '../config/db.js';
 
-const ISSUER = 'buildwithlami';
+const ISSUER = 'BuildWithLami';
 const RECOVERY_CODE_COUNT = 8;
 const RECOVERY_CODE_BYTES = 5; // 10 hex chars — easy to type, plenty of entropy.
 

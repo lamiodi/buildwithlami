@@ -27,7 +27,7 @@ export const sendNotificationEmail = async ({ name, email, subject, message, toE
         const safeMessage = escapeHtml(message);
 
         const mailOptions = {
-            from: process.env.EMAIL_FROM || '"Portfolio Contact" <no-reply@buildwithlami.dev>',
+            from: process.env.EMAIL_FROM || '"BuildWithLami" <no-reply@buildwithlami.com>',
             to: toEmail || process.env.ADMIN_EMAIL || process.env.EMAIL_TO,
             subject: `New Inquiry from ${safeName}: ${safeSubject}`,
             text: `You have a new message from your portfolio website.\n\nName: ${name}\nEmail: ${email}\n\nMessage:\n${message}`,

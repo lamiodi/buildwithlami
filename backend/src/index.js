@@ -92,8 +92,9 @@ const adminWriteLimiter = rateLimit({
 app.use(helmet());
 const allowedOrigins = [
     process.env.FRONTEND_URL,
+    'https://buildwithlami.com',
+    'https://www.buildwithlami.com',
     'https://buildwithlami.vercel.app',
-    'https://buildwithlami.onrender.com',
     'http://localhost:3000',
 ].filter(Boolean);
 

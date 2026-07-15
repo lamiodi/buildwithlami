@@ -102,18 +102,18 @@ const checkDomainExpirations = async () => {
 
             // 1. Send Professional Email to the Client
             await sendNotificationEmail({
-                name: 'buildwithlami.dev',
-                email: 'no-reply@buildwithlami.dev',
+                name: 'BuildWithLami',
+                email: 'no-reply@buildwithlami.com',
                 toEmail: project.primary_contact_email,
                 subject: `Action Required: Domain Expiring Soon (${project.domain_name})`,
-                message: `Dear ${project.client_name},\n\nThis is a friendly automated reminder that the domain name for your project, ${project.domain_name}, is set to expire on ${new Date(project.domain_expiration).toDateString()}.\n\nTo avoid any downtime or disruption to your website and services, please log in to your domain registrar to renew it at your earliest convenience.\n\nIf you have already renewed it or need any assistance, please feel free to reply to this email.\n\nBest regards,\nEugene Odibenuah\nbuildwithlami.dev`
+                message: `Dear ${project.client_name},\n\nThis is a friendly automated reminder that the domain name for your project, ${project.domain_name}, is set to expire on ${new Date(project.domain_expiration).toDateString()}.\n\nTo avoid any downtime or disruption to your website and services, please log in to your domain registrar to renew it at your earliest convenience.\n\nIf you have already renewed it or need any assistance, please feel free to reply to this email.\n\nBest regards,\nEugene Odibenuah\nBuildWithLami (buildwithlami.com)`
             });
 
             // 2. Send Alert to Admin (configurable via env)
             if (ADMIN_EMAIL) {
                 await sendNotificationEmail({
                     name: 'System Alert',
-                    email: 'no-reply@buildwithlami.dev',
+                    email: 'no-reply@buildwithlami.com',
                     toEmail: ADMIN_EMAIL,
                     subject: `🚨 Client Alerted: Domain Expiring (${project.domain_name})`,
                     message: `An automated domain expiration reminder was just sent to ${project.client_name} (${project.primary_contact_email}) for the domain ${project.domain_name} (Expiring: ${new Date(project.domain_expiration).toDateString()}).`
@@ -160,7 +160,7 @@ const generateMonthlyInvoices = async () => {
                 if (ADMIN_EMAIL) {
                     await sendNotificationEmail({
                         name: 'System Alert',
-                        email: 'no-reply@buildwithlami.dev',
+                        email: 'no-reply@buildwithlami.com',
                         toEmail: ADMIN_EMAIL,
                         subject: `💰 Monthly Invoice Generated: ${project.project_name}`,
                         message: `A monthly retainer invoice of $${project.monthly_fee} was automatically generated for ${project.project_name} (id: ${insertResult.rows[0].id}).\n\nLog in to generate the Paystack link and send it to the client.`

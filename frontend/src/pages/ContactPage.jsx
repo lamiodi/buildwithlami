@@ -38,7 +38,7 @@ const ContactPage = () => {
     document.title = "Contact | Eugene Odibenuah - Get in Touch";
     const metaDesc = document.querySelector('meta[name="description"]');
     if (metaDesc) {
-      metaDesc.setAttribute("content", "Get in touch with Eugene Odibenuah for select web development projects, technical audits, or business strategy consultations.");
+      metaDesc.setAttribute("content", "Get in touch with BuildWithLami (Eugene Odibenuah) development projects, technical audits, or business strategy consultations.");
     }
   }, []);
 

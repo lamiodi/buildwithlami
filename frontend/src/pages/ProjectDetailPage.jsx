@@ -76,10 +76,10 @@ const ProjectDetailPage = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
     if (project) {
-      document.title = `${project.title} | Projects - Eugene Odibenuah`;
+      document.title = `${project.title} | BuildWithLami Projects`;
       const metaDesc = document.querySelector('meta[name="description"]');
       if (metaDesc) {
-        metaDesc.setAttribute("content", project.summary || project.description || `Case study of ${project.title} - a premium web development project by Eugene Odibenuah.`);
+        metaDesc.setAttribute("content", project.summary || project.description || `Case study of ${project.title} — a premium web development project by BuildWithLami (Eugene Odibenuah).`);
       }
     }
   }, [id, project]);

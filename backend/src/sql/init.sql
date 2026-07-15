@@ -1,5 +1,5 @@
 -- ═══════════════════════════════════════════════════════════
--- buildwithlami.dev — Database Schema (init.sql)
+-- BuildWithLami (buildwithlami.com) — Database Schema (init.sql)
 -- Run once against Supabase via:  npm run db:init
 -- ═══════════════════════════════════════════════════════════
 

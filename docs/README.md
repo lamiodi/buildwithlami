@@ -39,7 +39,7 @@ Browser → Vercel (frontend) → Render (backend API) → Postgres DB
 
 ## Where to look for what
 
-- **"How do I…?"** → [/admin/help](../frontend/src/pages/admin/AdminHelp.jsx) inside the app, or the in-app Help page at `https://buildwithlami.vercel.app/admin/help` once deployed.
+- **"How do I…?"** → [/admin/help](../frontend/src/pages/admin/AdminHelp.jsx) inside the app, or the in-app Help page at `https://buildwithlami.com/admin/help` once deployed.
 - **"What's the schema?"** → [`backend/migrations/`](../backend/migrations/) — one `.sql` file per versioned change.
 - **"What's the roadmap?"** → [ROADMAP.md](../ROADMAP.md) at the repo root.
 - **"Why was this decision made?"** → [UPDATE.md](../UPDATE.md) at the repo root.

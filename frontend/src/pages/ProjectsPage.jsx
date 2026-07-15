@@ -19,10 +19,10 @@ const ProjectsPage = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
     // SEO Best Practices
-    document.title = "Selected Works | Eugene Odibenuah - Portfolio";
+    document.title = "Selected Works | BuildWithLami — Software Portfolio";
     const metaDesc = document.querySelector('meta[name="description"]');
     if (metaDesc) {
-      metaDesc.setAttribute("content", "Explore a curated collection of selected works by Eugene Odibenuah, ranging from full-stack ERP systems to premium e-commerce ecosystems and professional portals.");
+      metaDesc.setAttribute("content", "Explore a curated collection of selected works by BuildWithLami (Eugene Odibenuah), ranging from full-stack ERP systems to premium e-commerce ecosystems and professional portals.");
     }
     const fetchProjects = async () => {
       // Software-division scoped feed — keeps the public

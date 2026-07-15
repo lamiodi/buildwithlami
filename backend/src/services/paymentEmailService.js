@@ -57,7 +57,7 @@ const adminAddress = () => process.env.ADMIN_EMAIL || process.env.EMAIL_TO;
 export const sendInvoiceEmail = async ({ clientEmail, clientName, invoiceId, amount, currency, payToken, dueDate, projectName }) => {
     if (!clientEmail) return { success: false, error: 'No client email' };
     const safeName = escapeHtml(clientName || 'there');
-    const payUrl = `${process.env.FRONTEND_URL || 'https://buildwithlami.vercel.app'}/pay/${payToken}`;
+    const payUrl = `${process.env.FRONTEND_URL || 'https://buildwithlami.com'}/pay/${payToken}`;
     const subject = `Your BuildWithLami invoice — ${fmtAmount(amount, currency)}`;
     const text = `Hi ${clientName || 'there'},
 
@@ -129,7 +129,7 @@ export const sendAdminProofNotification = async ({ clientName, invoiceId, amount
     const to = adminAddress();
     if (!to) return { success: false, error: 'No admin email configured' };
     const subject = `💰 New payment proof to review — ${fmtAmount(amount, currency)}`;
-    const text = `${clientName || 'A client'} submitted a payment proof.\n\nAmount: ${fmtAmount(amount, currency)}\nReference: ${transactionReference}\nInvoice: ${invoiceId}\n\nReview at: ${process.env.FRONTEND_URL || 'https://buildwithlami.vercel.app'}/admin/payments`;
+    const text = `${clientName || 'A client'} submitted a payment proof.\n\nAmount: ${fmtAmount(amount, currency)}\nReference: ${transactionReference}\nInvoice: ${invoiceId}\n\nReview at: ${process.env.FRONTEND_URL || 'https://buildwithlami.com'}/admin/payments`;
     const html = `<div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:560px;margin:0 auto;padding:24px;background:#fafafa;">
   <div style="background:white;padding:24px;border-radius:8px;border:1px solid #eee;">
     <h2 style="margin:0 0 8px 0;font-size:18px;">💰 New payment proof to review</h2>
@@ -139,7 +139,7 @@ export const sendAdminProofNotification = async ({ clientName, invoiceId, amount
       <tr><td style="padding:4px 12px 4px 0;color:#888;">Reference</td><td>${escapeHtml(transactionReference)}</td></tr>
       <tr><td style="padding:4px 12px 4px 0;color:#888;">Invoice</td><td>${escapeHtml(invoiceId)}</td></tr>
     </table>
-    <a href="${process.env.FRONTEND_URL || 'https://buildwithlami.vercel.app'}/admin/payments" style="display:inline-block;background:#0a0a0a;color:white;padding:10px 20px;border-radius:4px;text-decoration:none;font-weight:600;font-size:13px;">Review in Admin →</a>
+    <a href="${process.env.FRONTEND_URL || 'https://buildwithlami.com'}/admin/payments" style="display:inline-block;background:#0a0a0a;color:white;padding:10px 20px;border-radius:4px;text-decoration:none;font-weight:600;font-size:13px;">Review in Admin →</a>
   </div>
 </div>`;
     return sendOrLog({ from: fromAddress(), to, subject, text, html });

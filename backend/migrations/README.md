@@ -1,6 +1,6 @@
 # Backend Migrations
 
-This folder contains all database migrations for the buildwithlami.dev backend.
+This folder contains all database migrations for the BuildWithLami (buildwithlami.com) backend.
 Migrations are versioned (`v2_*`, `v3_*`, …) and are applied in numeric order
 by `src/scripts/runUpdateSchema.js`.
 

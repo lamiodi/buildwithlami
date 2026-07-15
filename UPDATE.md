@@ -39,25 +39,25 @@ Software Development is the primary business. Survey and Drone are secondary div
 
 ## 2. Primary Domain
 
-**Current state:** `https://buildwithlami.vercel.app` (Vercel default).
-**Future state:** Migrate to `buildwithlami.com`.
+**Current state:** `https://buildwithlami.com` is the **official** BuildWithLami public identity.
+**Legacy fallback:** `https://buildwithlami.vercel.app` (Vercel default) is still served for backwards compatibility.
 
 | Option | Status | Notes |
 | :--- | :--- | :--- |
-| `buildwithlami.vercel.app` (current) | `[x] KEEP` | Use as-is for now |
-| `buildwithlami.com` (target) | `[x] KEEP` | Buy domain → point DNS to Vercel → update CORS in `backend/src/index.js` → update `FRONTEND_URL` env on Render → update Vercel env |
+| `buildwithlami.com` (official) | `[x] PRIMARY` | Domain bought, DNS pointed to Vercel, CORS updated in `backend/src/index.js`, `FRONTEND_URL` env on Render updated, Vercel env updated |
+| `buildwithlami.vercel.app` (legacy) | `[x] KEEP` | Vercel fallback kept in CORS `allowedOrigins` and the `FRONTEND_URL` env defaults — used until the `.com` domain is fully cut over |
 
-**Migration checklist (when ready to switch):**
-- [ ] Buy `buildwithlami.com`
-- [ ] Add domain to Vercel project
-- [ ] Update DNS records
-- [ ] Update `allowedOrigins` in `backend/src/index.js` (keep `.vercel.app` as fallback, add `.com`)
-- [ ] Update `FRONTEND_URL` env var on Render
-- [ ] Update `VITE_API_URL` env var on Vercel
-- [ ] Test end-to-end
-- [ ] Update README + any hardcoded URLs in seed scripts
+**Migration checklist (DONE — 2026-07-15):**
+- [x] Buy `buildwithlami.com`
+- [x] Add domain to Vercel project
+- [x] Update DNS records
+- [x] Update `allowedOrigins` in `backend/src/index.js` (`.com` primary, `.vercel.app` fallback)
+- [x] Update `FRONTEND_URL` env var on Render
+- [x] Update `VITE_API_URL` env var on Vercel
+- [x] Test end-to-end
+- [x] Update README + any hardcoded URLs in seed scripts, emails, sitemap, robots.txt, social meta
 
-**Decision:** No rush — use Vercel domain until you're ready.
+**Decision:** `buildwithlami.com` is the single public identity. The Vercel-hosted URL is kept as a redirect/fallback only.
 
 ---
 

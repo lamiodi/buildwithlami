@@ -60,7 +60,7 @@ export async function sendTemplatedEmail({ to, subject, body }) {
         });
 
         const mailOptions = {
-            from: process.env.EMAIL_FROM || '"BuildWithLami" <no-reply@buildwithlami.dev>',
+            from: process.env.EMAIL_FROM || '"BuildWithLami" <no-reply@buildwithlami.com>',
             to,
             subject,
             text: body,

@@ -1,5 +1,5 @@
 -- ═══════════════════════════════════════════════════════════
--- buildwithlami.dev — Missing Tables Migration
+-- BuildWithLami (buildwithlami.com) — Missing Tables Migration
 -- Creates all tables referenced by the application code
 -- that are not in init.sql
 -- ═══════════════════════════════════════════════════════════

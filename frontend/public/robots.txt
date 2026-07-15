@@ -1,4 +1,4 @@
-# buildwithlami.dev
+# buildwithlami.com
 User-agent: *
 Allow: /
 Disallow: /api/
@@ -10,4 +10,4 @@ Disallow: /account/
 # Crawl-delay polite to common bots (1s for any other crawler)
 Crawl-delay: 1
 
-Sitemap: https://buildwithlami.dev/sitemap.xml
+Sitemap: https://buildwithlami.com/sitemap.xml

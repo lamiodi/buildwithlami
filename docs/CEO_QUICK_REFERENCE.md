@@ -75,7 +75,7 @@ See [BACKUP.md](./BACKUP.md) §3. TL;DR:
 - [DEPLOYMENT.md](./DEPLOYMENT.md) — how deploys work
 - [ENV_VARIABLES.md](./ENV_VARIABLES.md) — every env var explained
 - [TROUBLESHOOTING.md](./TROUBLESHOOTING.md) — common errors
-- [/admin/help](https://buildwithlami.vercel.app/admin/help) — in-app help (when deployed)
+- [/admin/help](https://buildwithlami.com/admin/help) — in-app help (when deployed)
 
 ## ☎️ You
 

@@ -69,7 +69,7 @@ const Footer = () => {
 
           {/* Copyright */}
           <div className="opacity-90 font-medium lowercase tracking-[0.15em]">
-            copyright {displayYear} // built by Eugene
+            copyright {displayYear} // BuildWithLami · founded by Eugene Odibenuah
           </div>
         </div>
       </div>

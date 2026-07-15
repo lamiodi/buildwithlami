@@ -12,10 +12,10 @@ const AboutPage = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
     // SEO Best Practices
-    document.title = "About | Eugene Odibenuah - Full-Stack Developer";
+    document.title = "About | BuildWithLami — Founded by Eugene Odibenuah";
     const metaDesc = document.querySelector('meta[name="description"]');
     if (metaDesc) {
-      metaDesc.setAttribute("content", "Learn more about Eugene Odibenuah, a Nigerian-based full-stack developer with expertise in React, Node.js, and building scalable business solutions.");
+      metaDesc.setAttribute("content", "Learn more about BuildWithLami, founded by Eugene Odibenuah — a Nigerian enterprise platform for software development, land surveying, and drone services.");
     }
   }, []);
 

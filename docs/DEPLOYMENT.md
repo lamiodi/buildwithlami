@@ -29,7 +29,7 @@ don't need to "deploy" manually — pushing is deploying.
 6. **Output directory:** `dist` (Vercel auto-fills this).
 7. Click **Deploy** — first build takes ~3 minutes.
 8. Once live, go to **Settings → Domains** and add
-   `buildwithlami.vercel.app` (or your custom domain).
+   `buildwithlami.com` (or your custom domain).
 
 ### Render
 
@@ -72,7 +72,7 @@ Set them in:
 - **Render:** Service → Environment → Add Environment Variable.
 
 **Critical rule:** the Vercel project needs `VITE_API_URL` set to
-the Render backend URL (e.g. `https://buildwithlami-api.onrender.com`).
+the Render backend URL (e.g. `https://api.buildwithlami.com`).
 The frontend's `services/api.js` reads it to build all `fetch()`
 calls. Without it, every API call goes to `localhost:3000`.
 
@@ -167,7 +167,9 @@ metrics (CPU, memory, requests/sec), deploy history, env vars.
 - **Forgot `cd frontend` in Vercel settings?** Vercel will try to
   build the repo root and fail with "no package.json found".
 - **`CORS` blocking the frontend?** Backend `index.js` already
-  allows `https://buildwithlami.vercel.app` and `http://localhost:3000`
-  in `allowedOrigins`. Add your custom domain there if you have one.
+  allows `https://buildwithlami.com` (primary) and
+  `https://buildwithlami.vercel.app` (legacy Vercel domain) and
+  `http://localhost:3000` in `allowedOrigins`. Add your custom
+  domain there if you have one.
 - **Database migrations not running?** They don't auto-run on
   deploy. You (or a cron job) must apply them manually.

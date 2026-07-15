@@ -107,7 +107,7 @@ const SurveyProjectDetailPage = () => {
             }
             setLoading(false);
 
-            document.title = `${res.data?.title || 'Project'} | Lami Survey`;
+            document.title = `${res.data?.title || 'Project'} | BuildWithLami Survey`;
         };
         load();
     }, [id]);
