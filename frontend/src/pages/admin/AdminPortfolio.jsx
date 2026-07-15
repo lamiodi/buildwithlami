@@ -54,7 +54,10 @@ const AdminPortfolio = ({ lockedDivision }) => {
             const params = { division: activeDivision };
             const res = await api.get('/projects', { params });
             if (!res.ok) throw new Error(res.error || 'Failed to fetch projects');
-            setApiProjects(res.data);
+            // /api/projects returns { data: rows, pagination: {...} },
+            // so unwrap before storing. Fall back to [] on any shape
+            // mismatch (e.g. older backend) so .filter() below is safe.
+            setApiProjects(res.data?.data ?? []);
         } catch (err) {
             setError(err.message);
         } finally {

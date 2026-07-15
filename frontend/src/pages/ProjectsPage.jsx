@@ -30,8 +30,13 @@ const ProjectsPage = () => {
       // divisions. Survey / Drone have their own home pages
       // and admin surfaces.
       const res = await api.get('/projects/division/SOFTWARE');
-      if (res.ok && res.data && res.data.length > 0) {
-        setProjects(res.data);
+      // /api/projects/division/:division returns
+      // { data: rows, pagination: {...} } — unwrap before storing,
+      // and only fall back to the seed list when the array is
+      // actually empty.
+      const list = res.data?.data ?? [];
+      if (res.ok && list.length > 0) {
+        setProjects(list);
       } else {
         setProjects(fallbackProjects);
       }
