@@ -110,8 +110,10 @@ const Navbar = ({ isDark, toggleTheme }) => {
         <ThemeToggle isDark={isDark} toggleTheme={toggleTheme} />
 
         <a 
-          href="/resume.pdf" 
+          href="/full-stack-developer.pdf" 
+          download="Eugene-Odibenuah-Resume.pdf"
           target="_blank" 
+          rel="noopener noreferrer"
           className="border border-gray-800 dark:border-white/20 px-4 py-2 hover:bg-accent hover:text-white dark:hover:bg-accent dark:hover:border-accent transition-colors font-bold"
         >
           Resume
@@ -172,8 +174,10 @@ const Navbar = ({ isDark, toggleTheme }) => {
             )}
 
             <a 
-              href="/resume.pdf" 
+              href="/full-stack-developer.pdf" 
+              download="Eugene-Odibenuah-Resume.pdf"
               target="_blank" 
+              rel="noopener noreferrer"
               onClick={closeMenu} 
               className="mt-4 border-2 border-black dark:border-white px-8 py-4 text-lg font-bold uppercase tracking-widest hover:bg-accent hover:border-accent hover:text-white transition-colors"
             >

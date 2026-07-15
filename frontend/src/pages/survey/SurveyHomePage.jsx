@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { Menu, ArrowRight, ArrowLeft, ArrowUpRight, Plus, Minus } from 'lucide-react';
+import { Menu, ArrowRight, ArrowLeft, ArrowUpRight, Plus, Minus, Download } from 'lucide-react';
 import { api } from '../../services/api';
 import { surveyPlaceholder, projectPlaceholder, equipmentPlaceholder } from '../../utils/placeholders';
 import { validateBooking, validateField } from '../../utils/formValidation';
@@ -256,6 +256,16 @@ const SurveyHomePage = () => {
                 <span>/</span>
                 <a href="#" className="hover:text-gray-500 transition-colors">X / Twitter</a>
               </div>
+              <a
+                href="/eugene-odibenuah-land-surveyor-cv.pdf"
+                download="Eugene-Odibenuah-Surveyor-CV.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-6 inline-flex items-center gap-2 border border-black px-4 py-2.5 hover:bg-black hover:text-white transition-colors text-[10px] font-bold uppercase tracking-widest w-fit"
+              >
+                <Download className="w-3.5 h-3.5" />
+                Download CV
+              </a>
             </div>
           </div>
 

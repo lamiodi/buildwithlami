@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, User, ShoppingBag, Menu, Crosshair, Target, Camera, ArrowRight, ArrowUpRight, Plus, Minus, Mail, Phone, MapPin } from 'lucide-react';
+import { Search, User, ShoppingBag, Menu, Crosshair, Target, Camera, ArrowRight, ArrowUpRight, Plus, Minus, Mail, Phone, MapPin, Download } from 'lucide-react';
 import { api } from '../../services/api';
 import { dronePlaceholder, equipmentPlaceholder } from '../../utils/placeholders';
 import { validateBooking, validateField } from '../../utils/formValidation';
@@ -264,6 +264,16 @@ const DroneHomePage = () => {
                   <span className="bg-white text-black rounded-full w-8 h-8 flex items-center justify-center group-hover:translate-x-1 transition-transform"><ArrowRight className="w-4 h-4" /></span>
                 </button>
                 <button onClick={() => scrollTo('portfolio')} className="font-semibold text-sm underline decoration-2 underline-offset-4 hover:text-gray-500 transition-colors">View Portfolio</button>
+                <a
+                  href="/eugene-odibenuah-land-surveyor-cv.pdf"
+                  download="Eugene-Odibenuah-Surveyor-CV.pdf"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 font-semibold text-sm hover:text-accent transition-colors"
+                >
+                  <Download className="w-4 h-4" />
+                  Download CV
+                </a>
               </div>
             </div>
 
