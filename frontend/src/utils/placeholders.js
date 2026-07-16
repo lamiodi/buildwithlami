@@ -4,6 +4,23 @@
  */
 
 /**
+ * Encode a UTF-8 string as base64.
+ * `btoa()` alone only accepts Latin1 characters, so any em-dash,
+ * curly quote, or accented letter in the SVG would throw
+ * `InvalidCharacterError`. We round-trip through TextEncoder to
+ * turn the JS string into a UTF-8 byte array first, then re-bundle
+ * it as a Latin1 string for `btoa`.
+ */
+function utf8ToBase64(str) {
+  const bytes = new TextEncoder().encode(str);
+  let binary = '';
+  for (let i = 0; i < bytes.length; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return btoa(binary);
+}
+
+/**
  * Generate a simple geometric placeholder SVG
  * @param {number} width - width in pixels
  * @param {number} height - height in pixels
@@ -12,12 +29,12 @@
  * @param {string} label - optional text label
  * @returns {string} data URI for SVG
  */
-export function generatePlaceholder({ width = 400, height = 300, bgColor = '#f3f4f6', accentColor = '#f44a22', label = '' }) {
+export function generatePlaceholder({ width = 400, height = 300, bgColor = '#f3f4f6', accentColor = '#f44a22', label = '' } = {}) {
   const viewBox = `0 0 ${width} ${height}`;
   const fontSize = Math.min(width, height) * 0.06;
   const x = width / 2;
   const y = height / 2;
-  
+
   const svg = `
     <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="${viewBox}">
       <rect width="100%" height="100%" fill="${bgColor}"/>
@@ -28,8 +45,8 @@ export function generatePlaceholder({ width = 400, height = 300, bgColor = '#f3f
       ${label ? `<text x="${x}" y="${y + fontSize * 0.35}" font-family="system-ui, sans-serif" font-size="${fontSize}" fill="${accentColor}" text-anchor="middle" dominant-baseline="middle" font-weight="600">${label}</text>` : ''}
     </svg>
   `;
-  
-  return `data:image/svg+xml;base64,${btoa(svg)}`;
+
+  return `data:image/svg+xml;base64,${utf8ToBase64(svg)}`;
 }
 
 /**
