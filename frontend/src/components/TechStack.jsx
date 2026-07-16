@@ -1,104 +1,177 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import Matter from 'matter-js';
+import './TechStack.css';
+
+// iconOnly: true = show ONLY the HD logo (no text label), renders as a square card
+// iconOnly: false or missing = show text label with accent dot, renders as a wide card
+const techStack = [
+  { name: 'React', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg', iconOnly: true },
+  { name: 'Node.js', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nodejs/nodejs-original.svg', iconOnly: true },
+  { name: 'PostgreSQL', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/postgresql/postgresql-original.svg', iconOnly: true },
+  { name: 'JavaScript', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/javascript/javascript-original.svg', iconOnly: true },
+  { name: 'Tailwind CSS', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/tailwindcss/tailwindcss-original.svg', iconOnly: true },
+  { name: 'Supabase', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/supabase/supabase-original.svg', iconOnly: true },
+  { name: 'Vite', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/vitejs/vitejs-original.svg', iconOnly: true },
+  { name: 'Express', icon: '' },
+  { name: 'Paystack', icon: '' },
+  { name: 'Framer Motion', icon: '' }
+];
+
+const ICON_CARD_SIZE = 64;   // square cards for icon-only
+const TEXT_CARD_W = 180;     // wide cards for text
+const TEXT_CARD_H = 56;
 
 const TechStack = () => {
-  // Refs for proper cleanup and performance optimization
-  const sectionRef = useRef(null);
   const sceneRef = useRef(null);
+  const sectionRef = useRef(null);
+  const engineRef = useRef(null);
   const runnerRef = useRef(null);
-  const animationFrameIdRef = useRef(null);
-  const particlesRef = useRef([]); // For storing particle animation objects
-  const keydownListenersRef = useRef([]); // For storing keydown event listener references
-  const mediaQueryRef = useRef(null); // For reduced motion media query listener
-  const visibilityHandlerRef = useRef(null); // For document visibility change handler
 
   useEffect(() => {
-    const section = sectionRef.current;
+    if (!sceneRef.current || !sectionRef.current) return;
+
+    const Engine = Matter.Engine,
+          Bodies = Matter.Bodies,
+          Composite = Matter.Composite,
+          Mouse = Matter.Mouse,
+          MouseConstraint = Matter.MouseConstraint,
+          Events = Matter.Events,
+          Runner = Matter.Runner;
+
     const scene = sceneRef.current;
+    const section = sectionRef.current;
     
-    if (!section || !scene) return;
+    // Clear existing scene if any
+    scene.innerHTML = '';
 
-    // Initialize Matter.js engine
-    const engine = Matter.Engine.create();
-    const wallThickness = 20;
-    
-    // Create wall boundaries for the physics world
+    let width = section.offsetWidth;
+    let height = section.offsetHeight;
+
+    const engine = Engine.create();
+    engineRef.current = engine;
+    engine.world.gravity.y = 0.02;
+
+    const wallThickness = 100;
+
     const walls = [
-      Matter.Bodies.rectangle(
-        window.innerWidth / 2,
-        -wallThickness / 2,
-        window.innerWidth,
-        wallThickness
-      ),
-      Matter.Bodies.rectangle(
-        window.innerWidth / 2,
-        window.innerHeight + wallThickness / 2,
-        window.innerWidth,
-        wallThickness
-      ),
-      Matter.Bodies.rectangle(
-        -wallThickness / 2,
-        window.innerHeight / 2,
-        wallThickness,
-        window.innerHeight
-      ),
-      Matter.Bodies.rectangle(
-        window.innerWidth + wallThickness / 2,
-        window.innerHeight / 2,
-        wallThickness,
-        window.innerHeight
-      )
+      Bodies.rectangle(width / 2, -wallThickness / 2, width * 2, wallThickness, { isStatic: true, restitution: 0.9, friction: 0.1 }),
+      Bodies.rectangle(width / 2, height + wallThickness / 2, width * 2, wallThickness, { isStatic: true, restitution: 0.9, friction: 0.1 }),
+      Bodies.rectangle(-wallThickness / 2, height / 2, wallThickness, height * 2, { isStatic: true, restitution: 0.9, friction: 0.1 }),
+      Bodies.rectangle(width + wallThickness / 2, height / 2, wallThickness, height * 2, { isStatic: true, restitution: 0.9, friction: 0.1 })
     ];
 
-    // Create physics bodies for interactive cards
-    const cards = [
-      Matter.Bodies.rectangle(window.innerWidth / 4, window.innerHeight / 2, 200, 120),
-      Matter.Bodies.rectangle(window.innerWidth / 2, window.innerHeight / 3, 180, 100),
-      Matter.Bodies.rectangle(window.innerWidth * 3 / 4, window.innerHeight / 4, 160, 140),
-      Matter.Bodies.rectangle(window.innerWidth / 2, window.innerHeight * 3 / 4, 140, 110),
-      Matter.Bodies.rectangle(window.innerWidth / 3, window.innerHeight * 2 / 3, 220, 130)
-    ];
+    Composite.add(engine.world, walls);
 
-    // Create DOM elements for cards and store references
+    const cards = [];
     const cardElements = [];
+    const padding = 60;
 
-    cards.forEach((card, index) => {
+    techStack.forEach((tech, index) => {
+      const label = tech.name;
+      const isIconOnly = tech.iconOnly && tech.icon;
+      const cw = isIconOnly ? ICON_CARD_SIZE : TEXT_CARD_W;
+      const ch = isIconOnly ? ICON_CARD_SIZE : TEXT_CARD_H;
+
+      const x = padding + Math.random() * (width - cw - padding * 2);
+      const y = padding + Math.random() * (height - ch - padding * 2);
+
+      const body = Bodies.rectangle(x, y, cw, ch, {
+        restitution: 0.7,
+        friction: 0.02,
+        frictionAir: 0.008,
+        angle: (Math.random() - 0.5) * 0.3,
+        label: label,
+        id: index
+      });
+
+      cards.push(body);
+
       const cardEl = document.createElement('div');
-      cardEl.className = 'card';
-      cardEl.tabIndex = 0; // Accessibility: make card keyboard focusable
-      cardEl.role = 'button'; // Accessibility: indicate button-like behavior
-      cardEl.setAttribute('aria-label', `Technology card ${index + 1}`); // Accessibility: meaningful label
-      cardEl.innerHTML = `<div class="card-content">${['React', 'TypeScript', 'Node.js', 'Python', 'Go'][index]}</div>`;
-      
-      // Performance optimizations for GPU acceleration
-      cardEl.style.willChange = 'transform';
-      cardEl.style.backfaceVisibility = 'hidden';
-      cardEl.style.transformStyle = 'preserve-3d';
-      
+      cardEl.className = isIconOnly ? 'tech-card icon-only' : 'tech-card';
+      cardEl.setAttribute('role', 'button');
+      cardEl.setAttribute('aria-label', `${label} technology card - drag to interact`);
+      cardEl.setAttribute('tabindex', '0');
+
+      if (isIconOnly) {
+        // Icon-only card: large centered logo, no text
+        cardEl.innerHTML = `<img src="${tech.icon}" alt="${label}" class="tech-logo" />`;
+      } else {
+        // Text card: accent dot + label
+        cardEl.innerHTML = `
+          <div class="accent-dot"></div>
+          <span>${label}</span>
+        `;
+      }
+
       scene.appendChild(cardEl);
       cardElements.push(cardEl);
     });
 
-    // Animation loop to update card positions based on physics
+    Composite.add(engine.world, cards);
+
+    const mouse = Mouse.create(scene);
+    const mouseConstraint = MouseConstraint.create(engine, {
+      mouse: mouse,
+      constraint: {
+        stiffness: 0.2,
+        render: { visible: false }
+      }
+    });
+
+    Composite.add(engine.world, mouseConstraint);
+
+    let draggedBody = null;
+
+    Events.on(mouseConstraint, 'startdrag', (event) => {
+      draggedBody = event.body;
+      const index = cards.indexOf(draggedBody);
+      if (index !== -1) {
+        cardElements[index].classList.add('dragging');
+      }
+    });
+
+    Events.on(mouseConstraint, 'enddrag', (event) => {
+      if (draggedBody) {
+        const index = cards.indexOf(draggedBody);
+        if (index !== -1) {
+          cardElements[index].classList.remove('dragging');
+        }
+      }
+      draggedBody = null;
+    });
+
+    let time = 0;
+    const beforeUpdate = () => {
+      time += 0.016;
+      cards.forEach((card, index) => {
+        if (!card.isStatic && card !== draggedBody) {
+          const floatX = Math.sin(time * 0.8 + index * 1.2) * 0.00015;
+          const floatY = Math.cos(time * 0.6 + index * 0.9) * 0.00015;
+          Matter.Body.applyForce(card, card.position, { x: floatX, y: floatY });
+          Matter.Body.setAngularVelocity(card, card.angularVelocity * 0.995);
+        }
+      });
+    };
+    Events.on(engine, 'beforeUpdate', beforeUpdate);
+
+    let animationFrameId;
     const updatePositions = () => {
-      // Update transform styles for all physics bodies
-      Matter.Composite.allBodies(engine.world).forEach((body) => {
-        if (body.element) {
+      cards.forEach((body, index) => {
+        const element = cardElements[index];
+        if (element) {
           const x = body.position.x;
           const y = body.position.y;
           const angle = body.angle;
-          // GPU acceleration: use translate3d instead of translate
-          body.element.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%) rotate(${angle}rad)`;
+          element.style.transform = `translate(${x}px, ${y}px) translate(-50%, -50%) rotate(${angle}rad)`;
         }
       });
-      animationFrameIdRef.current = requestAnimationFrame(updatePositions);
+      animationFrameId = requestAnimationFrame(updatePositions);
     };
 
-    // Resize handler to update physics boundaries
     const handleResize = () => {
       if (!section) return;
-      const width = section.offsetWidth;
-      const height = section.offsetHeight;
+      width = section.offsetWidth;
+      height = section.offsetHeight;
 
       Matter.Body.setPosition(walls[0], { x: width / 2, y: -wallThickness / 2 });
       Matter.Body.setPosition(walls[1], { x: width / 2, y: height + wallThickness / 2 });
@@ -115,16 +188,8 @@ const TechStack = () => {
       });
     };
 
-    // Throttled resize handler to prevent excessive recalculations
-    let resizeTimeout;
-    const throttledResize = () => {
-      if (resizeTimeout) cancelAnimationFrame(resizeTimeout);
-      resizeTimeout = requestAnimationFrame(handleResize);
-    };
+    window.addEventListener('resize', handleResize);
 
-    window.addEventListener('resize', throttledResize);
-
-    // Create and animate floating particles
     const particleCount = 12;
     for (let i = 0; i < particleCount; i++) {
       const particle = document.createElement('div');
@@ -133,18 +198,15 @@ const TechStack = () => {
       particle.style.top = Math.random() * 100 + '%';
       particle.style.opacity = Math.random() * 0.3 + 0.1;
       particle.style.transform = `scale(${Math.random() * 1.5 + 0.5})`;
-      particle.style.willChange = 'left, top, opacity'; // Performance optimization
-      
       scene.appendChild(particle);
-      particlesRef.current.push(particle);
-
+      
       const duration = 8000 + Math.random() * 12000;
       const startX = parseFloat(particle.style.left);
       const startY = parseFloat(particle.style.top);
       const endX = startX + (Math.random() - 0.5) * 20;
       const endY = startY + (Math.random() - 0.5) * 20;
 
-      const animation = particle.animate([
+      particle.animate([
         { left: startX + '%', top: startY + '%', opacity: particle.style.opacity },
         { left: endX + '%', top: endY + '%', opacity: parseFloat(particle.style.opacity) * 1.5 },
         { left: startX + '%', top: startY + '%', opacity: particle.style.opacity }
@@ -153,12 +215,10 @@ const TechStack = () => {
         iterations: Infinity,
         easing: 'ease-in-out'
       });
-      particlesRef.current.push(animation); // Store animation for cleanup
     }
 
-    // Event listeners for keyboard interactions
     cardElements.forEach((el, index) => {
-      const handleKeyDown = (e) => {
+      el.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
           const card = cards[index];
@@ -167,89 +227,31 @@ const TechStack = () => {
             y: (Math.random() - 0.5) * 0.05
           });
         }
-      };
-      
-      el.addEventListener('keydown', handleKeyDown);
-      keydownListenersRef.current.push({ el, handler: handleKeyDown }); // Store for cleanup
+      });
     });
 
-    // Start physics simulation
-    const runner = Matter.Runner.create();
+    const runner = Runner.create();
     runnerRef.current = runner;
-    Matter.Runner.run(runner, engine);
+    Runner.run(runner, engine);
 
     updatePositions();
 
-    // Reduced motion support with dynamic listener
-    mediaQueryRef.current = window.matchMedia('(prefers-reduced-motion: reduce)');
-    if (mediaQueryRef.current.matches) {
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    if (prefersReducedMotion.matches) {
       engine.world.gravity.y = 0;
     }
-    mediaQueryRef.current.addEventListener('change', (e) => {
-      engine.world.gravity.y = e.matches ? 0 : 1;
-    });
 
-    // Visibility change handler for pausing physics
-    visibilityHandlerRef.current = () => {
-      if (document.hidden) {
-        Matter.Runner.stop(runnerRef.current);
-      } else {
-        Matter.Runner.run(runnerRef.current, engine);
-      }
-    };
-    document.addEventListener('visibilitychange', visibilityHandlerRef.current);
-
-    // Cleanup function
     return () => {
-      // Remove all event listeners
-      window.removeEventListener('resize', throttledResize);
-      if (animationFrameIdRef.current) {
-        cancelAnimationFrame(animationFrameIdRef.current);
-      }
-      
-      // Handle reduced motion listener cleanup
-      if (mediaQueryRef.current) {
-        // Remove the specific handler that was added in the effect
-        mediaQueryRef.current.removeEventListener('change', (e) => {
-          engine.world.gravity.y = e.matches ? 0 : 1;
-        });
-      }
-      
-      // Handle visibility change listener cleanup
-      if (visibilityHandlerRef.current) {
-        document.removeEventListener('visibilitychange', visibilityHandlerRef.current);
-      }
-      
-      // Clean up Matter.js physics
-      Matter.Runner.stop(runnerRef.current);
-      Matter.Engine.clear(engine);
+      window.removeEventListener('resize', handleResize);
+      cancelAnimationFrame(animationFrameId);
+      Runner.stop(runner);
+      Engine.clear(engine);
       if (engine.world) {
-        Matter.Composite.clear(engine.world);
+        Composite.clear(engine.world);
       }
-
-      // Clean up keydown event listeners
-      keydownListenersRef.current.forEach(({ el, handler }) => {
-        el.removeEventListener('keydown', handler);
-      });
-      keydownListenersRef.current = [];
-
-      // Clean up particle animations using DOM methods (avoid innerHTML)
-      particlesRef.current.forEach((item) => {
-        if (item.className === 'particle') {
-          // Use replaceChildren instead of innerHTML for DOM cleanup
-          scene.replaceChildren();
-        } else {
-          item.cancel(); // Cancel animation objects
-        }
-      });
-      particlesRef.current = [];
-
-      // Clean up card elements
-      cardElements.forEach(el => {
-        if (scene.contains(el)) {
-          scene.removeChild(el);
-        }
-      });
+      if (scene) {
+        scene.innerHTML = '';
+      }
     };
   }, []);
 
