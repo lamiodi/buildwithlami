@@ -96,41 +96,57 @@ const SurveyHomePage = () => {
   };
 
   // -- Data specific to Lami Survey Division --
+  // Authentic services delivered with a total station, GNSS receiver,
+  // and DJI Mini-series drones. No sonar, no LiDAR, no hydrographic
+  // watercraft — just disciplined fieldwork and clean deliverables.
   const services = [
     {
       title: "Boundary Demarcation",
-      description: "Precise property line marking with reinforced concrete monuments, adhering strictly to Nigeria's Land Instruments Preparation Act.",
+      description: "Precise property line marking with reinforced concrete monuments, prepared in line with Nigeria's Land Instruments Preparation Act.",
     },
     {
-      title: "Topographic Mapping",
-      description: "Detailed 2D and 3D representations of natural and man-made terrain features using RTK GNSS technology.",
+      title: "Topographic Surveys",
+      description: "Detailed 2D and 3D terrain maps showing elevation, slopes, and natural features — for architects, engineers, and planners.",
     },
     {
-      title: "Engineering & Construction",
-      description: "Setting out, volume calculation, and as-built surveys tailored to civil engineering and architectural projects.",
+      title: "Cadastral Surveys",
+      description: "Official surveys for landed property boundaries, including deed preparation and registration-ready plan production.",
     },
     {
-      title: "Hydrographic & Bathymetric",
-      description: "Mapping of underwater terrain and water bodies utilizing sonar-equipped watercraft and remote sensing.",
+      title: "Engineering & Setting Out",
+      description: "Construction layout, as-built surveys, and volume calculations tailored to civil engineering and architectural projects.",
     },
     {
-      title: "GIS & Cartography",
-      description: "Geospatial database management, spatial analysis, and high-end map production for planning.",
+      title: "Site Layout & Subdivision",
+      description: "Estate and plot subdivision into sellable units with road alignment, drainage corridors, and access planning.",
     },
     {
-      title: "Cadastral Surveying",
-      description: "Official surveys for the determination of boundaries of landed properties, including deed preparation.",
+      title: "Drone Mapping & Photogrammetry",
+      description: "Orthomosaic maps, digital surface models, and contour generation from DJI Mini 4 Pro aerial imagery.",
+    },
+    {
+      title: "GIS Mapping & Spatial Data",
+      description: "Geospatial database design, asset mapping, and presentation-ready cartographic outputs for planning teams.",
+    },
+    {
+      title: "GPS / GNSS Control Surveys",
+      description: "Establishment of ground control points and coordinate reference frameworks using survey-grade GNSS receivers.",
+    },
+    {
+      title: "Land Documentation",
+      description: "Clean AutoCAD drawings, GeoTIFFs, and printed survey plans ready for architects, lawyers, and government filing.",
     }
   ];
 
   // Fallback projects shown if the API is unreachable or empty.
   // Keeps the page presentable until the admin publishes real
-  // entries from /admin/portfolio.
+  // entries from /admin/portfolio. Placeholders only — replace
+  // with verified client work before going public.
   const fallbackProjects = [
-    { id: 'fallback-1', title: "Eko Atlantic Coastal Survey", summary: 'Hydrographic survey of the reclaimed peninsula', area: "850 Ha", tags: ['Hydrographic'], location: "Lagos" },
-    { id: 'fallback-2', title: "Abuja Phase IV Layout",       summary: 'Cadastral layout for the new federal district', area: "1,200 Ha", tags: ['Cadastral'], location: "FCT" },
-    { id: 'fallback-3', title: "Dangote Refinery Pipeline",  summary: 'Engineering survey for the 150km pipeline',     area: "150 KM",  tags: ['Engineering'], location: "Lekki" },
-    { id: 'fallback-4', title: "Lekki-Epe Topography",       summary: 'Topographic baseline for the corridor',          area: "600 Ha",  tags: ['Topographic'], location: "Lagos" },
+    { id: 'fallback-1', title: "Residential Estate Boundary Survey", summary: 'Cadastral demarcation for a 40-unit housing estate', area: "8 Ha",  tags: ['Cadastral'],   location: "Lagos" },
+    { id: 'fallback-2', title: "Subdivision Layout — Lekki Axis",  summary: 'Plot subdivision and access road alignment',      area: "12 Ha",  tags: ['Subdivision'], location: "Lagos" },
+    { id: 'fallback-3', title: "Topographic Baseline for Site Plan", summary: 'Terrain map for an architect’s master plan',    area: "5 Ha",   tags: ['Topographic'], location: "FCT" },
+    { id: 'fallback-4', title: "Construction Setting Out",          summary: 'Building footprint and column setting out',       area: "2 Ha",   tags: ['Engineering'], location: "Lagos" },
   ];
 
   // Live projects fetched from /api/projects/division/SURVEY.
@@ -155,18 +171,28 @@ const SurveyHomePage = () => {
   // section.
   const projects = apiProjects.length > 0 ? apiProjects : fallbackProjects;
 
+  // Equipment we actually use in the field. Only the tools that
+  // physically sit in the case — no enterprise-grade hardware that
+  // sounds impressive on a brochure page.
   const equipment = [
-    { name: "Trimble R12i", spec: "RTK GNSS Receiver" },
-    { name: "Leica TS16", spec: "Robotic Total Station" },
-    { name: "DJI Matrice 350", spec: "Aerial Mapping Drone" },
-    { name: "SonarMite EchoSounder", spec: "Bathymetric Sensor" },
+    { name: "GNSS Receiver",         spec: "Survey-Grade GPS / GLONASS" },
+    { name: "Total Station",         spec: "Electronic Angle & Distance" },
+    { name: "DJI Mini 4 Pro",        spec: "Aerial Mapping Drone" },
+    { name: "Digital Level",         spec: "Precise Height Determination" },
+    { name: "Data Collector",        spec: "Field Tablet with Survey Software" },
+    { name: "Tripod & Prism Kit",    spec: "Stable Control Points" },
   ];
 
+  // Realistic client questions — the things people actually ask
+  // before hiring a surveyor in Nigeria. No "rapid 48-hour
+  // nationwide deployment" or "sub-centimeter" sales copy.
   const faqs = [
-    { q: "Are your surveyors licensed by SURCON?", a: "Yes, all our field operations are led by fully registered and licensed members of the Surveyors Council of Nigeria (SURCON)." },
-    { q: "What deliverables can I expect?", a: "We provide digital AutoCAD/GeoTIFFs, physical survey plans, GIS databases, and official deed plans depending on the project scope." },
-    { q: "Do you offer nationwide coverage?", a: "Absolutely. We have rapid-deployment teams capable of mobilizing to any of Nigeria's 36 states within 48 hours." },
-    { q: "What is your typical accuracy tolerance?", a: "We strictly adhere to sub-centimeter accuracy (±10mm) for static control and high-precision engineering tasks." },
+    { q: "What areas do you cover?", a: "We are based in Lagos and routinely work across the South-West and FCT. Longer-distance projects are quoted on a mobilization basis." },
+    { q: "How long does a typical survey take?", a: "A standard residential boundary survey runs 1–3 days in the field, with another 3–5 days for processing, drafting, and plan preparation." },
+    { q: "What deliverables will I receive?", a: "You get digital AutoCAD drawings, printable survey plans, and — where relevant — GeoTIFF orthomosaics. We hand over both files and printed copies." },
+    { q: "Are you licensed by SURCON?", a: "Yes. Our field operations are supervised by registered members of the Surveyors Council of Nigeria where local regulations require it." },
+    { q: "Can you support a drone project too?", a: "Absolutely. Our Drone Division handles aerial mapping, orthomosaics, and progress documentation using DJI Mini 4 Pro aircraft." },
+    { q: "How do you price a project?", a: "Pricing is based on site area, terrain, accessibility, and the type of deliverable. We share a clear quote after a quick scope discussion." },
   ];
 
   // -- State for FAQ accordion --
@@ -247,7 +273,7 @@ const SurveyHomePage = () => {
 
             <div className="mt-auto">
               <p className="text-xs font-semibold leading-loose text-gray-800 max-w-[280px] uppercase tracking-wider mb-12">
-                Professional land surveying services across Nigeria. From boundary demarcation to large-scale GIS mapping — we deliver accuracy you can build on.
+                Professional land surveying across Lagos and beyond. From boundary demarcation to drone-assisted topographic mapping — clean data, delivered on time.
               </p>
               <div className="flex gap-4 text-[10px] font-bold tracking-widest uppercase">
                 <a href="#" className="hover:text-gray-500 transition-colors">Instagram</a>
@@ -272,9 +298,9 @@ const SurveyHomePage = () => {
           {/* Center Column - Image */}
           <div className="w-full md:w-[35%] bg-[#e6e6e6] flex flex-col border-b md:border-b-0 md:border-r border-gray-300">
             <div className="w-full h-[50vh] md:h-[70%] bg-gray-200 overflow-hidden">
-              <img 
-                src={surveyPlaceholder({ width: 600, height: 800, label: 'Architectural Survey' })}
-                alt="Architectural Survey" 
+              <img
+                src={surveyPlaceholder({ width: 600, height: 800, label: 'Cadastral Survey' })}
+                alt="Cadastral Survey"
                 className="w-full h-full object-cover grayscale-[20%] contrast-125"
               />
             </div>
@@ -285,7 +311,7 @@ const SurveyHomePage = () => {
                 </button>
               </div>
               <p className="text-[10px] font-bold uppercase tracking-widest leading-relaxed text-gray-800 max-w-[250px]">
-                Nine specialised surveying disciplines delivered with modern equipment and SURCON-certified professionals.
+                Disciplined field surveys for residential, commercial, and infrastructure clients — backed by digital deliverables you can build on.
               </p>
             </div>
           </div>
@@ -300,28 +326,28 @@ const SurveyHomePage = () => {
             <div className="flex-1">
               <h2 className="survey-heading text-xl font-bold uppercase tracking-wider mb-6">Featured Project</h2>
               <p className="text-[10px] font-bold uppercase tracking-widest leading-relaxed text-gray-600 mb-12 max-w-[250px]">
-                High-resolution orthomosaic maps and DEMs from drone-captured imagery for precise terrain analysis.
+                Topographic baseline survey with drone-captured orthomosaic — clean contours and elevations ready for the architect’s master plan.
               </p>
               <div className="space-y-4 mb-16 w-full max-w-[300px]">
                 <div className="flex justify-between border-b border-gray-300 pb-2">
-                  <span className="text-[10px] font-bold uppercase tracking-widest">Style</span>
+                  <span className="text-[10px] font-bold uppercase tracking-widest">Service</span>
                   <span className="text-[10px] font-bold uppercase tracking-widest flex items-center gap-2"><span className="text-xs">⚙</span> Topographic</span>
                 </div>
                 <div className="flex justify-between border-b border-gray-300 pb-2">
                   <span className="text-[10px] font-bold uppercase tracking-widest">Type</span>
-                  <span className="text-[10px] font-bold uppercase tracking-widest">Engineering.</span>
+                  <span className="text-[10px] font-bold uppercase tracking-widest">Site Survey.</span>
                 </div>
                 <div className="flex justify-between border-b border-gray-300 pb-2">
                   <span className="text-[10px] font-bold uppercase tracking-widest">Area</span>
-                  <span className="text-[10px] font-bold uppercase tracking-widest">1,200 HA</span>
+                  <span className="text-[10px] font-bold uppercase tracking-widest">5 HA</span>
                 </div>
                 <div className="flex justify-between border-b border-gray-300 pb-2">
-                  <span className="text-[10px] font-bold uppercase tracking-widest">Accuracy</span>
-                  <span className="text-[10px] font-bold uppercase tracking-widest">±10mm</span>
+                  <span className="text-[10px] font-bold uppercase tracking-widest">Method</span>
+                  <span className="text-[10px] font-bold uppercase tracking-widest">Total Station + Drone</span>
                 </div>
                 <div className="flex justify-between border-b border-gray-300 pb-2">
                   <span className="text-[10px] font-bold uppercase tracking-widest">Location</span>
-                  <span className="text-[10px] font-bold uppercase tracking-widest">Lagos</span>
+                  <span className="text-[10px] font-bold uppercase tracking-widest">Lagos, NG</span>
                 </div>
               </div>
               <button onClick={() => scrollTo('projects')} className="text-[11px] font-bold uppercase tracking-widest border-b border-black pb-1 hover:text-gray-600 transition-colors">
@@ -358,7 +384,7 @@ const SurveyHomePage = () => {
               </h2>
             </div>
             <p className="text-xs font-bold uppercase tracking-widest leading-relaxed text-gray-700 max-w-md">
-              Nine specialised surveying disciplines — each delivered with modern equipment, SURCON-certified professionals, and digital deliverables.
+              Fieldwork, drafting, and drone-assisted mapping — delivered with the gear we actually carry, and the standards a property transaction deserves.
             </p>
           </div>
         </div>
@@ -485,9 +511,9 @@ const SurveyHomePage = () => {
           </h2>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
           {equipment.map((eq, idx) => (
-            <div 
+            <div
               key={idx}
               className={`observe ${visibleElements.has(`eq-${idx}`) ? 'opacity-100' : 'opacity-0'} transition-all duration-700`}
               data-id={`eq-${idx}`}
@@ -502,6 +528,55 @@ const SurveyHomePage = () => {
               <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">{eq.spec}</p>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* ==== DRONE DIVISION CROSS-LINK ==== */}
+      <section className="py-24 px-6 md:px-12 max-w-[1400px] mx-auto border-t border-gray-300">
+        <div className="bg-black text-white p-8 md:p-16 grid grid-cols-1 md:grid-cols-[1.4fr_1fr] gap-12 items-start">
+          <div>
+            <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-400 mb-4">— Sister Division</p>
+            <h2 className="survey-heading text-5xl md:text-7xl font-black uppercase tracking-tighter leading-[0.85] mb-8">
+              Need<br />Aerial<br />Visuals?
+            </h2>
+            <p className="text-xs font-bold uppercase tracking-widest leading-loose text-gray-300 max-w-md mb-10">
+              Our Drone Division complements every survey we deliver — flying DJI Mini 4 Pro and Mini 4K aircraft for the photography, mapping, and progress content our clients need.
+            </p>
+            <Link
+              to="/drone"
+              className="inline-flex items-center gap-3 border border-white px-6 py-3 text-[11px] font-black uppercase tracking-[0.3em] hover:bg-white hover:text-black transition-colors group"
+            >
+              Explore Drone Services
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </Link>
+          </div>
+
+          <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 gap-4 text-[10px] font-bold uppercase tracking-widest text-gray-300">
+            <li className="flex justify-between border-b border-white/20 pb-2">
+              <span>Aerial Photography</span>
+              <span className="text-white/40">01</span>
+            </li>
+            <li className="flex justify-between border-b border-white/20 pb-2">
+              <span>Real Estate Shoots</span>
+              <span className="text-white/40">02</span>
+            </li>
+            <li className="flex justify-between border-b border-white/20 pb-2">
+              <span>Construction Progress</span>
+              <span className="text-white/40">03</span>
+            </li>
+            <li className="flex justify-between border-b border-white/20 pb-2">
+              <span>Hotel &amp; Resort Promotion</span>
+              <span className="text-white/40">04</span>
+            </li>
+            <li className="flex justify-between border-b border-white/20 pb-2">
+              <span>Event Aerial Coverage</span>
+              <span className="text-white/40">05</span>
+            </li>
+            <li className="flex justify-between border-b border-white/20 pb-2">
+              <span>Drone Mapping &amp; Orthomosaics</span>
+              <span className="text-white/40">06</span>
+            </li>
+          </ul>
         </div>
       </section>
 
@@ -566,7 +641,7 @@ const SurveyHomePage = () => {
               Start<br />A<br />Project
             </h2>
             <p className="text-xs font-bold uppercase tracking-widest leading-loose text-gray-700 max-w-md mb-12">
-              Ready to break ground on your next development? Our team will respond within 24 hours with a detailed scope, timeline, and quote.
+              Share a few details about your site and what you need delivered. We respond within one business day with a clear scope, timeline, and quote — no inflated enterprise pricing.
             </p>
             
             <div className="space-y-4">
