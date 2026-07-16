@@ -14,7 +14,21 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { api } from '../../services/api';
 
-const API_BASE = import.meta.env.VITE_API_URL || '/api';
+// Only use a relative VITE_API_URL or a localhost absolute URL.
+// Cross-origin production URLs (e.g. onrender.com) are rejected
+// because they break the HttpOnly cookie — see services/api.js.
+const API_BASE = (() => {
+    const env = import.meta.env.VITE_API_URL;
+    if (!env) return '/api';
+    if (env.startsWith('/')) return env;
+    try {
+        const u = new URL(env);
+        if (u.hostname === 'localhost' || u.hostname === '127.0.0.1') return env;
+    } catch {
+        // fall through
+    }
+    return '/api';
+})();
 
 const DIVISION_META = {
     SOFTWARE: { label: 'Software', tone: 'blue' },

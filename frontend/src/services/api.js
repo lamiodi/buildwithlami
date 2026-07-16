@@ -1,12 +1,42 @@
 // ─── Centralized API Client ───────────────────────────────
 // All fetch calls go through here — no more hardcoded localhost URLs.
-// In dev, Vite proxies /api → backend. In production, use VITE_API_URL.
+//
+// Routing:
+//   - In dev:        Vite proxies /api → the backend (see vite.config.js).
+//   - In production: Vercel rewrites /api/* → Render (see vercel.json).
+//
+// In both cases the frontend uses a SAME-ORIGIN path (/api/...) which
+// means the HttpOnly `access_token` cookie is treated as a first-party
+// cookie by the browser. Going cross-origin to onrender.com directly
+// caused the cookie to be silently dropped by modern browsers' third-
+// party cookie protections, which surfaced as 401s on every admin
+// endpoint after a successful login.
 //
 // Cookies (JWT + CSRF) are sent automatically with credentials: 'include'.
 // CSRF token is fetched from /api/csrf-token on app init and cached.
 // ────────────────────────────────────────────────────────────
 
-const API_BASE = import.meta.env.VITE_API_URL || '/api';
+// Only honour VITE_API_URL if it points to the same origin (relative
+// path) or to a localhost address (local dev convenience). An absolute
+// URL pointing to a remote host (e.g. https://buildwithlami.onrender.com/api)
+// would force every request to be cross-origin and re-introduce the
+// third-party cookie problem — browsers silently drop the HttpOnly
+// `access_token` cookie, and every admin endpoint returns 401.
+//
+// Fall back to '/api' so the Vercel rewrite (vercel.json) handles
+// routing and the cookie stays first-party.
+const API_BASE = (() => {
+    const env = import.meta.env.VITE_API_URL;
+    if (!env) return '/api';
+    if (env.startsWith('/')) return env;
+    try {
+        const u = new URL(env);
+        if (u.hostname === 'localhost' || u.hostname === '127.0.0.1') return env;
+    } catch {
+        // Malformed — fall through to the default below.
+    }
+    return '/api';
+})();
 
 // Default request timeout (ms). Avoids hanging the UI on a dead connection.
 const DEFAULT_TIMEOUT_MS = 15_000;

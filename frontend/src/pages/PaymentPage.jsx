@@ -18,8 +18,23 @@ import { useParams, Link } from 'react-router-dom';
 
 // No auth header — uses the bare `fetch` API instead of the
 // admin `api` helper which would 401 on unauthenticated calls.
+// Only honour a relative or localhost VITE_API_URL — see
+// services/api.js for why we don't allow remote cross-origin URLs.
 const apiFetch = async (path, options = {}) => {
-    const base = import.meta.env.VITE_API_URL || '';
+    const env = import.meta.env.VITE_API_URL;
+    let base = '';
+    if (env) {
+        if (env.startsWith('/')) {
+            base = env;
+        } else {
+            try {
+                const u = new URL(env);
+                if (u.hostname === 'localhost' || u.hostname === '127.0.0.1') base = env;
+            } catch {
+                // fall through with empty base
+            }
+        }
+    }
     const res = await fetch(`${base}${path}`, options);
     const text = await res.text();
     let data;
