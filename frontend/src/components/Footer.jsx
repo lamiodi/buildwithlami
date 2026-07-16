@@ -62,7 +62,7 @@ const Footer = () => {
             >
               LinkedIn
             </a>
-            <Link to="/contact" className="hover:text-accent transition-colors">
+            <Link to="/#faq" className="hover:text-accent transition-colors">
               Faqs
             </Link>
           </div>
