@@ -22,6 +22,7 @@ import {
     consumeTwoFactorCredential,
 } from '../services/twoFactorService.js';
 import { writeAuditLog, getClientIp } from '../utils/auditLog.js';
+import { COOKIE_OPTIONS } from './authController.js';
 
 // ── Helpers ──────────────────────────────────────────────
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -231,6 +232,13 @@ export async function verifyLoginTwoFactor(req, res) {
         user: { id: user.id, email: user.email, role: user.role },
         ipAddress: getClientIp(req),
     });
+
+    // Set the HttpOnly access_token cookie on the browser — same as
+    // /api/auth/login does on the first step. Without this, the
+    // browser never receives the JWT and every subsequent /auth/me
+    // call returns 401, which causes a redirect loop on protected
+    // pages.
+    res.cookie('access_token', token, COOKIE_OPTIONS);
 
     return res.json({
         token,

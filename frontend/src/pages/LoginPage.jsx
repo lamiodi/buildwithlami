@@ -7,7 +7,7 @@ import { useAuth } from '../contexts/AuthContext';
 const LoginPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, login } = useAuth();
+  const { user, loading: authLoading, login } = useAuth();
 
   // ── Two-step state ──────────────────────────────────────
   // step 1: email + password
@@ -23,11 +23,15 @@ const LoginPage = () => {
   const codeInputRef = useRef(null);
 
   useEffect(() => {
+    // Wait for the initial /auth/me probe to finish. If we redirect
+    // before AuthContext knows whether the cookie is valid, we'll
+    // bounce straight back to /login and trigger the verify-loop.
+    if (authLoading) return;
     if (user) {
       const from = location.state?.from || '/admin';
       navigate(from, { replace: true });
     }
-  }, [user, navigate, location.state]);
+  }, [user, authLoading, navigate, location.state]);
 
   // Auto-focus the 2FA input as soon as we transition to step 2.
   useEffect(() => {

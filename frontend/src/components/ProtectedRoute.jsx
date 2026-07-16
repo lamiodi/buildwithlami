@@ -1,58 +1,29 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { api } from '../services/api';
-import { clearAuth } from '../services/auth.js';
+import { useAuth } from '../contexts/AuthContext';
 
 /**
  * ProtectedRoute — Wraps admin pages so unauthenticated users
- * are redirected to /login. Validates the JWT by calling
- * /api/auth/me on mount.
+ * are redirected to /login.
  *
- * Behaviour notes:
- * - If the first call fails with a transient (network) error, we retry
- *   once after 500ms before giving up — avoids a "logged out on flaky
- *   network" footgun.
- * - On 401/403 the stale token is cleared from storage so the user
- *   doesn't get stuck in a redirect loop on the next visit.
- * - Redirects to /login with a `from` param so the login page can send
- *   the user back after authenticating.
+ * Single source of truth: AuthContext.
+ *
+ * AuthContext runs exactly one /auth/me probe on mount and exposes
+ * `loading` + `user`. Reading those here means we never trigger a
+ * second /auth/me call from a route mount, and — critically — we
+ * can't end up in a "user is set in state, but cookie is missing"
+ * redirect loop between /login and /admin.
+ *
+ * Behaviour:
+ *   - loading === true  → show "Verifying access…"
+ *   - !user            → redirect to /login?from=<current path>
+ *   - user             → render children
  */
 const ProtectedRoute = ({ children }) => {
-    const [status, setStatus] = useState('loading'); // loading | authenticated | denied
-    const ranOnce = useRef(false);
+    const { user, loading } = useAuth();
     const location = useLocation();
 
-    useEffect(() => {
-        if (ranOnce.current) return;
-        ranOnce.current = true;
-
-        const verify = async (attempt = 1) => {
-            const res = await api.get('/auth/me', { timeout: 5000 });
-            if (res.ok && res.data && res.data.role) {
-                setStatus('authenticated');
-                return;
-            }
-            if (!res.ok && (res.status === 401 || res.status === 403)) {
-                // Token is actually invalid/expired — clear it and deny.
-                clearAuth();
-                setStatus('denied');
-                return;
-            }
-            // Transient (network error, timeout, 5xx) — retry once
-            // before deciding. If the retry also fails, surface
-            // the failure (deny) instead of letting the user land
-            // on a broken admin page.
-            if (attempt < 2) {
-                setTimeout(() => verify(attempt + 1), 800);
-            } else {
-                clearAuth();
-                setStatus('denied');
-            }
-        };
-        verify();
-    }, []);
-
-    if (status === 'loading') {
+    if (loading) {
         return (
             <div className="min-h-screen flex items-center justify-center">
                 <div className="animate-pulse text-gray-400 text-sm font-medium">Verifying access…</div>
@@ -60,7 +31,7 @@ const ProtectedRoute = ({ children }) => {
         );
     }
 
-    if (status === 'denied') {
+    if (!user) {
         return <Navigate to={`/login?from=${encodeURIComponent(location.pathname)}`} replace />;
     }
 

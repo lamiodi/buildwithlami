@@ -6,7 +6,7 @@ import { canonicalRole, divisionsForRole } from '../config/roles.js';
 
 // Cookie options for HttpOnly JWT cookie
 // sameSite: 'none' + secure: true required for cross-origin cookies (Vercel → Render)
-const COOKIE_OPTIONS = {
+export const COOKIE_OPTIONS = {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
