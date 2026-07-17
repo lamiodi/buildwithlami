@@ -80,24 +80,40 @@ const DroneHomePage = () => {
   const handleBooking = async (e) => {
     e.preventDefault();
 
+    // Client-side validation - COMPLETE AND RIGHTEOUS!
     const validation = validateBooking(booking);
     if (!validation.valid) {
+      // Show ALL validation errors
       setBookingErrors(validation.errors);
+      
+      // Focus first field with error
       const firstError = Object.keys(validation.errors)[0];
       const el = document.querySelector(`[name="booking_${firstError}"]`);
       if (el) el.focus();
-      return;
+      
+      return; // CRITICAL: Don't submit API call when form is invalid
     }
 
-    setBookingStatus('submitting');
+    // Clear all errors before API call
     setBookingErrors({});
-    const res = await api.post('/bookings', { ...booking, division: 'DRONE' });
-    if (res.ok) {
-      setBookingStatus('success');
-      setBooking({ full_name: '', email: '', phone: '', service: '', location: '', preferred_date: '', notes: '' });
-      setTimeout(() => setBookingStatus('idle'), 5000);
-    } else {
+    setBookingStatus('submitting');
+    
+    try {
+      const res = await api.post('/bookings', { ...booking, division: 'DRONE' });
+      if (res.ok) {
+        setBookingStatus('success');
+        // RESET FORM ON SUCCESS ONLY
+        setBooking({ full_name: '', email: '', phone: '', service: '', location: '', preferred_date: '', notes: '' });
+        setTimeout(() => setBookingStatus('idle'), 5000);
+      } else {
+        setBookingStatus('error');
+        console.error('Drone booking API error:', res.error || 'Unknown error');
+        setTimeout(() => setBookingStatus('idle'), 5000);
+      }
+    } catch (err) {
+      // HANDLE NETWORK/UNKNOWN ERRORS
       setBookingStatus('error');
+      console.error('Drone booking network error:', err);
       setTimeout(() => setBookingStatus('idle'), 5000);
     }
   };
@@ -179,15 +195,6 @@ const DroneHomePage = () => {
         "Return-to-Home Safety",
       ],
     },
-  ];
-
-  const accessories = [
-    { name: "Extra Batteries",  spec: "Extended Flight Sessions" },
-    { name: "ND Filter Set",    spec: "Cinematic Motion Blur" },
-    { name: "Landing Pad",      spec: "Safe Takeoff & Landing" },
-    { name: "RC 2 Controller",  spec: "Long-Range Transmission" },
-    { name: "Memory Cards",     spec: "High-Speed UHS-I / V30" },
-    { name: "Safety Equipment", spec: "First-Aid · Fire Extinguisher" },
   ];
 
   // -- Capability highlights (replaces fake stats banner) --
@@ -658,28 +665,6 @@ const DroneHomePage = () => {
               </div>
             ))}
           </div>
-
-          {/* Accessories grid */}
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            {accessories.map((acc, idx) => (
-              <div
-                key={idx}
-                className={`drone-observe text-center group ${visibleElements.has(`acc-${idx}`) ? 'opacity-100' : 'opacity-0'} transition-all duration-700`}
-                data-id={`acc-${idx}`}
-                style={{ transitionDelay: `${idx * 80}ms` }}
-              >
-                <div className="aspect-square bg-white rounded-2xl mb-3 border border-gray-100 group-hover:border-black transition-colors flex items-center justify-center overflow-hidden">
-                  <img
-                    src={equipmentPlaceholder({ width: 200, height: 200, label: acc.name })}
-                    alt={acc.name}
-                    className="w-full h-full object-cover p-4 group-hover:scale-110 transition-transform duration-500"
-                  />
-                </div>
-                <h3 className="drone-heading text-xs font-black uppercase tracking-wider text-gray-900">{acc.name}</h3>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mt-1">{acc.spec}</p>
-              </div>
-            ))}
-          </div>
         </section>
 
         {/* ==== WHY CHOOSE US ==== */}
@@ -969,10 +954,8 @@ const DroneHomePage = () => {
           © 2026 Lami Drone Division // Aerial perspectives, premium execution
         </div>
         <div className="flex flex-wrap justify-center gap-x-8 gap-y-4 items-center font-bold uppercase tracking-widest text-[10px]">
-          <a href="#" className="hover:text-gray-300 transition-colors">Instagram</a>
-          <a href="#" className="hover:text-gray-300 transition-colors">LinkedIn</a>
-          <a href="#" className="hover:text-gray-300 transition-colors">X</a>
-          <a href="#" className="hover:text-gray-300 transition-colors">YouTube</a>
+          <a href="https://www.instagram.com/odibenuah_eugene?igsh=MXMwbzh6emk1eDhucA==" target="_blank" rel="noopener noreferrer" className="hover:text-gray-300 transition-colors">Instagram</a>
+          <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="hover:text-gray-300 transition-colors">LinkedIn</a>
         </div>
       </footer>
 

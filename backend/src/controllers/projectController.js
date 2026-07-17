@@ -13,6 +13,12 @@ function validateUUID(id, res) {
 }
 
 // ── Validation ───────────────────────────────────────────
+//
+// v28 added JSONB columns for case-study content (challenge,
+// solution, results, gallery, ...). We allow the frontend
+// to send anything JSON-serialisable and let PostgreSQL
+// validate the shape — keeping the Zod schema permissive
+// here avoids locking the form behind a brittle contract.
 const createProjectSchema = z.object({
     title: z.string().min(1),
     slug: z.string().min(1),
@@ -31,6 +37,27 @@ const createProjectSchema = z.object({
     client_name: z.string().optional().nullable(),
     display_order: z.number().int().optional().default(0),
     tags: z.array(z.string()).optional().default([]),
+    // v28 — premium case-study fields
+    tagline: z.string().optional().nullable(),
+    year: z.string().optional().nullable(),
+    industry: z.string().optional().nullable(),
+    status_label: z.string().optional().nullable(),
+    duration: z.string().optional().nullable(),
+    role: z.string().optional().nullable(),
+    gallery: z.array(z.any()).optional().default([]),
+    challenge: z.any().optional().default({}),
+    solution: z.any().optional().default({}),
+    results: z.array(z.any()).optional().default([]),
+    feature_categories: z.array(z.any()).optional().default([]),
+    flow: z.array(z.any()).optional().default([]),
+    tech_categories: z.array(z.any()).optional().default([]),
+    architecture: z.array(z.any()).optional().default([]),
+    timeline: z.array(z.any()).optional().default([]),
+    responsibilities: z.array(z.string()).optional().default([]),
+    metrics: z.any().optional().default({}),
+    stats: z.any().optional().default({}),
+    related_slugs: z.array(z.string()).optional().default([]),
+    meta: z.any().optional().default({}),
 });
 
 const updateProjectSchema = z.object({
@@ -51,7 +78,47 @@ const updateProjectSchema = z.object({
     client_name: z.string().optional().nullable(),
     display_order: z.number().int().optional(),
     tags: z.array(z.string()).optional(),
+    // v28 — premium case-study fields
+    tagline: z.string().optional().nullable(),
+    year: z.string().optional().nullable(),
+    industry: z.string().optional().nullable(),
+    status_label: z.string().optional().nullable(),
+    duration: z.string().optional().nullable(),
+    role: z.string().optional().nullable(),
+    gallery: z.array(z.any()).optional().nullable(),
+    challenge: z.any().optional().nullable(),
+    solution: z.any().optional().nullable(),
+    results: z.array(z.any()).optional().nullable(),
+    feature_categories: z.array(z.any()).optional().nullable(),
+    flow: z.array(z.any()).optional().nullable(),
+    tech_categories: z.array(z.any()).optional().nullable(),
+    architecture: z.array(z.any()).optional().nullable(),
+    timeline: z.array(z.any()).optional().nullable(),
+    responsibilities: z.array(z.string()).optional().nullable(),
+    metrics: z.any().optional().nullable(),
+    stats: z.any().optional().nullable(),
+    related_slugs: z.array(z.string()).optional().nullable(),
+    meta: z.any().optional().nullable(),
 });
+
+// JSONB columns added by v28. Used by updateProject to
+// decide which fields need an explicit ::jsonb cast on bind.
+const V28_JSONB_FIELDS = new Set([
+    'gallery',
+    'challenge',
+    'solution',
+    'results',
+    'feature_categories',
+    'flow',
+    'tech_categories',
+    'architecture',
+    'timeline',
+    'responsibilities',
+    'metrics',
+    'stats',
+    'related_slugs',
+    'meta',
+]);
 
 // ── List all projects ────────────────────────────────────
 export async function getProjects(req, res) {
@@ -160,16 +227,30 @@ export async function getProjectBySlug(req, res) {
 export async function createProject(req, res) {
     try {
         const data = createProjectSchema.parse(req.body);
+        // Map: feature_categories → feature_categories, etc.
+        // Frontend uses snake_case; pg / jsonb columns accept
+        // JS objects natively, so we pass them through.
         const { rows } = await pool.query(
             `INSERT INTO projects (
                 title, slug, summary, content, tech_stack, features, category,
                 image_url, live_url, repo_url,
                 division, featured, status,
                 location, client_name, display_order, tags,
-                published_at
+                published_at,
+                tagline, year, industry, status_label, duration, role,
+                gallery, challenge, solution, results, feature_categories,
+                flow, tech_categories, architecture, timeline,
+                responsibilities, metrics, stats, related_slugs, meta
             )
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17,
-                    CASE WHEN $13 = 'PUBLISHED' THEN NOW() ELSE NULL END)
+            VALUES (
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10,
+                $11, $12, $13, $14, $15, $16, $17,
+                CASE WHEN $13 = 'PUBLISHED' THEN NOW() ELSE NULL END,
+                $18, $19, $20, $21, $22, $23,
+                $24::jsonb, $25::jsonb, $26::jsonb, $27::jsonb, $28::jsonb,
+                $29::jsonb, $30::jsonb, $31::jsonb, $32::jsonb,
+                $33::jsonb, $34::jsonb, $35::jsonb, $36::jsonb, $37::jsonb
+            )
             RETURNING *`,
             [
                 data.title,
@@ -189,6 +270,30 @@ export async function createProject(req, res) {
                 data.client_name || null,
                 data.display_order ?? 0,
                 data.tags || [],
+                // v28 scalars
+                data.tagline || null,
+                data.year || null,
+                data.industry || null,
+                data.status_label || null,
+                data.duration || null,
+                data.role || null,
+                // v28 JSONB — pg accepts JS objects; the explicit
+                // ::jsonb cast in the SQL makes the column shape
+                // explicit and avoids relying on driver inference.
+                JSON.stringify(data.gallery ?? []),
+                JSON.stringify(data.challenge ?? {}),
+                JSON.stringify(data.solution ?? {}),
+                JSON.stringify(data.results ?? []),
+                JSON.stringify(data.feature_categories ?? []),
+                JSON.stringify(data.flow ?? []),
+                JSON.stringify(data.tech_categories ?? []),
+                JSON.stringify(data.architecture ?? []),
+                JSON.stringify(data.timeline ?? []),
+                JSON.stringify(data.responsibilities ?? []),
+                JSON.stringify(data.metrics ?? {}),
+                JSON.stringify(data.stats ?? {}),
+                JSON.stringify(data.related_slugs ?? []),
+                JSON.stringify(data.meta ?? {}),
             ]
         );
         return res.status(201).json(rows[0]);
@@ -210,8 +315,17 @@ export async function updateProject(req, res) {
         const values = [];
         let idx = 1;
 
+        // JSONB columns need an explicit ::jsonb cast on bind
+        // so the driver doesn't push the JS object as a string.
         for (const [key, val] of Object.entries(data)) {
-            if (val !== undefined) { fields.push(`${key} = $${idx++}`); values.push(val); }
+            if (val === undefined) continue;
+            if (V28_JSONB_FIELDS.has(key)) {
+                fields.push(`${key} = $${idx++}::jsonb`);
+                values.push(JSON.stringify(val));
+            } else {
+                fields.push(`${key} = $${idx++}`);
+                values.push(val);
+            }
         }
 
         if (fields.length === 0) return res.status(400).json({ error: 'No fields to update.' });

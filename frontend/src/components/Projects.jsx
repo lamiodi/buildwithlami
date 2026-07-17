@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion, useReducedMotion } from 'framer-motion';
 import CheckIcon from './CheckIcon';
 import { api } from '../services/api';
@@ -15,19 +15,35 @@ const Projects = () => {
   const item = shouldReduce ? reducedMotionVariants : fadeUpItem;
 
   useEffect(() => {
+    let cancelled = false;
     const fetchProjects = async () => {
-      // Software-division scoped feed — keeps the homepage
-      // showcase isolated from the Survey and Drone divisions.
-      const res = await api.get('/projects/division/SOFTWARE');
-      if (res.ok && res.data && res.data.length > 0) {
-        setProjects(res.data);
-      } else {
-        setProjects(fallbackProjects);
+      try {
+        // Software-division scoped feed — keeps the homepage
+        // showcase isolated from the Survey and Drone divisions.
+        const res = await api.get('/projects/division/SOFTWARE');
+        
+        if (cancelled) return;
+        
+        if (res.ok && res.data && res.data.length > 0) {
+          setProjects(res.data);
+        } else {
+          // FALLBACK: Show placeholder projects if API fails or returns empty
+          setProjects(fallbackProjects);
+        }
+        
+        if (!cancelled) setLoading(false);
+      } catch (error) {
+        if (!cancelled) {
+          // CRITICAL: Show fallback data on any network error
+          console.error('Projects API error, using fallback:', error);
+          setProjects(fallbackProjects);
+          setLoading(false);
+        }
       }
-      setLoading(false);
     };
 
     fetchProjects();
+    return () => { cancelled = true; }; // Cleanup to prevent state updates on unmount
   }, []);
 
   const featuredProject = projects.length > 0 ? projects[0] : fallbackProjects[0];
@@ -66,50 +82,61 @@ const Projects = () => {
           whileInView="visible"
           viewport={sectionViewport}
         >
-          <motion.h4 variants={item} className="text-3xl md:text-4xl font-heading font-bold mb-2 text-black dark:text-white">{featuredProject.title}</motion.h4>
-          <motion.p variants={item} className="text-gray-700 dark:text-gray-200 text-lg md:text-xl max-w-3xl mb-12 font-light leading-relaxed opacity-90">
-            {featuredProject.summary}
-          </motion.p>
+          <motion.div
+            variants={item}
+            whileHover={shouldReduce ? {} : cardHover}
+            transition={cardHoverTransition}
+            className="group cursor-pointer"
+            onClick={() => navigate(`/projects/${featuredProject.slug || featuredProject.id}`)}
+          >
+            <motion.h4 variants={item} className="text-3xl md:text-4xl font-heading font-bold mb-2 text-black dark:text-white group-hover:text-accent transition-colors">
+              {featuredProject.title}
+            </motion.h4>
+            <motion.p variants={item} className="text-gray-700 dark:text-gray-200 text-lg md:text-xl max-w-3xl mb-12 font-light leading-relaxed opacity-90">
+              {featuredProject.summary}
+            </motion.p>
 
-          {/* Project Image */}
-          <motion.div variants={item} className="w-full h-64 md:h-[500px] bg-gray-200 dark:bg-gray-800 mb-8 overflow-hidden rounded-sm border border-gray-200 dark:border-none shadow-md">
-             <img
-                src={featuredProject.image_url || featuredProject.image}
-                alt={featuredProject.title}
-                className="w-full h-full object-cover object-top hover:scale-105 transition-transform duration-700"
-                width="800"
-                height="500"
-                loading="lazy"
-                decoding="async"
-              />
-          </motion.div>
+            {/* Project Image */}
+            <motion.div variants={item} className="w-full h-64 md:h-[500px] bg-gray-200 dark:bg-gray-800 mb-8 overflow-hidden rounded-sm border border-gray-200 dark:border-none shadow-md">
+               <img
+                  src={featuredProject.image_url || featuredProject.image}
+                  alt={featuredProject.title}
+                  className="w-full h-full object-cover object-top hover:scale-105 transition-transform duration-700"
+                  width="800"
+                  height="500"
+                  loading="lazy"
+                  decoding="async"
+                />
+            </motion.div>
 
-          <motion.div variants={item} className="flex flex-col md:flex-row justify-between items-start md:items-end">
-            <ul className="space-y-3 text-sm md:text-base text-gray-700 dark:text-gray-200 mb-8 md:mb-0">
-              {featuredProject.features ? featuredProject.features.map((feature, idx) => (
-                <li key={`feat-${idx}`} className="flex items-center">
-                  <CheckIcon className="mr-3 text-accent" />
-                  {feature}
-                </li>
-              )) : (
-                <li className="flex items-center">
-                   <CheckIcon className="mr-3 text-accent" />
-                   Built with modern web technologies
-                </li>
-              )}
-            </ul>
+            <motion.div variants={item} className="flex flex-col md:flex-row justify-between items-start md:items-end">
+              <ul className="space-y-3 text-sm md:text-base text-gray-700 dark:text-gray-200 mb-8 md:mb-0">
+                {featuredProject.features ? featuredProject.features.map((feature, idx) => (
+                  <li key={`feat-${idx}`} className="flex items-center">
+                    <CheckIcon className="mr-3 text-accent" />
+                    {feature}
+                  </li>
+                )) : (
+                  <li className="flex items-center">
+                     <CheckIcon className="mr-3 text-accent" />
+                     Built with modern web technologies
+                  </li>
+                )}
+              </ul>
 
-            <motion.a
-              href={featuredProject.live_url || featuredProject.link}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="bg-accent text-white font-bold px-6 py-2 flex items-center hover:bg-[#d43d1a] transition-colors"
-              whileHover={shouldReduce ? {} : buttonHover}
-              whileTap={shouldReduce ? {} : buttonTap}
-            >
-              Live Demo
-              <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
-            </motion.a>
+              <motion.a
+                href={featuredProject.live_url || featuredProject.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-accent text-white font-bold px-6 py-2 flex items-center hover:bg-[#d43d1a] transition-colors"
+                whileHover={shouldReduce ? {} : buttonHover}
+                whileTap={shouldReduce ? {} : buttonTap}
+                onClick={(e) => e.stopPropagation()} // Prevent navigation when clicking live demo
+              >
+                Live Demo
+                <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+              </motion.a>
+            </motion.div>
           </motion.div>
         </motion.div>
 
@@ -120,8 +147,10 @@ const Projects = () => {
           viewport={sectionViewport}
           transition={{ duration: shouldReduce ? 0 : 0.5 }}
         >
-          <h4 className="text-sm font-bold uppercase tracking-widest mb-2 text-black dark:text-white">View More Projects</h4>
-          <p className="text-xs text-gray-700 dark:text-gray-300 uppercase tracking-[0.2em] font-bold">Designed in Figma. Built with PERN Stack.</p>
+          <Link to="/projects" className="block group">
+            <h4 className="text-sm font-bold uppercase tracking-widest mb-2 text-black dark:text-white group-hover:text-accent transition-colors">View More Projects</h4>
+            <p className="text-xs text-gray-700 dark:text-gray-300 uppercase tracking-[0.2em] font-bold group-hover:text-accent transition-colors">Designed in Figma. Built with PERN Stack.</p>
+          </Link>
         </motion.div>
 
         <motion.div
@@ -138,6 +167,7 @@ const Projects = () => {
               whileHover={shouldReduce ? {} : cardHover}
               transition={cardHoverTransition}
               className="group cursor-pointer"
+              onClick={() => navigate(`/projects/${p.slug || p.id}`)}
             >
               <div className="w-full h-64 md:h-[400px] bg-gray-200 dark:bg-gray-800 mb-4 overflow-hidden rounded-sm">
                  <img 

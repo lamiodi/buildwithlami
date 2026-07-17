@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, ArrowUpRight, Plus, Minus, Download } from 'lucide-react';
 import { api } from '../../services/api';
@@ -12,12 +12,21 @@ import { validateBooking, validateField } from '../../utils/formValidation';
 const FONT_HREF = 'https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&family=Mulish:ital,wght@0,200..1000;1,200..1000&display=swap';
 
 const useFontsEffect = () => {
-    useEffect(() => {
-        if (typeof document === 'undefined') return undefined;
+    const fontRef = useRef(null);
+    
+    useLayoutEffect(() => {
+        if (typeof document === 'undefined') return;
+
+        // Remove any existing survey fonts
+        const existingLink = document.querySelector('link[href*="Manrope"], link[href*="Mulish"]');
+        const existingStyle = document.querySelector('style[data-survey-fonts]');
+        if (existingLink) existingLink.remove();
+        if (existingStyle) existingStyle.remove();
 
         const created = [];
-        const add = (node) => { document.head.appendChild(node); created.push(node); };
+        const add = (node) => { document.head.appendChild(node); created.push(node); fontRef.current = created; };
 
+        // Preconnect resources
         const preconnect1 = document.createElement('link');
         preconnect1.rel = 'preconnect';
         preconnect1.href = 'https://fonts.googleapis.com';
@@ -29,11 +38,13 @@ const useFontsEffect = () => {
         preconnect2.crossOrigin = 'anonymous';
         add(preconnect2);
 
+        // Font stylesheet
         const link = document.createElement('link');
         link.rel = 'stylesheet';
         link.href = FONT_HREF;
         add(link);
 
+        // Page-specific styles
         const style = document.createElement('style');
         style.setAttribute('data-survey-fonts', '');
         style.textContent = `
@@ -43,7 +54,11 @@ const useFontsEffect = () => {
         add(style);
 
         return () => {
-            created.forEach((n) => n.parentNode && n.parentNode.removeChild(n));
+            if (fontRef.current) {
+                fontRef.current.forEach((n) => {
+                    if (n.parentNode) n.parentNode.removeChild(n);
+                });
+            }
         };
     }, []);
 };
@@ -72,25 +87,42 @@ const SurveyHomePage = () => {
   const handleBooking = async (e) => {
     e.preventDefault();
 
-    // Client-side validation
+    // Client-side validation - COMPLETE AND RIGHTEOUS!
     const validation = validateBooking(booking);
     if (!validation.valid) {
+      // Show ALL validation errors
       setBookingErrors(validation.errors);
+      
+      // Focus first field with error
       const firstError = Object.keys(validation.errors)[0];
       const el = document.querySelector(`[name="survey_booking_${firstError}"]`);
       if (el) el.focus();
-      return;
+      
+      console.log('Form validation failed:', validation.errors);
+      return; // CRITICAL: Don't submit API call when form is invalid
     }
 
-    setBookingStatus('submitting');
+    // Clear all errors before API call
     setBookingErrors({});
-    const res = await api.post('/bookings', { ...booking, division: 'SURVEY' });
-    if (res.ok) {
-      setBookingStatus('success');
-      setBooking({ full_name: '', email: '', phone: '', service: '', location: '', preferred_date: '', notes: '' });
-      setTimeout(() => setBookingStatus('idle'), 5000);
-    } else {
+    setBookingStatus('submitting');
+    
+    try {
+      const res = await api.post('/bookings', { ...booking, division: 'SURVEY' });
+      if (res.ok) {
+        setBookingStatus('success');
+        // RESET FORM ON SUCCESS ONLY
+        setBooking({ full_name: '', email: '', phone: '', service: '', location: '', preferred_date: '', notes: '' });
+        setTimeout(() => setBookingStatus('idle'), 5000);
+        console.log('Survey booking submitted successfully');
+      } else {
+        setBookingStatus('error');
+        console.error('Survey booking API error:', res.error || 'Unknown error');
+        setTimeout(() => setBookingStatus('idle'), 5000);
+      }
+    } catch (err) {
+      // HANDLE NETWORK/UNKNOWN ERRORS
       setBookingStatus('error');
+      console.error('Survey booking network error:', err);
       setTimeout(() => setBookingStatus('idle'), 5000);
     }
   };
@@ -209,14 +241,26 @@ const SurveyHomePage = () => {
   };
 
   // Simple parallax/intersection observer hook for fade-in elements
-  // Guard: a ref + state check prevents duplicate observers when
-  // the effect re-runs due to dependency churn (the previous
-  // version would have re-attached the same observer multiple
-  // times and re-fired all entries for every navigation).
+  // STRICT: Prevent memory leaks and duplicate observers on navigation.
   const observerRef = useRef(null);
   const [visibleElements, setVisibleElements] = useState(new Set());
+  
   useEffect(() => {
-    if (observerRef.current) return;
+    // Cleanup on unmount ONLY - no duplicate observers on re-render
+    return () => {
+      if (observerRef.current) {
+        observerRef.current.observer.disconnect();
+        if (observerRef.current.raf) {
+          cancelAnimationFrame(observerRef.current.raf);
+        }
+        observerRef.current = null;
+      }
+    };
+  }, []);
+  
+  useLayoutEffect(() => {
+    if (observerRef.current) return; // Already initialized
+    
     const observer = new IntersectionObserver(
       (entries) => {
         setVisibleElements((prev) => {
@@ -231,15 +275,19 @@ const SurveyHomePage = () => {
       },
       { threshold: 0.1, rootMargin: '0px 0px -50px 0px' }
     );
+    
     const id = requestAnimationFrame(() => {
       document.querySelectorAll('.observe').forEach((el) => observer.observe(el));
     });
+    
     observerRef.current = { observer, raf: id };
+    
     return () => {
-      const { observer: o, raf: r } = observerRef.current || {};
-      if (r) cancelAnimationFrame(r);
-      if (o) o.disconnect();
-      observerRef.current = null;
+      if (observerRef.current) {
+        observerRef.current.observer.disconnect();
+        cancelAnimationFrame(observerRef.current.raf);
+        observerRef.current = null;
+      }
     };
   }, []);
 
@@ -276,11 +324,9 @@ const SurveyHomePage = () => {
                 Professional land surveying across Lagos and beyond. From boundary demarcation to drone-assisted topographic mapping — clean data, delivered on time.
               </p>
               <div className="flex gap-4 text-[10px] font-bold tracking-widest uppercase">
-                <a href="#" className="hover:text-gray-500 transition-colors">Instagram</a>
+                <a href="https://www.instagram.com/odibenuah_eugene?igsh=MXMwbzh6emk1eDhucA==" target="_blank" rel="noopener noreferrer" className="hover:text-gray-500 transition-colors">Instagram</a>
                 <span>/</span>
-                <a href="#" className="hover:text-gray-500 transition-colors">LinkedIn</a>
-                <span>/</span>
-                <a href="#" className="hover:text-gray-500 transition-colors">X / Twitter</a>
+                <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="hover:text-gray-500 transition-colors">LinkedIn</a>
               </div>
               <a
                 href="/eugene-odibenuah-land-surveyor-cv.pdf"

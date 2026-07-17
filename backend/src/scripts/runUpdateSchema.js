@@ -48,6 +48,7 @@ const MIGRATIONS = [
     'v25_drop_cms.sql',
     'v26_portfolio_fields.sql',
     'v27_portfolio_polish.sql',
+    'v28_portfolio_case_study.sql',
 ];
 
 const run = async () => {
