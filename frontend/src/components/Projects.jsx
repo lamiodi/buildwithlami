@@ -21,16 +21,25 @@ const Projects = () => {
         // Software-division scoped feed — keeps the homepage
         // showcase isolated from the Survey and Drone divisions.
         const res = await api.get('/projects/division/SOFTWARE');
-        
+
         if (cancelled) return;
-        
-        if (res.ok && res.data && res.data.length > 0) {
-          setProjects(res.data);
+
+        // /api/projects/division/:division returns
+        // { data: rows, pagination: {…} } — unwrap before storing so
+        // map() / image_url lookups below resolve correctly.
+        // Fall back to the seed list when the array is actually
+        // empty so the strip never goes blank.
+        const list = res.data?.data ?? [];
+        if (res.ok && Array.isArray(list) && list.length > 0) {
+          setProjects(list);
+        } else if (!res.ok) {
+          setProjects(fallbackProjects);
         } else {
-          // FALLBACK: Show placeholder projects if API fails or returns empty
+          // API ok but empty array — show fallback so the section is
+          // never presented as empty while admin data isn't shipped.
           setProjects(fallbackProjects);
         }
-        
+
         if (!cancelled) setLoading(false);
       } catch (error) {
         if (!cancelled) {

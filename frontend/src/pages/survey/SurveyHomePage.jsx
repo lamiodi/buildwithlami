@@ -183,19 +183,34 @@ const SurveyHomePage = () => {
 
   // Live projects fetched from /api/projects/division/SURVEY.
   // The endpoint only returns PUBLISHED rows; see projectRoutes.js.
+  //
+  // We also re-fetch when the tab regains focus so an admin who
+  // publishes a new case study in /admin/survey/projects sees it
+  // reflected on this page the next time they switch back.
   const [apiProjects, setApiProjects] = useState([]);
   const [projectsLoading, setProjectsLoading] = useState(true);
+  const fetchProjects = useCallback(async () => {
+    const res = await api.get('/projects/division/SURVEY');
+    if (Array.isArray(res.data?.data)) setApiProjects(res.data.data);
+    setProjectsLoading(false);
+  }, []);
+
   useEffect(() => {
     let cancelled = false;
     const load = async () => {
-      const res = await api.get('/projects/division/SURVEY');
       if (cancelled) return;
-      if (res.ok && Array.isArray(res.data)) setApiProjects(res.data);
-      setProjectsLoading(false);
+      await fetchProjects();
     };
     load();
-    return () => { cancelled = true; };
-  }, []);
+    const onFocus = () => fetchProjects();
+    window.addEventListener('focus', onFocus);
+    document.addEventListener('visibilitychange', onFocus);
+    return () => {
+      cancelled = true;
+      window.removeEventListener('focus', onFocus);
+      document.removeEventListener('visibilitychange', onFocus);
+    };
+  }, [fetchProjects]);
 
   // What we actually render: API results if any, otherwise the
   // hardcoded fallback. The home page must always have a grid

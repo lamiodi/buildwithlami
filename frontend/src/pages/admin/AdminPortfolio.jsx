@@ -21,6 +21,7 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, ChevronRight, X, Loader2 } from 'lucide-react';
+import { useSearchParams } from 'react-router-dom';
 import { api } from '../../services/api';
 
 // Only use a relative VITE_API_URL or a localhost absolute URL.
@@ -179,6 +180,7 @@ const AdminPortfolio = ({ lockedDivision }) => {
     const [jsonbOpen, setJsonbOpen] = useState(false);
     const [jsonbDrafts, setJsonbDrafts] = useState({});
     const galleryInputRef = useRef(null);
+    const [searchParams, setSearchParams] = useSearchParams();
 
     useEffect(() => {
         fetchProjects();
@@ -320,6 +322,11 @@ const AdminPortfolio = ({ lockedDivision }) => {
     // a backend 400.
     const handleSave = async (e) => {
         e.preventDefault();
+        // Validate required fields
+        if (!formData.title || !formData.slug) {
+            alert('Title and slug fields are required');
+            return;
+        }
         // Validate JSONB drafts.
         const errors = {};
         const parsed = {};
@@ -394,6 +401,22 @@ const AdminPortfolio = ({ lockedDivision }) => {
     const projectList = useMemo(() => {
         return apiProjects.filter((p) => p.division === activeDivision);
     }, [apiProjects, activeDivision]);
+
+    // Deep-link support: when the URL carries ?edit=<projectId>
+    // (e.g. from the Survey/Drone list pages), auto-open that
+    // project's edit modal once the projects have loaded. Strip
+    // the param so closing the modal doesn't reopen it on the
+    // next render.
+    useEffect(() => {
+        const editId = searchParams.get('edit');
+        if (!editId || loading || isEditModalOpen) return;
+        const target = projectList.find((p) => String(p.id) === String(editId));
+        if (!target) return;
+        openEditFor(target);
+        const next = new URLSearchParams(searchParams);
+        next.delete('edit');
+        setSearchParams(next, { replace: true });
+    }, [searchParams, loading, projectList, isEditModalOpen]); // eslint-disable-line react-hooks/exhaustive-deps
 
     if (loading) return <div className="p-6">Loading...</div>;
 

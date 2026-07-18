@@ -51,6 +51,18 @@ const AdminClients = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Validate required fields
+    if (!formData.name.trim()) {
+      alert('Name is required');
+      return;
+    }
+    
+    if (!formData.primary_contact_email.trim()) {
+      alert('Primary contact email is required');
+      return;
+    }
+    
     let res;
     if (editingId) {
       res = await api.put(`/clients/${editingId}`, formData);

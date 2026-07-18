@@ -6,9 +6,14 @@
 // the drone context the units being published are individual
 // aerial surveys (orthomosaics, 3D models, inspection reports)
 // — not engineering work.
+//
+// Each row includes an "Edit" link that opens the Drone
+// Portfolio editor at /admin/drone/portfolio, where the
+// admin can edit or delete any mission.
 // ──────────────────────────────────────────────────────────
 
 import React from 'react';
+import { Link } from 'react-router-dom';
 import WorkspaceListPage, { StatusBadge } from '../../../components/admin/WorkspaceListPage';
 import { Icon } from '../../../data/adminNavItems.jsx';
 
@@ -43,6 +48,17 @@ const AdminDroneFlightMissions = () => (
             { key: 'status', label: 'Status', render: (p) => <StatusBadge value={p.status} /> },
             { key: 'updated_at', label: 'Updated', render: (p) => (
                 <span className="text-xs text-gray-500">{new Date(p.updated_at || p.created_at).toLocaleDateString()}</span>
+            )},
+            { key: 'actions', label: '', render: (p) => (
+                <div className="flex items-center gap-2">
+                    <Link
+                        to={`/admin/drone/portfolio?edit=${p.id}`}
+                        className="text-xs font-bold text-accent hover:text-orange-600 transition-colors whitespace-nowrap"
+                        title={`Edit "${p.title}" in the Drone Portfolio editor`}
+                    >
+                        Edit →
+                    </Link>
+                </div>
             )},
         ]}
     />

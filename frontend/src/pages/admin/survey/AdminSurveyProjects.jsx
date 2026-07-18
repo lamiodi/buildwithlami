@@ -3,9 +3,14 @@
 //
 // Reads from the public `projects` table filtered to the
 // `SURVEY` division via `/api/divisions/survey/projects`.
+//
+// Each row includes an "Edit" link that opens the Survey
+// Portfolio editor at /admin/survey/portfolio, where the
+// admin can edit or delete any project.
 // ──────────────────────────────────────────────────────────
 
 import React from 'react';
+import { Link } from 'react-router-dom';
 import WorkspaceListPage, { StatusBadge } from '../../../components/admin/WorkspaceListPage';
 import { Icon } from '../../../data/adminNavItems.jsx';
 
@@ -38,6 +43,17 @@ const AdminSurveyProjects = () => (
             { key: 'featured', label: 'Featured', render: (p) => p.featured ? <span className="text-amber-500 text-sm">★</span> : <span className="text-gray-300">—</span> },
             { key: 'updated_at', label: 'Updated', render: (p) => (
                 <span className="text-xs text-gray-500">{new Date(p.updated_at || p.created_at).toLocaleDateString()}</span>
+            )},
+            { key: 'actions', label: '', render: (p) => (
+                <div className="flex items-center gap-2">
+                    <Link
+                        to={`/admin/survey/portfolio?edit=${p.id}`}
+                        className="text-xs font-bold text-accent hover:text-orange-600 transition-colors whitespace-nowrap"
+                        title={`Edit "${p.title}" in the Survey Portfolio editor`}
+                    >
+                        Edit →
+                    </Link>
+                </div>
             )},
         ]}
     />
