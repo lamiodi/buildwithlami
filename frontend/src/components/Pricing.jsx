@@ -254,12 +254,12 @@ const Pricing = () => {
                 ) : pricingData[currency].tiers[index].isRange ? (
                   <>
                     <span className="text-xl font-bold text-accent leading-none">{pricingData[currency].symbol}</span>
-                    <span className="text-3xl xl:text-4xl font-heading font-bold text-black dark:text-white leading-none">{tier.price}</span>
+                    <span className="text-3xl xl:text-4xl font-heading font-bold text-black dark:text-white leading-none whitespace-nowrap">{tier.price}</span>
                   </>
                 ) : (
                   <>
                     <span className="text-xl font-bold text-accent leading-none">{pricingData[currency].symbol}</span>
-                    <span className="text-3xl xl:text-4xl font-heading font-bold text-black dark:text-white leading-none">{tier.price}</span>
+                    <span className="text-3xl xl:text-4xl font-heading font-bold text-black dark:text-white leading-none whitespace-nowrap">{tier.price}</span>
                     <span className="text-xs text-gray-600 dark:text-gray-300 font-semibold mb-1">{pricingData[currency].suffix}</span>
                   </>
                 )}
