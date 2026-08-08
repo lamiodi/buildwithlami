@@ -16,6 +16,8 @@ const AdminProjectDetail = () => {
   const [secretForm, setSecretForm] = useState({ keyName: '', value: '' });
   const [invoices, setInvoices] = useState([]);
   const [feedback, setFeedback] = useState([]);
+  const [files, setFiles] = useState([]);
+  const [uploadForm, setUploadForm] = useState({ category: 'Asset', file: null, uploading: false });
   const [invoiceForm, setInvoiceForm] = useState({ amount: '', dueDate: '' });
   const [invoiceSubmitting, setInvoiceSubmitting] = useState(false);
   const [revealedSecrets, setRevealedSecrets] = useState({});
@@ -29,6 +31,7 @@ const AdminProjectDetail = () => {
       setSubmissions(res.data.submissions || []);
       setInvoices(res.data.invoices || []);
       setFeedback(res.data.feedback || []);
+      setFiles(res.data.files || []);
     } else if (!res.ok) {
       notify.error(res.error || 'Failed to load project');
     }
@@ -63,6 +66,42 @@ const AdminProjectDetail = () => {
     else notify.error(res.error || 'Failed to regenerate link');
   };
 
+  const advanceMilestone = async (index) => {
+    if (!project?.milestones) return;
+    
+    // Parse milestones safely
+    let currentMilestones = [];
+    if (typeof project.milestones === 'string') {
+        try { currentMilestones = JSON.parse(project.milestones); } catch (e) { }
+    } else if (Array.isArray(project.milestones)) {
+        currentMilestones = [...project.milestones];
+    }
+
+    if (!currentMilestones.length) return;
+
+    // Update status
+    if (currentMilestones[index].status === 'PENDING') {
+      currentMilestones[index].status = 'IN_PROGRESS';
+    } else if (currentMilestones[index].status === 'IN_PROGRESS') {
+      currentMilestones[index].status = 'COMPLETED';
+      // Automatically set the next milestone to IN_PROGRESS
+      if (index + 1 < currentMilestones.length) {
+        currentMilestones[index + 1].status = 'IN_PROGRESS';
+      }
+    } else {
+      // Revert to pending
+      currentMilestones[index].status = 'PENDING';
+    }
+
+    const res = await api.put(`/client-projects/${id}`, { milestones: currentMilestones });
+    if (res.ok) {
+      notify.success('Milestone updated!');
+      fetchProjectData();
+    } else {
+      notify.error(res.error || 'Failed to update milestone');
+    }
+  };
+
   const toggleReveal = (secretId) => {
     setRevealedSecrets(prev => ({ ...prev, [secretId]: !prev[secretId] }));
   };
@@ -91,6 +130,44 @@ const AdminProjectDetail = () => {
     else notify.error(res.error || 'Failed to reply to feedback');
   };
 
+  const handleFileUpload = async (e) => {
+    e.preventDefault();
+    if (!uploadForm.file) return notify.error('Please select a file.');
+    setUploadForm({ ...uploadForm, uploading: true });
+    
+    const formData = new FormData();
+    formData.append('file', uploadForm.file);
+    formData.append('category', uploadForm.category);
+    
+    const res = await api.post(`/client-projects/${id}/files`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+    
+    if (res.ok) {
+      notify.success('File uploaded successfully!');
+      setUploadForm({ category: 'Asset', file: null, uploading: false });
+      // Clear file input
+      if (document.getElementById('file-upload-input')) {
+        document.getElementById('file-upload-input').value = '';
+      }
+      fetchProjectData();
+    } else {
+      notify.error(res.error || 'Failed to upload file.');
+      setUploadForm({ ...uploadForm, uploading: false });
+    }
+  };
+
+  const handleDeleteFile = async (fileId) => {
+    if (!window.confirm('Are you sure you want to delete this file?')) return;
+    const res = await api.delete(`/client-projects/${id}/files/${fileId}`);
+    if (res.ok) {
+      notify.success('File deleted.');
+      fetchProjectData();
+    } else {
+      notify.error(res.error || 'Failed to delete file.');
+    }
+  };
+
   if (!project) return (
     <div className="flex-1 flex items-center justify-center">
       <div className="animate-pulse text-gray-400 font-body">Loading project…</div>
@@ -100,7 +177,7 @@ const AdminProjectDetail = () => {
   const inputClass = "w-full p-3 text-sm border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900 outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-colors font-body";
   const labelClass = "block text-[10px] font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2";
 
-  const tabs = ['overview', 'intake', 'credentials', 'invoices', 'feedback'];
+  const tabs = ['overview', 'intake', 'credentials', 'invoices', 'feedback', 'files'];
 
   return (
     <div className="flex flex-col">
@@ -168,6 +245,41 @@ const AdminProjectDetail = () => {
                         className="text-xs text-red-600 hover:text-red-800 bg-red-50 dark:bg-red-900/20 px-2 py-1 rounded-lg font-bold">
                         Regenerate
                       </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-8">
+                  <h3 className="text-xl font-bold font-heading text-gray-900 dark:text-white mb-4">Milestone Tracker</h3>
+                  <div className="bg-gray-50 dark:bg-gray-900 rounded-xl p-4 md:p-6 border border-gray-200 dark:border-gray-700">
+                    <div className="space-y-4">
+                      {(typeof project.milestones === 'string' ? JSON.parse(project.milestones) : Array.isArray(project.milestones) ? project.milestones : []).map((milestone, idx) => (
+                        <div key={idx} className="flex items-center justify-between p-4 bg-white dark:bg-card border border-gray-100 dark:border-white/10 rounded-lg shadow-sm">
+                          <div className="flex items-center gap-4">
+                            <button 
+                                onClick={() => advanceMilestone(idx)}
+                                className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition-colors ${
+                                  milestone.status === 'COMPLETED' ? 'bg-green-500 border-green-500 text-white' : 
+                                  milestone.status === 'IN_PROGRESS' ? 'bg-accent/20 border-accent text-accent' : 
+                                  'bg-gray-100 border-gray-300 dark:bg-white/5 dark:border-gray-700'
+                                }`}
+                                title="Click to advance status"
+                            >
+                                {milestone.status === 'COMPLETED' ? '✓' : idx + 1}
+                            </button>
+                            <div>
+                                <p className="font-semibold text-gray-900 dark:text-white">{milestone.title}</p>
+                                <p className="text-xs text-gray-500 uppercase tracking-wider font-medium mt-1">{milestone.status.replace('_', ' ')}</p>
+                            </div>
+                          </div>
+                          <button onClick={() => advanceMilestone(idx)} className="text-xs font-bold text-accent hover:underline">
+                            {milestone.status === 'PENDING' ? 'Start' : milestone.status === 'IN_PROGRESS' ? 'Complete' : 'Revert'}
+                          </button>
+                        </div>
+                      ))}
+                      {(!project.milestones || project.milestones.length === 0) && (
+                        <p className="text-sm text-gray-500 italic">No milestones defined. Run DB migration to populate default milestones.</p>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -378,6 +490,89 @@ const AdminProjectDetail = () => {
                       </div>
                     ))}
                   </div>
+                )}
+              </div>
+            )}
+
+            {/* FILES TAB */}
+            {activeTab === 'files' && (
+              <div className="space-y-8">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-xl font-bold font-heading text-gray-900 dark:text-white">Document Repository</h2>
+                </div>
+                
+                {/* Upload Form */}
+                <form onSubmit={handleFileUpload} className="bg-gray-50 dark:bg-gray-900/50 p-6 rounded-xl border border-gray-200 dark:border-gray-700 flex flex-col md:flex-row gap-4 items-end">
+                  <div className="flex-1 w-full">
+                    <label className={labelClass}>File Category</label>
+                    <select 
+                      value={uploadForm.category} 
+                      onChange={(e) => setUploadForm({ ...uploadForm, category: e.target.value })}
+                      className={inputClass}
+                    >
+                      <option value="Proposal">Proposal</option>
+                      <option value="Contract">Contract</option>
+                      <option value="Invoice">Invoice</option>
+                      <option value="Brief">Brief</option>
+                      <option value="Asset">Asset</option>
+                      <option value="Other">Other</option>
+                    </select>
+                  </div>
+                  <div className="flex-1 w-full">
+                    <label className={labelClass}>Select File</label>
+                    <input 
+                      id="file-upload-input"
+                      type="file" 
+                      onChange={(e) => setUploadForm({ ...uploadForm, file: e.target.files[0] })}
+                      className="w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-orange-50 file:text-accent hover:file:bg-orange-100"
+                    />
+                  </div>
+                  <button type="submit" disabled={uploadForm.uploading || !uploadForm.file}
+                    className="bg-accent hover:bg-orange-600 text-white px-6 py-3 rounded-xl font-bold w-full md:w-auto transition-colors shadow-lg hover:shadow-accent/30 disabled:opacity-50 h-[50px]">
+                    {uploadForm.uploading ? 'Uploading...' : 'Upload File'}
+                  </button>
+                </form>
+
+                {/* File Listing by Category */}
+                {['Proposal', 'Contract', 'Invoice', 'Brief', 'Asset', 'Other'].map(category => {
+                  const catFiles = files.filter(f => f.category === category);
+                  if (catFiles.length === 0) return null;
+                  
+                  return (
+                    <div key={category} className="space-y-3">
+                      <h3 className="font-bold text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700 pb-2">{category}s</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {catFiles.map(f => (
+                          <div key={f.id} className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4 flex flex-col justify-between">
+                            <div className="flex items-start justify-between mb-3">
+                              <p className="font-semibold text-sm truncate pr-2 text-gray-900 dark:text-white" title={f.file_name}>{f.file_name}</p>
+                              <span className="text-[10px] text-gray-400 font-mono">{(f.file_size / 1024).toFixed(1)} KB</span>
+                            </div>
+                            <div className="flex items-center justify-between mt-2">
+                              <a 
+                                href={f.file_url} 
+                                target="_blank" 
+                                rel="noreferrer"
+                                className="text-xs font-bold text-accent hover:underline"
+                              >
+                                View / Download
+                              </a>
+                              <button 
+                                onClick={() => handleDeleteFile(f.id)}
+                                className="text-xs font-bold text-red-500 hover:text-red-700"
+                              >
+                                Delete
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
+                
+                {files.length === 0 && (
+                  <p className="text-gray-500 text-sm italic text-center py-8">No files have been uploaded to this project yet.</p>
                 )}
               </div>
             )}

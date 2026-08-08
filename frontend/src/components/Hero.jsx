@@ -60,7 +60,7 @@ const Hero = () => {
             className="w-full h-full object-cover"
             width="1280"
             height="1920"
-            fetchpriority="high"
+            fetchPriority="high"
             decoding="async"
           />
           <div className="absolute -bottom-6 -right-6 bg-white text-black text-xl font-bold px-4 py-2 font-handwritten transform -rotate-6 shadow-lg z-20">

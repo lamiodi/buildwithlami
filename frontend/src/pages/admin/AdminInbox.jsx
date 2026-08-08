@@ -56,6 +56,11 @@ const AdminInbox = () => {
     const [reply, setReply] = useState('');
     const [sending, setSending] = useState(false);
 
+    const autoSelectMessage = (id) => {
+        const found = items.find((i) => i.id === id);
+        if (found) setSelected(found);
+    };
+
     // ── Read filters from URL (deep-linkable state) ──────
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
@@ -83,11 +88,6 @@ const AdminInbox = () => {
     }, [statusFilter, kindFilter, search]);
 
     useEffect(() => { load(); }, [load]);
-
-    const autoSelectMessage = (id) => {
-        const found = items.find((i) => i.id === id);
-        if (found) setSelected(found);
-    };
 
     const sendReply = async (e) => {
         e.preventDefault();

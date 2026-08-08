@@ -36,6 +36,10 @@ import divisionRoutes from './routes/divisionRoutes.js';
 import contractRoutes from './routes/contractRoutes.js';
 import fxRateRoutes from './routes/fxRateRoutes.js';
 import paymentRoutes from './routes/paymentRoutes.js';
+import expenseRoutes from './routes/expenseRoutes.js';
+import clientAuthRoutes from './routes/clientAuthRoutes.js';
+import clientPortalRoutes from './routes/clientPortalRoutes.js';
+import quotationRoutes from './routes/quotationRoutes.js';
 import pool from './config/db.js';
 import { startCronJobs } from './services/cronService.js';
 
@@ -129,6 +133,7 @@ app.use('/', uptimeRoutes);
 
 // ── Dashboard (admin overview) ───────────────────────────
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/contracts', contractRoutes);
 
 // ── API routes ───────────────────────────────────────────
 app.use('/api/auth', authLimiter, authRoutes);
@@ -179,6 +184,14 @@ app.use('/api/fx-rates', apiLimiter, fxRateRoutes);
 // bank transfers + manual proof review). The /public/* routes
 // are intentionally unauthenticated — the URL token is the auth.
 app.use('/api/payments', apiLimiter, paymentRoutes);
+
+// MVP — Expense Tracking
+app.use('/api/expenses', apiLimiter, expenseRoutes);
+
+// MVP — Client Portal Auth & Data
+app.use('/api/client-auth', apiLimiter, clientAuthRoutes);
+app.use('/api/client-portal', apiLimiter, clientPortalRoutes);
+app.use('/api/quotations', apiLimiter, quotationRoutes);
 
 // ── CSRF token endpoint for frontend ─────────────────────
 app.get('/api/csrf-token', (req, res) => {

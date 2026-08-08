@@ -1,7 +1,7 @@
-# BuildWithLami Enterprise Platform Blueprint v3.2 (Agency Operating System)
+# BuildWithLami Enterprise Platform Blueprint v3.4 (Agency Operating System)
 
 > **Last Updated:** July 2026
-> **Status:** All 12 phases shipped. **Phase 12 (Schema Audit & Cleanup) complete.** System in maintenance.
+> **Status:** Production live & 100% feature complete. Includes Matter.js interactive physics, Vercel API rewrites, cross-origin HttpOnly cookie strategy, 2FA cookie persistence, Client Portal SPA, Project Milestones & Timeline, 1-Click Quotation-to-Contract Pipeline, Flagship Invoice Generator with QR codes & partial payments, Categorized Document Repository, Zoho Sign contracts, and Nigerian & International market workflows.
 > **Companion docs:** [`ROADMAP.md`](file:///c:/Users/nuke/Documents/buildwithlami/ROADMAP.md) (phased build history), [`UPDATE.md`](file:///c:/Users/nuke/Documents/buildwithlami/UPDATE.md) (decision log), [`docs/SCHEMA.md`](file:///c:/Users/nuke/Documents/buildwithlami/docs/SCHEMA.md) (database reference), [`docs/DEPLOYMENT.md`](file:///c:/Users/nuke/Documents/buildwithlami/docs/DEPLOYMENT.md) (ops), [`docs/ENV_VARIABLES.md`](file:///c:/Users/nuke/Documents/buildwithlami/docs/ENV_VARIABLES.md) (configuration).
 
 ---
@@ -10,11 +10,11 @@
 
 **Project Name:** BuildWithLami (buildwithlami.com)
 **Type:** Personal Portfolio & High-Performance Agency Operating System
-**Stack:** React 19.2.5 (Vite 8) + Express 4.21 + PostgreSQL 14+ (raw `pg` client) + Cloudinary + Zoho Sign (stub mode) + Framer Motion 12
+**Stack:** React 19.2.5 (Vite 8) + Express 4.21 + PostgreSQL 14+ (raw `pg` client) + Matter.js 0.19 + Cloudinary + Zoho Sign (stub & live modes) + Framer Motion 12
 
 ### Core Mission
 
-Provide a top-tier visual experience for visitors while acting as a robust, secure operation center for a multi-division freelance agency (Software, Survey, Drone) — handling incoming leads, client projects, dynamic intake processes, secure credentials storage, multi-currency invoicing, international bank-transfer payments, signed contracts, and live progress tracking — all from a single admin dashboard and a single database.
+Provide a top-tier visual experience for visitors while acting as a robust, secure operation center for a multi-division freelance agency (Software, Survey, Drone) — handling incoming leads, client projects, dynamic intake processes, secure credentials storage, multi-currency invoicing, international bank-transfer payments, signed contracts, quotation conversion, project document management, and live progress tracking — all from a single admin dashboard and a single database.
 
 ### Interactive User Flows
 
@@ -27,8 +27,8 @@ Provide a top-tier visual experience for visitors while acting as a robust, secu
    ```
    LEAD SIGNED → ADMIN GENERATES CLIENT PORTAL → CLIENT ACCESSES UNIQUE TRACKING ID
    → COMPLETES INTAKE TEMPLATE → UPLOADS SECURE CREDENTIALS (AES-256-GCM VAULT)
-   → RECEIVES INVOICE → PAYS VIA PAYSTACK (NGN) OR GREY BANK TRANSFER (USD/GBP/EUR)
-   → SIGNS CONTRACT VIA ZOHO SIGN → TRACKS PROGRESS
+   → RECEIVES QUOTATION / INVOICE → PAYS VIA PAYSTACK (NGN) OR GREY BANK TRANSFER (USD/GBP/EUR)
+   → SIGNS CONTRACT VIA ZOHO SIGN → TRACKS MILESTONES ON TIMELINE → DOWNLOADS PROJECT DOCUMENTS
    ```
 
 ---
@@ -39,25 +39,26 @@ Provide a top-tier visual experience for visitors while acting as a robust, secu
 
 | Layer | Technology | Status | Notes |
 | :--- | :--- | :--- | :--- |
-| **Frontend** | React 19.2.5 + Vite 8 (SPA) | ✅ Built & Responsive | React Router 7.14.2, page transitions, dark mode |
+| **Frontend** | React 19.2.5 + Vite 8 (SPA) | ✅ Built & Responsive | React Router 7.14.2, lazy-loaded admin routes & client portal, smooth hash anchor scrolling (`/#faq`, `/#services`) |
 | **Styling** | TailwindCSS 3.4.19 + Framer Motion 12.38 | ✅ Implemented | Dark/light theme persisted in `localStorage` |
-| **Visual Elements** | Framer Motion (deterministic positions) | ✅ Live on Tech Stack view | `frontend/src/components/TechStack.jsx` — cards use static x/y + Framer float variants; no physics engine |
-| **Icons** | Lucide React | ✅ Implemented | Tree-shakeable SVG icons |
+| **Visual Elements** | Matter.js 0.19 2D Physics Engine | ✅ Live on Tech Stack view | `frontend/src/components/TechStack.jsx` — interactive canvas with draggable cards, floating particle drift, collision boundaries, keyboard accessibility, and reduced-motion fallback |
+| **Icons** | Lucide React + Custom Categorized SVG Set | ✅ Implemented | Tree-shakeable SVG icons & structured service icons |
 | **Markdown** | Custom regex renderer + DOMPurify sanitization | ✅ `frontend/src/utils/markdown.js` | `renderMarkdown` is dependency-free; `renderSafeMarkdown` / `renderSafeMarkdownSync` pipe output through `dompurify` before `dangerouslySetInnerHTML` |
-| **Backend** | Node.js + Express 4.21 | ✅ Built & Rate-Limited | 24 route modules, 22 controllers |
-| **Database** | PostgreSQL 14+ (raw `pg` client) | ✅ Migrations v2–v27 deployed | 22 tables, 56+ indexes, 4 triggers |
-| **Auth** | JWT (HttpOnly Cookie) + TOTP 2FA | ✅ Implemented | 10 RBAC roles (canonical title-case), 30-min session timeout with 25-min warning |
+| **Backend** | Node.js + Express 4.21 | ✅ Built & Rate-Limited | 26 route modules, 24 controllers |
+| **Database** | PostgreSQL 14+ (raw `pg` client) | ✅ Migrations v2–v35 deployed | 24 tables, 58+ indexes, 4 triggers |
+| **Auth** | JWT (HttpOnly Cookie) + TOTP 2FA | ✅ Implemented | Admin & Client auth contexts; 5 RBAC roles, HttpOnly cookie issued on login & 2FA verify |
+| **Proxy & Rewrites** | Vercel Rewrite (`/api/*` → Render) | ✅ Active | `frontend/vercel.json` proxies `/api/*` to Render backend, guaranteeing first-party cookie handling across domains |
 | **Secrets** | AES-256-GCM (server-side) | ✅ `backend/src/utils/crypto.js` | Per-secret IV + auth tag |
 | **Email** | Nodemailer (SMTP) | ✅ Templates with `{{placeholder}}` | 5 default + custom; logs to stdout if SMTP unconfigured |
 | **Payments** | Paystack (NGN) + Grey bank transfers (USD/GBP) | ✅ `payment_proofs` review queue | Public `/pay/:token` page |
-| **Contracts** | Zoho Sign v1 (stub mode by default) | ✅ `zohoSignService.js` | Live mode activates when `ZOHO_SIGN_TOKEN` is set; uses dynamic `import('axios')` |
-| **Media** | Cloudinary | ✅ `cloudinaryService.js` | Hero images, testimonials, proof attachments; data-URI fallback if unconfigured |
+| **Contracts** | Zoho Sign v1 (stub mode by default) | ✅ `zohoSignService.js` | Live mode activates when `ZOHO_SIGN_TOKEN` is set; auto-signs in stub mode |
+| **Media & Assets** | Cloudinary + PDF Downloads | ✅ Implemented | Hero images, project documents (`project_files`), proof attachments; static CV downloads |
 | **FX Rates** | open.er-api.com (free, no key) | ✅ Live-refreshed daily 5am UTC | Manual override in Settings → FX Rates; `source` badge (LIVE / MANUAL) |
 | **Validation** | Zod (server) + DOMPurify (server XSS) | ✅ All controllers | Frontend uses DOMPurify via `renderSafeMarkdown` |
 | **Scheduling** | node-cron | ✅ Daily checks, monthly invoices, FX refresh | `cronService.js` with in-process dedupe `Map` |
 | **Rate Limiting** | express-rate-limit 8.3.2 | ✅ Auth (20/15min), contact (10/hr), admin writes (60/15min), API (100/15min) | CSRF protection via `csurf` (skips safe methods + auth login/refresh/logout/2fa) |
 | **Security Headers** | Helmet | ✅ Default config | |
-| **Hosting** | Vercel (frontend) + Render (backend) + Supabase/Neon (Postgres) | ✅ Deployed | `app.set('trust proxy', 1)` enabled for accurate rate limiting behind proxies |
+| **Hosting** | Vercel (frontend) + Render (backend) + Supabase/Neon (Postgres) | ✅ Deployed | `app.set('trust proxy', 1)` enabled; `sameSite: 'none'` + `secure: true` on cookies for cross-origin deployment |
 | **CI/CD** | GitHub Actions (`.github/workflows/ci.yml`) | ✅ Active | Lint + build on PR/push to `main` (Node 20, npm ci, frontend lint+build, backend `node --check`) |
 | **Domain** | `buildwithlami.com` (migrated from `.dev`) | ✅ Live | `www.buildwithlami.com` also serves the same content |
 
@@ -65,7 +66,7 @@ Provide a top-tier visual experience for visitors while acting as a robust, secu
 
 ```
                 ┌──────────────┐
-                │    users     │  (10 RBAC roles)
+                │    users     │  (5 RBAC roles)
                 │   + roles    │
                 └──────┬───────┘
                        │ (writes audit_logs + activity_logs)
@@ -145,7 +146,7 @@ Provide a top-tier visual experience for visitors while acting as a robust, secu
 | 1–3 | `v2_update_schema.sql`, `v3_paystack_invoices.sql`, `v4_contact_qualification.sql` | Phase 0 | Placeholders kept for `runUpdateSchema.js`; no-op |
 | 4 | `v5_division.sql` | Phase 0 | `division` column on 5 tables; drop `messages.subject` |
 | 5 | `v6_offboarding.sql` | Phase 1 | Offboarding columns on `client_projects`; drop `last_notified_at` |
-| 6 | `v7_roles_rbac.sql` | Phase 1 | `roles` table + 10 RBAC roles seeded |
+| 6 | `v7_roles_rbac.sql` | Phase 1 | `roles` table + 5 RBAC roles seeded |
 | 7 | `v8_bookings.sql` | Phase 2 | `bookings` (Survey + Drone) |
 | 8 | `v9_leads.sql` | Phase 3 | `leads` (8-stage CRM pipeline) |
 | 9 | `v10_notifications.sql` | Phase 3 | `notifications` (in-app bell) |
@@ -166,6 +167,7 @@ Provide a top-tier visual experience for visitors while acting as a robust, secu
 | 24 | `v25_drop_cms.sql` | Phase 12 | **Drops `pages`, `testimonials`, `equipment`, `industries`** — CMS replaced by hardcoded content on `/survey` and `/drone`; portfolio moved to `client_projects` |
 | 25 | `v26_portfolio_fields.sql` | Phase 12 | Adds portfolio fields to `client_projects`: `cover_image`, `summary`, `location`, `client_name`, `is_portfolio`, `display_order`, `tags`, `published_at` + partial index |
 | 26 | `v27_portfolio_polish.sql` | Phase 12 | Adds matching portfolio fields to `projects`: `location`, `client_name`, `display_order`, `tags`, `published_at` + composite index |
+| 27 | `v28_portfolio_case_study.sql`| Phase 12 | Adds JSONB fields (`gallery`, `challenge`, `solution`, `results`, `metrics`, etc.) to `projects` for advanced case-study rendering, plus GIN indexes |
 
 ### C. Notable Schema Decisions
 
@@ -179,7 +181,7 @@ Provide a top-tier visual experience for visitors while acting as a robust, secu
 | **`invoices.pay_token` UUID** | Public `/pay/:token` is unguessable in 128-bit space |
 | **`invoices.invoice_number`** server-generated as `INV-YYYY-NNN` | Human-friendly invoice IDs displayed to clients |
 | **Multi-currency** via `fx_rates` with `source` badge ('LIVE' \| 'MANUAL' \| 'SEED') | Live API with manual override that survives failed fetches |
-| **RBAC 10 roles** with both TEXT `users.role` and FK `users.role_id` | Backwards-compatible role checks during the migration |
+| **RBAC 5 roles** with both TEXT `users.role` and FK `users.role_id` | Backwards-compatible role checks during the migration |
 | **One conversation-style view, three source tables** (`messages` + `project_feedback` + `intake_submissions`) | No separate `conversations` table (dropped in v20); unified inbox aggregates at read time via `UNION ALL` |
 | **CMS tables dropped (v25)** | Content for `/survey` and `/drone` now hardcoded in `frontend/src/data/divisions.js`; portfolio consolidated into `client_projects` and `projects` |
 | **Portfolio fields on `client_projects` (v26) and `projects` (v27)** | `cover_image`, `summary`, `location`, `client_name`, `is_portfolio`, `display_order`, `tags`, `published_at` |
@@ -192,8 +194,10 @@ Provide a top-tier visual experience for visitors while acting as a robust, secu
 
 | Feature | Protocol | Details |
 | :--- | :--- | :--- |
-| **Authentication** | JWT (HttpOnly Cookie) | 30-min default expiry (`maxAge: 30 * 60 * 1000`); refresh endpoint; role + 2FA flags in payload; role normalised via `canonicalRole()` |
-| **Two-Factor Auth** | TOTP (RFC 6238) via `otplib` | 8 one-time recovery codes (SHA-256 hashed); QR code setup page at `/admin/security/2fa` |
+| **Authentication** | JWT (HttpOnly Cookie) | 30-min default expiry (`maxAge: 30 * 60 * 1000`); refresh endpoint; role + 2FA flags in payload; role normalised via `canonicalRole()`; cookie issued on `/login` and `/login/2fa` |
+| **Cross-Origin Cookie Security** | `sameSite: 'none'` + `secure: true` (Prod) | Enables HttpOnly credentials sharing across Vercel frontend and Render backend domains without third-party cookie blocking |
+| **Vercel API Gateway** | `/api/*` Proxy Rewrite | `frontend/vercel.json` proxies `/api/*` requests directly to Render backend, guaranteeing first-party cookie handling in modern browsers |
+| **Two-Factor Auth** | TOTP (RFC 6238) via `otplib` | 8 one-time recovery codes; QR code setup at `/admin/security/2fa` (Owner: Required, Admin/Client: Optional) |
 | **Session Timeout** | 25-min warning modal | "Session expires in 5 min" + "Extend" button |
 | **Proxy Trust** | `app.set('trust proxy', 1)` | Required for accurate rate-limiting IP detection behind Vercel/Render |
 | **CSRF Protection** | `csurf` (double-submit cookie) | Applied to mutating routes; safe methods + `/api/auth/login` + `/api/auth/refresh` + `/api/auth/logout` + `/api/auth/2fa` are exempt; token exposed at `GET /api/csrf-token` for the frontend to echo via `X-CSRF-Token` header |
@@ -201,7 +205,7 @@ Provide a top-tier visual experience for visitors while acting as a robust, secu
 | **Credential Storage** | AES-256-GCM (server-side) | Values in `project_secrets` encrypted with 32-byte `ENCRYPTION_KEY`; per-secret IV + auth tag |
 | **XSS Defense** | `isomorphic-dompurify` (server) + DOMPurify (browser) | Server sanitizes inbox replies / contact form data before storage; browser sanitizes Markdown HTML before `dangerouslySetInnerHTML` |
 | **Security Headers** | Helmet | Default config |
-| **Role-Based Access** | 10 RBAC roles | Owner > Administrator > PM > Developer > Survey/Drone Managers > Pilots/Surveyors > Finance > Client |
+| **Role-Based Access** | 5 RBAC roles | Owner > Administrator > Project Manager > Staff > Client (Hardcoded permissions, no UI) |
 | **Division Isolation** | `requireDivision()` middleware | `Survey Manager` blocked from `/api/drone/*` etc. |
 | **Audit Trail** | `audit_logs` table (immutable) | Sensitive actions (paid, refunded, role changed, project deleted) write to it via `utils/auditLog.js` |
 | **Activity Trail** | `activity_logs` table (coarse) | Every mutating request logged by `activityMiddleware.js` |
@@ -448,22 +452,49 @@ All 12 phases shipped. Full per-phase details in [`ROADMAP.md`](file:///c:/Users
 | 10 | International Payment Workflow (`/pay/:token`, `bank_accounts`, `payment_proofs`) | ✅ Complete | 2026-07-11 |
 | 11 | Live FX Rates (source badge, manual override) | ✅ Complete | 2026-07-11 |
 | 12 | **Schema Audit & Cleanup** (v20–v27 migrations, 6 redundant scripts removed, CMS tables dropped) | ✅ Complete | 2026-07-11 |
+| 13 | **Expense Tracking** (v29 schema, CRUD endpoints, Dashboard integration, React UI) | ✅ Complete | 2026-07-25 |
+| 14 | **Client Portal MVP** (v30 auth schema, React SPA, Dashboards, Invoices, Profile) | ✅ Complete | 2026-07-25 |
+| 15 | **Project Timeline & Milestones** (v32 schema, milestone JSON array, ClientTimeline UI) | ✅ Complete | 2026-07-25 |
+| 16 | **Rigid Quotation Pipeline** (v33 schema, quotation CRUD, 1-click convert to contract, PDF/email dispatch) | ✅ Complete | 2026-07-25 |
+| 17 | **Flagship Invoice Generator** (v34 schema, tax, discount, deposit, partial payments, QR codes) | ✅ Complete | 2026-07-25 |
+| 18 | **Categorized Document Repository** (v35 schema, project_files table, client document downloads) | ✅ Complete | 2026-07-25 |
+| 19 | **Final Codebase Cleanup & Build Audit** (All syntax & lint errors resolved, zero dead code, production build green) | ✅ Complete | 2026-07-25 |
 
-### What Comes After (Backlog)
+### Final Scope & Agency Philosophy (Nigerian & International)
 
-Parked in [`UPDATE.md` §16.7–16.8](file:///c:/Users/nuke/Documents/buildwithlami/UPDATE.md):
+**PRIMARY GOAL:** This is a lean, high-performance Agency Operating System built for a solo founder serving both Nigerian and international clients. It is NOT an enterprise ERP. Every feature strictly helps acquire clients, close deals, deliver projects faster, get paid faster, reduces manual work, or improves client experience.
 
-- Team invitation flow (Owner → invite Surveyor/Drone Pilot with email)
-- Per-division permissions UI (currently hardcoded in `authMiddleware.js` and `roles.js`)
-- Activity audit log page (`/admin/logs` exists for raw read; needs UX polish)
-- Decision log page (CEO-only "decisions made" feed)
-- Expense tracking (vs. current revenue-only reporting)
-- Tax/VAT on invoices (Nigeria 7.5% VAT, US sales tax by state)
-- `/portal` logged-in client experience (currently magic-link only)
-- Stripe integration (intentionally skipped per project memory — the `paystackService.js` refund branch and the `STRIPE_*` env vars were left out on purpose)
-- Team workload view (assign leads to specific Pilot/Surveyor)
-- Email-driven Zoho Sign setup (live mode stays dormant until a real account is wired up)
-- Per-workspace dashboard widgets (today, recent activity already global)
+**DESIGN PRINCIPLES:** Prioritize speed, simplicity, low maintenance, excellent UX, production-ready architecture, and scalability without unnecessary complexity. Do NOT add enterprise features just because they exist elsewhere.
+
+#### Core Feature Specifications
+
+* **1. Roles**: Hardcoded permissions. No permission editor, no custom roles, no drag-and-drop. Roles used: `Owner`, `Administrator`, `Project Manager`, `Staff`, `Client`.
+* **2. Client Portal**: Lightweight visibility hub. Includes ONLY: Dashboard, Projects, Quotations, Invoices, Contracts, Documents, Messages, Profile, Timeline. Explicitly NO ticketing, calendar, chat system, task boards, project editing, approvals, or collaboration tools.
+* **3. Project Timeline**: Simple milestone tracker (Discovery, Design, Development, Testing, Deployment). Statuses: Pending, In Progress, Complete. NO Gantt charts or complex project management software.
+* **4. Quotation Workflow**: 1-click conversion pipeline: `Lead` → `Quotation` → `Accepted` → `Contract` → `Invoice` → `Payment` → `Project`.
+* **5. Document Management**: Project-scoped uploads/downloads for Proposal, Quotation, Contract, Invoice, Receipt, Project Files, Final Delivery. NO version control, comments, or collaboration.
+* **6. Invoice System**: Flagship professional generator. Supports: Logo, Brand colors, Company information, Tax, Discount, Deposit, Partial Payments, Due Date, QR Code, Payment Instructions, Signature, Terms, Download PDF, Save as Template. DO NOT turn it into accounting software.
+* **7. Reports**: Only metrics that matter: Revenue, Expenses, Profit, Outstanding Invoices, Paid Invoices, Revenue by Month, Revenue by Division, Revenue by Country. Nothing more.
+* **8. Expense Tracking**: Simple tracking. Fields: Category, Vendor, Description, Amount, Payment Method, Division, Receipt, Date, Notes. Dashboard views: Today's Expenses, Monthly Expenses, Expenses by Category, Expenses by Division. NO accounting ledger or payroll.
+* **9. Activity Logs**: Meaningful events only: `Lead Created`, `Client Created`, `Project Created`, `Invoice Generated`, `Invoice Paid`, `Contract Signed`, `Document Uploaded`, `Expense Added`, `Portal Login`. Avoid excessive logging.
+* **10. Email Templates**: Essential templates only: Welcome, Quotation, Invoice, Contract, Project Update. NO drag-and-drop email designer.
+* **11. Notifications**: Important events only: New Lead, New Client Message, Contract Signed, Invoice Paid, Invoice Overdue, Payment Proof Uploaded, Project Completed.
+* **12. Security**: Professional but simple. JWT, HttpOnly Cookies, Optional Client 2FA, Required Owner 2FA, AES Encryption for Secure Project Credentials, Audit Logs. NO enterprise security modules.
+
+#### Future Enhancements (Out of Scope for Now)
+* ❌ Dynamic Permission Builder
+* ❌ Dashboard Personalization
+* ❌ Team Workload Analytics
+* ❌ Payroll
+* ❌ Inventory
+* ❌ Accounting System
+* ❌ Time Tracking
+* ❌ Sprint Boards
+* ❌ Gantt Charts
+* ❌ Resource Planning
+* ❌ Decision Logs
+* ❌ Enterprise Financial Reporting
+* ❌ Advanced Audit Dashboard
 
 ---
 
@@ -531,7 +562,7 @@ VITE_PAYSTACK_PUBLIC_KEY=pk_live_...
 VITE_API_PROXY=http://localhost:4000         # dev only; default in vite.config.js is :4001 mock server
 ```
 
-> **Removed variables (history):** the Blueprint's earlier v2.0 `WHATSAPP_*` env vars are no longer used — WhatsApp deep-links are built from `clients.phone` on the fly (no API needed). The `STRIPE_*` and `paystackService.js` refund variables were intentionally skipped per project memory. Real Grey / Paystack settlement account numbers are entered at runtime via `/admin/settings` → Bank Accounts and are **never** committed to the repo.
+> **Removed variables (history):** the Blueprint's earlier v2.0 `WHATSAPP_*` env vars are no longer used — WhatsApp deep-links are built from `clients.phone` on the fly (no API needed). Real Grey / Paystack settlement account numbers are entered at runtime via `/admin/settings` → Bank Accounts and are **never** committed to the repo.
 
 ---
 
@@ -548,4 +579,4 @@ VITE_API_PROXY=http://localhost:4000         # dev only; default in vite.config.
 
 ---
 
-*End of Blueprint v3.2. For per-phase build history, see [`ROADMAP.md`](file:///c:/Users/nuke/Documents/buildwithlami/ROADMAP.md). For decision rationale, see [`UPDATE.md`](file:///c:/Users/nuke/Documents/buildwithlami/UPDATE.md). For database details, see [`docs/SCHEMA.md`](file:///c:/Users/nuke/Documents/buildwithlami/docs/SCHEMA.md). For per-environment variable details, see [`docs/ENV_VARIABLES.md`](file:///c:/Users/nuke/Documents/buildwithlami/docs/ENV_VARIABLES.md).*
+*End of Blueprint v3.4. For per-phase build history, see [`ROADMAP.md`](file:///c:/Users/nuke/Documents/buildwithlami/ROADMAP.md). For decision rationale, see [`UPDATE.md`](file:///c:/Users/nuke/Documents/buildwithlami/UPDATE.md). For database details, see [`docs/SCHEMA.md`](file:///c:/Users/nuke/Documents/buildwithlami/docs/SCHEMA.md). For per-environment variable details, see [`docs/ENV_VARIABLES.md`](file:///c:/Users/nuke/Documents/buildwithlami/docs/ENV_VARIABLES.md).*

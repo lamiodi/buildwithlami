@@ -13,16 +13,6 @@ const formatCurrency = (n, curr = 'NGN') => {
     }
 };
 
-// Convert any (amount, currency) pair to NGN using a rates map
-// fetched from /api/fx-rates. Missing rates are treated as 0 and
-// counted in the "uncategorised" count so the admin can spot gaps.
-const convertToNGN = (amount, currency, rates) => {
-    if (currency === 'NGN') return Number(amount || 0);
-    const rate = rates?.[currency]?.rate;
-    if (rate === undefined || rate === null) return 0;
-    return Number(amount || 0) * Number(rate);
-};
-
 const Icon = {
     Plus: ActionIcon.Plus,
     Search: ActionIcon.Search,
@@ -73,12 +63,35 @@ const AdminInvoices = () => {
     const [error, setError] = useState('');
     const [search, setSearch] = useState('');
     const [statusFilter, setStatusFilter] = useState('all');
-    const [divisionFilter, setDivisionFilter] = useState('all');
-    const [showForm, setShowForm] = useState(false);
+    const [divisionFilter, setDivisionFilter] = useState(() => {
+        const ws = localStorage.getItem('admin_workspace');
+        return ws && ['SOFTWARE', 'SURVEY', 'DRONE'].includes(ws) ? ws : 'all';
+    });    const [showForm, setShowForm] = useState(false);
     const [submitting, setSubmitting] = useState(false);
     const [projects, setProjects] = useState([]);
     const [fxRates, setFxRates] = useState({});
-    const [formData, setFormData] = useState({ project_id: '', amount: '', currency: 'NGN', dueDate: '' });
+    const [formData, setFormData] = useState({ 
+        project_id: '', amount: '', currency: 'NGN', dueDate: '',
+        taxRate: 0, discountAmount: 0, depositRequired: 0, notes: '',
+        lineItems: [{ description: '', amount: '' }]
+    });
+
+    const handleLineItemChange = (index, field, value) => {
+        const newItems = [...formData.lineItems];
+        newItems[index][field] = value;
+        setFormData({ ...formData, lineItems: newItems });
+    };
+
+    const addLineItem = () => {
+        setFormData({ ...formData, lineItems: [...formData.lineItems, { description: '', amount: '' }] });
+    };
+
+    const removeLineItem = (index) => {
+        if (formData.lineItems.length <= 1) return;
+        const newItems = [...formData.lineItems];
+        newItems.splice(index, 1);
+        setFormData({ ...formData, lineItems: newItems });
+    };
 
     const fetchInvoices = async () => {
         const params = {};
@@ -120,11 +133,20 @@ const AdminInvoices = () => {
             amount: Number(formData.amount),
             currency: formData.currency || 'NGN',
             dueDate: formData.dueDate || undefined,
+            taxRate: Number(formData.taxRate) || 0,
+            discountAmount: Number(formData.discountAmount) || 0,
+            depositRequired: Number(formData.depositRequired) || 0,
+            notes: formData.notes,
+            lineItems: formData.lineItems.filter(item => item.description.trim() !== '')
         });
 
         if (res.ok) {
             notify.success('Invoice created successfully!');
-            setFormData({ project_id: '', amount: '', currency: 'NGN', dueDate: '' });
+            setFormData({ 
+                project_id: '', amount: '', currency: 'NGN', dueDate: '',
+                taxRate: 0, discountAmount: 0, depositRequired: 0, notes: '',
+                lineItems: [{ description: '', amount: '' }]
+            });
             setShowForm(false);
             fetchInvoices();
         } else {
@@ -181,9 +203,7 @@ const AdminInvoices = () => {
         notify.success('Invoices CSV downloaded');
     };
 
-    const now = Date.now();
-
-    const filtered = useMemo(() => {
+    const filtered = (() => {
         const q = search.trim().toLowerCase();
         return invoices.filter(i => {
             const matchesStatus = statusFilter === 'all'
@@ -196,7 +216,7 @@ const AdminInvoices = () => {
                 || i.id.toLowerCase().includes(q);
             return matchesStatus && matchesSearch;
         });
-    }, [invoices, search, statusFilter]);
+    })();
 
     const stats = useMemo(() => {
         const total = invoices.length;
@@ -310,6 +330,39 @@ const AdminInvoices = () => {
                                         <label className={labelClass}>Due Date (Optional)</label>
                                         <input type="date" name="dueDate" value={formData.dueDate} onChange={e => setFormData({ ...formData, dueDate: e.target.value })} className={inputClass} />
                                     </div>
+                                    <div>
+                                        <label className={labelClass}>Tax Rate (%)</label>
+                                        <input type="number" step="0.1" name="taxRate" value={formData.taxRate} onChange={e => setFormData({ ...formData, taxRate: e.target.value })} className={inputClass} />
+                                    </div>
+                                    <div>
+                                        <label className={labelClass}>Discount Amt</label>
+                                        <input type="number" step="0.01" name="discountAmount" value={formData.discountAmount} onChange={e => setFormData({ ...formData, discountAmount: e.target.value })} className={inputClass} />
+                                    </div>
+                                    <div>
+                                        <label className={labelClass}>Deposit Reqd</label>
+                                        <input type="number" step="0.01" name="depositRequired" value={formData.depositRequired} onChange={e => setFormData({ ...formData, depositRequired: e.target.value })} className={inputClass} />
+                                    </div>
+                                </div>
+                                <div className="col-span-1 md:col-span-3">
+                                    <label className={labelClass}>Line Items</label>
+                                    <div className="space-y-2">
+                                        {formData.lineItems.map((item, index) => (
+                                            <div key={index} className="flex items-center gap-2">
+                                                <input type="text" placeholder="Description" value={item.description} onChange={e => handleLineItemChange(index, 'description', e.target.value)} className={`${inputClass} flex-1`} />
+                                                <input type="number" placeholder="Amount" value={item.amount} onChange={e => handleLineItemChange(index, 'amount', e.target.value)} className={`${inputClass} w-32`} />
+                                                <button type="button" onClick={() => removeLineItem(index)} className="text-red-500 hover:bg-red-50 p-2 rounded-xl transition-colors">
+                                                    <Icon.X className="w-4 h-4" />
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <button type="button" onClick={addLineItem} className="mt-2 text-xs font-bold text-accent hover:underline flex items-center gap-1">
+                                        <Icon.Plus className="w-3 h-3" /> Add Item
+                                    </button>
+                                </div>
+                                <div className="col-span-1 md:col-span-3">
+                                    <label className={labelClass}>Notes / Terms</label>
+                                    <textarea name="notes" value={formData.notes} onChange={e => setFormData({ ...formData, notes: e.target.value })} rows="2" className={inputClass}></textarea>
                                 </div>
                             </div>
                             <button type="submit" disabled={submitting} className="mt-4 bg-accent hover:bg-orange-600 text-white font-bold py-3 px-6 rounded-xl transition-all shadow-lg hover:shadow-accent/30 disabled:opacity-50 font-body">

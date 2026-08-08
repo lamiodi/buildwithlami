@@ -13,7 +13,12 @@ const invoiceSchema = z.object({
         (c) => SUPPORTED_CURRENCIES.includes(String(c).toUpperCase()),
         { message: `currency must be one of: ${SUPPORTED_CURRENCIES.join(', ')}` }
     ).optional(),
-    dueDate: z.string().optional()
+    dueDate: z.string().optional(),
+    taxRate: z.number().min(0).max(100).optional().default(0),
+    discountAmount: z.number().min(0).optional().default(0),
+    depositRequired: z.number().min(0).optional().default(0),
+    notes: z.string().optional().nullable(),
+    lineItems: z.array(z.any()).optional().default([])
 });
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -33,7 +38,7 @@ function safeEqualHex(a, b) {
 // Admin: Create an invoice and generate a Paystack payment link
 export const createInvoice = async (req, res) => {
     try {
-        const { clientId, projectId, amount, currency, dueDate } = invoiceSchema.parse(req.body);
+        const { clientId, projectId, amount, currency, dueDate, taxRate, discountAmount, depositRequired, notes, lineItems } = invoiceSchema.parse(req.body);
         // Default to NGN; upper-case to normalise storage.
         const currencyCode = (currency || 'NGN').toUpperCase();
 
@@ -77,9 +82,9 @@ export const createInvoice = async (req, res) => {
         const invoiceNumber = yearPrefix + nextSeq;
 
         const { rows } = await pool.query(
-            `INSERT INTO invoices (client_id, project_id, amount, currency, due_date, status, invoice_number)
-             VALUES ($1, $2, $3, $4, $5, 'PENDING', $6) RETURNING *`,
-            [clientId, projectId, amount, currencyCode, dueDate || null, invoiceNumber]
+            `INSERT INTO invoices (client_id, project_id, amount, currency, due_date, status, invoice_number, tax_rate, discount_amount, deposit_required, notes, line_items)
+             VALUES ($1, $2, $3, $4, $5, 'PENDING', $6, $7, $8, $9, $10, $11::jsonb) RETURNING *`,
+            [clientId, projectId, amount, currencyCode, dueDate || null, invoiceNumber, taxRate, discountAmount, depositRequired, notes, JSON.stringify(lineItems)]
         );
         const invoice = rows[0];
 
@@ -161,7 +166,7 @@ export const getAllInvoices = async (req, res) => {
         const { rows } = await pool.query(`
             SELECT i.id, i.project_id, i.client_id, i.amount, i.currency, i.status,
                    i.due_date, i.payment_url, i.paystack_reference, i.paid_at,
-                   i.division, i.created_at,
+                   i.division, i.created_at, i.tax_rate, i.discount_amount, i.deposit_required, i.notes, i.line_items,
                    c.name AS client_name,
                    p.project_name
             FROM invoices i
@@ -315,6 +320,18 @@ export const paystackWebhook = async (req, res) => {
 
         if (rows.length > 0) {
             const invoice = rows[0];
+
+            // 3.4 Invoice to Project: Ensure payment confirmation spins up a project if none exists.
+            if (!invoice.project_id) {
+                const projRes = await pool.query(`
+                    INSERT INTO client_projects (client_id, project_name, status, division, payment_status, offboarding_status)
+                    VALUES ($1, $2, 'ACTIVE', 'SOFTWARE', 'PAID', 'PENDING')
+                    RETURNING id
+                `, [invoice.client_id, `Project for ${invoice.invoice_number}`]);
+                
+                await pool.query(`UPDATE invoices SET project_id = $1 WHERE id = $2`, [projRes.rows[0].id, invoice.id]);
+                invoice.project_id = projRes.rows[0].id;
+            }
 
             // Only flip the project to PAID when the *sum* of paid invoices
             // covers the project's amount_due. Otherwise leave it as-is

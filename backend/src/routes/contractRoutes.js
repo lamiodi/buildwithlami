@@ -1,13 +1,25 @@
 import express from 'express';
-import { createContract, getContracts, getContractStatus, downloadContractPDF, handleWebhook } from '../controllers/contractController.js';
-import { verifyToken as requireAuth, requireRole } from '../middlewares/authMiddleware.js';
+import { 
+    createContract, 
+    getContract, 
+    getContracts, 
+    downloadContractPDF, 
+    zohoSignWebhook 
+} from '../controllers/contractController.js';
+import { verifyToken, requireRole } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 
-router.get('/', requireAuth, requireRole('Administrator', 'Owner'), getContracts);
-router.post('/', requireAuth, requireRole('Administrator', 'Owner'), createContract);
-router.get('/:id', requireAuth, requireRole('Administrator', 'Owner'), getContractStatus);
-router.get('/:id/pdf', requireAuth, requireRole('Administrator', 'Owner'), downloadContractPDF);
-router.post('/webhook', handleWebhook);
+// Webhook from Zoho Sign (must be public or use a specific webhook secret verification)
+router.post('/webhook', express.json(), zohoSignWebhook);
+
+// Protected Admin Routes
+router.use(verifyToken);
+router.use(requireRole('ADMIN', 'SUPERADMIN'));
+
+router.get('/', getContracts);
+router.post('/', createContract);
+router.get('/:id', getContract);
+router.get('/:id/pdf', downloadContractPDF);
 
 export default router;

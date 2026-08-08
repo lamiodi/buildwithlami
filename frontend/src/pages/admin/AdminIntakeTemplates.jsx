@@ -97,7 +97,7 @@ const AdminIntakeTemplates = () => {
   };
 
   const addField = (type) => {
-    const newField = { id: Date.now().toString(), type, label: '', required: false };
+    const newField = { id: `f-${Math.random().toString(36).substring(2, 9)}`, type, label: '', required: false };
     if (type === 'select' || type === 'checkbox') newField.options = ['Option 1', 'Option 2'];
     setFormData(prev => ({ ...prev, schema: [...prev.schema, newField] }));
   };

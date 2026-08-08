@@ -30,7 +30,6 @@ See [BACKUP.md](./BACKUP.md) §3. TL;DR:
 | Render | [render.com/support](https://render.com/support) (or in-app chat) |
 | Supabase | [supabase.com/support](https://supabase.com/support) |
 | Paystack | [paystack.com/contact](https://paystack.com/contact) |
-| Stripe | [support.stripe.com](https://support.stripe.com) |
 | Zoho Sign | [zoho.com/sign/contact](https://www.zoho.com/sign/contact.html) |
 | Cloudinary | [cloudinary.com/contact](https://cloudinary.com/contact) |
 
@@ -43,9 +42,7 @@ See [BACKUP.md](./BACKUP.md) §3. TL;DR:
 | Database URL | Render → DB → Internal Database URL (or Supabase → Settings → Database) |
 | JWT secret | Render → Service → Environment → `JWT_SECRET` |
 | Paystack keys | Render → Service → Environment |
-| Stripe keys | Render → Service → Environment (when wired) |
 | 2FA recovery codes | Your 1Password / printed copy from when you enabled 2FA |
-| Stripe webhook signing secret | Render → Service → Environment |
 | Zoho Sign OAuth token | Render → Service → Environment (when wired) |
 
 ## ⏪ Rollback in 60 seconds

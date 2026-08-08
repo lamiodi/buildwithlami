@@ -22,7 +22,7 @@ const dateFilter = (start, end, params) => {
 // projects, clients, templates, feedback, invoices, recentActivities.
 export async function getDashboardOverview(req, res) {
     try {
-        const [projects, clients, templates, feedback, invoices, recentActivities] = await Promise.all([
+        const [projects, clients, templates, feedback, invoices, recentActivities, financialSummary] = await Promise.all([
             pool.query(`
                 SELECT id, project_name, status, progress, amount_due, payment_status,
                        client_id, created_at, updated_at
@@ -56,6 +56,24 @@ export async function getDashboardOverview(req, res) {
                 ORDER BY created_at DESC
                 LIMIT 10
             `),
+            pool.query(`
+                SELECT 
+                    (SELECT COALESCE(SUM(i.amount * COALESCE(r.rate, 0)), 0) 
+                     FROM invoices i 
+                     LEFT JOIN fx_rates r ON r.target_currency = i.currency AND r.base_currency = $1
+                     WHERE i.status = 'PAID') AS total_revenue,
+                     
+                    (SELECT COALESCE(SUM(i.amount * COALESCE(r.rate, 0)), 0) 
+                     FROM invoices i 
+                     LEFT JOIN fx_rates r ON r.target_currency = i.currency AND r.base_currency = $1
+                     WHERE i.status = 'PAID' AND DATE_TRUNC('month', i.created_at) = DATE_TRUNC('month', CURRENT_DATE)) AS revenue_this_month,
+                     
+                    (SELECT COALESCE(SUM(amount), 0) FROM expenses) AS total_expenses,
+                    
+                    (SELECT COALESCE(SUM(amount), 0) 
+                     FROM expenses 
+                     WHERE DATE_TRUNC('month', expense_date) = DATE_TRUNC('month', CURRENT_DATE)) AS expenses_this_month
+            `, [BASE_CURRENCY]),
         ]);
 
         res.json({
@@ -65,6 +83,7 @@ export async function getDashboardOverview(req, res) {
             feedback: feedback.rows,
             invoices: invoices.rows,
             recentActivities: recentActivities.rows,
+            financialSummary: financialSummary.rows[0],
         });
     } catch (err) {
         console.error('[Dashboard] Error:', err.message);
@@ -125,6 +144,20 @@ export async function getReports(req, res) {
             LIMIT 10
         `, [BASE_CURRENCY, ...invoiceParams]);
 
+        // Revenue by country
+        const revenueByCountry = await pool.query(`
+            SELECT COALESCE(c.country, 'Unknown') AS country,
+                   COALESCE(SUM(i.amount * COALESCE(r.rate, 0)), 0) AS total,
+                   COUNT(i.id) AS invoice_count
+            FROM invoices i
+            JOIN clients c ON i.client_id = c.id
+            LEFT JOIN fx_rates r
+              ON r.base_currency = $1 AND r.target_currency = i.currency
+            WHERE i.status = 'PAID' ${invoiceFilter ? `AND ${invoiceFilter}` : ''}
+            GROUP BY c.country
+            ORDER BY total DESC
+        `, [BASE_CURRENCY, ...invoiceParams]);
+
         // Project completion rate
         const completionRate = await pool.query(`
             SELECT
@@ -160,6 +193,7 @@ export async function getReports(req, res) {
 
         res.json({
             revenueByMonth: revenueByMonth.rows,
+            revenueByCountry: revenueByCountry.rows,
             projectsByStatus: projectsByStatus.rows,
             topClients: topClients.rows,
             completionRate: completionRate.rows[0],

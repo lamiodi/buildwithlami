@@ -7,16 +7,15 @@ const Preloader = ({ onComplete }) => {
   const shouldReduce = useReducedMotion();
 
   useEffect(() => {
-    const duration = shouldReduce ? 400 : 1800;
-    const interval = 20;
-    const steps = duration / interval;
+    const duration = shouldReduce ? 150 : 350;
+    const interval = 16;
+    const steps = Math.max(1, duration / interval);
     let current = 0;
 
     const timer = setInterval(() => {
       current += 1;
-      // Ease-out curve for natural feeling
       const t = current / steps;
-      const eased = 1 - Math.pow(1 - t, 3);
+      const eased = 1 - Math.pow(1 - t, 2);
       setProgress(Math.min(Math.round(eased * 100), 100));
 
       if (current >= steps) {
@@ -25,8 +24,8 @@ const Preloader = ({ onComplete }) => {
           setIsExiting(true);
           setTimeout(() => {
             if (onComplete) onComplete();
-          }, shouldReduce ? 0 : 600);
-        }, shouldReduce ? 0 : 300);
+          }, shouldReduce ? 0 : 200);
+        }, shouldReduce ? 0 : 100);
       }
     }, interval);
 

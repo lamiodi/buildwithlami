@@ -557,6 +557,34 @@ const ClientProjectTracker = () => {
                   </motion.div>
                 )}
 
+                {/* Documents & Files List */}
+                {project.files && project.files.length > 0 && (
+                  <motion.div variants={item} className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700">
+                    <h3 className="font-bold mb-4 uppercase text-xs tracking-widest text-gray-700 dark:text-gray-300">Documents & Files</h3>
+                    <div className="space-y-3">
+                      {project.files.map(file => (
+                        <div key={file.id} className="border border-gray-100 dark:border-gray-700 p-4 rounded-xl bg-gray-50 dark:bg-gray-900/50 flex flex-col">
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 px-2 py-0.5 rounded text-[10px] font-extrabold uppercase tracking-wider">
+                              {file.category}
+                            </span>
+                            <span className="text-[10px] text-gray-400 font-mono">{(file.file_size / 1024).toFixed(1)} KB</span>
+                          </div>
+                          <p className="font-bold text-sm text-gray-900 dark:text-white truncate" title={file.file_name}>{file.file_name}</p>
+                          <a 
+                            href={file.file_url} 
+                            target="_blank" 
+                            rel="noreferrer" 
+                            className="mt-3 text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
+                          >
+                            Download <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                          </a>
+                        </div>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+
                 {/* Staging Credentials Vault Link */}
                 <motion.div variants={item} className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-6 rounded-3xl border border-blue-100 dark:border-blue-800/30">
                   <h3 className="font-bold text-blue-900 dark:text-blue-100 mb-2 text-sm uppercase tracking-wider">Secret Vault</h3>

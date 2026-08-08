@@ -334,7 +334,7 @@ const FxRatesSection = () => {
 
     const formatRelative = (iso) => {
         if (!iso) return '—';
-        const diffMs = Date.now() - new Date(iso).getTime();
+        const diffMs = new Date().getTime() - new Date(iso).getTime();
         const mins = Math.floor(diffMs / 60000);
         if (mins < 1) return 'just now';
         if (mins < 60) return `${mins}m ago`;

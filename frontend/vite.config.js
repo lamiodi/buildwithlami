@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import path from 'path'
 
 // In dev, the Vite proxy defaults to the in-memory mock server on :4001 so the
 // admin pages can be explored without a real Postgres. Set VITE_API_PROXY to
@@ -8,6 +9,11 @@ const API_TARGET = process.env.VITE_API_PROXY || 'http://localhost:4001';
 
 export default defineConfig({
   plugins: [react()],
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+    },
+  },
   server: {
     port: 3000,
     proxy: {

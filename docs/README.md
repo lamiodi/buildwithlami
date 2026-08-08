@@ -24,7 +24,7 @@ Browser → Vercel (frontend) → Render (backend API) → Postgres DB
                             Supabase (auth, storage — when wired)
                                   ↓
                             Paystack (NGN payments)
-                            Stripe (USD/EUR/GBP — when wired)
+                            Grey (USD/EUR/GBP via Bank Transfer)
                             Zoho Sign (e-signatures — stub mode for now)
 ```
 

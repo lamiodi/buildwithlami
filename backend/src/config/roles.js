@@ -9,12 +9,7 @@ export const ROLE_DIVISIONS = {
     'Owner':             ['*'],
     'Administrator':     ['*'],
     'Project Manager':   ['SOFTWARE', 'SURVEY', 'DRONE'],
-    'Developer':         ['SOFTWARE'],
-    'Survey Manager':    ['SURVEY'],
-    'Surveyor':          ['SURVEY'],
-    'Drone Manager':     ['DRONE'],
-    'Drone Pilot':       ['DRONE'],
-    'Finance':           ['SOFTWARE', 'SURVEY', 'DRONE'],
+    'Staff':             ['SOFTWARE', 'SURVEY', 'DRONE'],
     'Client':            [], // clients only see their own project — gated at resource level
 };
 
@@ -29,12 +24,12 @@ const LEGACY_ROLE_ALIASES = {
     'administrator': 'Administrator',
     'project_manager': 'Project Manager',
     'pm': 'Project Manager',
-    'survey_manager': 'Survey Manager',
-    'drone_manager': 'Drone Manager',
-    'finance': 'Finance',
-    'developer': 'Developer',
-    'surveyor': 'Surveyor',
-    'drone_pilot': 'Drone Pilot',
+    'survey_manager': 'Staff',
+    'drone_manager': 'Staff',
+    'finance': 'Staff',
+    'developer': 'Staff',
+    'surveyor': 'Staff',
+    'drone_pilot': 'Staff',
     'client': 'Client',
 };
 

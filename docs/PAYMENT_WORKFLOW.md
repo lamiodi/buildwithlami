@@ -95,7 +95,7 @@ These are the CEO's actual Grey (grey.co) settlement accounts. Edit them in **Ad
 
 ## What I did NOT do
 
-- **No Stripe integration.** The spec says "Stripe in the future" — left as a Phase 11+ candidate.
+- **No Stripe integration.** Stripe was intentionally excluded per project requirements.
 - **No live FX rates.** USD/GBP amounts on the page are static (the invoice's own currency). The `fx_rates` table is still used for the NGN-equivalent revenue in the admin dashboard.
 - **No client portal.** Previous phase decisions deferred /portal. The /pay/:token page IS the client's status page for now.
 

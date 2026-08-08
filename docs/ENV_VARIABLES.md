@@ -53,13 +53,7 @@ required.
 | `PAYSTACK_SECRET_KEY` | — | Paystack secret key (`sk_test_...` or `sk_live_...`). **If unset, invoices are saved as PENDING without a payment link.** |
 | `PAYSTACK_PUBLIC_KEY` | — | Paystack public key. Exposed to the frontend. |
 
-### Optional — Stripe (USD/EUR/GBP, when wired)
 
-| Var | Purpose |
-|---|---|
-| `STRIPE_SECRET_KEY` | `sk_test_...` / `sk_live_...` |
-| `STRIPE_PUBLISHABLE_KEY` | `pk_test_...` / `pk_live_...` |
-| `STRIPE_WEBHOOK_SECRET` | For verifying webhook signatures. |
 
 ### Optional — Cloudinary (image upload)
 
@@ -97,7 +91,7 @@ The frontend uses Vite, so vars are **build-time**. Prefix with
 |---|---|---|
 | `VITE_API_URL` | `https://buildwithlami-api.onrender.com` | Base URL for all backend API calls. **If unset, defaults to `http://localhost:4000` in dev.** |
 | `VITE_PAYSTACK_PUBLIC_KEY` | `pk_test_...` | Paystack public key for inline payments. |
-| `VITE_STRIPE_PUBLISHABLE_KEY` | `pk_test_...` | Stripe public key. |
+
 | `VITE_GA_ID` | `G-XXXXXXX` | Google Analytics 4 ID. |
 
 ## How to rotate a secret

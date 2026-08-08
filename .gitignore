@@ -30,3 +30,16 @@ backend/.dev-mock/
 !.vscode/extensions.json
 .idea/
 frontend/.env
+
+# AI Agent Skills & Tooling
+.agents/
+.claude/
+.codex/
+.trae/
+.github/agents/
+.github/hooks/
+.github/skills/
+skills/
+.skills/
+skills-lock.json
+

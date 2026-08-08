@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
+import React, { useState, useEffect, useRef, useLayoutEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, ArrowUpRight, Plus, Minus, Download } from 'lucide-react';
 import { api } from '../../services/api';

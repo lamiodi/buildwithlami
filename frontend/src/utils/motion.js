@@ -44,8 +44,8 @@ export const cardHoverTransition = {
 };
 
 // ── Button hover / tap ──
-export const buttonHover = { scale: 1.04 };
-export const buttonTap = { scale: 0.97 };
+export const buttonHover = { scale: 1.02 };
+export const buttonTap = { scale: 0.98 };
 
 // ── Viewport settings for scroll-triggered sections ──
 export const sectionViewport = { once: true, margin: '-80px' };

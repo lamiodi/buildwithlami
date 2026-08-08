@@ -80,6 +80,14 @@ const AdminEmailTemplates = () => {
     const [creating, setCreating] = useState(false);
     const [newName, setNewName] = useState('');
 
+    const selectTemplate = (t) => {
+        setSelected(t);
+        setEditName(t.name || '');
+        setEditSubject(t.subject || '');
+        setEditBody(t.body || '');
+        setDirty(false);
+    };
+
     const fetchTemplates = async () => {
         setLoading(true);
         const res = await api.get('/email-templates');
@@ -96,14 +104,6 @@ const AdminEmailTemplates = () => {
         fetchTemplates();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
-
-    const selectTemplate = (t) => {
-        setSelected(t);
-        setEditName(t.name || '');
-        setEditSubject(t.subject || '');
-        setEditBody(t.body || '');
-        setDirty(false);
-    };
 
     // Detect any change to mark dirty.
     useEffect(() => {

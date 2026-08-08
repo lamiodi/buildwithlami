@@ -270,11 +270,11 @@ export const api = {
 
     /**
      * Multipart upload — sends a single `file` field. Used by the
-     * CMS hero-image picker and the testimonial avatar picker.
+     * portfolio image picker and the admin upload route.
      * The Content-Type header is intentionally left unset so the browser
      * generates the correct multipart boundary.
      */
-    upload: async (path, file, opts = {}) => {
+    upload: async (path, file) => {
         try {
             const form = new FormData();
             form.append('image', file);

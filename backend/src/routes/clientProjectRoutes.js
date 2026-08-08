@@ -10,11 +10,17 @@ import {
     getProjectByTrackingId,
     authClientPortal,
     regenerateTrackingId,
-    generatePortalLink
+    generatePortalLink,
+    uploadProjectFile,
+    deleteProjectFile
 } from '../controllers/clientProjectController.js';
 import { verifyToken, requireRole } from '../middlewares/authMiddleware.js';
+import multer from 'multer';
 
 const router = express.Router();
+
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage, limits: { fileSize: 25 * 1024 * 1024 } }); // 25MB limit
 
 // Strict limiter on the client portal auth endpoint to prevent
 // tracking-ID enumeration and email brute-forcing. 5 attempts / 15 min / IP.
@@ -41,5 +47,9 @@ router.patch('/:id', verifyToken, adminRole, updateClientProject);
 router.delete('/:id', verifyToken, requireRole('Owner', 'Administrator'), deleteClientProject);
 router.post('/:id/regenerate-tracking', verifyToken, requireRole('Owner', 'Administrator'), regenerateTrackingId);
 router.get('/:id/portal-link', verifyToken, adminRole, generatePortalLink);
+
+// Project Files (Phase 5)
+router.post('/:id/files', verifyToken, adminRole, upload.single('file'), uploadProjectFile);
+router.delete('/:id/files/:fileId', verifyToken, requireRole('Owner', 'Administrator'), deleteProjectFile);
 
 export default router;

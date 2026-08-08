@@ -41,6 +41,7 @@ export const softwareNav = [
     { to: '/admin/projects', label: 'Client Projects', icon: Icon.Folder },
     { to: '/admin/portfolio', label: 'Portfolio', icon: Icon.FileText },
     { to: '/admin/invoices', label: 'Invoices', icon: Icon.CreditCard },
+    { to: '/admin/expenses', label: 'Expenses', icon: Icon.Payments },
     { to: '/admin/templates', label: 'Forms & Intake', icon: Icon.FileText },
     { to: '/admin/contracts', label: 'Contracts', icon: Icon.FileText },
     { to: '/admin/reports', label: 'Reports', icon: Icon.BarChart },

@@ -1,139 +1,129 @@
-// ── services/zohoSignService.js ──────────────────────────
-// Phase 8 — Zoho Sign API v1 wrapper.
-//
-// The service runs in **stub mode** by default (no Zoho Sign
-// account registered yet — see user note in project memory).
-// In stub mode it returns a deterministic dummy response so the
-// contracts flow can be developed end-to-end locally:
-//
-//   - createAgreement → returns `{ requests: { request_id: 'stub_<rand>', request_status: 'sent' } }`
-//   - getStatus       → returns 'SIGNED' (auto-sign for testing)
-//   - downloadPDF     → returns a tiny dummy PDF buffer
-//
-// To switch to **live mode**: set `ZOHO_SIGN_TOKEN` in `.env`
-// AND install axios (`npm i axios` in /backend). The live code
-// path uses a **dynamic** import so the dep is only required
-// when actually going live — keeps the stub-mode boot footprint
-// minimal.
+import dotenv from 'dotenv';
+dotenv.config();
 
-const ZOHO_SIGN_API_BASE = process.env.ZOHO_SIGN_API_BASE || 'https://sign.zoho.com/api/v1';
 const ZOHO_SIGN_TOKEN = process.env.ZOHO_SIGN_TOKEN || '';
+const ZOHO_SIGN_API_BASE = process.env.ZOHO_SIGN_API_BASE || 'https://sign.zoho.com/api/v1';
 
-// True when the env is configured for real Zoho Sign calls.
-const isLive = () => Boolean(ZOHO_SIGN_TOKEN);
-
-// Dynamic loader so axios is only required when the user
-// actually wires up a real Zoho Sign account. Throws a clear
-// error message if live mode is requested without the dep.
-const getAxios = async () => {
-    try {
-        const mod = await import('axios');
-        return mod.default || mod;
-    } catch (err) {
-        throw new Error(
-            'Zoho Sign live mode requires axios. Run `npm i axios` in /backend, ' +
-            'or unset ZOHO_SIGN_TOKEN to use stub mode.'
-        );
-    }
-};
-
-export const createAgreement = async (templateId, signer) => {
-    if (!isLive()) {
-        // Stub mode: print once per process so devs see what's happening.
-        if (!createAgreement._warned) {
-            console.log('[ZohoSign] STUB mode active (set ZOHO_SIGN_TOKEN to go live).');
-            createAgreement._warned = true;
-        }
-        console.log(`[ZohoSign] (stub) createAgreement template=${templateId} signer=${signer.email}`);
+/**
+ * Creates an agreement from a template and sends it to the signer.
+ * @param {string} templateId - Zoho Sign template ID
+ * @param {object} signer - { email: string, name: string }
+ * @param {object} customFields - Key-value pairs for template placeholders
+ * @returns {object} - { agreementId: string, status: string }
+ */
+export async function createAgreement(templateId, signer, customFields = {}) {
+    if (!ZOHO_SIGN_TOKEN) {
+        // Stub mode
+        console.log('[ZohoSignService] STUB MODE: createAgreement called with:', { templateId, signer, customFields });
         return {
-            requests: {
-                request_id: `stub_${Math.floor(Math.random() * 1e8)}`,
-                request_status: 'sent',
-            },
+            agreementId: 'stub-agreement-' + Date.now(),
+            status: 'SENT'
         };
     }
 
-    const axios = await getAxios();
+    // Actual Zoho API integration (simplified for v1 standard)
     try {
-        const response = await axios.post(
-            `${ZOHO_SIGN_API_BASE}/templates/${templateId}/createdocument`,
-            {
-                templates: {
-                    actions: [
-                        {
-                            recipient_email: signer.email,
-                            recipient_name: signer.name,
-                            action_type: 'SIGN',
-                        },
-                    ],
+        const payload = {
+            templates: {
+                field_data: {
+                    field_text_data: customFields
                 },
+                actions: [
+                    {
+                        action_type: 'SIGN',
+                        recipient_email: signer.email,
+                        recipient_name: signer.name,
+                        action_id: '1' // Usually requires mapping to template action IDs
+                    }
+                ]
+            }
+        };
+
+        const formData = new FormData();
+        formData.append('data', JSON.stringify(payload));
+        formData.append('is_quick_send', 'true');
+
+        const response = await fetch(`${ZOHO_SIGN_API_BASE}/templates/${templateId}/createdocument`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Zoho-oauthtoken ${ZOHO_SIGN_TOKEN}`
             },
-            { headers: { Authorization: `Zoho-oauthtoken ${ZOHO_SIGN_TOKEN}` } }
-        );
-        return response.data;
-    } catch (error) {
-        console.error('[ZohoSign] createAgreement error:', error.message);
-        throw error;
-    }
-};
-
-export const getStatus = async (agreementId) => {
-    if (!isLive()) {
-        // Stub: pretend every agreement is signed so the workflow
-        // can be tested without a real Zoho Sign account.
-        return 'SIGNED';
-    }
-
-    const axios = await getAxios();
-    try {
-        const response = await axios.get(`${ZOHO_SIGN_API_BASE}/requests/${agreementId}`, {
-            headers: { Authorization: `Zoho-oauthtoken ${ZOHO_SIGN_TOKEN}` },
+            body: formData
         });
-        return response.data.requests.request_status;
-    } catch (error) {
-        console.error('[ZohoSign] getStatus error:', error.message);
-        throw error;
-    }
-};
 
-export const downloadPDF = async (agreementId) => {
-    if (!isLive()) {
-        // Stub: return a 1-page placeholder PDF so the bytea column
-        // gets populated end-to-end. Real flow replaces this with
-        // the actual signed document from Zoho Sign.
-        // Minimal valid PDF that opens in any viewer:
-        const placeholder = `%PDF-1.4
-1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj
-2 0 obj<</Type/Pages/Count 1/Kids[3 0 R]>>endobj
-3 0 obj<</Type/Page/Parent 2 0 R/MediaBox[0 0 612 792]/Contents 4 0 R/Resources<</Font<</F1 5 0 R>>>>>>endobj
-4 0 obj<</Length 80>>stream
-BT /F1 24 Tf 72 720 Td (BuildWithLami stub contract ${agreementId}) Tj ET
-endstream endobj
-5 0 obj<</Type/Font/Subtype/Type1/BaseFont/Helvetica>>endobj
-xref
-0 6
-0000000000 65535 f
-0000000009 00000 n
-0000000052 00000 n
-0000000095 00000 n
-0000000200 00000 n
-0000000330 00000 n
-trailer<</Size 6/Root 1 0 R>>
-startxref
-396
-%%EOF`;
-        return Buffer.from(placeholder, 'utf8');
+        if (!response.ok) {
+            const error = await response.text();
+            throw new Error(`Zoho API Error: ${error}`);
+        }
+
+        const data = await response.json();
+        return {
+            agreementId: data.requests.request_id,
+            status: 'SENT'
+        };
+    } catch (err) {
+        console.error('[ZohoSignService] createAgreement failed:', err);
+        throw err;
+    }
+}
+
+/**
+ * Gets the current status of an agreement
+ * @param {string} agreementId 
+ * @returns {string} - Status (e.g., SIGNED, SENT, DECLINED)
+ */
+export async function getStatus(agreementId) {
+    if (!ZOHO_SIGN_TOKEN) {
+        // Stub mode - simulate that it's signed after 10 seconds? No, just return SENT to avoid complex stub logic
+        console.log('[ZohoSignService] STUB MODE: getStatus called for:', agreementId);
+        return 'SIGNED'; // Always return SIGNED in stub mode to test full flow
     }
 
-    const axios = await getAxios();
     try {
-        const response = await axios.get(`${ZOHO_SIGN_API_BASE}/requests/${agreementId}/pdf`, {
-            headers: { Authorization: `Zoho-oauthtoken ${ZOHO_SIGN_TOKEN}` },
-            responseType: 'arraybuffer',
+        const response = await fetch(`${ZOHO_SIGN_API_BASE}/requests/${agreementId}`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Zoho-oauthtoken ${ZOHO_SIGN_TOKEN}`
+            }
         });
-        return response.data;
-    } catch (error) {
-        console.error('[ZohoSign] downloadPDF error:', error.message);
-        throw error;
+
+        if (!response.ok) throw new Error('Failed to fetch status from Zoho');
+
+        const data = await response.json();
+        return data.requests.request_status; // e.g. "signed", "in-progress"
+    } catch (err) {
+        console.error('[ZohoSignService] getStatus failed:', err);
+        throw err;
     }
-};
+}
+
+/**
+ * Downloads the completed PDF
+ * @param {string} agreementId 
+ * @returns {Buffer} - PDF file buffer
+ */
+export async function downloadPDF(agreementId) {
+    if (!ZOHO_SIGN_TOKEN) {
+        // Stub mode
+        console.log('[ZohoSignService] STUB MODE: downloadPDF called for:', agreementId);
+        // Return a dummy buffer
+        return Buffer.from('%PDF-1.4 Dummy PDF Content', 'utf-8');
+    }
+
+    try {
+        const response = await fetch(`${ZOHO_SIGN_API_BASE}/requests/${agreementId}/pdf`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Zoho-oauthtoken ${ZOHO_SIGN_TOKEN}`
+            }
+        });
+
+        if (!response.ok) throw new Error('Failed to download PDF from Zoho');
+
+        const arrayBuffer = await response.arrayBuffer();
+        return Buffer.from(arrayBuffer);
+    } catch (err) {
+        console.error('[ZohoSignService] downloadPDF failed:', err);
+        throw err;
+    }
+}

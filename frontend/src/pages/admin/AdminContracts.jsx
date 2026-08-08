@@ -1,220 +1,227 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../../services/api';
+import { FileSignature, Plus, Download, RefreshCw } from 'lucide-react';
+import Skeleton from '../../components/Skeleton';
+import { notify } from '../../services/notify';
 
-const AdminContracts = () => {
-  const [contracts, setContracts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [showModal, setShowModal] = useState(false);
-  const [formData, setFormData] = useState({
-    client_id: '',
-    project_id: '',
-    template_id: '',
-    signatory_email: '',
-    signatory_name: ''
-  });
-  const [clients, setClients] = useState([]);
+export default function AdminContracts() {
+    const [contracts, setContracts] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [showCreate, setShowCreate] = useState(false);
+    
+    // Form state
+    const [clientId, setClientId] = useState('');
+    const [projectId, setProjectId] = useState('');
+    const [templateId, setTemplateId] = useState('');
+    const [signatoryEmail, setSignatoryEmail] = useState('');
+    const [signatoryName, setSignatoryName] = useState('');
+    
+    // Dropdown data
+    const [clients, setClients] = useState([]);
+    const [projects, setProjects] = useState([]);
 
-  useEffect(() => {
-    fetchContracts();
-    fetchClients();
-  }, []);
-
-  const fetchContracts = async () => {
-    try {
-      setLoading(true);
-      const res = await api.get('/contracts');
-      if (res.ok) setContracts(res.data || []);
-    } catch (error) {
-      console.error('Failed to fetch contracts', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchClients = async () => {
-    try {
-      const res = await api.get('/clients');
-      if (res.ok) setClients(res.data || []);
-    } catch (error) {
-      console.error('Failed to fetch clients', error);
-    }
-  };
-
-  const handleCreate = async (e) => {
-    e.preventDefault();
-    try {
-      const res = await api.post('/contracts', formData);
-      if (res.ok) {
+    useEffect(() => {
         fetchContracts();
-        setShowModal(false);
-        setFormData({ client_id: '', project_id: '', template_id: '', signatory_email: '', signatory_name: '' });
-      } else {
-        alert('Failed to create contract');
-      }
-    } catch (error) {
-      console.error(error);
-      alert('Error creating contract');
-    }
-  };
+        fetchClientsAndProjects();
+    }, []);
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'SIGNED': return 'bg-green-100 text-green-800 border-green-200';
-      case 'SENT': return 'bg-blue-100 text-blue-800 border-blue-200';
-      case 'VOID': return 'bg-red-100 text-red-800 border-red-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
-    }
-  };
+    const fetchContracts = async () => {
+        setLoading(true);
+        try {
+            const res = await api.get('/api/contracts');
+            if (res.ok) setContracts(await res.json());
+        } catch (err) {
+            notify.error('Failed to load contracts');
+        } finally {
+            setLoading(false);
+        }
+    };
 
-  const handleDownload = async (id) => {
-    try {
-      const res = await api.get(`/contracts/${id}/pdf`, { responseType: 'blob' });
-      // In a real app we'd construct a blob and download it.
-      // E.g., window.open(...)
-      alert('PDF download triggered (mock)');
-    } catch (err) {
-      alert('Error downloading PDF');
-    }
-  };
+    const fetchClientsAndProjects = async () => {
+        try {
+            const [clientsRes, projectsRes] = await Promise.all([
+                api.get('/api/clients'),
+                api.get('/api/client-projects')
+            ]);
+            if (clientsRes.ok) setClients(await clientsRes.json());
+            if (projectsRes.ok) setProjects(await projectsRes.json());
+        } catch (err) {
+            console.error('Failed to load dropdown data');
+        }
+    };
 
-  return (
-    <>
-      <div className="bg-white dark:bg-gray-800 shadow-sm border border-gray-200 dark:border-gray-700 rounded-sm">
-        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
-          <h2 className="text-lg font-bold text-gray-900 dark:text-white">All Contracts</h2>
-          <button
-            onClick={() => setShowModal(true)}
-            className="bg-accent hover:bg-[#d43d1a] text-white px-4 py-2 text-sm font-bold transition-colors flex items-center"
-          >
-            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path></svg>
-            Create Contract
-          </button>
-        </div>
+    const handleCreate = async (e) => {
+        e.preventDefault();
+        try {
+            const res = await api.post('/api/contracts', {
+                clientId,
+                projectId: projectId || undefined,
+                templateId,
+                signatoryEmail,
+                signatoryName
+            });
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm text-gray-600 dark:text-gray-300">
-            <thead className="bg-gray-50 dark:bg-gray-900/50 text-gray-700 dark:text-gray-400 uppercase font-bold text-xs">
-              <tr>
-                <th className="px-6 py-4">Client</th>
-                <th className="px-6 py-4">Project</th>
-                <th className="px-6 py-4">Signatory Email</th>
-                <th className="px-6 py-4">Status</th>
-                <th className="px-6 py-4 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-              {loading ? (
-                <tr>
-                  <td colSpan="5" className="px-6 py-8 text-center text-gray-500">Loading contracts...</td>
-                </tr>
-              ) : contracts.length === 0 ? (
-                <tr>
-                  <td colSpan="5" className="px-6 py-8 text-center text-gray-500">No contracts found.</td>
-                </tr>
-              ) : (
-                contracts.map((contract) => (
-                  <tr key={contract.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-                    <td className="px-6 py-4 font-medium text-gray-900 dark:text-white">
-                      {contract.client_name || 'Unknown Client'}
-                    </td>
-                    <td className="px-6 py-4">{contract.project_name || '-'}</td>
-                    <td className="px-6 py-4">{contract.signatory_email}</td>
-                    <td className="px-6 py-4">
-                      <span className={`px-2 py-1 rounded text-xs font-bold border ${getStatusColor(contract.status)}`}>
-                        {contract.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-right space-x-3">
-                      {contract.status === 'SIGNED' ? (
-                        <button onClick={() => handleDownload(contract.id)} className="text-accent hover:underline font-bold text-xs uppercase tracking-wider">
-                          Download PDF
-                        </button>
-                      ) : (
-                        <span className="text-gray-400 text-xs italic">Awaiting Signature</span>
-                      )}
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
+            if (res.ok) {
+                notify.success('Contract created and sent');
+                setShowCreate(false);
+                fetchContracts();
+                // Reset form
+                setClientId(''); setProjectId(''); setTemplateId('');
+                setSignatoryEmail(''); setSignatoryName('');
+            } else {
+                const data = await res.json();
+                notify.error(data.error || 'Failed to create contract');
+            }
+        } catch (err) {
+            notify.error('Network error');
+        }
+    };
 
-      {showModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-800 w-full max-w-lg rounded-sm shadow-xl flex flex-col">
-            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
-              <h3 className="font-bold text-lg text-gray-900 dark:text-white">Send New Contract</h3>
-              <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-              </button>
-            </div>
-            
-            <form onSubmit={handleCreate} className="p-6 space-y-4 flex-1 overflow-y-auto">
-              <div>
-                <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-2">Client</label>
-                <select
-                  required
-                  value={formData.client_id}
-                  onChange={(e) => setFormData({...formData, client_id: e.target.value})}
-                  className="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-sm px-4 py-2 text-gray-900 dark:text-white focus:outline-none focus:border-accent"
+    const handleRefreshStatus = async (id) => {
+        try {
+            const res = await api.get(`/api/contracts/${id}`);
+            if (res.ok) {
+                const updated = await res.json();
+                setContracts(contracts.map(c => c.id === id ? updated : c));
+                notify.success('Status refreshed');
+            }
+        } catch (err) {
+            notify.error('Failed to refresh status');
+        }
+    };
+
+    if (loading) return <div className="p-8"><Skeleton className="h-64 rounded-xl" /></div>;
+
+    return (
+        <div className="p-8 max-w-7xl mx-auto space-y-8">
+            <div className="flex justify-between items-center">
+                <h1 className="text-3xl font-bold font-heading text-gray-900 dark:text-white flex items-center gap-3">
+                    <FileSignature className="text-accent" />
+                    Contracts (Zoho Sign)
+                </h1>
+                <button 
+                    onClick={() => setShowCreate(!showCreate)}
+                    className="bg-accent hover:bg-accent-dark text-white px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition-colors"
                 >
-                  <option value="">Select a client...</option>
-                  {clients.map(c => (
-                    <option key={c.id} value={c.id}>{c.name}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-2">Template ID</label>
-                <input
-                  required
-                  type="text"
-                  placeholder="e.g. 123456789"
-                  value={formData.template_id}
-                  onChange={(e) => setFormData({...formData, template_id: e.target.value})}
-                  className="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-sm px-4 py-2 text-gray-900 dark:text-white focus:outline-none focus:border-accent"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-2">Signatory Name</label>
-                <input
-                  required
-                  type="text"
-                  value={formData.signatory_name}
-                  onChange={(e) => setFormData({...formData, signatory_name: e.target.value})}
-                  className="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-sm px-4 py-2 text-gray-900 dark:text-white focus:outline-none focus:border-accent"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-2">Signatory Email</label>
-                <input
-                  required
-                  type="email"
-                  value={formData.signatory_email}
-                  onChange={(e) => setFormData({...formData, signatory_email: e.target.value})}
-                  className="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-sm px-4 py-2 text-gray-900 dark:text-white focus:outline-none focus:border-accent"
-                />
-              </div>
-              
-              <div className="pt-4 flex justify-end space-x-3">
-                <button type="button" onClick={() => setShowModal(false)} className="px-4 py-2 text-sm font-bold text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
-                  Cancel
+                    <Plus size={18} /> New Contract
                 </button>
-                <button type="submit" className="bg-accent hover:bg-[#d43d1a] text-white px-6 py-2 text-sm font-bold transition-colors">
-                  Send Contract
-                </button>
-              </div>
-            </form>
-          </div>
+            </div>
+
+            {showCreate && (
+                <form onSubmit={handleCreate} className="bg-white dark:bg-card p-6 rounded-xl border border-gray-100 dark:border-white/10 shadow-sm space-y-4">
+                    <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Create New Contract</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Client *</label>
+                            <select 
+                                required
+                                value={clientId} onChange={e => setClientId(e.target.value)}
+                                className="w-full p-2 border border-gray-200 dark:border-gray-800 rounded-lg bg-gray-50 dark:bg-background text-gray-900 dark:text-white focus:ring-2 focus:ring-accent outline-none"
+                            >
+                                <option value="">Select Client</option>
+                                {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                            </select>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Project (Optional)</label>
+                            <select 
+                                value={projectId} onChange={e => setProjectId(e.target.value)}
+                                className="w-full p-2 border border-gray-200 dark:border-gray-800 rounded-lg bg-gray-50 dark:bg-background text-gray-900 dark:text-white focus:ring-2 focus:ring-accent outline-none"
+                            >
+                                <option value="">Select Project</option>
+                                {projects.filter(p => !clientId || p.client_id === clientId).map(p => 
+                                    <option key={p.id} value={p.id}>{p.project_name}</option>
+                                )}
+                            </select>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Zoho Template ID *</label>
+                            <input 
+                                required type="text" placeholder="e.g. 4390843000000000"
+                                value={templateId} onChange={e => setTemplateId(e.target.value)}
+                                className="w-full p-2 border border-gray-200 dark:border-gray-800 rounded-lg bg-gray-50 dark:bg-background text-gray-900 dark:text-white focus:ring-2 focus:ring-accent outline-none"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Signatory Email *</label>
+                            <input 
+                                required type="email" placeholder="client@example.com"
+                                value={signatoryEmail} onChange={e => setSignatoryEmail(e.target.value)}
+                                className="w-full p-2 border border-gray-200 dark:border-gray-800 rounded-lg bg-gray-50 dark:bg-background text-gray-900 dark:text-white focus:ring-2 focus:ring-accent outline-none"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Signatory Name *</label>
+                            <input 
+                                required type="text" placeholder="John Doe"
+                                value={signatoryName} onChange={e => setSignatoryName(e.target.value)}
+                                className="w-full p-2 border border-gray-200 dark:border-gray-800 rounded-lg bg-gray-50 dark:bg-background text-gray-900 dark:text-white focus:ring-2 focus:ring-accent outline-none"
+                            />
+                        </div>
+                    </div>
+                    <div className="pt-4 flex justify-end gap-3">
+                        <button type="button" onClick={() => setShowCreate(false)} className="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">Cancel</button>
+                        <button type="submit" className="bg-accent hover:bg-accent-dark text-white px-6 py-2 rounded-lg font-bold transition-colors">Send Contract</button>
+                    </div>
+                </form>
+            )}
+
+            <div className="bg-white dark:bg-card rounded-xl border border-gray-100 dark:border-white/10 shadow-sm overflow-hidden">
+                {contracts.length === 0 ? (
+                    <div className="p-12 text-center text-gray-500">No contracts found.</div>
+                ) : (
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left border-collapse">
+                            <thead>
+                                <tr className="bg-gray-50 dark:bg-white/5 border-b border-gray-100 dark:border-white/10 text-xs uppercase text-gray-500 dark:text-gray-400">
+                                    <th className="p-4 font-semibold">Client / Project</th>
+                                    <th className="p-4 font-semibold">Signatory</th>
+                                    <th className="p-4 font-semibold">Sent At</th>
+                                    <th className="p-4 font-semibold text-center">Status</th>
+                                    <th className="p-4 font-semibold text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-gray-100 dark:divide-white/10">
+                                {contracts.map(c => (
+                                    <tr key={c.id} className="hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                                        <td className="p-4">
+                                            <p className="font-bold text-gray-900 dark:text-white">{c.client_name || 'Unknown Client'}</p>
+                                            <p className="text-xs text-gray-500">{c.project_name || 'No Project'}</p>
+                                        </td>
+                                        <td className="p-4 text-sm text-gray-700 dark:text-gray-300">
+                                            {c.signatory_email}
+                                        </td>
+                                        <td className="p-4 text-sm text-gray-500 dark:text-gray-400">
+                                            {new Date(c.sent_at).toLocaleDateString()}
+                                        </td>
+                                        <td className="p-4 text-center">
+                                            <span className={`text-xs px-2 py-1 rounded-full font-medium inline-block ${
+                                                c.status === 'SIGNED' ? 'bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400' :
+                                                c.status === 'SENT' ? 'bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400' :
+                                                'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400'
+                                            }`}>
+                                                {c.status}
+                                            </span>
+                                        </td>
+                                        <td className="p-4 text-right space-x-3">
+                                            {c.status === 'SENT' && (
+                                                <button onClick={() => handleRefreshStatus(c.id)} className="text-gray-500 hover:text-accent transition-colors" title="Check Status">
+                                                    <RefreshCw size={18} />
+                                                </button>
+                                            )}
+                                            {c.status === 'SIGNED' && (
+                                                <a href={`/api/contracts/${c.id}/pdf`} target="_blank" rel="noreferrer" className="text-gray-500 hover:text-accent transition-colors inline-block" title="Download PDF">
+                                                    <Download size={18} />
+                                                </a>
+                                            )}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
+            </div>
         </div>
-      )}
-    </>
-  );
-};
-
-export default AdminContracts;
+    );
+}

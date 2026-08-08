@@ -77,48 +77,130 @@ const PaymentPage = () => {
         const { invoice } = data || {};
         if (!invoice) return;
         const symbol = invoice.currency === 'NGN' ? '₦' : invoice.currency === 'USD' ? '$' : invoice.currency === 'GBP' ? '£' : '';
-        const amount = `${symbol}${Number(invoice.amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        const formatAmt = (val) => `${symbol}${Number(val || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        const amount = formatAmt(invoice.amount);
         const invoiceNo = invoice.invoice_number || invoice.id.slice(0, 8).toUpperCase();
-        const issued = new Date().toLocaleDateString();
-        const due = invoice.due_date ? new Date(invoice.due_date).toLocaleDateString() : '—';
-        const html = `<!doctype html><html><head><meta charset="utf-8"/><title>Invoice ${invoiceNo}</title>
-<style>
-  body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#111;max-width:760px;margin:32px auto;padding:0 24px}
-  h1{font-size:24px;margin:0 0 4px}
-  table{width:100%;border-collapse:collapse;margin-top:24px}
-  td,th{padding:10px 12px;border-bottom:1px solid #e5e7eb;text-align:left;vertical-align:top}
-  th{background:#f9fafb;font-size:12px;text-transform:uppercase;letter-spacing:0.05em;color:#6b7280}
-  .row{display:flex;justify-content:space-between;gap:24px;margin-top:8px}
-  .muted{color:#6b7280;font-size:12px;text-transform:uppercase;letter-spacing:0.05em}
-  .amount{font-size:32px;font-weight:800}
-  .footer{margin-top:48px;border-top:1px solid #e5e7eb;padding-top:16px;color:#6b7280;font-size:12px}
-</style></head><body>
-  <div class="row">
+        const issued = new Date(invoice.created_at || new Date()).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+        const due = invoice.due_date ? new Date(invoice.due_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : 'Due on Receipt';
+        
+        let lineItemsHtml = '';
+        if (invoice.line_items && invoice.line_items.length > 0) {
+            lineItemsHtml = invoice.line_items.map(item => `
+                <tr>
+                    <td>${item.description}</td>
+                    <td style="text-align:right">${formatAmt(item.amount)}</td>
+                </tr>
+            `).join('');
+        } else {
+            lineItemsHtml = `
+                <tr>
+                    <td>${invoice.project_name ? `Services — ${invoice.project_name}` : 'Services rendered'}</td>
+                    <td style="text-align:right">${amount}</td>
+                </tr>
+            `;
+        }
+
+        const html = `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <title>Invoice ${invoiceNo}</title>
+  <style>
+    :root {
+      --brand: #e65100; /* BuildWithLami Accent */
+      --brand-light: #fff3e0;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+    }
+    body { font-family: 'Inter', system-ui, -apple-system, sans-serif; color: var(--text); max-width: 800px; margin: 0 auto; padding: 40px; line-height: 1.5; }
+    .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 48px; }
+    .logo { font-size: 24px; font-weight: 900; letter-spacing: -1px; color: var(--brand); font-family: monospace; }
+    .invoice-title { font-size: 48px; font-weight: 900; text-transform: uppercase; letter-spacing: -1px; color: #f3f4f6; margin: 0; line-height: 1; }
+    .meta-box { margin-top: 12px; font-size: 14px; }
+    .meta-row { display: flex; justify-content: space-between; margin-bottom: 4px; }
+    .meta-label { color: var(--muted); width: 100px; }
+    .meta-val { font-weight: 600; text-align: right; }
+    .addresses { display: flex; justify-content: space-between; margin-bottom: 48px; font-size: 14px; }
+    .addr-block h3 { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin: 0 0 8px 0; }
+    .addr-block p { margin: 0 0 4px 0; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 32px; font-size: 14px; }
+    th { background: #f9fafb; padding: 12px 16px; text-align: left; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); border-bottom: 2px solid var(--border); }
+    td { padding: 16px; border-bottom: 1px solid var(--border); }
+    .totals { width: 320px; margin-left: auto; font-size: 14px; }
+    .totals-row { display: flex; justify-content: space-between; padding: 8px 16px; }
+    .totals-row.grand { font-size: 20px; font-weight: 800; background: var(--brand-light); color: var(--brand); border-radius: 8px; padding: 16px; margin-top: 8px; }
+    .notes-box { background: #f9fafb; padding: 24px; border-radius: 8px; font-size: 13px; margin-top: 48px; }
+    .notes-box h4 { margin: 0 0 8px 0; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); }
+    .footer { text-align: center; margin-top: 64px; padding-top: 24px; border-top: 1px solid var(--border); font-size: 12px; color: var(--muted); }
+    @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; padding: 0; } }
+  </style>
+</head>
+<body>
+  <div class="header">
     <div>
-      <p class="muted">BuildWithLami.com</p>
-      <h1>Invoice ${invoiceNo}</h1>
-      ${invoice.project_name ? `<p>Project: <strong>${invoice.project_name}</strong></p>` : ''}
-      ${invoice.client_name ? `<p>For: <strong>${invoice.client_name}</strong></p>` : ''}
+      <div class="logo">&lt;BUILDWITH_LAMI /&gt;</div>
+      <div style="margin-top: 8px; color: var(--muted); font-size: 13px;">
+        123 Innovation Drive<br/>Lagos, Nigeria<br/>hello@buildwithlami.com
+      </div>
     </div>
-    <div style="text-align:right">
-      <p class="muted">Amount Due</p>
-      <p class="amount">${amount}</p>
-      <p>${invoice.currency}</p>
-      <p class="muted">Issued ${issued} · Due ${due}</p>
+    <div style="text-align: right;">
+      <h1 class="invoice-title">Invoice</h1>
+      <div class="meta-box">
+        <div class="meta-row"><span class="meta-label">Invoice #</span><span class="meta-val">${invoiceNo}</span></div>
+        <div class="meta-row"><span class="meta-label">Date</span><span class="meta-val">${issued}</span></div>
+        <div class="meta-row"><span class="meta-label">Due Date</span><span class="meta-val">${due}</span></div>
+        <div class="meta-row"><span class="meta-label">Status</span><span class="meta-val" style="color: ${invoice.status === 'PAID' ? '#10b981' : '#f59e0b'};">${invoice.status || 'PENDING'}</span></div>
+      </div>
     </div>
   </div>
+
+  <div class="addresses">
+    <div class="addr-block">
+      <h3>Bill To</h3>
+      <p style="font-size: 18px; font-weight: 700;">${invoice.client_name || 'Valued Client'}</p>
+      ${invoice.project_name ? `<p style="color: var(--muted);">Project: ${invoice.project_name}</p>` : ''}
+    </div>
+  </div>
+
   <table>
-    <thead><tr><th>Description</th><th>Amount</th></tr></thead>
-    <tbody><tr>
-      <td>${invoice.project_name ? `Services — ${invoice.project_name}` : 'Services rendered'}</td>
-      <td>${amount}</td>
-    </tr></tbody>
+    <thead>
+      <tr>
+        <th>Description</th>
+        <th style="text-align:right">Amount</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${lineItemsHtml}
+    </tbody>
   </table>
-  <div class="footer">
-    <p>Status: <strong>${invoice.status || 'PENDING'}</strong></p>
-    <p>BuildWithLami · Lami Survey & Drone Division · Lagos, Nigeria</p>
+
+  <div class="totals">
+    ${invoice.tax_rate > 0 || invoice.discount_amount > 0 || invoice.deposit_required > 0 ? `
+      <div class="totals-row"><span class="meta-label">Subtotal</span><span class="meta-val">${formatAmt(invoice.amount)}</span></div>
+      ${invoice.discount_amount > 0 ? `<div class="totals-row"><span class="meta-label">Discount</span><span class="meta-val">-${formatAmt(invoice.discount_amount)}</span></div>` : ''}
+      ${invoice.tax_rate > 0 ? `<div class="totals-row"><span class="meta-label">Tax (${invoice.tax_rate}%)</span><span class="meta-val">${formatAmt((invoice.amount - (invoice.discount_amount||0)) * (invoice.tax_rate/100))}</span></div>` : ''}
+      ${invoice.deposit_required > 0 ? `<div class="totals-row"><span class="meta-label">Deposit Req.</span><span class="meta-val">${formatAmt(invoice.deposit_required)}</span></div>` : ''}
+    ` : ''}
+    <div class="totals-row grand">
+      <span>Total Due</span>
+      <span>${formatAmt(invoice.amount)}</span>
+    </div>
   </div>
-</body></html>`;
+
+  ${invoice.notes ? `
+  <div class="notes-box">
+    <h4>Terms & Notes</h4>
+    <p style="white-space: pre-wrap; margin: 0;">${invoice.notes}</p>
+  </div>
+  ` : ''}
+
+  <div class="footer">
+    Thank you for your business. For any questions concerning this invoice, contact hello@buildwithlami.com.<br/>
+    BuildWithLami · Software, Survey & Drone Agency
+  </div>
+</body>
+</html>`;
         const blob = new Blob([html], { type: 'text/html' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');

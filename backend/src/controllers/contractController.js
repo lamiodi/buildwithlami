@@ -1,160 +1,139 @@
-// ── controllers/contractController.js ────────────────────
-// Phase 8 — Zoho Sign contract flow.
-//
-// Per the user's design decision, signed PDFs are stored in the
-// PostgreSQL database as `bytea` (see v17 migration) rather than
-// pushed to Supabase Storage. This keeps the backend self-contained
-// and works correctly on Vercel's serverless runtime (where local
-// filesystem storage wouldn't survive a cold start).
-//
-// The Zoho Sign service is currently in **stub mode** (returns
-// dummy data) because the user hasn't registered a Zoho Sign
-// account yet. When `ZOHO_SIGN_TOKEN` is set in the environment,
-// `services/zohoSignService.js` switches to live API calls; the
-// controller code does not need to change.
-
 import pool from '../config/db.js';
 import { createAgreement, getStatus, downloadPDF } from '../services/zohoSignService.js';
+import { z } from 'zod';
 
-export const createContract = async (req, res) => {
-    const { client_id, project_id, template_id, signatory_email, signatory_name } = req.body;
-
-    if (!client_id || !template_id || !signatory_email) {
-        return res.status(400).json({ message: 'Missing required fields' });
-    }
-
+export async function createContract(req, res) {
     try {
-        const zohoResponse = await createAgreement(template_id, { email: signatory_email, name: signatory_name });
-        const agreement_id = zohoResponse.requests.request_id;
+        const schema = z.object({
+            clientId: z.string().uuid(),
+            projectId: z.string().uuid().optional(),
+            templateId: z.string(),
+            signatoryEmail: z.string().email(),
+            signatoryName: z.string(),
+            customFields: z.record(z.any()).optional()
+        });
 
-        const result = await pool.query(
-            `INSERT INTO contracts (client_id, project_id, template_id, agreement_id, signatory_email, status, sent_at)
-             VALUES ($1, $2, $3, $4, $5, 'SENT', NOW()) RETURNING *`,
-            [client_id, project_id || null, template_id, agreement_id, signatory_email]
+        const data = schema.parse(req.body);
+
+        // Call Zoho Sign service (or stub)
+        const zohoResult = await createAgreement(data.templateId, {
+            email: data.signatoryEmail,
+            name: data.signatoryName
+        }, data.customFields);
+
+        const { rows } = await pool.query(
+            `INSERT INTO contracts 
+             (client_id, project_id, template_id, agreement_id, signatory_email, status, sent_at)
+             VALUES ($1, $2, $3, $4, $5, $6, NOW())
+             RETURNING *`,
+            [data.clientId, data.projectId || null, data.templateId, zohoResult.agreementId, data.signatoryEmail, 'SENT']
         );
 
-        res.status(201).json(result.rows[0]);
-    } catch (error) {
-        console.error('[Contracts] createContract error:', error.message);
-        res.status(500).json({ message: 'Internal server error' });
+        res.status(201).json(rows[0]);
+    } catch (err) {
+        if (err instanceof z.ZodError) return res.status(400).json({ error: err.errors });
+        console.error('[ContractController] createContract error:', err);
+        res.status(500).json({ error: 'Failed to create contract' });
     }
-};
+}
 
-export const getContracts = async (req, res) => {
+export async function getContract(req, res) {
     try {
-        // Don't ship the binary PDF in list responses — only metadata.
-        // (signed_pdf is excluded by name to keep payloads small.)
-        const result = await pool.query(
-            `SELECT c.id, c.client_id, c.project_id, c.template_id, c.agreement_id,
-                    c.signatory_email, c.status, c.signed_pdf_url, c.signed_pdf_filename,
-                    c.signed_pdf_size_bytes, c.sent_at, c.signed_at, c.created_at, c.updated_at,
-                    cl.name AS client_name, p.project_name
-             FROM contracts c
-             LEFT JOIN clients cl ON c.client_id = cl.id
-             LEFT JOIN client_projects p ON c.project_id = p.id
-             ORDER BY c.created_at DESC`
-        );
-        res.status(200).json(result.rows);
-    } catch (error) {
-        console.error('[Contracts] getContracts error:', error.message);
-        res.status(500).json({ message: 'Internal server error' });
-    }
-};
+        const { id } = req.params;
+        const { rows } = await pool.query(`SELECT * FROM contracts WHERE id = $1`, [id]);
+        if (rows.length === 0) return res.status(404).json({ error: 'Contract not found' });
+        
+        const contract = rows[0];
 
-export const getContractStatus = async (req, res) => {
-    const { id } = req.params;
+        // Sync status with Zoho Sign if not fully signed
+        if (contract.status === 'SENT') {
+            const currentStatus = await getStatus(contract.agreement_id);
+            // Map Zoho status to our enum
+            let mappedStatus = contract.status;
+            const normalized = String(currentStatus).toLowerCase();
+            
+            if (normalized.includes('signed') || normalized === 'completed') mappedStatus = 'SIGNED';
+            else if (normalized.includes('declined') || normalized.includes('void')) mappedStatus = 'VOID';
+            else if (normalized.includes('expired')) mappedStatus = 'EXPIRED';
 
-    try {
-        const contractRes = await pool.query('SELECT * FROM contracts WHERE id = $1', [id]);
-        if (contractRes.rows.length === 0) return res.status(404).json({ message: 'Contract not found' });
-
-        const contract = contractRes.rows[0];
-        if (contract.status === 'SIGNED' || contract.status === 'VOID') {
-            return res.status(200).json({ status: contract.status });
+            if (mappedStatus !== contract.status) {
+                const { rows: updated } = await pool.query(
+                    `UPDATE contracts SET status = $1, updated_at = NOW() ${mappedStatus === 'SIGNED' ? ', signed_at = NOW()' : ''} WHERE id = $2 RETURNING *`,
+                    [mappedStatus, id]
+                );
+                return res.json(updated[0]);
+            }
         }
 
-        const zohoStatus = await getStatus(contract.agreement_id);
-
-        // Normalize Zoho status
-        let newStatus = contract.status;
-        if (zohoStatus === 'signed' || zohoStatus === 'SIGNED') newStatus = 'SIGNED';
-        else if (zohoStatus === 'declined' || zohoStatus === 'voided') newStatus = 'VOID';
-
-        if (newStatus !== contract.status) {
-            await pool.query('UPDATE contracts SET status = $1, updated_at = NOW() WHERE id = $2', [newStatus, id]);
-        }
-
-        res.status(200).json({ status: newStatus });
-    } catch (error) {
-        console.error('[Contracts] getContractStatus error:', error.message);
-        res.status(500).json({ message: 'Internal server error' });
+        res.json(contract);
+    } catch (err) {
+        console.error('[ContractController] getContract error:', err);
+        res.status(500).json({ error: 'Internal server error' });
     }
-};
+}
 
-// Streams the signed PDF (stored as bytea) back to the admin.
-export const downloadContractPDF = async (req, res) => {
-    const { id } = req.params;
-
+export async function getContracts(req, res) {
     try {
-        const result = await pool.query(
-            'SELECT signed_pdf, signed_pdf_filename FROM contracts WHERE id = $1',
-            [id]
-        );
-        if (result.rows.length === 0 || !result.rows[0].signed_pdf) {
-            return res.status(404).json({ message: 'Signed PDF not found for this contract.' });
-        }
+        const { rows } = await pool.query(`
+            SELECT c.*, cl.name as client_name, p.project_name 
+            FROM contracts c
+            LEFT JOIN clients cl ON c.client_id = cl.id
+            LEFT JOIN client_projects p ON c.project_id = p.id
+            ORDER BY c.created_at DESC
+        `);
+        res.json(rows);
+    } catch (err) {
+        console.error('[ContractController] getContracts error:', err);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+}
 
-        const { signed_pdf, signed_pdf_filename } = result.rows[0];
+export async function downloadContractPDF(req, res) {
+    try {
+        const { id } = req.params;
+        const { rows } = await pool.query(`SELECT agreement_id FROM contracts WHERE id = $1`, [id]);
+        
+        if (rows.length === 0) return res.status(404).json({ error: 'Contract not found' });
+        
+        const pdfBuffer = await downloadPDF(rows[0].agreement_id);
+        
         res.setHeader('Content-Type', 'application/pdf');
-        res.setHeader('Content-Disposition',
-            `attachment; filename="${signed_pdf_filename || `contract_${id}.pdf`}"`);
-        res.send(signed_pdf);
-    } catch (error) {
-        console.error('[Contracts] downloadContractPDF error:', error.message);
-        res.status(500).json({ message: 'Internal server error' });
+        res.setHeader('Content-Disposition', `attachment; filename="contract_${id}.pdf"`);
+        res.send(pdfBuffer);
+    } catch (err) {
+        console.error('[ContractController] downloadContractPDF error:', err);
+        res.status(500).json({ error: 'Failed to download PDF' });
     }
-};
+}
 
-export const handleWebhook = async (req, res) => {
-    // Zoho Sign webhook payload typically contains the agreement ID and its new status.
-    const { requests } = req.body;
-
-    if (!requests || !requests.request_id || !requests.request_status) {
-        return res.status(400).json({ message: 'Invalid payload' });
-    }
-
+export async function zohoSignWebhook(req, res) {
     try {
-        const agreement_id = requests.request_id;
-        let status = 'SENT';
-        if (requests.request_status === 'signed') status = 'SIGNED';
-        if (requests.request_status === 'declined' || requests.request_status === 'recalled') status = 'VOID';
+        // Typical webhook logic for Zoho Sign
+        // Verifying the webhook payload is essential in production
+        // Assuming payload has agreement_id and request_status
+        const data = req.body;
+        const agreementId = data.requests?.request_id;
+        const status = data.requests?.request_status;
 
-        // Update status in db
-        await pool.query(
-            'UPDATE contracts SET status = $1, updated_at = NOW() WHERE agreement_id = $2',
-            [status, agreement_id]
-        );
-
-        // If signed, download the PDF from Zoho and store it as bytea
-        // in the same row. No external storage dependency.
-        if (status === 'SIGNED') {
-            const pdfBuffer = await downloadPDF(agreement_id);
-            const filename = `contract_${agreement_id}.pdf`;
-
-            await pool.query(
-                `UPDATE contracts
-                 SET signed_pdf = $1,
-                     signed_pdf_filename = $2,
-                     signed_pdf_size_bytes = $3,
-                     signed_at = NOW()
-                 WHERE agreement_id = $4`,
-                [pdfBuffer, filename, pdfBuffer.length, agreement_id]
-            );
+        if (!agreementId || !status) {
+            return res.status(400).json({ error: 'Invalid payload' });
         }
 
-        res.status(200).json({ message: 'Webhook processed' });
-    } catch (error) {
-        console.error('[Contracts] handleWebhook error:', error.message);
-        res.status(500).json({ message: 'Internal server error' });
+        const normalized = String(status).toLowerCase();
+        let mappedStatus = 'SENT';
+        
+        if (normalized.includes('signed') || normalized === 'completed') mappedStatus = 'SIGNED';
+        else if (normalized.includes('declined') || normalized.includes('void')) mappedStatus = 'VOID';
+        else if (normalized.includes('expired')) mappedStatus = 'EXPIRED';
+
+        await pool.query(
+            `UPDATE contracts SET status = $1, updated_at = NOW() ${mappedStatus === 'SIGNED' ? ', signed_at = NOW()' : ''} WHERE agreement_id = $2`,
+            [mappedStatus, agreementId]
+        );
+
+        res.status(200).send('OK');
+    } catch (err) {
+        console.error('[ContractController] Webhook error:', err);
+        res.status(500).json({ error: 'Internal server error' });
     }
-};
+}

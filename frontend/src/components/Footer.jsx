@@ -31,8 +31,7 @@ const Footer = () => {
           <Link to="/services" className="hover:text-accent transition-colors">Services</Link>
           <Link to="/projects" className="hover:text-accent transition-colors">Projects</Link>
           <Link to="/services#pricing" className="hover:text-accent transition-colors">Pricing</Link>
-
-        </nav>
+          <Link to="/resources" className="hover:text-accent transition-colors">Resources</Link>        </nav>
 
         {/* Massive Branding Headline — clamp(min, vw, max) + nowrap = one line always */}
         <div className="mb-16 select-none pointer-events-none w-full text-center">

@@ -1,8 +1,8 @@
 # BuildWithLami — Database Schema Reference
 
-> **Generated:** 2026-07-11 (Phase 12 — Schema audit & cleanup)
-> **Engine:** PostgreSQL 14+ (Supabase / Vercel Postgres)
-> **Source of truth:** `backend/src/sql/` + `backend/migrations/v2_*.sql` … `v20_*.sql`
+> **Generated:** 2026-07-25 (Phase 19 — Codebase Cleanup & Full Agency OS Completion)
+> **Engine:** PostgreSQL 14+ (Supabase / Neon Postgres)
+> **Source of truth:** `backend/src/sql/` + `backend/migrations/v2_*.sql` … `v35_*.sql`
 > **Status:** ✅ All migrations idempotent, all code references match the schema.
 
 This document is the canonical reference for every table, column, index, and constraint
@@ -32,9 +32,7 @@ If you change the schema, update this document in the same PR.
 2. [Portfolio & Public Content](#2-portfolio--public-content)
    - [profile](#profile)
    - [projects](#projects)
-   - [pages](#pages)
    - [resources](#resources)
-   - [testimonials](#testimonials)
 3. [Clients & Projects](#3-clients--projects)
    - [clients](#clients)
    - [client_projects](#client_projects)
@@ -52,10 +50,7 @@ If you change the schema, update this document in the same PR.
    - [payment_proofs](#payment_proofs)
 6. [Contracts](#6-contracts)
    - [contracts](#contracts)
-7. [Equipment & Industries](#7-equipment--industries)
-   - [equipment](#equipment)
-   - [industries](#industries)
-8. [Email Templates](#8-email-templates)
+7. [Email Templates](#8-email-templates)
    - [email_templates](#email_templates)
 9. [Communication](#9-communication)
    - [messages](#messages)
@@ -140,29 +135,35 @@ Portfolio pieces shown on the public site.
 | `featured` | BOOLEAN NOT NULL DEFAULT false | |
 | `status` | TEXT NOT NULL DEFAULT `'DRAFT'` | `DRAFT` \| `PUBLISHED` \| `ARCHIVED` |
 | `division` | TEXT NOT NULL DEFAULT `'SOFTWARE'` | `SOFTWARE` \| `SURVEY` \| `DRONE` (v5) |
+| `location` | TEXT? | v27 |
+| `client_name` | TEXT? | v27 |
+| `display_order` | INTEGER NOT NULL DEFAULT 0 | v27 |
+| `tags` | TEXT[] | v27 |
+| `published_at` | TIMESTAMPTZ? | v27 |
+| `tagline` | TEXT? | v28 |
+| `year` | TEXT? | v28 |
+| `industry` | TEXT? | v28 |
+| `status_label` | TEXT? | v28 |
+| `duration` | TEXT? | v28 |
+| `role` | TEXT? | v28 |
+| `gallery` | JSONB NOT NULL DEFAULT `'[]'::jsonb` | v28 |
+| `challenge` | JSONB NOT NULL DEFAULT `'{}'::jsonb` | v28 |
+| `solution` | JSONB NOT NULL DEFAULT `'{}'::jsonb` | v28 |
+| `results` | JSONB NOT NULL DEFAULT `'[]'::jsonb` | v28 |
+| `feature_categories` | JSONB NOT NULL DEFAULT `'[]'::jsonb` | v28 |
+| `flow` | JSONB NOT NULL DEFAULT `'[]'::jsonb` | v28 |
+| `tech_categories` | JSONB NOT NULL DEFAULT `'[]'::jsonb` | v28 |
+| `architecture` | JSONB NOT NULL DEFAULT `'[]'::jsonb` | v28 |
+| `timeline` | JSONB NOT NULL DEFAULT `'[]'::jsonb` | v28 |
+| `responsibilities` | JSONB NOT NULL DEFAULT `'[]'::jsonb` | v28 |
+| `metrics` | JSONB NOT NULL DEFAULT `'{}'::jsonb` | v28 |
+| `stats` | JSONB NOT NULL DEFAULT `'{}'::jsonb` | v28 |
+| `related_slugs` | JSONB NOT NULL DEFAULT `'[]'::jsonb` | v28 |
+| `meta` | JSONB NOT NULL DEFAULT `'{}'::jsonb` | v28 |
 | `created_at` | TIMESTAMPTZ | |
 | `updated_at` | TIMESTAMPTZ | |
 
-**Indexes:** `slug`, `status`, `division`
-
-### pages
-
-CMS-managed content for `/resources`, `/portfolio`, `/pricing`, etc.
-
-| Column | Type | Notes |
-|---|---|---|
-| `id` | UUID PK | |
-| `slug` | TEXT UNIQUE NOT NULL | |
-| `title` | TEXT NOT NULL | |
-| `body` | TEXT? | Markdown |
-| `hero_image` | TEXT? | |
-| `meta_description` | TEXT? | |
-| `status` | TEXT NOT NULL DEFAULT `'DRAFT'` | `DRAFT` \| `PUBLISHED` \| `ARCHIVED` |
-| `published_at` | TIMESTAMPTZ? | |
-| `created_at` | TIMESTAMPTZ | |
-| `updated_at` | TIMESTAMPTZ | |
-
-**Indexes:** `slug`, `status`
+**Indexes:** `slug`, `status`, `division`, + GIN indexes for JSONB fields
 
 ### resources
 
@@ -186,23 +187,6 @@ Knowledge-base articles shown at `/resources`.
 
 **Indexes:** `slug`, `status`, `category`
 
-### testimonials
-
-Client quotes shown on the home, `/survey`, and `/drone` pages.
-
-| Column | Type | Notes |
-|---|---|---|
-| `id` | UUID PK | |
-| `client_name` | TEXT NOT NULL | |
-| `division` | TEXT NOT NULL | `SOFTWARE` \| `SURVEY` \| `DRONE` |
-| `quote` | TEXT NOT NULL | |
-| `avatar_url` | TEXT? | |
-| `is_featured` | BOOLEAN NOT NULL DEFAULT false | |
-| `created_at` | TIMESTAMPTZ | |
-| `updated_at` | TIMESTAMPTZ | |
-
-**Indexes:** `division`, `is_featured`
-
 ---
 
 ## 3. Clients & Projects
@@ -218,9 +202,21 @@ A client company. May have multiple `client_projects`.
 | `primary_contact_email` | TEXT NOT NULL | |
 | `billing_email` | TEXT? | |
 | `phone` | TEXT? | v14 — WhatsApp deep-links |
-| `stripe_customer_id` | TEXT? | Reserved (Stripe never wired up) |
+| `stripe_customer_id` | TEXT? | Legacy column (unused) |
 | `notes` | TEXT? | |
 | `division` | TEXT NOT NULL DEFAULT `'SOFTWARE'` | v5 |
+| `cover_image` | TEXT? | v26 |
+| `summary` | TEXT? | v26 |
+| `location` | TEXT? | v26 |
+| `client_name` | TEXT? | v26 |
+| `password_hash` | TEXT? | v30 - Client portal auth |
+| `last_login_at` | TIMESTAMPTZ? | v30 |
+| `reset_token` | TEXT? | v30 |
+| `reset_token_expires_at` | TIMESTAMPTZ? | v30 |
+| `is_portfolio` | BOOLEAN NOT NULL DEFAULT false | v26 |
+| `display_order` | INTEGER NOT NULL DEFAULT 0 | v26 |
+| `tags` | TEXT[] | v26 |
+| `published_at` | TIMESTAMPTZ? | v26 |
 | `created_at` | TIMESTAMPTZ | |
 | `updated_at` | TIMESTAMPTZ | |
 
@@ -254,6 +250,14 @@ A deliverable for a client. Tracks lifecycle, billing, intake, and offboarding.
 | `offboarding_status` | TEXT NOT NULL DEFAULT `'NOT_STARTED'` | v6 |
 | `offboarding_checklist` | JSONB NOT NULL DEFAULT `'[]'::jsonb` | v6 |
 | `division` | TEXT NOT NULL DEFAULT `'SOFTWARE'` | v5 |
+| `cover_image` | TEXT? | v26 |
+| `summary` | TEXT? | v26 |
+| `location` | TEXT? | v26 |
+| `client_name` | TEXT? | v26 |
+| `is_portfolio` | BOOLEAN NOT NULL DEFAULT false | v26 |
+| `display_order` | INTEGER NOT NULL DEFAULT 0 | v26 |
+| `tags` | TEXT[] | v26 |
+| `published_at` | TIMESTAMPTZ? | v26 |
 | `created_at` | TIMESTAMPTZ | |
 | `updated_at` | TIMESTAMPTZ | |
 
@@ -373,7 +377,24 @@ The CRM pipeline. Auto-populated by `contactController` and `bookingController`.
 
 ---
 
-## 5. Invoices & Payments
+## 6. Financial & E-Commerce
+
+### expenses (v29)
+
+Simple MVP tracking for company expenses.
+
+| Column | Type | Notes |
+|---|---|---|
+| `id` | UUID PK | |
+| `expense_date` | DATE NOT NULL | Default `CURRENT_DATE` |
+| `category` | TEXT NOT NULL | |
+| `description` | TEXT NOT NULL | |
+| `amount` | NUMERIC(12,2) NOT NULL | |
+| `division` | TEXT NOT NULL | `'SOFTWARE'`, `'SURVEY'`, `'DRONE'` |
+| `payment_method` | TEXT NOT NULL | `'CASH'`, `'BANK_TRANSFER'`, `'CARD'`, `'OTHER'` |
+| `receipt_url` | TEXT? | |
+| `created_at` | TIMESTAMPTZ | |
+| `updated_at` | TIMESTAMPTZ | |
 
 ### invoices
 
@@ -505,44 +526,6 @@ Zoho Sign contract archive. PDFs are stored as `bytea` in Postgres (not Supabase
 
 ---
 
-## 7. Equipment & Industries
-
-### equipment
-
-Gear shown on the `/survey` and `/drone` galleries.
-
-| Column | Type | Notes |
-|---|---|---|
-| `id` | UUID PK | |
-| `name` | TEXT NOT NULL | |
-| `division` | TEXT NOT NULL | `SURVEY` \| `DRONE` |
-| `description` | TEXT? | |
-| `image_url` | TEXT? | |
-| `display_order` | INTEGER NOT NULL DEFAULT 0 | |
-| `created_at` | TIMESTAMPTZ | |
-| `updated_at` | TIMESTAMPTZ | |
-
-**Indexes:** `division`, `display_order`
-
-### industries
-
-Drone verticals shown on the `/drone` home.
-
-| Column | Type | Notes |
-|---|---|---|
-| `id` | UUID PK | |
-| `name` | TEXT NOT NULL | |
-| `description` | TEXT? | |
-| `icon` | TEXT? | |
-| `sample_image` | TEXT? | |
-| `display_order` | INTEGER NOT NULL DEFAULT 0 | |
-| `created_at` | TIMESTAMPTZ | |
-| `updated_at` | TIMESTAMPTZ | |
-
-**Indexes:** `display_order`
-
----
-
 ## 8. Email Templates
 
 ### email_templates
@@ -652,6 +635,10 @@ These tables were defined in earlier schema drafts but never used by application
 | Table | Defined In | Dropped In | Reason |
 |---|---|---|---|
 | `conversations` | v12_cms | v20_schema_cleanup | The unified-inbox aggregates `messages`, `project_feedback`, and `intake_submissions` directly. The table was never read or written. |
+| `pages` | v12_cms | v25_drop_cms | Replaced by hardcoded content in frontend/src/data/divisions.js |
+| `testimonials` | v12_cms | v25_drop_cms | Replaced by hardcoded content in frontend/src/data/divisions.js |
+| `equipment` | v12_cms | v25_drop_cms | Replaced by hardcoded content in frontend/src/data/divisions.js |
+| `industries` | v12_cms | v25_drop_cms | Replaced by hardcoded content in frontend/src/data/divisions.js |
 
 The following columns were also dropped (in earlier migrations) for the same reason:
 
@@ -664,7 +651,7 @@ The following columns were also dropped (in earlier migrations) for the same rea
 
 ## 12. Index Summary
 
-**Total indexes: 56** (across 22 tables, 2 partial indexes).
+**Total indexes: 68** (across 18 tables, 2 partial indexes).
 
 | Table | Indexes | Hot Path |
 |---|---|---|
@@ -672,9 +659,7 @@ The following columns were also dropped (in earlier migrations) for the same rea
 | `clients` | `division`, `(division, created_at DESC)`, `(created_at DESC)` | dashboard |
 | `client_projects` | `client_id`, `tracking_id`, `status`, `domain_expiration`, `division`, `(updated_at DESC NULLS LAST)`, `(client_id, status)` | dashboard, Today widget, public tracker |
 | `projects` | `status`, `slug`, `division` | public portfolio |
-| `pages` | `slug`, `status` | public CMS pages |
 | `resources` | `slug`, `status`, `category` | public KB |
-| `testimonials` | `division`, `is_featured` | public testimonials |
 | `messages` | `is_read`, `division`, `(created_at DESC)` | admin inbox + Today widget |
 | `intake_templates` | `(created_at DESC)` | dashboard |
 | `intake_submissions` | `project_id` | project dashboard |
@@ -687,8 +672,6 @@ The following columns were also dropped (in earlier migrations) for the same rea
 | `bank_accounts` | `(currency, is_active) WHERE is_active = TRUE` | public payment page |
 | `payment_proofs` | `invoice_id`, `(status, created_at DESC)` | admin payment queue |
 | `contracts` | `client_id`, `project_id`, `status`, `agreement_id` | Zoho Sign archive |
-| `equipment` | `division`, `display_order` | public galleries |
-| `industries` | `display_order` | public drone home |
 | `email_templates` | (none — `name` is UNIQUE) | admin email composer |
 | `activity_logs` | `(created_at DESC)`, `action` | dashboard widget |
 | `audit_logs` | `user_id`, `(entity_type, entity_id)`, `(created_at DESC)` | security log |
@@ -721,6 +704,14 @@ The following columns were also dropped (in earlier migrations) for the same rea
 | 17 | `v18_payment_proofs.sql` | Phase 10 | `invoices.pay_token`, `bank_accounts`, `payment_proofs`, `touch_invoice_on_proof` trigger |
 | 18 | `v19_fx_live_source.sql` | Phase 11 | `fx_rates.source`, `fx_rates.fetched_at` |
 | 19 | `v20_schema_cleanup.sql` | Phase 12 | **Adds `invoices.invoice_number` + `invoices.paid_at`, creates `activity_logs` table, drops `conversations`, adds 16 performance indexes** |
+| 20 | `v21_pages_perf_index.sql` | Phase 12 | Composite index `(status, updated_at DESC)` on `pages` |
+| 21 | `v22_normalize_admin_roles.sql` | Phase 12 | Normalises legacy role casing |
+| 22 | `v23_jsonb_gin_indexes.sql` | Phase 12 | GIN indexes on `client_projects.stages`, `client_projects.offboarding_checklist`, `intake_submissions.responses` |
+| 23 | `v24_pages_division.sql` | Phase 12 | Adds `division` column to `pages` |
+| 24 | `v25_drop_cms.sql` | Phase 12 | Drops `pages`, `testimonials`, `equipment`, `industries` |
+| 25 | `v26_portfolio_fields.sql` | Phase 12 | Adds portfolio fields to `client_projects` |
+| 26 | `v27_portfolio_polish.sql` | Phase 12 | Adds matching portfolio fields to `projects` |
+| 27 | `v28_portfolio_case_study.sql`| Phase 12 | Adds JSONB fields for advanced case-study rendering to `projects` + GIN indexes |
 
 ---
 
@@ -746,18 +737,19 @@ database is a no-op.
 ### Verifying after a migration
 
 ```sql
--- Should return 22 tables (no `conversations`).
+-- Should return 18 tables (no conversations, pages, testimonials, equipment, industries).
 SELECT count(*) FROM information_schema.tables
 WHERE table_schema = 'public' AND table_type = 'BASE TABLE';
 
--- Should return 56 indexes.
+-- Should return 68 indexes.
 SELECT count(*) FROM pg_indexes WHERE schemaname = 'public';
 
--- The v20 migration should be the last applied.
+-- The v28 migration should be the last applied.
 SELECT * FROM (VALUES ('v2'), ('v3'), ('v4'), ('v5'), ('v6'), ('v7'),
                      ('v8'), ('v9'), ('v10'), ('v11'), ('v12'), ('v13'),
                      ('v14'), ('v15'), ('v16'), ('v17'), ('v18'), ('v19'),
-                     ('v20')) AS m(version)
+                     ('v20'), ('v21'), ('v22'), ('v23'), ('v24'), ('v25'),
+                     ('v26'), ('v27'), ('v28')) AS m(version)
 WHERE NOT EXISTS (
     SELECT 1 FROM information_schema.columns
     WHERE table_name = 'invoices' AND column_name = 'invoice_number'

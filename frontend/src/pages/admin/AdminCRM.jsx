@@ -71,10 +71,11 @@ const inputClass = "w-full p-3 text-sm border border-gray-200 dark:border-gray-7
 const labelClass = "block text-[10px] font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2";
 
 // ── Lead detail drawer ──────────────────────────────────
-const LeadDrawer = ({ lead, stages, onClose, onUpdate, onConvert, onSendTemplate, templates }) => {
+const LeadDrawer = ({ lead, stages, onClose, onUpdate, onConvert, onSendTemplate, onGenerateQuotation, templates }) => {
     const [notes, setNotes] = useState(lead?.notes || '');
     const [savingNotes, setSavingNotes] = useState(false);
     const [showTemplatePicker, setShowTemplatePicker] = useState(false);
+    const [showQuotationModal, setShowQuotationModal] = useState(false);
 
     useEffect(() => {
         setNotes(lead?.notes || '');
@@ -219,13 +220,22 @@ const LeadDrawer = ({ lead, stages, onClose, onUpdate, onConvert, onSendTemplate
                             <h3 className="text-[10px] font-extrabold uppercase tracking-widest text-gray-500 mb-2">Actions</h3>
 
                             {lead.stage !== 'WON' && lead.stage !== 'COMPLETED' && (
-                                <button
-                                    onClick={handleConvert}
-                                    className="w-full flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-bold py-2.5 rounded-xl transition-colors shadow-md shadow-emerald-500/20"
-                                >
-                                    <Icon.Check className="w-4 h-4" />
-                                    Convert to Client
-                                </button>
+                                <>
+                                    <button
+                                        onClick={() => setShowQuotationModal(true)}
+                                        className="w-full flex items-center justify-center gap-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-bold py-2.5 rounded-xl transition-colors shadow-md shadow-blue-500/20"
+                                    >
+                                        <Icon.Check className="w-4 h-4" />
+                                        Generate Quotation
+                                    </button>
+                                    <button
+                                        onClick={handleConvert}
+                                        className="w-full flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-bold py-2.5 rounded-xl transition-colors shadow-md shadow-emerald-500/20 mt-2"
+                                    >
+                                        <Icon.Check className="w-4 h-4" />
+                                        Convert to Client
+                                    </button>
+                                </>
                             )}
 
                             {lead.stage === 'WON' && (
@@ -277,9 +287,71 @@ const LeadDrawer = ({ lead, stages, onClose, onUpdate, onConvert, onSendTemplate
                             }}
                         />
                     )}
+                    {showQuotationModal && (
+                        <GenerateQuotationModal 
+                            lead={lead}
+                            onClose={() => setShowQuotationModal(false)}
+                            onGenerate={(quoteData) => {
+                                setShowQuotationModal(false);
+                                onGenerateQuotation && onGenerateQuotation(quoteData);
+                            }}
+                        />
+                    )}
                 </motion.div>
             </motion.div>
         </AnimatePresence>
+    );
+};
+
+// ── Generate Quotation modal ──────────────────────────────
+const GenerateQuotationModal = ({ lead, onClose, onGenerate }) => {
+    const [form, setForm] = useState({ title: '', amount: '' });
+    const [submitting, setSubmitting] = useState(false);
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setSubmitting(true);
+        const res = await api.post('/quotations', {
+            lead_id: lead.id,
+            title: form.title,
+            amount: Number(form.amount)
+        });
+        setSubmitting(false);
+        if (res.ok) {
+            notify.success('Quotation generated successfully!');
+            onGenerate(res.data);
+        } else {
+            notify.error(res.error || 'Failed to generate quotation.');
+        }
+    };
+
+    return (
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="fixed inset-0 z-[60] bg-black/50 flex items-center justify-center p-4" onClick={onClose}>
+            <motion.div initial={{ scale: 0.95 }} animate={{ scale: 1 }} className="w-full max-w-md bg-white dark:bg-gray-900 rounded-2xl shadow-2xl p-5" onClick={(e) => e.stopPropagation()}>
+                <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-lg font-extrabold text-gray-900 dark:text-white">Generate Quotation</h2>
+                    <button type="button" onClick={onClose} className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500">
+                        <Icon.X className="w-5 h-5" />
+                    </button>
+                </div>
+                <form onSubmit={handleSubmit} className="space-y-4">
+                    <div>
+                        <label className={labelClass}>Quotation Title</label>
+                        <input required value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="e.g. E-Commerce App Development" className={inputClass} />
+                    </div>
+                    <div>
+                        <label className={labelClass}>Amount (₦)</label>
+                        <input required type="number" value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} placeholder="e.g. 500000" className={inputClass} />
+                    </div>
+                    <div className="flex justify-end gap-2 pt-2">
+                        <button type="button" onClick={onClose} className="px-4 py-2 text-sm font-bold text-gray-600 dark:text-gray-300">Cancel</button>
+                        <button type="submit" disabled={submitting} className="bg-accent hover:bg-orange-600 text-white text-sm font-bold px-4 py-2 rounded-xl disabled:opacity-50">
+                            {submitting ? 'Generating…' : 'Generate'}
+                        </button>
+                    </div>
+                </form>
+            </motion.div>
+        </motion.div>
     );
 };
 
@@ -711,6 +783,10 @@ const AdminCRM = () => {
                     onUpdate={handleLeadUpdate}
                     onConvert={handleLeadConvert}
                     onSendTemplate={() => {}}
+                    onGenerateQuotation={(quote) => {
+                        // Optimistically move lead to Proposal stage
+                        handleDrop(selected.id, 'PROPOSAL');
+                    }}
                 />
             )}
 

@@ -24,6 +24,7 @@ const AdminClients = React.lazy(() => import('./pages/admin/AdminClients'));
 const AdminProjectDetail = React.lazy(() => import('./pages/admin/AdminProjectDetail'));
 const AdminIntakeTemplates = React.lazy(() => import('./pages/admin/AdminIntakeTemplates'));
 const AdminInvoices = React.lazy(() => import('./pages/admin/AdminInvoices'));
+const AdminExpenses = React.lazy(() => import('./pages/admin/AdminExpenses'));
 const AdminReports = React.lazy(() => import('./pages/admin/AdminReports'));
 const AdminDashboard = React.lazy(() => import('./pages/admin/AdminDashboard'));
 const AdminSettings = React.lazy(() => import('./pages/admin/AdminSettings'));
@@ -33,6 +34,7 @@ const AdminInbox = React.lazy(() => import('./pages/admin/AdminInbox'));
 const AdminContracts = React.lazy(() => import('./pages/admin/AdminContracts'));
 const AdminTwoFactorSetup = React.lazy(() => import('./pages/admin/AdminTwoFactorSetup'));
 const AdminCRM = React.lazy(() => import('./pages/admin/AdminCRM'));
+const AdminQuotations = React.lazy(() => import('./pages/admin/AdminQuotations'));
 const AdminEmailTemplates = React.lazy(() => import('./pages/admin/AdminEmailTemplates'));
 const AdminHelp = React.lazy(() => import('./pages/admin/AdminHelp'));
 const AdminPaymentQueue = React.lazy(() => import('./pages/admin/AdminPaymentQueue'));
@@ -50,6 +52,21 @@ const LoginPage = React.lazy(() => import('./pages/LoginPage'));
 import ProtectedRoute from './components/ProtectedRoute';
 import { AuthProvider } from './contexts/AuthContext';
 import { api } from './services/api.js';
+
+// Client Portal Components
+const ClientLogin = React.lazy(() => import('./pages/client/ClientLogin'));
+const ClientPortalLayout = React.lazy(() => import('./components/ClientPortalLayout'));
+const ClientDashboard = React.lazy(() => import('./pages/client/ClientDashboard'));
+const ClientProjects = React.lazy(() => import('./pages/client/ClientProjects'));
+const ClientQuotations = React.lazy(() => import('./pages/client/ClientQuotations'));
+const ClientContracts = React.lazy(() => import('./pages/client/ClientContracts'));
+const ClientInvoices = React.lazy(() => import('./pages/client/ClientInvoices'));
+const ClientDocuments = React.lazy(() => import('./pages/client/ClientDocuments'));
+const ClientMessages = React.lazy(() => import('./pages/client/ClientMessages'));
+const ClientProfile = React.lazy(() => import('./pages/client/ClientProfile'));
+const ClientTimeline = React.lazy(() => import('./pages/client/ClientTimeline'));
+const ClientProtectedRoute = React.lazy(() => import('./components/ClientProtectedRoute'));
+import { ClientAuthProvider } from './contexts/ClientAuthContext';
 
 // Page transition wrapper
 const PageWrapper = ({ children }) => {
@@ -150,15 +167,17 @@ function App() {
     location.pathname.startsWith('/drone/projects') ||
     location.pathname.startsWith('/survey/projects') ||
     location.pathname.startsWith('/admin') ||
+    location.pathname.startsWith('/portal') ||
     location.pathname === '/login';
 
   return (
     <AuthProvider>
+    <ClientAuthProvider>
     <div className="min-h-screen bg-gray-50 text-gray-900 dark:bg-background dark:text-white font-body selection:bg-accent selection:text-white transition-colors duration-500">
       <ErrorBoundary>
         {!hideGlobalLayout && <Navbar isDark={isDark} toggleTheme={toggleTheme} />}
         <main>
-          <Suspense fallback={location.pathname.startsWith('/admin') ? <div className="min-h-[60vh] flex items-center justify-center"><div className="w-8 h-8 rounded-full border-2 border-accent border-t-transparent animate-spin" /></div> : <Preloader />}>
+          <Suspense fallback={<div className="min-h-[60vh] flex items-center justify-center"><div className="w-8 h-8 rounded-full border-2 border-accent border-t-transparent animate-spin" /></div>}>
             <AnimatePresence mode="wait">
               <Routes location={location} key={location.pathname}>
                 <Route path="/" element={<PageWrapper><HomePage /></PageWrapper>} />
@@ -189,8 +208,10 @@ function App() {
                   <Route path="portfolio" element={<AdminPortfolio lockedDivision="SOFTWARE" />} />
                   <Route path="projects" element={<AdminClientProjects />} />
                   <Route path="clients" element={<AdminClients />} />
+                  <Route path="quotations" element={<AdminQuotations />} />
                   <Route path="projects/:id" element={<AdminProjectDetail />} />
                   <Route path="invoices" element={<AdminInvoices />} />
+                  <Route path="expenses" element={<AdminExpenses />} />
                   <Route path="reports" element={<AdminReports />} />
                   <Route path="templates" element={<AdminIntakeTemplates />} />
                   <Route path="settings" element={<AdminSettings />} />
@@ -210,6 +231,20 @@ function App() {
                 <Route path="/form/:formId" element={<ClientIntakeForm />} />
                 <Route path="/pay/:token" element={<PaymentPage />} />
 
+                {/* Client Portal MVP Routes */}
+                <Route path="/portal/login" element={<ClientLogin />} />
+                <Route path="/portal" element={<ClientProtectedRoute><ClientPortalLayout isDark={isDark} toggleTheme={toggleTheme} /></ClientProtectedRoute>}>
+                  <Route index element={<ClientDashboard />} />
+                  <Route path="projects" element={<ClientProjects />} />
+                  <Route path="quotations" element={<ClientQuotations />} />
+                  <Route path="contracts" element={<ClientContracts />} />
+                  <Route path="invoices" element={<ClientInvoices />} />
+                  <Route path="documents" element={<ClientDocuments />} />
+                  <Route path="messages" element={<ClientMessages />} />
+                  <Route path="timeline" element={<ClientTimeline />} />
+                  <Route path="profile" element={<ClientProfile />} />
+                </Route>
+
                 <Route path="*" element={<PageWrapper><NotFoundPage /></PageWrapper>} />
               </Routes>
             </AnimatePresence>
@@ -224,6 +259,7 @@ function App() {
         <ToastHost />
       </ErrorBoundary>
     </div>
+    </ClientAuthProvider>
     </AuthProvider>
   );
 }

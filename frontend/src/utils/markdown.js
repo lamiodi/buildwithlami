@@ -82,6 +82,7 @@ function isSafeUrl(url) {
     if (!trimmed) return false;
     // Strip leading control chars and whitespace the browser
     // would also strip, so `javasc\nript:` is caught.
+    // eslint-disable-next-line no-control-regex
     const cleaned = trimmed.replace(/[\x00-\x1f\s]/g, '').toLowerCase();
     return /^(https?:|mailto:)/.test(cleaned);
 }

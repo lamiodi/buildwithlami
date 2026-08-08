@@ -182,11 +182,7 @@ const AdminPortfolio = ({ lockedDivision }) => {
     const galleryInputRef = useRef(null);
     const [searchParams, setSearchParams] = useSearchParams();
 
-    useEffect(() => {
-        fetchProjects();
-    }, [activeDivision]);
-
-    const fetchProjects = async () => {
+    const fetchProjects = useCallback(async () => {
         try {
             setLoading(true);
             // We always send `?division=` so the backend never has
@@ -203,7 +199,11 @@ const AdminPortfolio = ({ lockedDivision }) => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [activeDivision]);
+
+    useEffect(() => {
+        fetchProjects();
+    }, [fetchProjects]);
 
     // Convert an existing project row into the form state.
     // Always uses division-locked values, so the backend can

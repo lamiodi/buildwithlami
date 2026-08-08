@@ -140,8 +140,12 @@ const TechStack = () => {
       draggedBody = null;
     });
 
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const isMobile = window.innerWidth < 768;
+
     let time = 0;
     const beforeUpdate = () => {
+      if (prefersReducedMotion || isMobile) return;
       time += 0.016;
       cards.forEach((card, index) => {
         if (!card.isStatic && card !== draggedBody) {
@@ -190,7 +194,7 @@ const TechStack = () => {
 
     window.addEventListener('resize', handleResize);
 
-    const particleCount = 12;
+    const particleCount = isMobile ? 4 : 12;
     for (let i = 0; i < particleCount; i++) {
       const particle = document.createElement('div');
       particle.className = 'particle';
@@ -236,14 +240,14 @@ const TechStack = () => {
 
     updatePositions();
 
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-    if (prefersReducedMotion.matches) {
+    if (prefersReducedMotion) {
       engine.world.gravity.y = 0;
     }
 
     return () => {
       window.removeEventListener('resize', handleResize);
       cancelAnimationFrame(animationFrameId);
+      Events.off(engine, 'beforeUpdate', beforeUpdate);
       Runner.stop(runner);
       Engine.clear(engine);
       if (engine.world) {

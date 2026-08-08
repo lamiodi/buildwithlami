@@ -2,6 +2,7 @@ import pool from '../config/db.js';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import { decrypt } from '../utils/crypto.js';
+import cloudinary from '../utils/cloudinary.js';
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const isUuid = (s) => typeof s === 'string' && UUID_REGEX.test(s);
@@ -20,6 +21,7 @@ const UPDATABLE_COLUMNS = new Set([
     'monthly_fee',
     'payment_status',
     'stages',
+    'milestones',
     'intake_form_id',
     'intake_completed',
     'assets_url',
@@ -92,12 +94,13 @@ export const getProjectDashboard = async (req, res) => {
         const project = projectResult.rows[0];
 
         // Fetch related data in parallel
-        const [secretsResult, templatesResult, submissionsResult, invoicesResult, feedbackResult] = await Promise.all([
+        const [secretsResult, templatesResult, submissionsResult, invoicesResult, feedbackResult, filesResult] = await Promise.all([
             pool.query('SELECT id, client_id, project_id, key_name, encrypted_value, iv, auth_tag, created_at, updated_at FROM project_secrets WHERE client_id = $1 ORDER BY created_at DESC', [project.client_id]),
             pool.query('SELECT * FROM intake_templates ORDER BY created_at DESC'),
             pool.query('SELECT * FROM intake_submissions WHERE project_id = $1 ORDER BY submitted_at DESC', [id]),
             pool.query('SELECT * FROM invoices WHERE project_id = $1 ORDER BY created_at DESC', [id]),
-            pool.query('SELECT * FROM project_feedback WHERE project_id = $1 ORDER BY created_at ASC', [id])
+            pool.query('SELECT * FROM project_feedback WHERE project_id = $1 ORDER BY created_at ASC', [id]),
+            pool.query('SELECT * FROM project_files WHERE project_id = $1 AND deleted_at IS NULL ORDER BY created_at DESC', [id])
         ]);
 
         // Decrypt secrets server-side using the same crypto helper, so admins
@@ -134,7 +137,8 @@ export const getProjectDashboard = async (req, res) => {
             templates: templatesResult.rows,
             submissions: submissionsResult.rows,
             invoices: invoicesResult.rows,
-            feedback: feedbackResult.rows
+            feedback: feedbackResult.rows,
+            files: filesResult.rows
         });
     } catch (err) {
         console.error('[ClientProjects] getProjectDashboard error:', err.message);
@@ -192,6 +196,10 @@ export const updateClientProject = async (req, res) => {
         fields.progress = calculateProgress(fields.stages);
         fields.stages = JSON.stringify(fields.stages);
     }
+    
+    if (fields.milestones) {
+        fields.milestones = JSON.stringify(fields.milestones);
+    }
 
     const setClause = [];
     const values = [];
@@ -243,7 +251,7 @@ export const getProjectByTrackingId = async (req, res) => {
     try {
         const result = await pool.query(
             `SELECT p.id, p.client_id, p.project_name, p.tracking_id, p.progress, p.status,
-                    p.domain_name, p.domain_expiration, p.stages,
+                    p.domain_name, p.domain_expiration, p.stages, p.milestones,
                     p.intake_form_id, p.intake_completed,
                     p.assets_url, p.training_video_url, p.maintenance_plan_url,
                     c.name as client_name
@@ -253,7 +261,18 @@ export const getProjectByTrackingId = async (req, res) => {
             [trackingId]
         );
         if (result.rows.length === 0) return res.status(404).json({ error: 'Project not found' });
-        res.json(result.rows[0]);
+        
+        const project = result.rows[0];
+        
+        const { rows: files } = await pool.query(
+            `SELECT id, file_name, file_url, category, file_size, created_at
+             FROM project_files
+             WHERE project_id = $1 AND deleted_at IS NULL
+             ORDER BY created_at DESC`,
+            [project.id]
+        );
+
+        res.json({ ...project, files });
     } catch (err) {
         console.error('[ClientProjects] getProjectByTrackingId error:', err.message);
         res.status(500).json({ error: 'Internal server error.' });
@@ -366,6 +385,70 @@ export const generatePortalLink = async (req, res) => {
         });
     } catch (err) {
         console.error('[ClientProjects] generatePortalLink error:', err.message);
+        res.status(500).json({ error: 'Internal server error.' });
+    }
+};
+
+export const uploadProjectFile = async (req, res) => {
+    const { id } = req.params;
+    const { category, fileName } = req.body;
+
+    if (!isUuid(id)) return res.status(400).json({ error: 'Invalid project ID format.' });
+    if (!req.file) return res.status(400).json({ error: 'No file provided.' });
+
+    const validCategories = ['Proposal', 'Contract', 'Invoice', 'Brief', 'Asset', 'Other'];
+    if (!validCategories.includes(category)) {
+        return res.status(400).json({ error: 'Invalid category. Must be one of: ' + validCategories.join(', ') });
+    }
+
+    try {
+        let fileUrl = '';
+        if (!process.env.CLOUDINARY_URL && !process.env.CLOUDINARY_API_KEY) {
+            // Mock mode for local testing without Cloudinary
+            const b64 = Buffer.from(req.file.buffer).toString('base64');
+            fileUrl = `data:${req.file.mimetype};base64,${b64}`;
+        } else {
+            const b64 = Buffer.from(req.file.buffer).toString('base64');
+            const dataURI = `data:${req.file.mimetype};base64,${b64}`;
+            const uploadResponse = await cloudinary.uploader.upload(dataURI, {
+                folder: 'buildwithlami_projects',
+                resource_type: 'auto' // Handle non-image files like PDFs
+            });
+            fileUrl = uploadResponse.secure_url;
+        }
+
+        const name = fileName || req.file.originalname;
+        const size = req.file.size;
+
+        const result = await pool.query(
+            `INSERT INTO project_files (project_id, uploader_id, file_name, file_url, category, file_size)
+             VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+            [id, req.user.id, name, fileUrl, category, size]
+        );
+
+        res.status(201).json(result.rows[0]);
+    } catch (err) {
+        console.error('[ClientProjects] uploadProjectFile error:', err);
+        res.status(500).json({ error: 'Internal server error during upload.' });
+    }
+};
+
+export const deleteProjectFile = async (req, res) => {
+    const { id, fileId } = req.params;
+    if (!isUuid(id) || !isUuid(fileId)) return res.status(400).json({ error: 'Invalid ID format.' });
+
+    try {
+        // Soft delete the file
+        const result = await pool.query(
+            `UPDATE project_files SET deleted_at = NOW() WHERE id = $1 AND project_id = $2 RETURNING *`,
+            [fileId, id]
+        );
+
+        if (result.rows.length === 0) return res.status(404).json({ error: 'File not found.' });
+
+        res.json({ success: true, message: 'File deleted successfully.' });
+    } catch (err) {
+        console.error('[ClientProjects] deleteProjectFile error:', err.message);
         res.status(500).json({ error: 'Internal server error.' });
     }
 };
