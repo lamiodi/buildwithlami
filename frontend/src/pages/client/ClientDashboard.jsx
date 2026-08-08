@@ -8,10 +8,6 @@ export default function ClientDashboard() {
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        fetchDashboard();
-    }, []);
-
     const fetchDashboard = async () => {
         try {
             const res = await api.get('/api/client-portal/dashboard');
@@ -24,6 +20,10 @@ export default function ClientDashboard() {
             setLoading(false);
         }
     };
+
+    useEffect(() => {
+        fetchDashboard();
+    }, []);
 
     if (loading) {
         return (

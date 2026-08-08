@@ -83,22 +83,19 @@ const PaymentPage = () => {
         const issued = new Date(invoice.created_at || new Date()).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
         const due = invoice.due_date ? new Date(invoice.due_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : 'Due on Receipt';
         
-        let lineItemsHtml = '';
-        if (invoice.line_items && invoice.line_items.length > 0) {
-            lineItemsHtml = invoice.line_items.map(item => `
+        const lineItemsHtml = (invoice.line_items && invoice.line_items.length > 0)
+            ? invoice.line_items.map(item => `
                 <tr>
                     <td>${item.description}</td>
                     <td style="text-align:right">${formatAmt(item.amount)}</td>
                 </tr>
-            `).join('');
-        } else {
-            lineItemsHtml = `
+            `).join('')
+            : `
                 <tr>
                     <td>${invoice.project_name ? `Services — ${invoice.project_name}` : 'Services rendered'}</td>
                     <td style="text-align:right">${amount}</td>
                 </tr>
             `;
-        }
 
         const html = `<!doctype html>
 <html lang="en">

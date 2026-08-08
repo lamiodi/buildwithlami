@@ -8,10 +8,6 @@ export default function ClientInvoices() {
     const [invoices, setInvoices] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        fetchInvoices();
-    }, []);
-
     const fetchInvoices = async () => {
         try {
             const res = await api.get('/api/client-portal/invoices');
@@ -24,6 +20,10 @@ export default function ClientInvoices() {
             setLoading(false);
         }
     };
+
+    useEffect(() => {
+        fetchInvoices();
+    }, []);
 
     if (loading) {
         return (

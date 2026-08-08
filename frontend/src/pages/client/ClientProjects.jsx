@@ -8,10 +8,6 @@ export default function ClientProjects() {
     const [projects, setProjects] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        fetchProjects();
-    }, []);
-
     const fetchProjects = async () => {
         try {
             const res = await api.get('/api/client-portal/projects');
@@ -24,6 +20,10 @@ export default function ClientProjects() {
             setLoading(false);
         }
     };
+
+    useEffect(() => {
+        fetchProjects();
+    }, []);
 
     if (loading) {
         return (

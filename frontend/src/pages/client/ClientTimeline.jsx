@@ -8,26 +8,19 @@ export default function ClientTimeline() {
     const [projects, setProjects] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        fetchProjects();
-    }, []);
-
     const fetchProjects = async () => {
         try {
             const res = await api.get('/api/client-portal/projects');
             if (res.ok) {
                 const data = await res.json();
-                // Ensure milestones is parsed if it came as string, though usually controller parses it or PG returns JSON.
-                // clientPortalController.js getProjects doesn't parse it explicitly yet, let's parse safely.
                 const processed = data.map(p => {
                     let parsedMilestones = [];
                     if (typeof p.milestones === 'string') {
-                        try { parsedMilestones = JSON.parse(p.milestones); } catch (e) { }
+                        try { parsedMilestones = JSON.parse(p.milestones); } catch (e) { /* ignore */ }
                     } else if (Array.isArray(p.milestones)) {
                         parsedMilestones = p.milestones;
                     }
-                    
-                    // Fallback default milestones if null
+
                     if (!parsedMilestones.length) {
                         parsedMilestones = [
                             { title: "Discovery & Planning", status: "PENDING" },
@@ -47,6 +40,10 @@ export default function ClientTimeline() {
             setLoading(false);
         }
     };
+
+    useEffect(() => {
+        fetchProjects();
+    }, []);
 
     if (loading) {
         return (

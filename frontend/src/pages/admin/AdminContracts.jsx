@@ -20,11 +20,6 @@ export default function AdminContracts() {
     const [clients, setClients] = useState([]);
     const [projects, setProjects] = useState([]);
 
-    useEffect(() => {
-        fetchContracts();
-        fetchClientsAndProjects();
-    }, []);
-
     const fetchContracts = async () => {
         setLoading(true);
         try {
@@ -49,6 +44,11 @@ export default function AdminContracts() {
             console.error('Failed to load dropdown data');
         }
     };
+
+    useEffect(() => {
+        fetchContracts();
+        fetchClientsAndProjects();
+    }, []);
 
     const handleCreate = async (e) => {
         e.preventDefault();

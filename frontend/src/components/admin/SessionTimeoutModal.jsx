@@ -30,7 +30,7 @@ function formatTimeLeft(ms) {
 
 const SessionTimeoutModal = () => {
     const { tokenExpiresAt, extendSession, logout, user } = useAuth();
-    const [now, setNow] = useState(Date.now());
+    const [now, setNow] = useState(() => Date.now());
     const [extending, setExtending] = useState(false);
     const lastTokenRef = useRef(tokenExpiresAt);
 

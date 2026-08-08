@@ -37,13 +37,15 @@ const AdminLayout = ({ isDark, toggleTheme }) => {
     // Active workspace — read from localStorage on first mount,
     // then re-evaluate when the user/their divisions change.
     const [activeWorkspace, setActiveWorkspace] = useState(() => {
-        try { 
+        try {
             const saved = localStorage.getItem(WORKSPACE_STORAGE_KEY);
             // Only use saved value if it's a valid workspace (not 'all')
             if (saved && saved !== ALL_WORKSPACE_ID) {
                 return saved;
             }
-        } catch {}
+        } catch {
+            // localStorage unavailable (private mode, etc.) — fall through to default
+        }
         // Default to first available workspace
         return 'software';
     });
@@ -52,7 +54,11 @@ const AdminLayout = ({ isDark, toggleTheme }) => {
     const handleWorkspaceChange = (id) => {
         setActiveWorkspace(id);
         setMobileMenuOpen(false);  // Close mobile sidebar on workspace switch
-        try { localStorage.setItem(WORKSPACE_STORAGE_KEY, id); } catch {}
+        try {
+            localStorage.setItem(WORKSPACE_STORAGE_KEY, id);
+        } catch {
+            // localStorage unavailable — selection still works for this session
+        }
     };
 
     // Compute the list of options the selector can show.

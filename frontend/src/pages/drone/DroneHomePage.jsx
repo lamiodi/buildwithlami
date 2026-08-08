@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Crosshair, ArrowRight, ArrowUpRight, Plus, Minus, Mail, Phone, MapPin, Download, Map as MapIcon, Building2, Home, Mountain, Calendar, TreePine, Landmark, Plane } from 'lucide-react';
 import { api } from '../../services/api';
@@ -9,7 +9,7 @@ import { validateBooking, validateField } from '../../utils/formValidation';
 // "Michroma" for headings and "Geomini" for body text.
 // Both are loaded page-scoped (not globally) so the rest of
 // the app doesn't pay for the font weight downloads.
-//
+//      
 //   • useFontsEffect adds the Google Fonts <link> tags and
 //     a tiny <style> block with the two CSS classes from
 //     the design spec. It tracks every node it injected and
@@ -960,7 +960,7 @@ const DroneHomePage = () => {
       </footer>
 
       {/* Hide scrollbar styles */}
-      <style dangerouslySetInlineStyle={{__html: `
+      <style dangerouslySetInnerHTML={{__html: `
         .scrollbar-hide::-webkit-scrollbar {
             display: none;
         }

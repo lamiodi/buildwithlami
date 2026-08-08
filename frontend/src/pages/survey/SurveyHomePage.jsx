@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useRef, useLayoutEffect, useCallback } from 'react';
+import { useState, useEffect, useRef, useLayoutEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, ArrowUpRight, Plus, Minus, Download } from 'lucide-react';
 import { api } from '../../services/api';
-import { surveyPlaceholder, projectPlaceholder, equipmentPlaceholder } from '../../utils/placeholders';
+import { surveyPlaceholder, projectPlaceholder } from '../../utils/placeholders';
 import { validateBooking, validateField } from '../../utils/formValidation';
 
 // ── Survey-page fonts ────────────────────────────────────

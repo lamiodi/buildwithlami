@@ -84,7 +84,7 @@ const ClientProjectTracker = () => {
   const [feedback, setFeedback] = useState([]);
 
   const tokenRef = useRef(clientToken);
-  tokenRef.current = clientToken;
+  useEffect(() => { tokenRef.current = clientToken; }, [clientToken]);
 
   const handleAuthSubmit = async (e) => {
     e.preventDefault();

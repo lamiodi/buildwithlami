@@ -8,10 +8,6 @@ export default function ClientQuotations() {
     const [quotations, setQuotations] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        fetchQuotations();
-    }, []);
-
     const fetchQuotations = async () => {
         try {
             const res = await api.get('/api/client-portal/quotations');
@@ -27,6 +23,10 @@ export default function ClientQuotations() {
             setLoading(false);
         }
     };
+
+    useEffect(() => {
+        fetchQuotations();
+    }, []);
 
     if (loading) {
         return (

@@ -8,10 +8,6 @@ export default function ClientContracts() {
     const [contracts, setContracts] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        fetchContracts();
-    }, []);
-
     const fetchContracts = async () => {
         try {
             const res = await api.get('/api/client-portal/contracts');
@@ -27,6 +23,10 @@ export default function ClientContracts() {
             setLoading(false);
         }
     };
+
+    useEffect(() => {
+        fetchContracts();
+    }, []);
 
     if (loading) {
         return (

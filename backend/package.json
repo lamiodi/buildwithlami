@@ -8,6 +8,7 @@
     "start": "node src/index.js",
     "start:prod": "NODE_ENV=production node src/index.js",
     "dev": "node --watch src/index.js",
+    "lint": "eslint .",
     "db:init": "node src/scripts/runInit.js",
     "db:migrate": "node src/scripts/runUpdateSchema.js",
     "db:seed": "node src/scripts/seedAdmin.js",
@@ -37,5 +38,10 @@
     "pg-query-stream": "^1.1.2",
     "qrcode": "^1.5.4",
     "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.2.1",
+    "globals": "^17.5.0"
   }
 }

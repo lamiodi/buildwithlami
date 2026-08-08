@@ -7,10 +7,6 @@ export default function ClientDocuments() {
     const [documents, setDocuments] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        fetchDocuments();
-    }, []);
-
     const fetchDocuments = async () => {
         try {
             const res = await api.get('/api/client-portal/documents');
@@ -23,6 +19,10 @@ export default function ClientDocuments() {
             setLoading(false);
         }
     };
+
+    useEffect(() => {
+        fetchDocuments();
+    }, []);
 
     if (loading) {
         return (

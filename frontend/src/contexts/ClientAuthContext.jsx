@@ -7,10 +7,6 @@ export function ClientAuthProvider({ children }) {
     const [clientUser, setClientUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        checkSession();
-    }, []);
-
     const checkSession = async () => {
         try {
             const res = await api.get('/api/client-auth/me');
@@ -25,6 +21,10 @@ export function ClientAuthProvider({ children }) {
             setLoading(false);
         }
     };
+
+    useEffect(() => {
+        checkSession();
+    }, []);
 
     const login = async (email, password) => {
         const res = await api.post('/api/client-auth/login', { email, password });

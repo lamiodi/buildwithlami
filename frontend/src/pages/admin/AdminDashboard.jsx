@@ -64,12 +64,6 @@ const AdminDashboard = () => {
     const navigate = useNavigate();
     const greeting = useGreeting();
 
-    useEffect(() => {
-        fetchAll();
-        const t = setInterval(() => setNow(new Date()), 60_000);
-        return () => clearInterval(t);
-    }, []);
-
     // Close command palette on Escape (⌘K is handled globally by GlobalSearch).
     useEffect(() => {
         const onKey = (e) => {
@@ -138,6 +132,12 @@ const AdminDashboard = () => {
         }
         setLoading(false);
     };
+
+    useEffect(() => {
+        fetchAll();
+        const t = setInterval(() => setNow(new Date()), 60_000);
+        return () => clearInterval(t);
+    }, []);
 
     if (loading) {
         return (

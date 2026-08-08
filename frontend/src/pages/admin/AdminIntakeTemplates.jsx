@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { api } from '../../services/api';
 import { notify } from '../../services/notify';
@@ -96,8 +96,10 @@ const AdminIntakeTemplates = () => {
     setEditingId(null);
   };
 
+  const fieldIdCounter = useRef(0);
   const addField = (type) => {
-    const newField = { id: `f-${Math.random().toString(36).substring(2, 9)}`, type, label: '', required: false };
+    fieldIdCounter.current += 1;
+    const newField = { id: `f-${fieldIdCounter.current}`, type, label: '', required: false };
     if (type === 'select' || type === 'checkbox') newField.options = ['Option 1', 'Option 2'];
     setFormData(prev => ({ ...prev, schema: [...prev.schema, newField] }));
   };

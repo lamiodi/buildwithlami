@@ -124,6 +124,12 @@ export function AuthProvider({ children }) {
     const userRef = useRef(user);
     useEffect(() => { userRef.current = user; }, [user]);
 
+    // Track the last user activity (click/key/mousemove/touch). Updated
+    // by the listener further down — but the state must exist before
+    // `extendSession` so the callback can `setLastActivity` from a stable
+    // closure without eslint flagging the access.
+    const [lastActivity, setLastActivity] = useState(() => Date.now());
+
     const extendSession = useCallback(async () => {
         const res = await api.post('/auth/refresh');
         if (res.ok && res.data?.token) {
@@ -149,7 +155,6 @@ export function AuthProvider({ children }) {
     // Background timer proactively calls /auth/refresh ~5 min before
     // expiry so the user never hits the modal unless they walk away
     // from the keyboard for >25 min.
-    const [lastActivity, setLastActivity] = useState(() => Date.now());
     const tokenExpiresAt = useMemo(
         () => (user ? lastActivity + 30 * 60 * 1000 : null),
         [user, lastActivity]

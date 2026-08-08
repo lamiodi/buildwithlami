@@ -152,12 +152,7 @@ function App() {
   }, [showPreloader]);
 
   if (showPreloader && !preloaderTimedOut && !location.pathname.startsWith('/admin')) {
-    try {
-      return <Preloader onComplete={() => setShowPreloader(false)} />;
-    } catch (err) {
-      console.error('[App] Preloader crashed, falling through:', err);
-      setShowPreloader(false);
-    }
+    return <Preloader onComplete={() => setShowPreloader(false)} />;
   }
 
   // Determine if the current route should hide the global Navbar and Footer

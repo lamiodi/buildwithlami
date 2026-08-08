@@ -12,11 +12,11 @@ content = content.replace(
 
 // Update TOC
 content = content.replace(
-    /   - \[pages\]\(#pages\)\n   - \[resources\]\(#resources\)\n   - \[testimonials\]\(#testimonials\)/g,
+    / {3}- \[pages\]\(#pages\)\n {3}- \[resources\]\(#resources\)\n {3}- \[testimonials\]\(#testimonials\)/g,
     '   - [resources](#resources)'
 );
 content = content.replace(
-    /7\. \[Equipment & Industries\]\(#7-equipment--industries\)\n   - \[equipment\]\(#equipment\)\n   - \[industries\]\(#industries\)\n8\. \[Email Templates\]\(#8-email-templates\)/g,
+    /7\. \[Equipment & Industries\]\(#7-equipment--industries\)\n {3}- \[equipment\]\(#equipment\)\n {3}- \[industries\]\(#industries\)\n8\. \[Email Templates\]\(#8-email-templates\)/g,
     '7. [Email Templates](#8-email-templates)'
 );
 
@@ -109,7 +109,7 @@ content = content.replace(
 
 // Update Verification SQL
 content = content.replace(
-    /SELECT \* FROM \(VALUES \('v2'\), \('v3'\), \('v4'\), \('v5'\), \('v6'\), \('v7'\),\n                     \('v8'\), \('v9'\), \('v10'\), \('v11'\), \('v12'\), \('v13'\),\n                     \('v14'\), \('v15'\), \('v16'\), \('v17'\), \('v18'\), \('v19'\),\n                     \('v20'\)\) AS m\(version\)/g,
+    /SELECT \* FROM \(VALUES \('v2'\), \('v3'\), \('v4'\), \('v5'\), \('v6'\), \('v7'\),\n {21}\('v8'\), \('v9'\), \('v10'\), \('v11'\), \('v12'\), \('v13'\),\n {21}\('v14'\), \('v15'\), \('v16'\), \('v17'\), \('v18'\), \('v19'\),\n {21}\('v20'\)\) AS m\(version\)/g,
     `SELECT * FROM (VALUES ('v2'), ('v3'), ('v4'), ('v5'), ('v6'), ('v7'),
                      ('v8'), ('v9'), ('v10'), ('v11'), ('v12'), ('v13'),
                      ('v14'), ('v15'), ('v16'), ('v17'), ('v18'), ('v19'),

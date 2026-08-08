@@ -72,7 +72,11 @@ const AdminProjectDetail = () => {
     // Parse milestones safely
     let currentMilestones = [];
     if (typeof project.milestones === 'string') {
-        try { currentMilestones = JSON.parse(project.milestones); } catch (e) { }
+        try {
+            currentMilestones = JSON.parse(project.milestones);
+        } catch {
+            // Milestones came back as a non-JSON string — fall back to []
+        }
     } else if (Array.isArray(project.milestones)) {
         currentMilestones = [...project.milestones];
     }
