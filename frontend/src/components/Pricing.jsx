@@ -10,42 +10,76 @@ const Pricing = () => {
 
   // Synchronous initial check to prevent flicker on first render
   const getInitialCurrency = () => {
+    const manualSet = localStorage.getItem('currency_manually_set');
     const saved = localStorage.getItem('preferred_currency');
-    if (saved) return saved;
+    if (manualSet && saved) return saved;
     
     try {
       const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-      return tz === 'Africa/Lagos' ? 'NGN' : 'USD';
+      if (tz) {
+        // If user timezone is outside Africa, default to USD
+        if (!tz.startsWith('Africa/')) {
+          return 'USD';
+        }
+        return 'NGN';
+      }
     } catch (e) {
-      return 'NGN';
+      console.warn("Timezone detection fallback hit", e);
     }
+    return 'USD'; // International default for outside Africa
   };
 
   const [currency, setCurrency] = useState(getInitialCurrency());
 
   // Refine location detection and handle persistence
   React.useEffect(() => {
-    localStorage.setItem('preferred_currency', currency);
-    
-    // Background IP verification (only run if no manual preference saved)
-    if (!localStorage.getItem('currency_manually_set')) {
-      fetch('https://ipapi.co/json/')
-        .then(res => res.json())
-        .then(data => {
-          if (data.country_code) {
-            const detected = data.country_code === 'NG' ? 'NGN' : 'USD';
-            if (detected !== currency) {
+    if (localStorage.getItem('currency_manually_set')) {
+      return;
+    }
+
+    let isMounted = true;
+
+    const detectLocation = async () => {
+      try {
+        const res = await fetch('https://ipapi.co/json/');
+        if (!res.ok) throw new Error('ipapi failed');
+        const data = await res.json();
+        if (data.country_code && isMounted) {
+          const detected = data.country_code === 'NG' ? 'NGN' : 'USD';
+          setCurrency(detected);
+          localStorage.setItem('preferred_currency', detected);
+          return;
+        }
+      } catch (err) {
+        try {
+          const res2 = await fetch('https://ipwho.is/');
+          if (res2.ok) {
+            const data2 = await res2.json();
+            if (data2.country_code && isMounted) {
+              const detected = data2.country_code === 'NG' ? 'NGN' : 'USD';
               setCurrency(detected);
+              localStorage.setItem('preferred_currency', detected);
+              return;
             }
           }
-        })
-        .catch(() => console.log("Geoloc refined fallback skipped."));
-    }
-  }, [currency]);
+        } catch (err2) {
+          console.log("Geoloc refined fallback skipped.");
+        }
+      }
+    };
+
+    detectLocation();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const handleCurrencyToggle = () => {
+    const nextCurrency = currency === 'NGN' ? 'USD' : 'NGN';
     localStorage.setItem('currency_manually_set', 'true');
-    setCurrency(prev => prev === 'NGN' ? 'USD' : 'NGN');
+    localStorage.setItem('preferred_currency', nextCurrency);
+    setCurrency(nextCurrency);
   };
 
   const pricingData = {
@@ -169,12 +203,36 @@ const Pricing = () => {
             Quality software is an investment. I offer competitive, value-based pricing for high-end custom development.
           </motion.p>
 
-          {/* 60/40 Payment Split Badge (Brutalist Theme) */}
-          <motion.div variants={item} className="mt-8 inline-block border border-gray-200 dark:border-white/10 bg-white dark:bg-[#0a0a0a] px-6 py-3 shadow-sm">
-            <p className="text-[11px] font-bold uppercase tracking-widest text-gray-800 dark:text-gray-200">
-              <span className="text-accent mr-2">✦</span>
-              Flexible Payments: <span className="font-medium text-gray-600 dark:text-gray-300">60% upfront, 40% upon launch</span>
-            </p>
+          {/* 60/40 Payment Split Badge & Currency Switcher */}
+          <motion.div variants={item} className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
+            <div className="border border-gray-200 dark:border-white/10 bg-white dark:bg-[#0a0a0a] px-6 py-3 shadow-sm">
+              <p className="text-[11px] font-bold uppercase tracking-widest text-gray-800 dark:text-gray-200">
+                <span className="text-accent mr-2">✦</span>
+                Flexible Payments: <span className="font-medium text-gray-600 dark:text-gray-300">60% upfront, 40% upon launch</span>
+              </p>
+            </div>
+
+            {/* Currency Toggle Switcher */}
+            <div className="flex items-center gap-3 bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-white/10 px-4 py-2 shadow-sm rounded-full">
+              <span className={`text-[11px] font-bold uppercase tracking-wider ${currency === 'NGN' ? 'text-accent font-extrabold' : 'text-gray-500 dark:text-gray-400'}`}>
+                🇳🇬 NGN (₦)
+              </span>
+              <button
+                type="button"
+                onClick={handleCurrencyToggle}
+                aria-label="Toggle currency between NGN and USD"
+                className="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent bg-gray-200 dark:bg-gray-700 transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-accent"
+              >
+                <span
+                  className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-accent shadow ring-0 transition duration-200 ease-in-out ${
+                    currency === 'USD' ? 'translate-x-5' : 'translate-x-0'
+                  }`}
+                />
+              </button>
+              <span className={`text-[11px] font-bold uppercase tracking-wider ${currency === 'USD' ? 'text-accent font-extrabold' : 'text-gray-500 dark:text-gray-400'}`}>
+                🇺🇸 USD ($)
+              </span>
+            </div>
           </motion.div>
         </motion.div>
 
