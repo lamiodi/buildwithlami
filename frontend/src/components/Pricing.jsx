@@ -75,11 +75,15 @@ const Pricing = () => {
     };
   }, []);
 
+  const handleSelectCurrency = (selectedCurrency) => {
+    localStorage.setItem('currency_manually_set', 'true');
+    localStorage.setItem('preferred_currency', selectedCurrency);
+    setCurrency(selectedCurrency);
+  };
+
   const handleCurrencyToggle = () => {
     const nextCurrency = currency === 'NGN' ? 'USD' : 'NGN';
-    localStorage.setItem('currency_manually_set', 'true');
-    localStorage.setItem('preferred_currency', nextCurrency);
-    setCurrency(nextCurrency);
+    handleSelectCurrency(nextCurrency);
   };
 
   const pricingData = {
@@ -212,26 +216,33 @@ const Pricing = () => {
               </p>
             </div>
 
-            {/* Currency Toggle Switcher */}
-            <div className="flex items-center gap-3 bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-white/10 px-4 py-2 shadow-sm rounded-full">
-              <span className={`text-[11px] font-bold uppercase tracking-wider ${currency === 'NGN' ? 'text-accent font-extrabold' : 'text-gray-500 dark:text-gray-400'}`}>
-                🇳🇬 NGN (₦)
-              </span>
+            {/* Automated Currency Selector Toggle */}
+            <div className="flex items-center gap-1.5 bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-white/10 p-1.5 shadow-sm rounded-full">
               <button
                 type="button"
-                onClick={handleCurrencyToggle}
-                aria-label="Toggle currency between NGN and USD"
-                className="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent bg-gray-200 dark:bg-gray-700 transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-accent"
+                onClick={() => handleSelectCurrency('NGN')}
+                aria-label="Select NGN currency"
+                className={`px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer ${
+                  currency === 'NGN'
+                    ? 'bg-accent text-white shadow-md'
+                    : 'text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white'
+                }`}
               >
-                <span
-                  className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-accent shadow ring-0 transition duration-200 ease-in-out ${
-                    currency === 'USD' ? 'translate-x-5' : 'translate-x-0'
-                  }`}
-                />
+                <span>🇳🇬</span> NGN (₦)
               </button>
-              <span className={`text-[11px] font-bold uppercase tracking-wider ${currency === 'USD' ? 'text-accent font-extrabold' : 'text-gray-500 dark:text-gray-400'}`}>
-                🇺🇸 USD ($)
-              </span>
+
+              <button
+                type="button"
+                onClick={() => handleSelectCurrency('USD')}
+                aria-label="Select USD currency"
+                className={`px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer ${
+                  currency === 'USD'
+                    ? 'bg-accent text-white shadow-md'
+                    : 'text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white'
+                }`}
+              >
+                <span>🇺🇸</span> USD ($)
+              </button>
             </div>
           </motion.div>
         </motion.div>
