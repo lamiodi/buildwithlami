@@ -6,12 +6,13 @@ import {
     updateQuotationStatus, 
     convertQuotationToContract 
 } from '../controllers/quotationController.js';
-import { requireAdmin } from '../middleware/auth.js';
+import { verifyToken, requireRole } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 
 // All quotation routes require admin
-router.use(requireAdmin);
+router.use(verifyToken);
+router.use(requireRole('Owner', 'Administrator', 'ADMIN', 'SUPERADMIN'));
 
 router.get('/', getQuotations);
 router.get('/:id', getQuotationById);

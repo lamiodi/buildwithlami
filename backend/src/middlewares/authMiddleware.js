@@ -71,7 +71,8 @@ export function verifyToken(req, res, next) {
  *        requireRole('Survey Manager', 'Surveyor')
  */
 export function requireRole(...allowed) {
-    const allowedSet = new Set(allowed.map((r) => r.toLowerCase()));
+    const flatAllowed = allowed.flat();
+    const allowedSet = new Set(flatAllowed.map((r) => String(r).toLowerCase()));
     return (req, res, next) => {
         if (!req.user || !req.user.role) {
             return res.status(403).json({ error: 'Forbidden — insufficient role.' });
