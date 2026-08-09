@@ -5,7 +5,7 @@ import path from 'path'
 // In dev, the Vite proxy defaults to the in-memory mock server on :4001 so the
 // admin pages can be explored without a real Postgres. Set VITE_API_PROXY to
 // override (e.g. 'http://localhost:4000' to hit the real backend).
-const API_TARGET = process.env.VITE_API_PROXY || 'http://localhost:4001';
+const API_TARGET = process.env.VITE_API_PROXY || 'http://localhost:4000';
 
 export default defineConfig({
   plugins: [react()],
