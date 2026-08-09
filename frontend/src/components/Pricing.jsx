@@ -171,7 +171,7 @@ const Pricing = () => {
   ];
 
   return (
-    <section id="pricing" className="py-24 px-6 md:px-12 bg-gray-50 dark:bg-black transition-colors duration-300">
+    <section id="pricing" className="py-24 px-6 md:px-12 bg-gray-50 dark:bg-background transition-colors duration-300">
       <div className="max-w-7xl mx-auto">
         <motion.div
           className="text-center mb-16"
@@ -190,7 +190,7 @@ const Pricing = () => {
           </motion.p>
 
           {/* 60/40 Payment Split Badge */}
-          <motion.div variants={item} className="mt-8 inline-block border border-gray-200 dark:border-white/10 bg-white dark:bg-[#0a0a0a] px-6 py-3 shadow-sm">
+          <motion.div variants={item} className="mt-8 inline-block border border-gray-200 dark:border-white/10 bg-white dark:bg-[#1c1c1c] px-6 py-3 shadow-sm">
             <p className="text-[11px] font-bold uppercase tracking-widest text-gray-800 dark:text-gray-200">
               <span className="text-accent mr-2">✦</span>
               Flexible Payments: <span className="font-medium text-gray-600 dark:text-gray-300">60% upfront, 40% upon launch</span>
@@ -214,7 +214,7 @@ const Pricing = () => {
           ].map((featureItem) => (
             <div
               key={featureItem}
-              className="border border-gray-200 dark:border-white/10 bg-white dark:bg-[#0a0a0a] px-4 py-3 text-center text-[11px] font-bold uppercase tracking-widest text-gray-700 dark:text-gray-200 flex items-center justify-center"
+              className="border border-gray-200 dark:border-white/10 bg-white dark:bg-[#1c1c1c] px-4 py-3 text-center text-[11px] font-bold uppercase tracking-widest text-gray-700 dark:text-gray-200 flex items-center justify-center"
             >
               {featureItem}
             </div>
@@ -234,7 +234,7 @@ const Pricing = () => {
               variants={item}
               whileHover={shouldReduce ? {} : cardHover}
               transition={cardHoverTransition}
-              className={`relative p-8 border ${tier.popular ? 'border-accent shadow-[0_0_0_1px_rgba(244,74,34,0.15)]' : 'border-gray-200 dark:border-white/10'} bg-white dark:bg-[#0a0a0a] rounded-sm group hover:shadow-2xl transition-all duration-500`}
+              className={`relative p-8 border ${tier.popular ? 'border-accent shadow-[0_0_0_1px_rgba(244,74,34,0.15)]' : 'border-gray-200 dark:border-white/10'} bg-white dark:bg-[#1c1c1c] rounded-sm group hover:shadow-2xl transition-all duration-500`}
             >
               {tier.popular && (
                 <span className="absolute top-0 right-0 bg-accent text-white text-[10px] font-bold uppercase tracking-widest px-3 py-1">
