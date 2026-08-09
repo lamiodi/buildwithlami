@@ -23,8 +23,8 @@ export default function AdminContracts() {
     const fetchContracts = async () => {
         setLoading(true);
         try {
-            const res = await api.get('/api/contracts');
-            if (res.ok) setContracts(await res.json());
+            const res = await api.get('/contracts');
+            if (res.ok && res.data) setContracts(res.data);
         } catch (err) {
             notify.error('Failed to load contracts');
         } finally {
@@ -35,11 +35,11 @@ export default function AdminContracts() {
     const fetchClientsAndProjects = async () => {
         try {
             const [clientsRes, projectsRes] = await Promise.all([
-                api.get('/api/clients'),
-                api.get('/api/client-projects')
+                api.get('/clients'),
+                api.get('/client-projects')
             ]);
-            if (clientsRes.ok) setClients(await clientsRes.json());
-            if (projectsRes.ok) setProjects(await projectsRes.json());
+            if (clientsRes.ok && clientsRes.data) setClients(clientsRes.data);
+            if (projectsRes.ok && projectsRes.data) setProjects(projectsRes.data);
         } catch (err) {
             console.error('Failed to load dropdown data');
         }
@@ -53,7 +53,7 @@ export default function AdminContracts() {
     const handleCreate = async (e) => {
         e.preventDefault();
         try {
-            const res = await api.post('/api/contracts', {
+            const res = await api.post('/contracts', {
                 clientId,
                 projectId: projectId || undefined,
                 templateId,
@@ -69,8 +69,7 @@ export default function AdminContracts() {
                 setClientId(''); setProjectId(''); setTemplateId('');
                 setSignatoryEmail(''); setSignatoryName('');
             } else {
-                const data = await res.json();
-                notify.error(data.error || 'Failed to create contract');
+                notify.error(res.error || (res.data && res.data.error) || 'Failed to create contract');
             }
         } catch (err) {
             notify.error('Network error');
@@ -79,9 +78,9 @@ export default function AdminContracts() {
 
     const handleRefreshStatus = async (id) => {
         try {
-            const res = await api.get(`/api/contracts/${id}`);
-            if (res.ok) {
-                const updated = await res.json();
+            const res = await api.get(`/contracts/${id}`);
+            if (res.ok && res.data) {
+                const updated = res.data;
                 setContracts(contracts.map(c => c.id === id ? updated : c));
                 notify.success('Status refreshed');
             }

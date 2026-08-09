@@ -10,9 +10,9 @@ export default function ClientDashboard() {
 
     const fetchDashboard = async () => {
         try {
-            const res = await api.get('/api/client-portal/dashboard');
-            if (res.ok) {
-                setData(await res.json());
+            const res = await api.get('/client-portal/dashboard');
+            if (res.ok && res.data) {
+                setData(res.data);
             }
         } catch (err) {
             console.error('Failed to fetch dashboard', err);

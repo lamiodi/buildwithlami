@@ -45,6 +45,13 @@ const DEFAULT_TIMEOUT_MS = 15_000;
 let csrfTokenCache = null;
 let csrfTokenPromise = null;
 
+function formatEndpoint(path) {
+    if (!path) return API_BASE;
+    if (path.startsWith('/api/')) return `${API_BASE}${path.slice(4)}`;
+    if (path === '/api') return API_BASE;
+    return `${API_BASE}${path.startsWith('/') ? path : `/${path}`}`;
+}
+
 /**
  * Fetch CSRF token from backend. Called on app initialization.
  * Token is cached and refreshed on 403 errors.
@@ -56,7 +63,7 @@ async function getCsrfToken() {
     
     csrfTokenPromise = (async () => {
         try {
-            const res = await fetch(`${API_BASE}/csrf-token`, {
+            const res = await fetch(formatEndpoint('/csrf-token'), {
                 method: 'GET',
                 credentials: 'include', // Important: send/receive cookies
             });
@@ -143,7 +150,7 @@ async function parse(res) {
 }
 
 async function request(path, options = {}) {
-    const url = `${API_BASE}${path}`;
+    const url = formatEndpoint(path);
     const method = (options.method || 'GET').toUpperCase();
     const needsCsrf = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method);
     
@@ -282,7 +289,7 @@ export const api = {
             // Get CSRF token for upload
             if (!csrfTokenCache) await getCsrfToken();
             
-            const res = await fetch(`${API_BASE}${path}`, {
+            const res = await fetch(formatEndpoint(path), {
                 method: 'POST',
                 credentials: 'include', // Send cookies
                 headers: csrfTokenCache ? { 'X-CSRF-Token': csrfTokenCache } : {},

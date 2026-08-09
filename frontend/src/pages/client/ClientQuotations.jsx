@@ -10,9 +10,9 @@ export default function ClientQuotations() {
 
     const fetchQuotations = async () => {
         try {
-            const res = await api.get('/api/client-portal/quotations');
-            if (res.ok) {
-                setQuotations(await res.json());
+            const res = await api.get('/client-portal/quotations');
+            if (res.ok && res.data) {
+                setQuotations(res.data);
             } else {
                 notify.error('Failed to load quotations');
             }

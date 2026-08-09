@@ -9,9 +9,9 @@ export default function ClientDocuments() {
 
     const fetchDocuments = async () => {
         try {
-            const res = await api.get('/api/client-portal/documents');
-            if (res.ok) {
-                setDocuments(await res.json());
+            const res = await api.get('/client-portal/documents');
+            if (res.ok && res.data) {
+                setDocuments(res.data);
             }
         } catch (err) {
             console.error('Failed to fetch documents', err);

@@ -10,9 +10,9 @@ export default function ClientInvoices() {
 
     const fetchInvoices = async () => {
         try {
-            const res = await api.get('/api/client-portal/invoices');
-            if (res.ok) {
-                setInvoices(await res.json());
+            const res = await api.get('/client-portal/invoices');
+            if (res.ok && res.data) {
+                setInvoices(res.data);
             }
         } catch (err) {
             console.error('Failed to fetch invoices', err);

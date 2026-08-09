@@ -16,7 +16,7 @@ export default function ClientProfile() {
         setLoading(true);
 
         try {
-            const res = await api.put('/api/client-portal/profile', {
+            const res = await api.put('/client-portal/profile', {
                 name: name || undefined,
                 phone: phone || undefined,
                 password: password || undefined
@@ -27,8 +27,7 @@ export default function ClientProfile() {
                 setPassword(''); // clear password field
                 await checkSession(); // refresh context
             } else {
-                const err = await res.json();
-                notify.error(err.error || 'Failed to update profile');
+                notify.error(res.error || (res.data && res.data.error) || 'Failed to update profile');
             }
         } catch (err) {
             console.error('Profile update error:', err);

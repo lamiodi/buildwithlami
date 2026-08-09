@@ -9,9 +9,9 @@ export function ClientAuthProvider({ children }) {
 
     const checkSession = async () => {
         try {
-            const res = await api.get('/api/client-auth/me');
-            if (res.ok) {
-                setClientUser(await res.json());
+            const res = await api.get('/client-auth/me');
+            if (res.ok && res.data) {
+                setClientUser(res.data);
             } else {
                 setClientUser(null);
             }
@@ -27,18 +27,17 @@ export function ClientAuthProvider({ children }) {
     }, []);
 
     const login = async (email, password) => {
-        const res = await api.post('/api/client-auth/login', { email, password });
+        const res = await api.post('/client-auth/login', { email, password });
         if (!res.ok) {
-            const err = await res.json();
-            throw new Error(err.error || 'Login failed');
+            throw new Error(res.error || (res.data && res.data.error) || 'Login failed');
         }
-        const data = await res.json();
-        setClientUser(data.client);
+        const data = res.data;
+        setClientUser(data.client || data.user || data);
         return data;
     };
 
     const logout = async () => {
-        await api.post('/api/client-auth/logout');
+        await api.post('/client-auth/logout');
         setClientUser(null);
     };
 

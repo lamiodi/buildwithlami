@@ -10,9 +10,9 @@ export default function ClientTimeline() {
 
     const fetchProjects = async () => {
         try {
-            const res = await api.get('/api/client-portal/projects');
-            if (res.ok) {
-                const data = await res.json();
+            const res = await api.get('/client-portal/projects');
+            if (res.ok && res.data) {
+                const data = res.data;
                 const processed = data.map(p => {
                     let parsedMilestones = [];
                     if (typeof p.milestones === 'string') {
