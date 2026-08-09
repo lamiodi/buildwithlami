@@ -45,7 +45,7 @@ export default function ClientDashboard() {
     return (
         <div className="space-y-8">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="bg-white dark:bg-card p-6 rounded-xl border border-gray-100 dark:border-white/10 shadow-sm flex items-center gap-4">
+                <div className="bg-white dark:bg-[#1c1c1c] p-6 rounded-xl border border-gray-100 dark:border-white/5 shadow-sm dark:shadow-none flex items-center gap-4">
                     <div className="p-3 bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded-lg">
                         <FolderKanban size={24} />
                     </div>
@@ -55,7 +55,7 @@ export default function ClientDashboard() {
                     </div>
                 </div>
 
-                <div className="bg-white dark:bg-card p-6 rounded-xl border border-gray-100 dark:border-white/10 shadow-sm flex items-center gap-4">
+                <div className="bg-white dark:bg-[#1c1c1c] p-6 rounded-xl border border-gray-100 dark:border-white/5 shadow-sm dark:shadow-none flex items-center gap-4">
                     <div className="p-3 bg-green-50 dark:bg-green-500/10 text-green-600 dark:text-green-400 rounded-lg">
                         <CheckCircle size={24} />
                     </div>
@@ -65,7 +65,7 @@ export default function ClientDashboard() {
                     </div>
                 </div>
 
-                <div className="bg-white dark:bg-card p-6 rounded-xl border border-gray-100 dark:border-white/10 shadow-sm flex items-center gap-4">
+                <div className="bg-white dark:bg-[#1c1c1c] p-6 rounded-xl border border-gray-100 dark:border-white/5 shadow-sm dark:shadow-none flex items-center gap-4">
                     <div className="p-3 bg-purple-50 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400 rounded-lg">
                         <Receipt size={24} />
                     </div>
@@ -78,7 +78,7 @@ export default function ClientDashboard() {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* Active Projects */}
-                <div className="bg-white dark:bg-card rounded-xl border border-gray-100 dark:border-white/10 shadow-sm overflow-hidden">
+                <div className="bg-white dark:bg-[#1c1c1c] rounded-xl border border-gray-100 dark:border-white/5 shadow-sm dark:shadow-none overflow-hidden">
                     <div className="px-6 py-4 border-b border-gray-100 dark:border-white/10 flex justify-between items-center">
                         <h3 className="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
                             <FolderKanban size={18} className="text-accent" />
@@ -114,7 +114,7 @@ export default function ClientDashboard() {
                 </div>
 
                 {/* Recent Invoices */}
-                <div className="bg-white dark:bg-card rounded-xl border border-gray-100 dark:border-white/10 shadow-sm overflow-hidden">
+                <div className="bg-white dark:bg-[#1c1c1c] rounded-xl border border-gray-100 dark:border-white/5 shadow-sm dark:shadow-none overflow-hidden">
                     <div className="px-6 py-4 border-b border-gray-100 dark:border-white/10 flex justify-between items-center">
                         <h3 className="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
                             <Receipt size={18} className="text-accent" />

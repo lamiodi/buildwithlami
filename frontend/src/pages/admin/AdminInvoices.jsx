@@ -46,7 +46,7 @@ const StatCard = ({ label, value, hint, accent = 'blue' }) => {
         rose: 'from-rose-500 to-pink-600',
     };
     return (
-        <div className="bg-white dark:bg-gray-800 p-5 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm">
+        <div className="bg-white dark:bg-[#1c1c1c] p-5 rounded-2xl border border-gray-100 dark:border-gray-800/60 shadow-sm">
             <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${accents[accent]} text-white flex items-center justify-center shadow-sm mb-3`}>
                 <Icon.File className="w-5 h-5" />
             </div>
@@ -302,7 +302,7 @@ const AdminInvoices = () => {
                 {/* Create Form */}
                 {showForm && (
                     <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
-                        <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm">
+                        <form onSubmit={handleSubmit} className="bg-white dark:bg-[#1c1c1c] p-6 rounded-2xl border border-gray-100 dark:border-gray-800/60 shadow-sm">
                             <h2 className="text-lg font-bold font-heading text-gray-900 dark:text-white mb-4">Generate New Invoice</h2>
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
                                 <div>
@@ -407,15 +407,15 @@ const AdminInvoices = () => {
 
                 {/* Table */}
                 {loading ? (
-                    <div className="bg-white dark:bg-gray-800 p-12 rounded-2xl border border-gray-100 dark:border-gray-700 text-center text-gray-400 font-body">
+                    <div className="bg-white dark:bg-[#1c1c1c] p-12 rounded-2xl border border-gray-100 dark:border-gray-800/60 text-center text-gray-400 font-body">
                         Loading invoices…
                     </div>
                 ) : error ? (
-                    <div className="bg-white dark:bg-gray-800 p-12 rounded-2xl border border-gray-100 dark:border-gray-700 text-center text-red-500 font-body">
+                    <div className="bg-white dark:bg-[#1c1c1c] p-12 rounded-2xl border border-gray-100 dark:border-gray-800/60 text-center text-red-500 font-body">
                         {error}
                     </div>
                 ) : filtered.length === 0 ? (
-                    <div className="bg-white dark:bg-gray-800 p-12 rounded-2xl border border-gray-100 dark:border-gray-700 text-center">
+                    <div className="bg-white dark:bg-[#1c1c1c] p-12 rounded-2xl border border-gray-100 dark:border-gray-800/60 text-center">
                         <p className="text-gray-400 font-body mb-4">{search || statusFilter !== 'all' ? 'No invoices match your filters.' : 'No invoices yet.'}</p>
                         {!search && statusFilter === 'all' && (
                             <button onClick={() => setShowForm(true)} className="inline-flex items-center gap-1.5 bg-accent hover:bg-orange-600 text-white text-sm font-bold px-4 py-2.5 rounded-xl shadow-md transition-colors">
@@ -424,7 +424,7 @@ const AdminInvoices = () => {
                         )}
                     </div>
                 ) : (
-                    <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm overflow-hidden">
+                    <div className="bg-white dark:bg-[#1c1c1c] rounded-2xl border border-gray-100 dark:border-gray-800/60 shadow-sm overflow-hidden">
                         <div className="overflow-x-auto">
                             <table className="w-full text-left border-collapse">
                                 <thead>

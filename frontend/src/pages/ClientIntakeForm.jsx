@@ -189,14 +189,17 @@ const ClientIntakeForm = () => {
 
             <form onSubmit={handleSubmit} className="p-8 space-y-6">
               <div className="space-y-6">
-                {(formConfig.schema || formConfig.fields || []).map((field, idx) => (
+                {(formConfig.schema || formConfig.fields || []).map((field, idx) => {
+                  const fieldId = `field_${field.id || idx}`;
+                  return (
                   <div key={field.id || idx}>
-                    <label className="block font-semibold text-sm mb-2 text-gray-800 dark:text-gray-200 cursor-pointer">
+                    <label htmlFor={fieldId} className="block font-semibold text-sm mb-2 text-gray-800 dark:text-gray-200 cursor-pointer">
                       {field.label} {field.required && <span className="text-red-500">*</span>}
                     </label>
                     
                     {field.type === 'text' && (
                       <input 
+                        id={fieldId}
                         type="text" 
                         required={field.required}
                         value={responses[fieldKey(field)] || ''}
@@ -207,6 +210,7 @@ const ClientIntakeForm = () => {
                     
                     {field.type === 'email' && (
                       <input 
+                        id={fieldId}
                         type="email" 
                         required={field.required}
                         value={responses[fieldKey(field)] || ''}
@@ -217,6 +221,7 @@ const ClientIntakeForm = () => {
 
                     {field.type === 'textarea' && (
                       <textarea 
+                        id={fieldId}
                         required={field.required}
                         rows={4}
                         value={responses[fieldKey(field)] || ''}
@@ -227,6 +232,7 @@ const ClientIntakeForm = () => {
 
                     {field.type === 'select' && (
                       <select 
+                        id={fieldId}
                         required={field.required}
                         value={responses[fieldKey(field)] || ''}
                         onChange={(e) => handleResponseChange(fieldKey(field), e.target.value)}
@@ -264,7 +270,7 @@ const ClientIntakeForm = () => {
                       </div>
                     )}
                   </div>
-                ))}
+                )})}
               </div>
 
               <motion.button 

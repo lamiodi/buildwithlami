@@ -18,18 +18,18 @@ const Hero = () => {
         <motion.p variants={item} className="text-accent uppercase tracking-[0.3em] text-[11px] font-bold mb-6">
           Web Apps That Drive Results
         </motion.p>
-        <motion.h1 variants={item} className="text-5xl md:text-7xl lg:text-[90px] font-heading font-bold leading-[0.95] tracking-tight mb-6 text-black dark:text-white">
+        <motion.h1 variants={item} className="text-5xl md:text-7xl lg:text-[90px] font-heading font-bold leading-none tracking-tighter mb-6 text-black dark:text-white">
           I Build Web Apps <br className="hidden md:block" />
           That <span className="italic text-accent">Grow</span> Your <br className="hidden md:block" />
           Revenue
         </motion.h1>
-        <motion.p variants={item} className="text-gray-600 dark:text-gray-200 text-lg md:text-xl max-w-xl leading-relaxed mb-10 font-light opacity-90">
+        <motion.p variants={item} className="text-gray-600 dark:text-gray-300 text-lg md:text-xl max-w-xl leading-relaxed mb-10 font-medium">
           From idea to launch in weeks, not months. I design, build, and ship high-performance web applications for founders and growing businesses.
         </motion.p>
         <motion.div variants={item} className="flex flex-col sm:flex-row sm:items-center gap-4">
           <motion.a
             href="#contact"
-            className="bg-accent text-white font-bold uppercase text-[11px] px-10 py-4 tracking-[0.2em] hover:bg-black dark:hover:bg-white dark:hover:text-black transition-all duration-300 inline-block text-center shadow-lg hover:shadow-accent/30"
+            className="bg-accent text-white font-bold uppercase text-[11px] px-10 py-4 tracking-[0.15em] hover:bg-black dark:hover:bg-white dark:hover:text-black transition-all duration-300 inline-block text-center shadow-lg hover:shadow-accent/30"
             whileHover={shouldReduce ? {} : buttonHover}
             whileTap={shouldReduce ? {} : buttonTap}
           >
@@ -37,11 +37,11 @@ const Hero = () => {
           </motion.a>
           <motion.a
             href="#projects"
-            className="text-gray-800 dark:text-gray-200 text-[11px] uppercase tracking-[0.2em] font-bold hover:text-accent transition-all inline-block text-center py-4 px-4"
+            className="border border-gray-200 dark:border-gray-800 text-gray-800 dark:text-gray-200 text-[11px] uppercase tracking-[0.15em] font-bold hover:border-accent hover:text-accent transition-all duration-300 inline-block text-center py-4 px-10"
             whileHover={shouldReduce ? {} : buttonHover}
             whileTap={shouldReduce ? {} : buttonTap}
           >
-            See My Work →
+            See My Work
           </motion.a>
         </motion.div>
       </motion.div>

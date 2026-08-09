@@ -128,7 +128,7 @@ const AdminClients = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Form */}
-          <div className="bg-white dark:bg-gray-800 p-6 md:p-8 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm h-fit">
+          <div className="bg-white dark:bg-[#1c1c1c] p-6 md:p-8 rounded-2xl border border-gray-100 dark:border-gray-800/60 shadow-sm h-fit">
             <h2 className="text-xl font-bold mb-6 font-heading text-gray-900 dark:text-white">
               {editingId ? 'Update Client Details' : 'Add New Client'}
             </h2>
@@ -235,15 +235,15 @@ const AdminClients = () => {
           {/* Directory Table */}
           <div className="lg:col-span-2 space-y-4">
             {loading ? (
-              <div className="bg-white dark:bg-gray-800 p-8 rounded-2xl border border-gray-100 dark:border-gray-700 text-center text-gray-400 font-body">
+              <div className="bg-white dark:bg-[#1c1c1c] p-8 rounded-2xl border border-gray-100 dark:border-gray-800/60 text-center text-gray-400 font-body">
                 Loading client directory...
               </div>
             ) : error ? (
-              <div className="bg-white dark:bg-gray-800 p-8 rounded-2xl border border-gray-100 dark:border-gray-700 text-center text-red-500 font-body">
+              <div className="bg-white dark:bg-[#1c1c1c] p-8 rounded-2xl border border-gray-100 dark:border-gray-800/60 text-center text-red-500 font-body">
                 {error}
               </div>
             ) : (
-              <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm overflow-hidden">
+              <div className="bg-white dark:bg-[#1c1c1c] rounded-2xl border border-gray-100 dark:border-gray-800/60 shadow-sm overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse">
                     <thead>

@@ -327,7 +327,7 @@ const GenerateQuotationModal = ({ lead, onClose, onGenerate }) => {
 
     return (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="fixed inset-0 z-[60] bg-black/50 flex items-center justify-center p-4" onClick={onClose}>
-            <motion.div initial={{ scale: 0.95 }} animate={{ scale: 1 }} className="w-full max-w-md bg-white dark:bg-gray-900 rounded-2xl shadow-2xl p-5" onClick={(e) => e.stopPropagation()}>
+            <motion.div initial={{ scale: 0.95 }} animate={{ scale: 1 }} className="w-full max-w-md bg-white dark:bg-[#1c1c1c] rounded-2xl shadow-2xl p-5 border border-transparent dark:border-white/5" onClick={(e) => e.stopPropagation()}>
                 <div className="flex items-center justify-between mb-4">
                     <h2 className="text-lg font-extrabold text-gray-900 dark:text-white">Generate Quotation</h2>
                     <button type="button" onClick={onClose} className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500">
@@ -384,7 +384,7 @@ const TemplatePickerModal = ({ lead, templates, onClose, onSend }) => {
             <motion.div
                 initial={{ scale: 0.95, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
-                className="w-full max-w-2xl bg-white dark:bg-gray-900 rounded-2xl shadow-2xl overflow-hidden"
+                className="w-full max-w-2xl bg-white dark:bg-[#1c1c1c] rounded-2xl shadow-2xl overflow-hidden border border-transparent dark:border-white/5"
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className="p-5 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
@@ -428,7 +428,7 @@ const TemplatePickerModal = ({ lead, templates, onClose, onSend }) => {
                         )}
                     </div>
                 </div>
-                <div className="p-4 border-t border-gray-200 dark:border-gray-800 flex justify-end gap-2 bg-gray-50 dark:bg-gray-900">
+                <div className="p-4 border-t border-gray-200 dark:border-white/5 flex justify-end gap-2 bg-gray-50 dark:bg-black/20">
                     <button onClick={onClose} className="px-4 py-2 text-sm font-bold text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
                         Cancel
                     </button>
@@ -461,7 +461,7 @@ const LeadCard = ({ lead, onClick, onDragStart, onDragEnd }) => {
             }}
             onDragEnd={onDragEnd}
             onClick={() => onClick(lead)}
-            className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-3 cursor-grab active:cursor-grabbing hover:shadow-md transition-all group"
+            className="bg-white dark:bg-[#1c1c1c] rounded-xl border border-gray-200 dark:border-white/5 p-3 cursor-grab active:cursor-grabbing hover:shadow-md transition-all group"
         >
             <div className="flex items-start justify-between gap-2 mb-1.5">
                 <p className="text-sm font-bold text-gray-900 dark:text-white truncate">{lead.full_name}</p>
@@ -552,7 +552,7 @@ const NewLeadForm = ({ onClose, onCreate }) => {
 
     return (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4" onClick={onClose}>
-            <motion.div initial={{ scale: 0.95 }} animate={{ scale: 1 }} className="w-full max-w-md bg-white dark:bg-gray-900 rounded-2xl shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <motion.div initial={{ scale: 0.95 }} animate={{ scale: 1 }} className="w-full max-w-md bg-white dark:bg-[#1c1c1c] rounded-2xl shadow-2xl border border-transparent dark:border-white/5" onClick={(e) => e.stopPropagation()}>
                 <form onSubmit={handleSubmit} className="p-5 space-y-3">
                     <div className="flex items-center justify-between">
                         <h2 className="text-lg font-extrabold text-gray-900 dark:text-white">New Lead</h2>
@@ -751,7 +751,7 @@ const AdminCRM = () => {
 
                 {/* Kanban */}
                 {loading ? (
-                    <div className="flex-1 flex items-center justify-center p-12 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700">
+                    <div className="flex-1 flex items-center justify-center p-12 bg-white dark:bg-[#1c1c1c] rounded-2xl border border-gray-100 dark:border-white/5">
                         <p className="text-gray-400 font-body">Loading leads…</p>
                     </div>
                 ) : (

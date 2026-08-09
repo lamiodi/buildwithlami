@@ -172,6 +172,8 @@ const ContactPage = () => {
                         ? 'border-green-500 focus:border-green-500'
                         : 'border-gray-300 dark:border-gray-700 focus:border-accent dark:focus:border-white'
                   }`}
+                  aria-invalid={emailError}
+                  aria-describedby={emailError ? "email-error" : undefined}
                 />
                 <AnimatePresence>
                   {emailError && (
@@ -180,6 +182,8 @@ const ContactPage = () => {
                       animate={{ opacity: 1, height: 'auto' }}
                       exit={{ opacity: 0, height: 0 }}
                       className="text-red-500 text-xs mt-2"
+                      id="email-error"
+                      role="alert"
                     >
                       Please enter a valid email address.
                     </motion.p>
