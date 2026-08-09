@@ -3,7 +3,7 @@
     { "source": "/favicon.ico", "destination": "/favicon.svg" },
     {
       "source": "/api/:path*",
-      "destination": "https://buildwithlami.onrender.com/api/:path*"
+      "destination": "https://buildwithlami-6qst.onrender.com/api/:path*"
     },
     { "source": "/(.*)", "destination": "/index.html" }
   ],

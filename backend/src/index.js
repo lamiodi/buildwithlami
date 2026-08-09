@@ -113,7 +113,14 @@ app.use(cookieParser()); // Parse cookies for JWT + CSRF
 // Apply CSRF protection to all routes except auth login/refresh/logout
 app.use((req, res, next) => {
     // Skip CSRF for safe methods and auth endpoints
-    const skipPaths = ['/api/auth/login', '/api/auth/refresh', '/api/auth/logout', '/api/auth/2fa'];
+    const skipPaths = [
+        '/api/auth/login',
+        '/api/auth/refresh',
+        '/api/auth/logout',
+        '/api/auth/2fa',
+        '/api/client-auth/login',
+        '/api/client-auth/logout'
+    ];
     const isAuthEndpoint = skipPaths.some(path => req.path.startsWith(path));
     const isSafeMethod = ['GET', 'HEAD', 'OPTIONS'].includes(req.method);
     
