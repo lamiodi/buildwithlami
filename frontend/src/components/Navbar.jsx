@@ -9,8 +9,6 @@ const NAV_LINKS = [
   { name: 'Services', path: '/services', type: 'link' },
   { name: 'Projects', path: '/projects', type: 'link' },
   { name: 'Pricing', path: '/pricing', type: 'link' },
-  { name: 'Survey', path: '/survey', type: 'link' },
-  { name: 'Drone', path: '/drone', type: 'link' },
   { name: 'About', path: '/about', type: 'link' },
   { name: 'Contact', path: '/contact', type: 'link' },
 ];

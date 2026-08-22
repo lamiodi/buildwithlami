@@ -111,10 +111,14 @@ function buildConfig(options, needsCsrf = false) {
         }
     }
 
+    const isFormData = typeof FormData !== 'undefined' && options.body instanceof FormData;
     const headers = {
-        'Content-Type': 'application/json',
+        ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
         ...(options.headers || {}),
     };
+    if (isFormData && headers['Content-Type']) {
+        delete headers['Content-Type']; // Let browser set multipart boundary
+    }
 
     // Add CSRF token for mutating requests
     if (needsCsrf && csrfTokenCache) {
@@ -130,6 +134,12 @@ function buildConfig(options, needsCsrf = false) {
 
     return { config, timer, internalController };
 }
+
+const prepareBody = (body) => {
+    if (body === undefined) return undefined;
+    if (typeof FormData !== 'undefined' && body instanceof FormData) return body;
+    return typeof body === 'string' ? body : JSON.stringify(body);
+};
 
 // Normalized result shape:
 //   { ok: true,  status, data }
@@ -190,7 +200,7 @@ export const api = {
         try {
             const res = await request(path, {
                 method: 'POST',
-                body: body !== undefined ? JSON.stringify(body) : undefined,
+                body: prepareBody(body),
                 ...opts,
             });
             // If 403, clear CSRF token and retry once
@@ -199,7 +209,7 @@ export const api = {
                 await getCsrfToken();
                 const retryRes = await request(path, {
                     method: 'POST',
-                    body: body !== undefined ? JSON.stringify(body) : undefined,
+                    body: prepareBody(body),
                     ...opts,
                 });
                 return parse(retryRes);
@@ -215,7 +225,7 @@ export const api = {
         try {
             const res = await request(path, {
                 method: 'PUT',
-                body: body !== undefined ? JSON.stringify(body) : undefined,
+                body: prepareBody(body),
                 ...opts,
             });
             if (res.status === 403) {
@@ -223,7 +233,7 @@ export const api = {
                 await getCsrfToken();
                 const retryRes = await request(path, {
                     method: 'PUT',
-                    body: body !== undefined ? JSON.stringify(body) : undefined,
+                    body: prepareBody(body),
                     ...opts,
                 });
                 return parse(retryRes);
@@ -239,7 +249,7 @@ export const api = {
         try {
             const res = await request(path, {
                 method: 'PATCH',
-                body: body !== undefined ? JSON.stringify(body) : undefined,
+                body: prepareBody(body),
                 ...opts,
             });
             if (res.status === 403) {
@@ -247,7 +257,7 @@ export const api = {
                 await getCsrfToken();
                 const retryRes = await request(path, {
                     method: 'PATCH',
-                    body: body !== undefined ? JSON.stringify(body) : undefined,
+                    body: prepareBody(body),
                     ...opts,
                 });
                 return parse(retryRes);

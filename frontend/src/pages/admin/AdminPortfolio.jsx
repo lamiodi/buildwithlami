@@ -117,17 +117,9 @@ const JsonField = ({ label, value, onChange, placeholder, error }) => (
 
 // ── Image upload helper (also reused for gallery items) ───
 const uploadImageFile = async (file) => {
-    const token = localStorage.getItem('token');
-    const fd = new FormData();
-    fd.append('image', file);
-    const res = await fetch(`${API_BASE}/upload`, {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` },
-        body: fd,
-    });
-    if (!res.ok) throw new Error('Upload failed');
-    const data = await res.json();
-    return data.url;
+    const res = await api.upload('/upload', file);
+    if (!res.ok) throw new Error(res.error || 'Upload failed');
+    return res.data?.url || res.data;
 };
 
 // Default form state per division. Centralised so creating
