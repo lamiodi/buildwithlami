@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { motion, useReducedMotion } from 'framer-motion';
 import { staggerContainer, fadeUpItem, sectionViewport, reducedMotionVariants } from '../utils/motion';
 
@@ -21,42 +22,48 @@ const About = () => {
         </motion.h2>
 
         {/* Main Image */}
-        <motion.div variants={item} className="w-full h-64 md:h-[500px] bg-gray-200 dark:bg-gray-800 mb-16 relative overflow-hidden shadow-2xl rounded-sm">
+        <motion.div variants={item} className="w-full h-64 md:h-[500px] lg:h-[600px] bg-gray-200 dark:bg-gray-800 mb-16 relative overflow-hidden shadow-2xl rounded-2xl">
           <img 
             src="/Rectangle 50 (1).png" 
             alt="My Desk Setup" 
             className="w-full h-full object-cover opacity-90 dark:opacity-80"
           />
-          <div className="absolute bottom-6 right-6 bg-white/90 dark:bg-[#1a1a1a]/80 backdrop-blur-md border border-gray-200 dark:border-white/10 text-black dark:text-white font-bold px-6 py-3 rounded-full text-sm tracking-widest uppercase flex items-center shadow-lg">
+          <div className="absolute bottom-6 right-6 bg-white/90 dark:bg-[#1a1a1a]/80 backdrop-blur-md border border-gray-200 dark:border-white/10 text-black dark:text-white font-bold px-6 py-3 rounded-full text-xs md:text-sm tracking-widest uppercase flex items-center shadow-lg">
             <span className="text-accent mr-2 text-lg">📍</span> LAGOS, NIGERIA
           </div>
-          <div className="absolute top-6 left-6 font-handwritten text-4xl text-white transform -rotate-3 opacity-90 drop-shadow-md">
+          <div className="absolute top-6 left-6 font-handwritten text-3xl md:text-4xl text-white transform -rotate-3 opacity-90 drop-shadow-md">
             My Setup
           </div>
         </motion.div>
 
-        <div className="flex flex-col md:flex-row text-left max-w-4xl mx-auto space-y-6 md:space-y-0 md:space-x-12">
+        <div className="flex flex-col md:flex-row text-left max-w-4xl mx-auto space-y-6 md:space-y-0 md:space-x-12 items-center justify-between">
           <motion.div
-            className="md:w-1/3"
+            className="md:w-1/2"
             variants={item}
             initial="hidden"
             whileInView="visible"
             viewport={sectionViewport}
           >
-            <p className="text-lg md:text-xl leading-relaxed text-black dark:text-white font-medium">
-              Hi, I'm Eugene, a Nigerian<br />full-stack web developer
+            <p className="text-xl md:text-2xl leading-relaxed text-black dark:text-white font-heading font-bold">
+              Hi, I'm Eugene — a Nigerian full-stack software engineer.
             </p>
           </motion.div>
-          <div className="md:w-2/3 ml-auto text-right flex justify-end">
+          <div className="md:w-1/2 flex flex-col items-start md:items-end text-left md:text-right">
             <motion.p 
               initial={shouldReduce ? {} : { opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}
               transition={{ duration: shouldReduce ? 0 : 0.8, delay: shouldReduce ? 0 : 0.2 }}
-              className="text-gray-700 dark:text-gray-200 leading-relaxed text-lg md:text-xl font-light max-w-lg opacity-90"
+              className="text-gray-700 dark:text-gray-300 leading-relaxed text-base md:text-lg font-light mb-6 opacity-90"
             >
               I specialize in building modern, scalable web applications that are fast, reliable, and easy to use. From idea to deployment, I focus on creating systems that not only work but grow with your business.
             </motion.p>
+            <Link
+              to="/about"
+              className="inline-flex items-center text-xs font-bold uppercase tracking-widest text-accent hover:text-black dark:hover:text-white transition-colors"
+            >
+              Learn More About My Story & Stack →
+            </Link>
           </div>
         </div>
       </motion.div>

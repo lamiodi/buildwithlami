@@ -62,15 +62,29 @@ const Projects = () => {
 
   return (
     <section id="projects" className="px-6 md:px-12 max-w-7xl mx-auto py-24">
-      <motion.h3
-        className="text-2xl font-heading font-bold mb-8 text-black dark:text-white"
-        initial={shouldReduce ? {} : { opacity: 0, y: 40 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={sectionViewport}
-        transition={{ duration: shouldReduce ? 0 : 0.5, ease: 'easeOut' }}
-      >
-        Projects
-      </motion.h3>
+      {/* Section Header */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
+        <div>
+          <motion.p
+            variants={item}
+            className="text-accent uppercase tracking-[0.3em] text-[11px] font-bold mb-3"
+          >
+            Selected Work & Case Studies
+          </motion.p>
+          <motion.h2
+            variants={item}
+            className="text-4xl md:text-5xl lg:text-6xl font-heading font-bold tracking-tight text-black dark:text-white"
+          >
+            Built For <span className="italic text-accent">Results</span>.
+          </motion.h2>
+        </div>
+        <motion.p
+          variants={item}
+          className="text-gray-600 dark:text-gray-300 text-base max-w-md font-light leading-relaxed opacity-90"
+        >
+          Explore high-performance web applications, enterprise platforms, and digital commerce systems engineered for real-world business impact.
+        </motion.p>
+      </div>
 
       <SkeletonTransition
         isLoading={loading}
@@ -85,86 +99,101 @@ const Projects = () => {
           </div>
         }
       >
+        {/* Main Featured Project Card */}
         <motion.div
-          className="mb-24"
+          className="mb-16 bg-white dark:bg-[#141414] border border-gray-200 dark:border-white/10 rounded-2xl overflow-hidden shadow-xl"
           variants={container}
           initial="hidden"
           whileInView="visible"
           viewport={sectionViewport}
         >
-          <motion.div
-            variants={item}
-            whileHover={shouldReduce ? {} : cardHover}
-            transition={cardHoverTransition}
-            className="group cursor-pointer"
-            onClick={() => navigate(`/projects/${featuredProject.slug || featuredProject.id}`)}
-          >
-            <motion.h4 variants={item} className="text-3xl md:text-4xl font-heading font-bold mb-2 text-black dark:text-white group-hover:text-accent transition-colors">
-              {featuredProject.title}
-            </motion.h4>
-            <motion.p variants={item} className="text-gray-700 dark:text-gray-200 text-lg md:text-xl max-w-3xl mb-12 font-light leading-relaxed opacity-90">
-              {featuredProject.summary}
-            </motion.p>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-0 items-stretch">
+            {/* Image Preview */}
+            <div
+              className="lg:col-span-7 bg-gray-900 relative overflow-hidden group cursor-pointer min-h-[320px] md:min-h-[440px]"
+              onClick={() => navigate(`/projects/${featuredProject.slug || featuredProject.id}`)}
+            >
+              <img
+                src={featuredProject.image_url || featuredProject.image}
+                alt={featuredProject.title}
+                className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700 opacity-95"
+                width="800"
+                height="500"
+                loading="lazy"
+                decoding="async"
+              />
+              <div className="absolute top-4 left-4 bg-black/80 backdrop-blur-md text-white text-[10px] uppercase tracking-widest font-bold px-3 py-1.5 rounded-full border border-white/10">
+                Featured Case Study · {featuredProject.year || '2024'}
+              </div>
+            </div>
 
-            {/* Project Image */}
-            <motion.div variants={item} className="w-full h-64 md:h-[500px] bg-gray-200 dark:bg-gray-800 mb-8 overflow-hidden rounded-sm border border-gray-200 dark:border-none shadow-md">
-               <img
-                  src={featuredProject.image_url || featuredProject.image}
-                  alt={featuredProject.title}
-                  className="w-full h-full object-cover object-top hover:scale-105 transition-transform duration-700"
-                  width="800"
-                  height="500"
-                  loading="lazy"
-                  decoding="async"
-                />
-            </motion.div>
+            {/* Content Details */}
+            <div className="lg:col-span-5 p-8 md:p-10 flex flex-col justify-between">
+              <div>
+                <div className="flex flex-wrap items-center gap-2 mb-4">
+                  {(featuredProject.tech_stack || ['React', 'Node.js', 'PostgreSQL']).slice(0, 4).map((tech, idx) => (
+                    <span
+                      key={idx}
+                      className="text-[10px] uppercase font-bold tracking-wider px-2.5 py-1 rounded-md bg-gray-100 dark:bg-white/5 text-gray-800 dark:text-gray-300 border border-gray-200 dark:border-white/5"
+                    >
+                      {tech}
+                    </span>
+                  ))}
+                </div>
 
-            <motion.div variants={item} className="flex flex-col md:flex-row justify-between items-start md:items-end">
-              <ul className="space-y-3 text-sm md:text-base text-gray-700 dark:text-gray-200 mb-8 md:mb-0">
-                {featuredProject.features ? featuredProject.features.map((feature, idx) => (
-                  <li key={`feat-${idx}`} className="flex items-center">
-                    <CheckIcon className="mr-3 text-accent" />
-                    {feature}
-                  </li>
-                )) : (
-                  <li className="flex items-center">
-                     <CheckIcon className="mr-3 text-accent" />
-                     Built with modern web technologies
-                  </li>
+                <h3
+                  onClick={() => navigate(`/projects/${featuredProject.slug || featuredProject.id}`)}
+                  className="text-2xl md:text-3xl font-heading font-bold text-black dark:text-white hover:text-accent transition-colors cursor-pointer mb-3"
+                >
+                  {featuredProject.title}
+                </h3>
+
+                <p className="text-gray-600 dark:text-gray-300 text-sm md:text-base leading-relaxed mb-6 font-light">
+                  {featuredProject.summary}
+                </p>
+
+                {/* Features List */}
+                <ul className="space-y-2.5 text-xs md:text-sm text-gray-700 dark:text-gray-300 mb-8">
+                  {(featuredProject.features || [
+                    'Bespoke software architecture',
+                    'Production-ready data integrity',
+                    'Optimized for mobile & desktop performance'
+                  ]).slice(0, 3).map((feat, idx) => (
+                    <li key={idx} className="flex items-start">
+                      <CheckIcon className="mr-2.5 text-accent flex-shrink-0 mt-0.5" />
+                      <span>{feat}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex flex-wrap items-center gap-3 pt-6 border-t border-gray-100 dark:border-white/10">
+                <button
+                  type="button"
+                  onClick={() => navigate(`/projects/${featuredProject.slug || featuredProject.id}`)}
+                  className="cursor-pointer bg-accent hover:bg-black dark:hover:bg-white dark:hover:text-black text-white text-xs font-bold uppercase tracking-wider px-6 py-3 rounded-lg transition-all shadow-md"
+                >
+                  View Case Study →
+                </button>
+                {featuredProject.live_url && featuredProject.live_url !== '#' && (
+                  <a
+                    href={featuredProject.live_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300 hover:text-accent px-4 py-3 border border-gray-200 dark:border-white/10 rounded-lg transition-colors"
+                  >
+                    Live Demo ↗
+                  </a>
                 )}
-              </ul>
-
-              <motion.a
-                href={featuredProject.live_url || featuredProject.link}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-accent text-white font-bold px-6 py-2 flex items-center hover:bg-[#d43d1a] transition-colors"
-                whileHover={shouldReduce ? {} : buttonHover}
-                whileTap={shouldReduce ? {} : buttonTap}
-                onClick={(e) => e.stopPropagation()} // Prevent navigation when clicking live demo
-              >
-                Live Demo
-                <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
-              </motion.a>
-            </motion.div>
-          </motion.div>
+              </div>
+            </div>
+          </div>
         </motion.div>
 
+        {/* Supporting Projects 3-Column Grid */}
         <motion.div
-          className="text-center mb-12"
-          initial={shouldReduce ? {} : { opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={sectionViewport}
-          transition={{ duration: shouldReduce ? 0 : 0.5 }}
-        >
-          <Link to="/projects" className="block group">
-            <h4 className="text-sm font-bold uppercase tracking-widest mb-2 text-black dark:text-white group-hover:text-accent transition-colors">View More Projects</h4>
-            <p className="text-xs text-gray-700 dark:text-gray-300 uppercase tracking-[0.2em] font-bold group-hover:text-accent transition-colors">Designed in Figma. Built with PERN Stack.</p>
-          </Link>
-        </motion.div>
-
-        <motion.div
-          className="space-y-16"
+          className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12"
           variants={container}
           initial="hidden"
           whileInView="visible"
@@ -172,29 +201,70 @@ const Projects = () => {
         >
           {moreProjects.map((p, idx) => (
             <motion.div
-              key={`more-${idx}`}
+              key={idx}
               variants={item}
               whileHover={shouldReduce ? {} : cardHover}
               transition={cardHoverTransition}
-              className="group cursor-pointer"
+              className="bg-white dark:bg-[#141414] border border-gray-200 dark:border-white/10 rounded-2xl overflow-hidden flex flex-col justify-between shadow-sm hover:shadow-xl transition-all group cursor-pointer"
               onClick={() => navigate(`/projects/${p.slug || p.id}`)}
             >
-              <div className="w-full h-64 md:h-[400px] bg-gray-200 dark:bg-gray-800 mb-4 overflow-hidden rounded-sm">
-                 <img 
-                   src={p.image_url || p.image} 
-                   alt={p.title} 
-                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 opacity-90 dark:opacity-80 group-hover:opacity-100"
-                   width="800"
-                   height="400"
-                   loading="lazy"
-                 />
+              <div>
+                <div className="w-full h-48 sm:h-56 bg-gray-900 overflow-hidden relative">
+                  <img
+                    src={p.image_url || p.image}
+                    alt={p.title}
+                    className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700 opacity-90 group-hover:opacity-100"
+                    width="600"
+                    height="350"
+                    loading="lazy"
+                  />
+                  <div className="absolute top-3 right-3 bg-black/80 backdrop-blur-md text-white text-[9px] uppercase tracking-widest font-bold px-2.5 py-1 rounded-full">
+                    {p.year || '2024'}
+                  </div>
+                </div>
+
+                <div className="p-6">
+                  <div className="flex flex-wrap items-center gap-1.5 mb-3">
+                    {(p.tech_stack || ['React', 'Node.js', 'PostgreSQL']).slice(0, 3).map((t, tIdx) => (
+                      <span
+                        key={tIdx}
+                        className="text-[9px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-gray-100 dark:bg-white/5 text-gray-700 dark:text-gray-300"
+                      >
+                        {t}
+                      </span>
+                    ))}
+                  </div>
+                  <h4 className="text-xl font-heading font-bold text-black dark:text-white group-hover:text-accent transition-colors mb-2">
+                    {p.title}
+                  </h4>
+                  <p className="text-gray-600 dark:text-gray-300 text-xs md:text-sm line-clamp-3 font-light leading-relaxed">
+                    {p.summary}
+                  </p>
+                </div>
               </div>
-              <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider font-bold">
-                <span className="text-gray-800 dark:text-gray-300 group-hover:text-accent dark:group-hover:text-white transition-colors">{p.title}</span>
-                <span className="text-accent">{p.year || (p.created_at ? new Date(p.created_at).getFullYear() : '')}</span>
+
+              <div className="px-6 pb-6 pt-2 flex items-center justify-between border-t border-gray-100 dark:border-white/5 text-xs font-bold text-accent uppercase tracking-wider">
+                <span>View Case Study</span>
+                <span className="group-hover:translate-x-1 transition-transform">→</span>
               </div>
             </motion.div>
           ))}
+        </motion.div>
+
+        {/* View All Projects Footer CTA */}
+        <motion.div
+          className="text-center pt-6"
+          initial={shouldReduce ? {} : { opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={sectionViewport}
+          transition={{ duration: shouldReduce ? 0 : 0.5 }}
+        >
+          <Link
+            to="/projects"
+            className="inline-flex items-center gap-2 text-xs md:text-sm font-bold uppercase tracking-[0.2em] text-gray-800 dark:text-gray-200 hover:text-accent dark:hover:text-accent transition-colors py-3 px-8 border border-gray-300 dark:border-white/10 rounded-full hover:border-accent shadow-sm"
+          >
+            Explore All Case Studies & Projects →
+          </Link>
         </motion.div>
       </SkeletonTransition>
     </section>

@@ -35,14 +35,14 @@ const HomePage = () => {
   return (
     <>
       <Hero />
-      <HowItWorks />
-      <About />
+      <Projects />
       <Services />
       <WhyChoose />
-      <Pricing />
-      <SaaSProducts />
-      <Projects />
+      <HowItWorks />
       <Testimonials />
+      <Pricing />
+      <About />
+      <SaaSProducts />
       <FAQ />
       <Contact />
     </>
