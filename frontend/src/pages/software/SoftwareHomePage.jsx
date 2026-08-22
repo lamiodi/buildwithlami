@@ -23,6 +23,14 @@ import {
 import { api } from '../../services/api';
 import { notify } from '../../services/notify';
 import fallbackProjects from '../../data/fallbackProjects';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../../components/ui/select';
 
 const PROJECT_TYPES = [
   { id: 'mvp', name: 'MVP / Startup Prototype', baseCostNGN: 450000, baseCostUSD: 1200, baseWeeks: 3, icon: Zap, desc: 'Fast, functional prototype to validate product-market fit.' },
@@ -720,15 +728,23 @@ const SoftwareHomePage = () => {
                   <label className="block text-[11px] font-extrabold uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-2">
                     Project Type
                   </label>
-                  <select 
+                  <Select
                     value={form.project_type}
-                    onChange={e => setForm({ ...form, project_type: e.target.value })}
-                    className="w-full p-3.5 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-accent"
+                    onValueChange={val => setForm({ ...form, project_type: val })}
                   >
-                    {PROJECT_TYPES.map(t => (
-                      <option key={t.id} value={t.name}>{t.name}</option>
-                    ))}
-                  </select>
+                    <SelectTrigger className="w-full h-12 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-accent">
+                      <SelectValue placeholder="Select project type" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-white dark:bg-[#1f1f1f] border-gray-200 dark:border-gray-700 shadow-xl">
+                      <SelectGroup>
+                        {PROJECT_TYPES.map(t => (
+                          <SelectItem key={t.id} value={t.name} className="cursor-pointer">
+                            {t.name}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div>
                   <label className="block text-[11px] font-extrabold uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-2">

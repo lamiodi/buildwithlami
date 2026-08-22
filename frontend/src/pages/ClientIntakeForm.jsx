@@ -5,6 +5,14 @@ import { Skeleton, SkeletonTransition } from '../components/Skeleton';
 import { buttonHover, buttonTap } from '../utils/motion';
 import { api } from '../services/api';
 import { notify } from '../services/notify';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../components/ui/select';
 
 const DRAFT_MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
 const draftKey = (formId, trackingId) => `intake_draft_${formId}_${trackingId}`;
@@ -231,18 +239,23 @@ const ClientIntakeForm = () => {
                     )}
 
                     {field.type === 'select' && (
-                      <select 
-                        id={fieldId}
-                        required={field.required}
+                      <Select
                         value={responses[fieldKey(field)] || ''}
-                        onChange={(e) => handleResponseChange(fieldKey(field), e.target.value)}
-                        className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none dark:bg-gray-700 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 text-black dark:text-white" 
+                        onValueChange={(val) => handleResponseChange(fieldKey(field), val)}
                       >
-                        <option value="" disabled>Select an option...</option>
-                        {field.options?.map((opt, i) => (
-                          <option key={i} value={opt}>{opt}</option>
-                        ))}
-                      </select>
+                        <SelectTrigger id={fieldId} className="w-full p-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-black dark:text-white h-12 focus:ring-2 focus:ring-accent">
+                          <SelectValue placeholder="Select an option..." />
+                        </SelectTrigger>
+                        <SelectContent className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 shadow-xl">
+                          <SelectGroup>
+                            {field.options?.map((opt, i) => (
+                              <SelectItem key={i} value={opt} className="cursor-pointer">
+                                {opt}
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
                     )}
 
                     {field.type === 'checkbox' && (

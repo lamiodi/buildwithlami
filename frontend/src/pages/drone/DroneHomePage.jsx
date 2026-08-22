@@ -4,6 +4,14 @@ import { Crosshair, ArrowRight, ArrowUpRight, Plus, Minus, Mail, Phone, MapPin, 
 import { api } from '../../services/api';
 import { dronePlaceholder, equipmentPlaceholder } from '../../utils/placeholders';
 import { validateBooking, validateField } from '../../utils/formValidation';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../../components/ui/select';
 
 // ── Drone-page fonts ─────────────────────────────────────
 // "Michroma" for headings and "Geomini" for body text.
@@ -861,22 +869,28 @@ const DroneHomePage = () => {
               </div>
               <div>
                 <label htmlFor="booking_service" className="sr-only">Service type</label>
-                <select
-                  id="booking_service"
-                  name="booking_service"
-                  required
+                <Select
                   value={booking.service}
-                  onChange={e => handleBookingFieldChange('service', e.target.value)}
-                  onBlur={() => handleBookingFieldBlur('service')}
-                  aria-invalid={!!bookingErrors.service}
-                  aria-describedby={bookingErrors.service ? 'err_service' : undefined}
-                  className={`w-full bg-transparent border-b-2 py-3 text-white focus:outline-none transition-colors appearance-none ${
-                    bookingErrors.service ? 'border-red-400 focus:border-red-400' : 'border-white/20 focus:border-accent'
-                  }`}
+                  onValueChange={val => handleBookingFieldChange('service', val)}
                 >
-                  <option value="" disabled className="text-gray-900">— Select Service —</option>
-                  {services.map((s, i) => <option key={i} value={s.title} className="text-gray-900">{s.title}</option>)}
-                </select>
+                  <SelectTrigger
+                    id="booking_service"
+                    className={`w-full bg-zinc-900/90 border-2 rounded-xl h-12 text-sm text-white focus:outline-none transition-colors ${
+                      bookingErrors.service ? 'border-red-400 focus:border-red-400' : 'border-white/20 focus:border-accent'
+                    }`}
+                  >
+                    <SelectValue placeholder="— Select Service —" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-zinc-900 border-zinc-700 text-white shadow-2xl">
+                    <SelectGroup>
+                      {services.map((s, i) => (
+                        <SelectItem key={i} value={s.title} className="text-white cursor-pointer font-bold text-xs uppercase tracking-wider focus:bg-accent focus:text-white">
+                          {s.title}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
                 {bookingErrors.service && <p id="err_service" role="alert" className="text-xs text-red-300 mt-1">{bookingErrors.service}</p>}
               </div>
               <div>

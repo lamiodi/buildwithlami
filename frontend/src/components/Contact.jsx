@@ -3,6 +3,14 @@ import { motion, useReducedMotion } from 'framer-motion';
 import { api } from '../services/api';
 import { staggerContainer, fadeUpItem, buttonHover, buttonTap, sectionViewport, reducedMotionVariants } from '../utils/motion';
 import { CONTACT } from '../config/contact';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from './ui/select';
 
 const projectTypes = [
   'Landing Page / Portfolio',
@@ -60,7 +68,6 @@ const Contact = () => {
     }
   };
 
-  const selectClass = "w-full bg-transparent border-b-2 border-white/60 py-3 text-white focus:outline-none focus:border-white transition-colors text-lg appearance-none cursor-pointer";
   const inputClass = "w-full bg-transparent border-b-2 border-white/60 py-3 text-white placeholder-white/80 focus:outline-none focus:border-white transition-colors text-lg";
 
   return (
@@ -110,7 +117,7 @@ const Contact = () => {
             <div>
               <input 
                 type="email" 
-                placeholder="Email address"
+                placeholder="Email address" 
                 required
                 value={formData.email}
                 onChange={(e) => setFormData({...formData, email: e.target.value})}
@@ -120,41 +127,64 @@ const Contact = () => {
 
             {/* Pre-qualification Fields */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
-              <div className="relative">
-                <select
+              <div>
+                <Select
                   value={formData.project_type}
-                  onChange={(e) => setFormData({...formData, project_type: e.target.value})}
-                  className={`${selectClass} ${!formData.project_type ? 'text-white/80' : 'text-white'}`}
+                  onValueChange={(val) => setFormData({...formData, project_type: val})}
                 >
-                  <option value="" className="text-gray-900">Project type</option>
-                  {projectTypes.map(pt => (
-                    <option key={pt} value={pt} className="text-gray-900">{pt}</option>
-                  ))}
-                </select>
+                  <SelectTrigger className="w-full bg-white/10 hover:bg-white/15 border-white/40 text-white rounded-xl h-12 text-sm focus:ring-white">
+                    <SelectValue placeholder="Project type" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-zinc-900 border-zinc-700 text-white shadow-2xl">
+                    <SelectGroup>
+                      {projectTypes.map(pt => (
+                        <SelectItem key={pt} value={pt} className="focus:bg-accent focus:text-white cursor-pointer">
+                          {pt}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
               </div>
-              <div className="relative">
-                <select
+
+              <div>
+                <Select
                   value={formData.budget}
-                  onChange={(e) => setFormData({...formData, budget: e.target.value})}
-                  className={`${selectClass} ${!formData.budget ? 'text-white/80' : 'text-white'}`}
+                  onValueChange={(val) => setFormData({...formData, budget: val})}
                 >
-                  <option value="" className="text-gray-900">Budget range</option>
-                  {budgetRanges.map(b => (
-                    <option key={b} value={b} className="text-gray-900">{b}</option>
-                  ))}
-                </select>
+                  <SelectTrigger className="w-full bg-white/10 hover:bg-white/15 border-white/40 text-white rounded-xl h-12 text-sm focus:ring-white">
+                    <SelectValue placeholder="Budget range" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-zinc-900 border-zinc-700 text-white shadow-2xl">
+                    <SelectGroup>
+                      {budgetRanges.map(b => (
+                        <SelectItem key={b} value={b} className="focus:bg-accent focus:text-white cursor-pointer">
+                          {b}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
               </div>
-              <div className="relative">
-                <select
+
+              <div>
+                <Select
                   value={formData.timeline}
-                  onChange={(e) => setFormData({...formData, timeline: e.target.value})}
-                  className={`${selectClass} ${!formData.timeline ? 'text-white/80' : 'text-white'}`}
+                  onValueChange={(val) => setFormData({...formData, timeline: val})}
                 >
-                  <option value="" className="text-gray-900">Timeline</option>
-                  {timelines.map(t => (
-                    <option key={t} value={t} className="text-gray-900">{t}</option>
-                  ))}
-                </select>
+                  <SelectTrigger className="w-full bg-white/10 hover:bg-white/15 border-white/40 text-white rounded-xl h-12 text-sm focus:ring-white">
+                    <SelectValue placeholder="Timeline" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-zinc-900 border-zinc-700 text-white shadow-2xl">
+                    <SelectGroup>
+                      {timelines.map(t => (
+                        <SelectItem key={t} value={t} className="focus:bg-accent focus:text-white cursor-pointer">
+                          {t}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 

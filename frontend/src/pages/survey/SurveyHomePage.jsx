@@ -4,6 +4,14 @@ import { ArrowRight, ArrowUpRight, Plus, Minus, Download } from 'lucide-react';
 import { api } from '../../services/api';
 import { surveyPlaceholder, projectPlaceholder } from '../../utils/placeholders';
 import { validateBooking, validateField } from '../../utils/formValidation';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../../components/ui/select';
 
 // ── Survey-page fonts ────────────────────────────────────
 // "Manrope" for headings, "Mulish" for body text. Both are
@@ -778,22 +786,28 @@ const SurveyHomePage = () => {
               </div>
               <div>
                 <label htmlFor="survey_booking_service" className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2 block">Service Required *</label>
-                <select
-                  id="survey_booking_service"
-                  name="survey_booking_service"
-                  required
+                <Select
                   value={booking.service}
-                  onChange={e => handleBookingFieldChange('service', e.target.value)}
-                  onBlur={() => handleBookingFieldBlur('service')}
-                  aria-invalid={!!bookingErrors.service}
-                  aria-describedby={bookingErrors.service ? 'survey_err_service' : undefined}
-                  className={`w-full bg-transparent border-b-2 py-3 text-sm font-bold uppercase tracking-wider focus:outline-none transition-colors appearance-none ${
-                    bookingErrors.service ? 'border-red-500' : 'border-black focus:border-gray-500'
-                  }`}
+                  onValueChange={val => handleBookingFieldChange('service', val)}
                 >
-                  <option value="" disabled>— Select Service —</option>
-                  {services.map((s, i) => <option key={i} value={s.title}>{s.title}</option>)}
-                </select>
+                  <SelectTrigger
+                    id="survey_booking_service"
+                    className={`w-full bg-white dark:bg-zinc-900 border-2 rounded-xl h-12 text-sm font-bold uppercase tracking-wider focus:outline-none transition-colors ${
+                      bookingErrors.service ? 'border-red-500' : 'border-gray-300 dark:border-gray-700 focus:border-black dark:focus:border-white'
+                    }`}
+                  >
+                    <SelectValue placeholder="— Select Service —" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white dark:bg-zinc-900 border-gray-200 dark:border-gray-800 shadow-2xl">
+                    <SelectGroup>
+                      {services.map((s, i) => (
+                        <SelectItem key={i} value={s.title} className="cursor-pointer font-bold text-xs uppercase tracking-wider">
+                          {s.title}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
                 {bookingErrors.service && <p id="survey_err_service" role="alert" className="text-xs text-red-600 mt-1">{bookingErrors.service}</p>}
               </div>
               <div>
