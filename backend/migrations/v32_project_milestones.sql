@@ -2,7 +2,7 @@
 -- Adds milestones tracking to client_projects table
 
 ALTER TABLE client_projects 
-ADD COLUMN milestones JSONB DEFAULT '[
+ADD COLUMN IF NOT EXISTS milestones JSONB DEFAULT '[
     {"title": "Discovery & Planning", "status": "PENDING"},
     {"title": "Design & Prototyping", "status": "PENDING"},
     {"title": "Development", "status": "PENDING"},

@@ -49,6 +49,13 @@ const MIGRATIONS = [
     'v26_portfolio_fields.sql',
     'v27_portfolio_polish.sql',
     'v28_portfolio_case_study.sql',
+    'v29_expense_tracking.sql',
+    'v30_client_portal.sql',
+    'v31_agency_philosophy.sql',
+    'v32_project_milestones.sql',
+    'v33_quotations.sql',
+    'v34_invoice_advanced.sql',
+    'v35_project_files.sql',
 ];
 
 const run = async () => {
