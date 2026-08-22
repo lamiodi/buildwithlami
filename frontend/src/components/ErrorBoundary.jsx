@@ -13,6 +13,23 @@ class ErrorBoundary extends React.Component {
 
   componentDidCatch(error, errorInfo) {
     console.error('[ErrorBoundary] Caught error:', error, errorInfo);
+
+    // Auto-recover from chunk loading errors / stale dynamic imports
+    const msg = error?.message || '';
+    const isChunkError = 
+      error?.name === 'ChunkLoadError' ||
+      msg.includes('Failed to fetch dynamically imported module') ||
+      msg.includes('dynamically imported module') ||
+      msg.includes('Loading chunk') ||
+      msg.includes('MIME type');
+
+    if (isChunkError) {
+      const sessionKey = 'chunk_reload_attempted';
+      if (!sessionStorage.getItem(sessionKey)) {
+        sessionStorage.setItem(sessionKey, 'true');
+        window.location.reload();
+      }
+    }
   }
 
   render() {

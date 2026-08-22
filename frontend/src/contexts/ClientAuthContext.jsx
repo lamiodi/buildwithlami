@@ -51,7 +51,7 @@ export function ClientAuthProvider({ children }) {
 
     return (
         <ClientAuthContext.Provider value={value}>
-            {!loading && children}
+            {children}
         </ClientAuthContext.Provider>
     );
 }
