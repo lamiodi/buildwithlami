@@ -20,6 +20,7 @@ const DroneHomePage = React.lazy(() => import('./pages/drone/DroneHomePage'));
 const SurveyProjectDetailPage = React.lazy(() => import('./pages/survey/SurveyProjectDetailPage'));
 const DroneProjectDetailPage = React.lazy(() => import('./pages/drone/DroneProjectDetailPage'));
 import ThemeToast from './components/ThemeToast';
+import { Toaster } from './components/ui/sonner';
 const AdminClientProjects = React.lazy(() => import('./pages/admin/AdminClientProjects'));
 const AdminClients = React.lazy(() => import('./pages/admin/AdminClients'));
 const AdminProjectDetail = React.lazy(() => import('./pages/admin/AdminProjectDetail'));
@@ -254,6 +255,7 @@ function App() {
           onClose={() => setToastMessage(null)}
         />
         <ToastHost />
+        <Toaster position="top-right" richColors />
       </ErrorBoundary>
     </div>
     </ClientAuthProvider>
