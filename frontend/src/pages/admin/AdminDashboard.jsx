@@ -39,6 +39,10 @@ const Icon = {
     CornerDownLeft: ActionIcon.CornerDownLeft,
     ArrowUpDown: ActionIcon.ArrowUpDown,
     Filter: ActionIcon.Filter,
+    Payments: CoreIcon.Payments,
+    BarChart: CoreIcon.BarChart,
+    Kanban: CoreIcon.Kanban,
+    FileText: CoreIcon.FileText,
 };
 
 // ── Time-of-day greeting (deterministic from the local hour) ──
@@ -60,6 +64,15 @@ const AdminDashboard = () => {
     const [search, setSearch] = useState('');
     const [now, setNow] = useState(new Date());
     const [smartView, setSmartView] = useState('all');
+    const [selectedDivision, setSelectedDivision] = useState(() => {
+        try {
+            const saved = localStorage.getItem('bwl:admin:workspace');
+            if (saved && ['software', 'survey', 'drone'].includes(saved)) {
+                return saved.toUpperCase();
+            }
+        } catch {}
+        return 'ALL';
+    });
     const [paletteOpen, setPaletteOpen] = useState(false);
     const navigate = useNavigate();
     const greeting = useGreeting();
@@ -79,11 +92,21 @@ const AdminDashboard = () => {
     // stays stable across renders (loading → loaded, data: null → object).
     const nowMs = now.getTime();
     const sevenDays = 7 * 24 * 60 * 60 * 1000;
-    const projects = data?.projects || [];
+    const allProjects = data?.projects || [];
+    const allInvoices = data?.invoices || [];
     const clients = data?.clients || [];
     const templates = data?.templates || [];
     const feedback = data?.feedback || [];
-    const invoices = data?.invoices || [];
+
+    const projects = useMemo(() => {
+        if (selectedDivision === 'ALL') return allProjects;
+        return allProjects.filter(p => (p.division || 'SOFTWARE').toUpperCase() === selectedDivision);
+    }, [allProjects, selectedDivision]);
+
+    const invoices = useMemo(() => {
+        if (selectedDivision === 'ALL') return allInvoices;
+        return allInvoices.filter(i => (i.division || 'SOFTWARE').toUpperCase() === selectedDivision);
+    }, [allInvoices, selectedDivision]);
 
     // Count for each smart-view chip. Must run on every render, even before
     // data arrives (yields zeros in that case) — that's why it's a hook.
@@ -163,9 +186,20 @@ const AdminDashboard = () => {
     const overdueInvoices = pendingInvoices.filter(i => i.due_date && new Date(i.due_date) < new Date());
     const needsAttention = openFeedback.length + overdueInvoices.length;
 
-    // Revenue Calculation
-    const totalRevenue = invoices.filter(i => i.status === 'PAID').reduce((sum, i) => sum + Number(i.amount || 0), 0);
+    // Financial calculations
+    const financialSummary = data.financialSummary || {};
+    const pipelineStats = data.pipelineStats || {};
+
+    const totalRevenue = Number(financialSummary.total_revenue || 0) || invoices.filter(i => i.status === 'PAID').reduce((sum, i) => sum + Number(i.amount || 0), 0);
+    const revenueThisMonth = Number(financialSummary.revenue_this_month || 0);
+    const totalExpenses = Number(financialSummary.total_expenses || 0);
+    const expensesThisMonth = Number(financialSummary.expenses_this_month || 0);
+    const netProfit = totalRevenue - totalExpenses;
+    const profitMargin = totalRevenue > 0 ? Number(((netProfit / totalRevenue) * 100).toFixed(1)) : 0;
+
     const activeClients = new Set(projects.filter(p => !['LAUNCHED', 'MAINTENANCE', 'ARCHIVED'].includes(p.status)).map(p => p.client_id)).size;
+    const activeProjectsCount = projects.filter(p => !['LAUNCHED', 'MAINTENANCE', 'ARCHIVED'].includes(p.status)).length;
+    const activePipelineCount = (pipelineStats.active_leads || 0) + (pipelineStats.active_quotations || 0);
 
     // ── Smart view filter ──────────────────────────────
     // One-click filters that surface the work the admin actually came here to do.
@@ -342,12 +376,53 @@ const AdminDashboard = () => {
                     </motion.div>
                 )}
 
+                {/* ── DIVISION / WORKSPACE SCOPING & QUICK LINKS ────── */}
+                <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+                    <div className="flex items-center gap-1.5 p-1 bg-gray-100 dark:bg-gray-800/80 rounded-xl border border-gray-200 dark:border-gray-700/60">
+                        {[
+                            { id: 'ALL', label: 'All Divisions' },
+                            { id: 'SOFTWARE', label: 'Software' },
+                            { id: 'SURVEY', label: 'Survey' },
+                            { id: 'DRONE', label: 'Drone' },
+                        ].map((div) => (
+                            <button
+                                key={div.id}
+                                type="button"
+                                onClick={() => setSelectedDivision(div.id)}
+                                className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${
+                                    selectedDivision === div.id
+                                        ? 'bg-white dark:bg-gray-700 text-blue-600 dark:text-blue-400 shadow-sm'
+                                        : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                                }`}
+                            >
+                                {div.label}
+                            </button>
+                        ))}
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <Link to="/admin/quotations" className="text-xs font-bold text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 px-2.5 py-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                            Quotations
+                        </Link>
+                        <Link to="/admin/contracts" className="text-xs font-bold text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 px-2.5 py-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                            Contracts
+                        </Link>
+                        <Link to="/admin/expenses" className="text-xs font-bold text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 px-2.5 py-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                            Expenses
+                        </Link>
+                        <Link to="/admin/reports" className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline px-2.5 py-1.5">
+                            Full Reports →
+                        </Link>
+                    </div>
+                </div>
+
                 {/* ── STATS GRID ────────────────────────────────────── */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                    <StatCard label="Total Projects" value={projects.length} icon={Icon.Rocket} accent="blue" />
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5 mb-6">
+                    <StatCard label="Total Projects" value={projects.length} hint={`${activeProjectsCount} active`} icon={Icon.Rocket} accent="blue" />
                     <StatCard label="Active Clients" value={activeClients} hint="With active projects" icon={Icon.Clients} accent="purple" />
-                    <StatCard label="Total Revenue" value={formatCurrency(totalRevenue)} hint="From paid invoices" icon={Icon.Money} accent="emerald" isCurrency />
-                    <StatCard label="Overdue Invoices" value={overdueInvoices.length} hint="Needs action" icon={Icon.Alert} accent="rose" />
+                    <StatCard label="Total Revenue" value={formatCurrency(totalRevenue)} hint={revenueThisMonth > 0 ? `+${formatCurrency(revenueThisMonth)} this month` : "From paid invoices"} icon={Icon.Money} accent="emerald" isCurrency />
+                    <StatCard label="Total Expenses" value={formatCurrency(totalExpenses)} hint={expensesThisMonth > 0 ? `${formatCurrency(expensesThisMonth)} this month` : "Recorded expenses"} icon={Icon.Payments} accent="amber" isCurrency />
+                    <StatCard label="Net Profit" value={formatCurrency(netProfit)} hint={`${profitMargin}% margin`} icon={Icon.BarChart} accent={netProfit >= 0 ? "emerald" : "rose"} isCurrency />
+                    <StatCard label="Active Pipeline" value={activePipelineCount} hint={`${pipelineStats.active_leads || 0} leads · ${pipelineStats.active_quotations || 0} quotes`} icon={Icon.Kanban} accent="indigo" />
                 </div>
 
                 {/* ── CHARTS ROW (lazy-loaded widgets) ────────────── */}

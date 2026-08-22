@@ -10,14 +10,20 @@ const Icon = {
     Today: DashboardIcon.Clock,
     Mail: CoreIcon.Mail,
     Project: CoreIcon.Folder,
+    Quotation: CoreIcon.FileText,
+    Contract: CoreIcon.Code,
+    Expense: CoreIcon.Payments,
 };
 
 const ACTIONS = [
-    { id: 'today',     label: 'View today',   icon: Icon.Today,   to: '/admin' },
-    { id: 'lead',      label: 'New lead',     icon: Icon.Lead,    to: '/admin/clients?action=new' },
-    { id: 'invoice',   label: 'New invoice',  icon: Icon.Invoice, to: '/admin/invoices?action=new' },
-    { id: 'project',   label: 'New project',  icon: Icon.Project, to: '/admin/projects?action=new' },
-    { id: 'message',   label: 'Open inbox',   icon: Icon.Mail,    to: '/admin/inbox' },
+    { id: 'today',     label: 'View today',    icon: Icon.Today,     to: '/admin' },
+    { id: 'lead',      label: 'New lead',      icon: Icon.Lead,      to: '/admin/clients?action=new' },
+    { id: 'quotation', label: 'New quotation', icon: Icon.Quotation, to: '/admin/quotations?action=new' },
+    { id: 'invoice',   label: 'New invoice',   icon: Icon.Invoice,   to: '/admin/invoices?action=new' },
+    { id: 'contract',  label: 'New contract',  icon: Icon.Contract,  to: '/admin/contracts?action=new' },
+    { id: 'expense',   label: 'New expense',   icon: Icon.Expense,   to: '/admin/expenses?action=new' },
+    { id: 'project',   label: 'New project',   icon: Icon.Project,   to: '/admin/projects?action=new' },
+    { id: 'message',   label: 'Open inbox',    icon: Icon.Mail,      to: '/admin/inbox' },
 ];
 
 /**

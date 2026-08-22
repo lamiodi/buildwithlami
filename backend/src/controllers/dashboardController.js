@@ -22,9 +22,9 @@ const dateFilter = (start, end, params) => {
 // projects, clients, templates, feedback, invoices, recentActivities.
 export async function getDashboardOverview(req, res) {
     try {
-        const [projects, clients, templates, feedback, invoices, recentActivities, financialSummary] = await Promise.all([
+        const [projects, clients, templates, feedback, invoices, recentActivities, financialSummary, pipelineStats] = await Promise.all([
             pool.query(`
-                SELECT id, project_name, status, progress, amount_due, payment_status,
+                SELECT id, project_name, division, status, progress, amount_due, payment_status,
                        client_id, created_at, updated_at
                 FROM client_projects
                 ORDER BY updated_at DESC NULLS LAST
@@ -46,7 +46,7 @@ export async function getDashboardOverview(req, res) {
                 LIMIT 20
             `),
             pool.query(`
-                SELECT id, project_id, client_id, amount, status, due_date, payment_url, created_at
+                SELECT id, project_id, client_id, amount, currency, division, status, due_date, payment_url, created_at, paid_at
                 FROM invoices
                 ORDER BY created_at DESC
             `),
@@ -74,6 +74,13 @@ export async function getDashboardOverview(req, res) {
                      FROM expenses 
                      WHERE DATE_TRUNC('month', expense_date) = DATE_TRUNC('month', CURRENT_DATE)) AS expenses_this_month
             `, [BASE_CURRENCY]),
+            pool.query(`
+                SELECT 
+                    (SELECT COUNT(*)::int FROM leads WHERE stage NOT IN ('COMPLETED', 'RETENTION')) AS active_leads,
+                    (SELECT COUNT(*)::int FROM quotations WHERE status IN ('DRAFT', 'SENT', 'ACCEPTED')) AS active_quotations,
+                    (SELECT COUNT(*)::int FROM bookings WHERE status = 'PENDING') AS pending_bookings,
+                    (SELECT COUNT(*)::int FROM contracts WHERE status = 'SENT') AS pending_contracts
+            `),
         ]);
 
         res.json({
@@ -84,6 +91,7 @@ export async function getDashboardOverview(req, res) {
             invoices: invoices.rows,
             recentActivities: recentActivities.rows,
             financialSummary: financialSummary.rows[0],
+            pipelineStats: pipelineStats.rows[0],
         });
     } catch (err) {
         console.error('[Dashboard] Error:', err.message);
@@ -99,109 +107,186 @@ export async function getReports(req, res) {
         const invoiceFilter = dateFilter(start, end, invoiceParams);
         const projectParams = [];
         const projectFilter = dateFilter(start, end, projectParams);
+        const expenseParams = [];
+        let expenseFilter = '';
+        if (start) {
+            expenseParams.push(start);
+            expenseFilter += `expense_date >= $${expenseParams.length}`;
+        }
+        if (end) {
+            expenseParams.push(end);
+            if (expenseFilter) expenseFilter += ' AND ';
+            expenseFilter += `expense_date < $${expenseParams.length}`;
+        }
 
         // Fetch the FX rate map once. Used to convert each invoice's
         // native-currency amount to the base (NGN) for reporting.
         const rates = await getAllRates();
 
-        // Revenue by month — PAID invoices, converted to base currency.
-        // The COALESCE(rate, 0) protects against currencies that aren't
-        // in fx_rates yet (a fresh admin-side currency addition); such
-        // rows contribute 0 to the converted total rather than erroring.
-        const revenueByMonth = await pool.query(`
-            SELECT TO_CHAR(DATE_TRUNC('month', i.created_at), 'YYYY-MM') AS month,
-                   COALESCE(SUM(i.amount * COALESCE(r.rate, 0)), 0) AS total,
-                   COUNT(*) AS count
-            FROM invoices i
-            LEFT JOIN fx_rates r
-              ON r.base_currency = $1 AND r.target_currency = i.currency
-            WHERE i.status = 'PAID' ${invoiceFilter ? `AND ${invoiceFilter}` : ''}
-            GROUP BY DATE_TRUNC('month', i.created_at)
-            ORDER BY month ASC
-        `, [BASE_CURRENCY, ...invoiceParams]);
+        const [
+            revenueByMonth,
+            expensesByMonth,
+            revenueByDivision,
+            projectsByDivision,
+            projectsByStatus,
+            topClients,
+            revenueByCountry,
+            completionRate,
+            invoiceSummary,
+            avgProgress,
+            expenseSummary,
+        ] = await Promise.all([
+            // Revenue by month — PAID invoices, converted to base currency.
+            pool.query(`
+                SELECT TO_CHAR(DATE_TRUNC('month', i.created_at), 'YYYY-MM') AS month,
+                       COALESCE(SUM(i.amount * COALESCE(r.rate, 0)), 0) AS total,
+                       COUNT(*) AS count
+                FROM invoices i
+                LEFT JOIN fx_rates r
+                  ON r.base_currency = $1 AND r.target_currency = i.currency
+                WHERE i.status = 'PAID' ${invoiceFilter ? `AND ${invoiceFilter}` : ''}
+                GROUP BY DATE_TRUNC('month', i.created_at)
+                ORDER BY month ASC
+            `, [BASE_CURRENCY, ...invoiceParams]),
 
-        // Projects by status
-        const projectsByStatus = await pool.query(`
-            SELECT status, COUNT(*) AS count
-            FROM client_projects
-            ${projectFilter ? `WHERE ${projectFilter}` : ''}
-            GROUP BY status
-            ORDER BY count DESC
-        `, projectParams);
+            // Expenses by month
+            pool.query(`
+                SELECT TO_CHAR(DATE_TRUNC('month', expense_date), 'YYYY-MM') AS month,
+                       COALESCE(SUM(amount), 0) AS total,
+                       COUNT(*) AS count
+                FROM expenses
+                ${expenseFilter ? `WHERE ${expenseFilter}` : ''}
+                GROUP BY DATE_TRUNC('month', expense_date)
+                ORDER BY month ASC
+            `, expenseParams),
 
-        // Top clients by revenue (filtered, converted to base currency)
-        const topClients = await pool.query(`
-            SELECT c.id, c.name,
-                   COALESCE(SUM(i.amount * COALESCE(r.rate, 0)), 0) AS total_revenue,
-                   COUNT(i.id) AS invoice_count
-            FROM clients c
-            JOIN invoices i ON i.client_id = c.id
-            LEFT JOIN fx_rates r
-              ON r.base_currency = $1 AND r.target_currency = i.currency
-            WHERE i.status = 'PAID' ${invoiceFilter ? `AND ${invoiceFilter}` : ''}
-            GROUP BY c.id, c.name
-            ORDER BY total_revenue DESC
-            LIMIT 10
-        `, [BASE_CURRENCY, ...invoiceParams]);
+            // Revenue by division
+            pool.query(`
+                SELECT COALESCE(division, 'SOFTWARE') AS division,
+                       COALESCE(SUM(i.amount * COALESCE(r.rate, 0)), 0) AS total,
+                       COUNT(i.id) AS count
+                FROM invoices i
+                LEFT JOIN fx_rates r
+                  ON r.base_currency = $1 AND r.target_currency = i.currency
+                WHERE i.status = 'PAID' ${invoiceFilter ? `AND ${invoiceFilter}` : ''}
+                GROUP BY division
+                ORDER BY total DESC
+            `, [BASE_CURRENCY, ...invoiceParams]),
 
-        // Revenue by country
-        const revenueByCountry = await pool.query(`
-            SELECT COALESCE(c.country, 'Unknown') AS country,
-                   COALESCE(SUM(i.amount * COALESCE(r.rate, 0)), 0) AS total,
-                   COUNT(i.id) AS invoice_count
-            FROM invoices i
-            JOIN clients c ON i.client_id = c.id
-            LEFT JOIN fx_rates r
-              ON r.base_currency = $1 AND r.target_currency = i.currency
-            WHERE i.status = 'PAID' ${invoiceFilter ? `AND ${invoiceFilter}` : ''}
-            GROUP BY c.country
-            ORDER BY total DESC
-        `, [BASE_CURRENCY, ...invoiceParams]);
+            // Projects by division
+            pool.query(`
+                SELECT COALESCE(division, 'SOFTWARE') AS division,
+                       COUNT(*) AS count
+                FROM client_projects
+                ${projectFilter ? `WHERE ${projectFilter}` : ''}
+                GROUP BY division
+                ORDER BY count DESC
+            `, projectParams),
 
-        // Project completion rate
-        const completionRate = await pool.query(`
-            SELECT
-                COUNT(*) AS total,
-                COUNT(*) FILTER (WHERE status IN ('LAUNCHED', 'MAINTENANCE')) AS completed,
-                COUNT(*) FILTER (WHERE status = 'ARCHIVED') AS archived,
-                COUNT(*) FILTER (WHERE status NOT IN ('LAUNCHED', 'MAINTENANCE', 'ARCHIVED')) AS in_progress
-            FROM client_projects
-            ${projectFilter ? `WHERE ${projectFilter}` : ''}
-        `, projectParams);
+            // Projects by status
+            pool.query(`
+                SELECT status, COUNT(*) AS count
+                FROM client_projects
+                ${projectFilter ? `WHERE ${projectFilter}` : ''}
+                GROUP BY status
+                ORDER BY count DESC
+            `, projectParams),
 
-        // Invoice summary — revenue & outstanding converted to base currency
-        const invoiceSummary = await pool.query(`
-            SELECT
-                COUNT(*) AS total,
-                COUNT(*) FILTER (WHERE status = 'PAID') AS paid,
-                COUNT(*) FILTER (WHERE status = 'PENDING') AS pending,
-                COUNT(*) FILTER (WHERE status = 'PENDING' AND due_date < NOW()) AS overdue,
-                COALESCE(SUM(i.amount * COALESCE(r.rate, 0)) FILTER (WHERE status = 'PAID'), 0) AS revenue,
-                COALESCE(SUM(i.amount * COALESCE(r.rate, 0)) FILTER (WHERE status = 'PENDING'), 0) AS outstanding
-            FROM invoices i
-            LEFT JOIN fx_rates r
-              ON r.base_currency = $1 AND r.target_currency = i.currency
-            ${invoiceFilter ? `WHERE ${invoiceFilter}` : ''}
-        `, [BASE_CURRENCY, ...invoiceParams]);
+            // Top clients by revenue (filtered, converted to base currency)
+            pool.query(`
+                SELECT c.id, c.name,
+                       COALESCE(SUM(i.amount * COALESCE(r.rate, 0)), 0) AS total_revenue,
+                       COUNT(i.id) AS invoice_count
+                FROM clients c
+                JOIN invoices i ON i.client_id = c.id
+                LEFT JOIN fx_rates r
+                  ON r.base_currency = $1 AND r.target_currency = i.currency
+                WHERE i.status = 'PAID' ${invoiceFilter ? `AND ${invoiceFilter}` : ''}
+                GROUP BY c.id, c.name
+                ORDER BY total_revenue DESC
+                LIMIT 10
+            `, [BASE_CURRENCY, ...invoiceParams]),
 
-        // Average project progress (exclude archived)
-        const avgProgress = await pool.query(`
-            SELECT ROUND(AVG(progress)) AS average_progress
-            FROM client_projects
-            ${projectFilter ? `WHERE ${projectFilter} AND status NOT IN ('ARCHIVED')` : 'WHERE status NOT IN (\'ARCHIVED\')'}
-        `, projectParams);
+            // Revenue by country
+            pool.query(`
+                SELECT COALESCE(c.country, 'Unknown') AS country,
+                       COALESCE(SUM(i.amount * COALESCE(r.rate, 0)), 0) AS total,
+                       COUNT(i.id) AS invoice_count
+                FROM invoices i
+                JOIN clients c ON i.client_id = c.id
+                LEFT JOIN fx_rates r
+                  ON r.base_currency = $1 AND r.target_currency = i.currency
+                WHERE i.status = 'PAID' ${invoiceFilter ? `AND ${invoiceFilter}` : ''}
+                GROUP BY c.country
+                ORDER BY total DESC
+            `, [BASE_CURRENCY, ...invoiceParams]),
+
+            // Project completion rate
+            pool.query(`
+                SELECT
+                    COUNT(*) AS total,
+                    COUNT(*) FILTER (WHERE status IN ('LAUNCHED', 'MAINTENANCE')) AS completed,
+                    COUNT(*) FILTER (WHERE status = 'ARCHIVED') AS archived,
+                    COUNT(*) FILTER (WHERE status NOT IN ('LAUNCHED', 'MAINTENANCE', 'ARCHIVED')) AS in_progress
+                FROM client_projects
+                ${projectFilter ? `WHERE ${projectFilter}` : ''}
+            `, projectParams),
+
+            // Invoice summary — revenue & outstanding converted to base currency
+            pool.query(`
+                SELECT
+                    COUNT(*) AS total,
+                    COUNT(*) FILTER (WHERE status = 'PAID') AS paid,
+                    COUNT(*) FILTER (WHERE status = 'PENDING') AS pending,
+                    COUNT(*) FILTER (WHERE status = 'PENDING' AND due_date < NOW()) AS overdue,
+                    COALESCE(SUM(i.amount * COALESCE(r.rate, 0)) FILTER (WHERE status = 'PAID'), 0) AS revenue,
+                    COALESCE(SUM(i.amount * COALESCE(r.rate, 0)) FILTER (WHERE status = 'PENDING'), 0) AS outstanding
+                FROM invoices i
+                LEFT JOIN fx_rates r
+                  ON r.base_currency = $1 AND r.target_currency = i.currency
+                ${invoiceFilter ? `WHERE ${invoiceFilter}` : ''}
+            `, [BASE_CURRENCY, ...invoiceParams]),
+
+            // Average project progress (exclude archived)
+            pool.query(`
+                SELECT ROUND(AVG(progress)) AS average_progress
+                FROM client_projects
+                ${projectFilter ? `WHERE ${projectFilter} AND status NOT IN ('ARCHIVED')` : 'WHERE status NOT IN (\'ARCHIVED\')'}
+            `, projectParams),
+
+            // Expense summary
+            pool.query(`
+                SELECT
+                    COUNT(*) AS total_count,
+                    COALESCE(SUM(amount), 0) AS total_amount
+                FROM expenses
+                ${expenseFilter ? `WHERE ${expenseFilter}` : ''}
+            `, expenseParams),
+        ]);
+
+        const totalRevenue = Number(invoiceSummary.rows[0]?.revenue || 0);
+        const totalExpenses = Number(expenseSummary.rows[0]?.total_amount || 0);
+        const netProfit = totalRevenue - totalExpenses;
+        const profitMargin = totalRevenue > 0 ? Number(((netProfit / totalRevenue) * 100).toFixed(1)) : 0;
 
         res.json({
             revenueByMonth: revenueByMonth.rows,
-            revenueByCountry: revenueByCountry.rows,
+            expensesByMonth: expensesByMonth.rows,
+            revenueByDivision: revenueByDivision.rows,
+            projectsByDivision: projectsByDivision.rows,
             projectsByStatus: projectsByStatus.rows,
             topClients: topClients.rows,
+            revenueByCountry: revenueByCountry.rows,
             completionRate: completionRate.rows[0],
             invoiceSummary: invoiceSummary.rows[0],
+            expenseSummary: expenseSummary.rows[0],
+            financialSummary: {
+                totalRevenue,
+                totalExpenses,
+                netProfit,
+                profitMargin,
+            },
             avgProgress: avgProgress.rows[0]?.average_progress || 0,
-            // Expose the rates the frontend needs to compute the
-            // "Total Revenue (NGN equivalent)" stat on the invoices
-            // page (which the dashboard doesn't currently cover).
             fxRates: rates,
             baseCurrency: BASE_CURRENCY,
         });

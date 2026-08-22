@@ -26,6 +26,7 @@ export const coreNav = [
     { to: '/admin/inbox', label: 'Inbox', icon: Icon.Bell },
     { to: '/admin/contracts', label: 'Contracts', icon: Icon.Code },
     { to: '/admin/payments', label: 'Payment Proofs', icon: Icon.Payments },
+    { to: '/admin/logs', label: 'Activity Logs', icon: Icon.Activity },
     { to: '/admin/security/2fa', label: 'Two-Factor Auth', icon: Icon.Shield },
     { to: '/admin/help', label: 'Help & Reference', icon: Icon.Help },
     { to: '/admin/settings', label: 'Settings', icon: Icon.Settings },
@@ -40,10 +41,10 @@ export const softwareNav = [
     { to: '/admin/clients', label: 'Clients', icon: Icon.Users },
     { to: '/admin/projects', label: 'Client Projects', icon: Icon.Folder },
     { to: '/admin/portfolio', label: 'Portfolio', icon: Icon.FileText },
+    { to: '/admin/quotations', label: 'Quotations', icon: Icon.FileText },
     { to: '/admin/invoices', label: 'Invoices', icon: Icon.CreditCard },
     { to: '/admin/expenses', label: 'Expenses', icon: Icon.Payments },
     { to: '/admin/templates', label: 'Forms & Intake', icon: Icon.FileText },
-    { to: '/admin/contracts', label: 'Contracts', icon: Icon.FileText },
     { to: '/admin/reports', label: 'Reports', icon: Icon.BarChart },
 ];
 

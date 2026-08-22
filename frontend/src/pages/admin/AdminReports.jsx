@@ -3,10 +3,9 @@ import { motion } from 'framer-motion';
 import { api } from '../../services/api';
 import { notify } from '../../services/notify';
 import { toCSV, downloadCSV } from '../../utils/csv.jsx';
+import { ActionIcon, DashboardIcon, NavIcon, CoreIcon } from '../../data/adminIcons.jsx';
 
 const formatCurrency = (n) => `₦${Number(n || 0).toLocaleString()}`;
-
-import { ActionIcon, DashboardIcon, NavIcon } from '../../data/adminIcons.jsx';
 
 const Icon = {
     Download: ActionIcon.Download,
@@ -14,6 +13,9 @@ const Icon = {
     PieChart: DashboardIcon.PieChart,
     Users: DashboardIcon.SingleUser,
     Calendar: NavIcon.Calendar,
+    Payments: CoreIcon.Payments,
+    BarChart: CoreIcon.BarChart,
+    Rocket: DashboardIcon.Rocket,
 };
 
 const StatCard = ({ label, value, hint, icon: IconComp, accent = 'blue' }) => {
@@ -80,6 +82,40 @@ const AdminReports = () => {
         });
     }, [data]);
 
+    // Profit & Loss Monthly Comparison (Revenue vs Expenses)
+    const pnlChart = useMemo(() => {
+        if (!data?.revenueByMonth && !data?.expensesByMonth) return [];
+        const monthsMap = {};
+        (data.revenueByMonth || []).forEach(r => {
+            if (!monthsMap[r.month]) monthsMap[r.month] = { month: r.month, revenue: 0, expenses: 0 };
+            monthsMap[r.month].revenue = Number(r.total || 0);
+        });
+        (data.expensesByMonth || []).forEach(e => {
+            if (!monthsMap[e.month]) monthsMap[e.month] = { month: e.month, revenue: 0, expenses: 0 };
+            monthsMap[e.month].expenses = Number(e.total || 0);
+        });
+        const sortedMonths = Object.keys(monthsMap).sort();
+        const maxVal = Math.max(
+            ...sortedMonths.map(m => Math.max(monthsMap[m].revenue, monthsMap[m].expenses)),
+            1
+        );
+        return sortedMonths.map(m => {
+            const [year, month] = m.split('-');
+            const label = new Date(year, month - 1).toLocaleString('default', { month: 'short' });
+            const rev = monthsMap[m].revenue;
+            const exp = monthsMap[m].expenses;
+            return {
+                month: m,
+                label,
+                revenue: rev,
+                expenses: exp,
+                revHeight: (rev / maxVal) * 100,
+                expHeight: (exp / maxVal) * 100,
+                net: rev - exp,
+            };
+        });
+    }, [data]);
+
     const statusColors = {
         ONBOARDING: 'bg-amber-400',
         PLANNING: 'bg-slate-400',
@@ -102,6 +138,17 @@ const AdminReports = () => {
         ]);
         downloadCSV(`revenue-${new Date().toISOString().slice(0, 10)}.csv`, csv);
         notify.success('Revenue report exported');
+    };
+
+    const exportPnLCSV = () => {
+        const csv = toCSV(pnlChart, [
+            { label: 'Month', key: 'month' },
+            { label: 'Revenue (NGN)', key: 'revenue' },
+            { label: 'Expenses (NGN)', key: 'expenses' },
+            { label: 'Net Profit (NGN)', key: 'net' },
+        ]);
+        downloadCSV(`profit-loss-${new Date().toISOString().slice(0, 10)}.csv`, csv);
+        notify.success('P&L report exported');
     };
 
     const exportClientsCSV = () => {
@@ -142,7 +189,14 @@ const AdminReports = () => {
         );
     }
 
-    const { invoiceSummary, completionRate, avgProgress, projectsByStatus, topClients } = data;
+    const { invoiceSummary, completionRate, avgProgress, projectsByStatus, topClients, financialSummary, revenueByDivision, projectsByDivision } = data;
+
+    const fin = financialSummary || {
+        totalRevenue: Number(invoiceSummary?.revenue || 0),
+        totalExpenses: Number(data.expenseSummary?.total_amount || 0),
+        netProfit: Number(invoiceSummary?.revenue || 0) - Number(data.expenseSummary?.total_amount || 0),
+        profitMargin: 0,
+    };
 
     return (
         <div className="flex flex-col">
@@ -152,62 +206,92 @@ const AdminReports = () => {
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
                         <div>
                             <h1 className="text-4xl font-extrabold font-heading bg-gradient-to-r from-accent to-orange-500 bg-clip-text text-transparent">
-                                Reports
+                                Reports & Financials
                             </h1>
-                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 font-body">Analytics & business insights.</p>
+                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 font-body">Cross-division analytics, P&L, and business insights.</p>
                         </div>
-                        <div className="flex items-center gap-3 text-sm">
-                            <Icon.Calendar className="w-4 h-4 text-gray-400" />
-                            <input
-                                type="date"
-                                value={dateRange.start}
-                                onChange={e => setDateRange({ ...dateRange, start: e.target.value })}
-                                className="px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-800 text-sm outline-none focus:ring-2 focus:ring-accent font-body"
-                            />
-                            <span className="text-gray-400">to</span>
-                            <input
-                                type="date"
-                                value={dateRange.end}
-                                onChange={e => setDateRange({ ...dateRange, end: e.target.value })}
-                                className="px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-800 text-sm outline-none focus:ring-2 focus:ring-accent font-body"
-                            />
+                        <div className="flex flex-wrap items-center gap-3 text-sm">
+                            <div className="flex items-center gap-2">
+                                <Icon.Calendar className="w-4 h-4 text-gray-400" />
+                                <input
+                                    type="date"
+                                    value={dateRange.start}
+                                    onChange={e => setDateRange({ ...dateRange, start: e.target.value })}
+                                    className="px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-800 text-sm outline-none focus:ring-2 focus:ring-accent font-body"
+                                />
+                                <span className="text-gray-400">to</span>
+                                <input
+                                    type="date"
+                                    value={dateRange.end}
+                                    onChange={e => setDateRange({ ...dateRange, end: e.target.value })}
+                                    className="px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-800 text-sm outline-none focus:ring-2 focus:ring-accent font-body"
+                                />
+                            </div>
+                            <button
+                                onClick={exportPnLCSV}
+                                className="cursor-pointer inline-flex items-center gap-1.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-accent text-gray-800 dark:text-white text-xs font-bold px-3 py-2 rounded-xl shadow-sm transition-colors"
+                            >
+                                <Icon.Download className="w-3.5 h-3.5" /> Export P&L
+                            </button>
                         </div>
                     </div>
                 </motion.div>
 
-                {/* Summary Stats */}
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-                    <StatCard label="Total Revenue" value={formatCurrency(invoiceSummary.revenue)} hint="From paid invoices" accent="emerald" icon={Icon.TrendingUp} />
-                    <StatCard label="Outstanding" value={formatCurrency(invoiceSummary.outstanding)} hint={`${invoiceSummary.pending} pending invoices`} accent="amber" icon={Icon.TrendingUp} />
+                {/* Summary Stats Grid (6 cards) */}
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
+                    <StatCard label="Gross Revenue" value={formatCurrency(fin.totalRevenue)} hint="From paid invoices" accent="emerald" icon={Icon.TrendingUp} />
+                    <StatCard label="Total Expenses" value={formatCurrency(fin.totalExpenses)} hint="Operational costs" accent="amber" icon={Icon.Payments} />
+                    <StatCard label="Net Profit" value={formatCurrency(fin.netProfit)} hint={`${fin.profitMargin}% margin`} accent={fin.netProfit >= 0 ? "emerald" : "rose"} icon={Icon.BarChart} />
+                    <StatCard label="Outstanding" value={formatCurrency(invoiceSummary.outstanding)} hint={`${invoiceSummary.pending} pending`} accent="amber" icon={Icon.TrendingUp} />
                     <StatCard label="Overdue" value={invoiceSummary.overdue} hint="Past due date" accent="rose" icon={Icon.TrendingUp} />
-                    <StatCard label="Avg. Progress" value={`${avgProgress}%`} hint="Across active projects" accent="purple" icon={Icon.PieChart} />
+                    <StatCard label="Avg. Progress" value={`${avgProgress}%`} hint="Active projects" accent="purple" icon={Icon.PieChart} />
                 </div>
 
                 {/* Charts Row */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                    {/* Revenue Chart */}
+                    {/* Profit & Loss Comparison (Revenue vs Expenses) */}
                     <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: 0.05 }}
                         className="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm"
                     >
                         <div className="flex justify-between items-center mb-6">
-                            <h2 className="font-bold text-lg text-gray-900 dark:text-white">Revenue (Last 12 Months)</h2>
+                            <div>
+                                <h2 className="font-bold text-lg text-gray-900 dark:text-white">Profit & Loss (Monthly)</h2>
+                                <div className="flex items-center gap-3 mt-1 text-xs">
+                                    <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-medium">
+                                        <span className="w-2.5 h-2.5 rounded bg-emerald-500 inline-block" /> Revenue
+                                    </span>
+                                    <span className="flex items-center gap-1 text-amber-600 dark:text-amber-400 font-medium">
+                                        <span className="w-2.5 h-2.5 rounded bg-amber-500 inline-block" /> Expenses
+                                    </span>
+                                </div>
+                            </div>
                             <button onClick={exportRevenueCSV} title="Download as CSV" className="cursor-pointer text-[10px] font-extrabold uppercase tracking-wider text-gray-500 dark:text-gray-400 hover:text-accent inline-flex items-center gap-1">
                                 <Icon.Download className="w-3.5 h-3.5" /> CSV
                             </button>
                         </div>
-                        {revenueChart.length === 0 ? (
-                            <div className="text-center py-10 text-gray-400 text-sm">No revenue data for this period.</div>
+                        {pnlChart.length === 0 ? (
+                            <div className="text-center py-10 text-gray-400 text-sm">No financial data for this period.</div>
                         ) : (
-                            <div className="flex items-end gap-2 sm:gap-3 h-48">
-                                {revenueChart.map((d, idx) => (
+                            <div className="flex items-end gap-2 sm:gap-3 h-52 pt-4">
+                                {pnlChart.map((d, idx) => (
                                     <div key={idx} className="flex-1 flex flex-col items-center gap-2 group">
-                                        <div className="w-full flex-1 flex items-end justify-center">
+                                        <div className="w-full flex-1 flex items-end justify-center gap-1">
+                                            {/* Revenue Bar */}
                                             <div
-                                                className="w-full max-w-[32px] bg-emerald-500/80 hover:bg-emerald-500 rounded-t-md transition-all duration-300 relative"
-                                                style={{ height: `${Math.max(d.height, 4)}%` }}
+                                                className="w-1/2 max-w-[16px] bg-emerald-500/80 hover:bg-emerald-500 rounded-t-md transition-all duration-300 relative"
+                                                style={{ height: `${Math.max(d.revHeight, 4)}%` }}
                                             >
                                                 <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-[10px] py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 font-bold pointer-events-none">
-                                                    {formatCurrency(d.value)} · {d.count} inv
+                                                    Rev: {formatCurrency(d.revenue)}
+                                                </div>
+                                            </div>
+                                            {/* Expense Bar */}
+                                            <div
+                                                className="w-1/2 max-w-[16px] bg-amber-500/80 hover:bg-amber-500 rounded-t-md transition-all duration-300 relative"
+                                                style={{ height: `${Math.max(d.expHeight, 4)}%` }}
+                                            >
+                                                <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-[10px] py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 font-bold pointer-events-none">
+                                                    Exp: {formatCurrency(d.expenses)}
                                                 </div>
                                             </div>
                                         </div>
@@ -247,6 +331,74 @@ const AdminReports = () => {
                                             </div>
                                             <div className="w-12 text-right">
                                                 <span className="text-[10px] text-gray-400 font-bold">{pct}%</span>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        )}
+                    </motion.div>
+                </div>
+
+                {/* Division Breakdown Row */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                    {/* Revenue by Division */}
+                    <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: 0.12 }}
+                        className="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm"
+                    >
+                        <h2 className="font-bold text-lg text-gray-900 dark:text-white mb-4">Revenue by Division</h2>
+                        {(!revenueByDivision || revenueByDivision.length === 0) ? (
+                            <div className="text-center py-6 text-gray-400 text-sm">No division revenue data.</div>
+                        ) : (
+                            <div className="space-y-3">
+                                {revenueByDivision.map((div, idx) => {
+                                    const totalRev = fin.totalRevenue || 1;
+                                    const pct = Math.round((Number(div.total || 0) / totalRev) * 100);
+                                    const colors = { SOFTWARE: 'bg-blue-500', SURVEY: 'bg-emerald-500', DRONE: 'bg-purple-500' };
+                                    return (
+                                        <div key={idx} className="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
+                                            <div className="flex justify-between items-center mb-1.5">
+                                                <span className="font-bold text-sm text-gray-900 dark:text-white">{div.division}</span>
+                                                <span className="font-mono font-bold text-sm text-emerald-600 dark:text-emerald-400">{formatCurrency(div.total)}</span>
+                                            </div>
+                                            <div className="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2">
+                                                <div className={`h-2 rounded-full ${colors[div.division] || 'bg-blue-500'}`} style={{ width: `${Math.max(pct, 5)}%` }} />
+                                            </div>
+                                            <div className="flex justify-between items-center text-[10px] text-gray-400 mt-1">
+                                                <span>{div.count} paid invoices</span>
+                                                <span>{pct}% of revenue</span>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        )}
+                    </motion.div>
+
+                    {/* Projects by Division */}
+                    <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: 0.14 }}
+                        className="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm"
+                    >
+                        <h2 className="font-bold text-lg text-gray-900 dark:text-white mb-4">Projects by Division</h2>
+                        {(!projectsByDivision || projectsByDivision.length === 0) ? (
+                            <div className="text-center py-6 text-gray-400 text-sm">No division project data.</div>
+                        ) : (
+                            <div className="space-y-3">
+                                {projectsByDivision.map((div, idx) => {
+                                    const totalProj = projectTotal || 1;
+                                    const pct = Math.round((Number(div.count || 0) / totalProj) * 100);
+                                    const colors = { SOFTWARE: 'bg-blue-500', SURVEY: 'bg-emerald-500', DRONE: 'bg-purple-500' };
+                                    return (
+                                        <div key={idx} className="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
+                                            <div className="flex justify-between items-center mb-1.5">
+                                                <span className="font-bold text-sm text-gray-900 dark:text-white">{div.division}</span>
+                                                <span className="font-bold text-sm text-gray-900 dark:text-white">{div.count} projects</span>
+                                            </div>
+                                            <div className="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2">
+                                                <div className={`h-2 rounded-full ${colors[div.division] || 'bg-blue-500'}`} style={{ width: `${Math.max(pct, 5)}%` }} />
+                                            </div>
+                                            <div className="flex justify-between items-center text-[10px] text-gray-400 mt-1">
+                                                <span>{pct}% of active portfolio</span>
                                             </div>
                                         </div>
                                     );
@@ -319,7 +471,7 @@ const AdminReports = () => {
                                     </thead>
                                     <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
                                         {topClients.map((c, idx) => (
-                                            <tr key={c.id} className="hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors">
+                                             <tr key={c.id} className="hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors">
                                                 <td className="py-3 px-4 text-gray-400 font-bold text-sm">{idx + 1}</td>
                                                 <td className="py-3 px-4">
                                                     <div className="flex items-center gap-3">

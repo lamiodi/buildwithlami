@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { 
   Plane, 
   MapPin, 
@@ -11,7 +12,8 @@ import {
   Search, 
   X, 
   Send, 
-  Eye 
+  Eye,
+  User 
 } from 'lucide-react';
 import { api } from '../../../services/api';
 import { notify } from '../../../services/notify';
@@ -292,7 +294,13 @@ export default function AdminDroneBookings() {
                                 </div>
                             </div>
 
-                            <div className="flex justify-end gap-3 pt-4 border-t border-gray-100 dark:border-gray-800">
+                            <div className="flex items-center justify-between gap-3 pt-4 border-t border-gray-100 dark:border-gray-800">
+                                <Link
+                                    to={`/admin/crm?search=${encodeURIComponent(selectedBooking.email || '')}`}
+                                    className="px-4 py-2.5 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-200 text-xs font-bold uppercase tracking-wider rounded-xl transition-colors inline-flex items-center gap-1.5"
+                                >
+                                    <User className="w-3.5 h-3.5" /> View in CRM Pipeline
+                                </Link>
                                 <a
                                     href={`mailto:${selectedBooking.email}?subject=Regarding Your Drone Mission Request with BuildWithLami`}
                                     className="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-colors inline-flex items-center gap-1.5 shadow-md"

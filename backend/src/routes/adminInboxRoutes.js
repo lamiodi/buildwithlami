@@ -52,11 +52,21 @@ router.post('/:kind/:id/reply', replyToInboxItem);
 const search = async (req, res) => {
     const q = (req.query.q || '').trim();
     if (q.length < 2) {
-        return res.json({ leads: [], clients: [], projects: [], invoices: [], messages: [] });
+        return res.json({
+            leads: [],
+            clients: [],
+            projects: [],
+            invoices: [],
+            messages: [],
+            quotations: [],
+            contracts: [],
+            bookings: [],
+            expenses: [],
+        });
     }
     const needle = `%${q}%`;
     try {
-        const [leads, clients, projects, invoices, messages] = await Promise.all([
+        const [leads, clients, projects, invoices, messages, quotations, contracts, bookings, expenses] = await Promise.all([
             pool.query(
                 `SELECT id, name, email, stage, created_at FROM leads
                   WHERE name ILIKE $1 OR email ILIKE $1
@@ -92,6 +102,37 @@ const search = async (req, res) => {
                   ORDER BY created_at DESC LIMIT 5`,
                 [needle]
             ),
+            pool.query(
+                `SELECT q.id, q.title, q.amount, q.status, COALESCE(c.name, l.full_name) AS client_name, q.created_at
+                   FROM quotations q
+                   LEFT JOIN clients c ON q.client_id = c.id
+                   LEFT JOIN leads l ON q.lead_id = l.id
+                  WHERE q.title ILIKE $1 OR COALESCE(c.name, '') ILIKE $1 OR COALESCE(l.full_name, '') ILIKE $1
+                  ORDER BY q.created_at DESC LIMIT 5`,
+                [needle]
+            ),
+            pool.query(
+                `SELECT ct.id, ct.status, ct.signatory_name, ct.signatory_email, COALESCE(c.name, '') AS client_name, ct.created_at
+                   FROM contracts ct
+                   LEFT JOIN clients c ON ct.client_id = c.id
+                  WHERE ct.signatory_name ILIKE $1 OR ct.signatory_email ILIKE $1 OR COALESCE(c.name, '') ILIKE $1
+                  ORDER BY ct.created_at DESC LIMIT 5`,
+                [needle]
+            ),
+            pool.query(
+                `SELECT b.id, b.full_name, b.email, b.service, b.division, b.status, b.created_at
+                   FROM bookings b
+                  WHERE b.full_name ILIKE $1 OR b.email ILIKE $1 OR b.service ILIKE $1 OR b.location ILIKE $1
+                  ORDER BY b.created_at DESC LIMIT 5`,
+                [needle]
+            ),
+            pool.query(
+                `SELECT e.id, e.title, e.category, e.amount, e.currency, e.expense_date
+                   FROM expenses e
+                  WHERE e.title ILIKE $1 OR e.category ILIKE $1
+                  ORDER BY e.expense_date DESC LIMIT 5`,
+                [needle]
+            ),
         ]);
         return res.json({
             leads: leads.rows,
@@ -99,6 +140,10 @@ const search = async (req, res) => {
             projects: projects.rows,
             invoices: invoices.rows,
             messages: messages.rows,
+            quotations: quotations.rows,
+            contracts: contracts.rows,
+            bookings: bookings.rows,
+            expenses: expenses.rows,
         });
     } catch (err) {
         console.error('[Search] error:', err.message);

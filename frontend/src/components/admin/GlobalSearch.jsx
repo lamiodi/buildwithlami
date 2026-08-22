@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { api } from '../../services/api';
-import { ActionIcon, DashboardIcon, CoreIcon } from '../../data/adminIcons.jsx';
+import { ActionIcon, DashboardIcon, CoreIcon, NavIcon } from '../../data/adminIcons.jsx';
 
 const Icon = {
     Search: ActionIcon.Search,
@@ -12,14 +12,22 @@ const Icon = {
     Invoice: CoreIcon.CreditCard,
     Mail: CoreIcon.Mail,
     Kbd: DashboardIcon.Kbd,
+    Quotation: CoreIcon.FileText,
+    Contract: CoreIcon.Code,
+    Booking: NavIcon.Calendar,
+    Expense: CoreIcon.Payments,
 };
 
 const CATEGORIES = [
-    { key: 'leads',     label: 'Leads',     icon: Icon.Lead,    path: (item) => `/admin/clients?lead=${item.id}` },
-    { key: 'clients',   label: 'Clients',   icon: Icon.Client,  path: (item) => `/admin/clients?focus=${item.id}` },
-    { key: 'projects',  label: 'Projects',  icon: Icon.Project, path: (item) => `/admin/projects/${item.id}` },
-    { key: 'invoices',  label: 'Invoices',  icon: Icon.Invoice, path: (item) => `/admin/invoices?focus=${item.id}` },
-    { key: 'messages',  label: 'Messages',  icon: Icon.Mail,    path: (item) => `/admin/inbox?message=${item.id}` },
+    { key: 'leads',      label: 'Leads',      icon: Icon.Lead,      path: (item) => `/admin/crm` },
+    { key: 'clients',    label: 'Clients',    icon: Icon.Client,    path: (item) => `/admin/clients?focus=${item.id}` },
+    { key: 'projects',   label: 'Projects',   icon: Icon.Project,   path: (item) => `/admin/projects/${item.id}` },
+    { key: 'quotations', label: 'Quotations', icon: Icon.Quotation, path: (item) => `/admin/quotations` },
+    { key: 'invoices',   label: 'Invoices',   icon: Icon.Invoice,   path: (item) => `/admin/invoices?focus=${item.id}` },
+    { key: 'contracts',  label: 'Contracts',  icon: Icon.Contract,  path: (item) => `/admin/contracts` },
+    { key: 'bookings',   label: 'Bookings',   icon: Icon.Booking,   path: (item) => item.division === 'DRONE' ? `/admin/drone/bookings` : `/admin/survey/bookings` },
+    { key: 'expenses',   label: 'Expenses',   icon: Icon.Expense,   path: (item) => `/admin/expenses` },
+    { key: 'messages',   label: 'Messages',   icon: Icon.Mail,      path: (item) => `/admin/inbox?message=${item.id}` },
 ];
 
 const DEBOUNCE_MS = 300;
@@ -53,14 +61,23 @@ const GlobalSearch = () => {
             items.forEach((item) => {
                 const id = `${cat.key}-${item.id}`;
                 flatIdxById[id] = list.length;
+                const primary = item.title || item.name || item.full_name || item.project_name || item.signatory_name || item.author_name || item.email || 'Item';
+                let secondary = item.email || item.client_name || item.signatory_email || item.status || item.snippet || '';
+                if (item.category && item.amount !== undefined) {
+                    secondary = `${item.category} · ₦${Number(item.amount || 0).toLocaleString()}`;
+                } else if (item.service) {
+                    secondary = `${item.service} (${item.division || 'SURVEY'})`;
+                } else if (item.amount !== undefined && cat.key !== 'expenses') {
+                    secondary = `₦${Number(item.amount || 0).toLocaleString()} · ${item.status || ''}`;
+                }
                 list.push({
                     id,
                     item,
                     cat: cat.key,
                     catLabel: cat.label,
                     icon: cat.icon,
-                    primary: item.name || item.project_name || item.author_name || item.email || 'Item',
-                    secondary: item.email || item.client_name || item.status || item.snippet || '',
+                    primary,
+                    secondary,
                     path: cat.path(item),
                 });
             });
