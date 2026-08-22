@@ -20,7 +20,7 @@ const createBookingSchema = z.object({
     full_name: z.string().min(1),
     email: z.string().email(),
     phone: z.string().optional().nullable(),
-    division: z.enum(['SURVEY', 'DRONE']),
+    division: z.enum(['SOFTWARE', 'SURVEY', 'DRONE']).default('SOFTWARE'),
     service: z.string().min(1),
     location: z.string().optional().nullable(),
     preferred_date: z.string().optional().nullable(),
@@ -129,7 +129,7 @@ export async function updateBookingStatus(req, res) {
         if (!validateUUID(req.params.id, res)) return;
 
         const statusSchema = z.object({
-            status: z.enum(['NEW', 'CONTACTED', 'QUOTED', 'WON', 'LOST']),
+            status: z.enum(['NEW', 'CONTACTED', 'QUOTED', 'CONFIRMED', 'COMPLETED', 'WON', 'LOST', 'CANCELLED', 'PENDING']),
         });
         const { status } = statusSchema.parse(req.body);
 

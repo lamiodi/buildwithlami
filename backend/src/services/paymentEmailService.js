@@ -54,7 +54,7 @@ const adminAddress = () => process.env.ADMIN_EMAIL || process.env.EMAIL_TO;
  * 1. Invoice email — sent right after `createInvoice`.
  * Includes the secure /pay/:token link.
  */
-export const sendInvoiceEmail = async ({ clientEmail, clientName, invoiceId, amount, currency, payToken, dueDate, projectName }) => {
+export const sendInvoiceEmail = async ({ clientEmail, clientName, invoiceId: _invoiceId, amount, currency, payToken, dueDate, projectName }) => {
     if (!clientEmail) return { success: false, error: 'No client email' };
     const safeName = escapeHtml(clientName || 'there');
     const payUrl = `${process.env.FRONTEND_URL || 'https://buildwithlami.com'}/pay/${payToken}`;
@@ -96,7 +96,7 @@ BuildWithLami`;
  * 2. Proof received — sent to the client the moment they
  * submit transaction details on the payment page.
  */
-export const sendProofReceivedEmail = async ({ clientEmail, clientName, invoiceId, amount, currency, transactionReference }) => {
+export const sendProofReceivedEmail = async ({ clientEmail, clientName, invoiceId: _invoiceId, amount, currency, transactionReference }) => {
     if (!clientEmail) return { success: false, error: 'No client email' };
     const safeName = escapeHtml(clientName || 'there');
     const subject = `We received your payment proof — reviewing now`;
@@ -150,7 +150,7 @@ export const sendAdminProofNotification = async ({ clientName, invoiceId, amount
  * proof. The big one: this is the "your project is starting"
  * moment.
  */
-export const sendPaymentConfirmedEmail = async ({ clientEmail, clientName, invoiceId, projectName, amount, currency }) => {
+export const sendPaymentConfirmedEmail = async ({ clientEmail, clientName, invoiceId: _invoiceId, projectName, amount, currency }) => {
     if (!clientEmail) return { success: false, error: 'No client email' };
     const safeName = escapeHtml(clientName || 'there');
     const subject = `Payment confirmed — your project is activated`;

@@ -72,7 +72,6 @@ export async function setupTwoFactor(req, res) {
 
 // ── POST /api/auth/2fa/confirm ───────────────────────────
 // First successful TOTP code → 2FA is enabled.
-const confirmSchema = { code: String };
 function parseConfirmBody(req) {
     const code = typeof req.body?.code === 'string' ? req.body.code.trim() : '';
     if (!/^\d{6}$/.test(code)) return { error: 'Code must be 6 digits.' };
@@ -117,7 +116,6 @@ export async function confirmTwoFactor(req, res) {
 }
 
 // ── POST /api/auth/2fa/disable ───────────────────────────
-const disableSchema = { password: String };
 export async function disableTwoFactorController(req, res) {
     const password = typeof req.body?.password === 'string' ? req.body.password : '';
     if (password.length === 0) return res.status(400).json({ error: 'Password required to disable 2FA.' });

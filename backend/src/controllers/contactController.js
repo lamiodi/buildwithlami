@@ -39,7 +39,7 @@ export async function submitContactForm(req, res) {
         const cleanBudget = data.budget ? DOMPurify.sanitize(data.budget) : null;
         const cleanTimeline = data.timeline ? DOMPurify.sanitize(data.timeline) : null;
 
-        const { rows } = await pool.query(
+        await pool.query(
             `INSERT INTO messages (full_name, email, message, project_type, budget, timeline)
        VALUES ($1, $2, $3, $4, $5, $6)
        RETURNING id, full_name, email, created_at`,

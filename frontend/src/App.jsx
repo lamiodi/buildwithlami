@@ -14,6 +14,7 @@ const AboutPage = React.lazy(() => import('./pages/AboutPage'));
 const ServicesPage = React.lazy(() => import('./pages/ServicesPage'));
 const ProjectDetailPage = React.lazy(() => import('./pages/ProjectDetailPage'));
 const NotFoundPage = React.lazy(() => import('./pages/NotFoundPage'));
+const SoftwareHomePage = React.lazy(() => import('./pages/software/SoftwareHomePage'));
 const SurveyHomePage = React.lazy(() => import('./pages/survey/SurveyHomePage'));
 const DroneHomePage = React.lazy(() => import('./pages/drone/DroneHomePage'));
 const SurveyProjectDetailPage = React.lazy(() => import('./pages/survey/SurveyProjectDetailPage'));
@@ -182,6 +183,7 @@ function App() {
                 <Route path="/contact" element={<PageWrapper><ContactPage /></PageWrapper>} />
                 <Route path="/about" element={<PageWrapper><AboutPage /></PageWrapper>} />
                 <Route path="/services" element={<PageWrapper><ServicesPage /></PageWrapper>} />
+                <Route path="/software" element={<PageWrapper><SoftwareHomePage /></PageWrapper>} />
                 <Route path="/projects/:id" element={<PageWrapper><ProjectDetailPage /></PageWrapper>} />
                 <Route path="/survey" element={<PageWrapper><SurveyHomePage /></PageWrapper>} />
                 <Route path="/survey/projects/:id" element={<PageWrapper><SurveyProjectDetailPage /></PageWrapper>} />

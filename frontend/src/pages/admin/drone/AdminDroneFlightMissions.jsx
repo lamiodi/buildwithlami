@@ -17,6 +17,8 @@ import { Link } from 'react-router-dom';
 import WorkspaceListPage, { StatusBadge } from '../../../components/admin/WorkspaceListPage';
 import { Icon } from '../../../data/adminNavItems.jsx';
 
+import { Plus } from 'lucide-react';
+
 const AdminDroneFlightMissions = () => (
     <WorkspaceListPage
         title="Flight Missions"
@@ -25,6 +27,14 @@ const AdminDroneFlightMissions = () => (
         icon={Icon.Plane}
         endpoint="/divisions/drone/projects"
         searchFields={['title', 'summary', 'content', 'tech_stack', 'location', 'client_name']}
+        headerAction={
+            <Link
+                to="/admin/drone/portfolio"
+                className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 px-5 rounded-xl transition-all shadow-md inline-flex items-center gap-2 text-xs uppercase tracking-wider"
+            >
+                <Plus size={16} /> New Flight Mission
+            </Link>
+        }
         columns={[
             { key: 'title', label: 'Mission', render: (p) => (
                 <div className="flex items-center gap-3">

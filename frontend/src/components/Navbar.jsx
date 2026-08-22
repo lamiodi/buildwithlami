@@ -5,12 +5,13 @@ import { getAuthToken, clearAuth, getAuthUser } from '../services/auth';
 
 const NAV_LINKS = [
   { name: 'Home', path: '#home', type: 'anchor' },
-  { name: 'Projects', path: '/projects', type: 'link' },
-  { name: 'About', path: '/about', type: 'link' },
+  { name: 'Software', path: '/software', type: 'link' },
   { name: 'Services', path: '/services', type: 'link' },
-  { name: 'Portfolio', path: '/projects', type: 'link' },
-  { name: 'SaaS Products', path: '#saas', type: 'anchor' },
-  { name: 'Pricing', path: '#pricing', type: 'anchor' },
+  { name: 'Projects', path: '/projects', type: 'link' },
+  { name: 'Pricing', path: '/pricing', type: 'link' },
+  { name: 'Survey', path: '/survey', type: 'link' },
+  { name: 'Drone', path: '/drone', type: 'link' },
+  { name: 'About', path: '/about', type: 'link' },
   { name: 'Contact', path: '/contact', type: 'link' },
 ];
 

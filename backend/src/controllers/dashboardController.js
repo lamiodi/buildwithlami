@@ -1,5 +1,5 @@
 import pool from '../config/db.js';
-import { getAllRates, BASE_CURRENCY, toBase } from '../utils/fx.js';
+import { getAllRates, BASE_CURRENCY } from '../utils/fx.js';
 
 // Helper to build date filter (returns { clause, params }).
 // Parameters are appended to the params array — never interpolated

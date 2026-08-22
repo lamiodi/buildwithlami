@@ -43,6 +43,7 @@ const WorkspaceListPage = ({
     searchFields = ['title', 'name', 'full_name', 'client_name', 'service', 'location', 'email', 'summary'],
     extraParams = {},
     limit = 50,
+    headerAction,
 }) => {
     const [items, setItems] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -100,7 +101,7 @@ const WorkspaceListPage = ({
 
     return (
         <div className="max-w-[1500px] mx-auto w-full">
-            <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
+            <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="flex items-center gap-3 mb-1">
                     {DivIcon && (
                         <div className="w-12 h-12 rounded-xl bg-accent/10 text-accent flex items-center justify-center">
@@ -121,6 +122,9 @@ const WorkspaceListPage = ({
                         </p>
                     </div>
                 </div>
+                {headerAction && (
+                    <div className="self-start sm:self-auto">{headerAction}</div>
+                )}
             </motion.div>
 
             <div className="mb-4 flex flex-col sm:flex-row gap-3">

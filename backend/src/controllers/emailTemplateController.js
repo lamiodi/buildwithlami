@@ -8,7 +8,7 @@
 
 import { z } from 'zod';
 import pool from '../config/db.js';
-import { renderTemplate, sendTemplatedEmail, loadAndRenderTemplate } from '../services/templateService.js';
+import { sendTemplatedEmail, loadAndRenderTemplate } from '../services/templateService.js';
 import { writeAuditLog, getClientIp } from '../utils/auditLog.js';
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;

@@ -27,11 +27,15 @@ const Footer = () => {
         {/* Navigation Links */}
         <nav className="flex flex-wrap gap-x-8 gap-y-4 mb-12 text-[11px] md:text-[12px] tracking-[0.5em] font-black uppercase border-b border-white/10 pb-10">
           <Link to="/" className="hover:text-accent transition-colors">Home</Link>
-          <Link to="/about" className="hover:text-accent transition-colors">About</Link>
+          <Link to="/software" className="hover:text-accent transition-colors">Software</Link>
           <Link to="/services" className="hover:text-accent transition-colors">Services</Link>
           <Link to="/projects" className="hover:text-accent transition-colors">Projects</Link>
-          <Link to="/services#pricing" className="hover:text-accent transition-colors">Pricing</Link>
-          <Link to="/resources" className="hover:text-accent transition-colors">Resources</Link>        </nav>
+          <Link to="/pricing" className="hover:text-accent transition-colors">Pricing</Link>
+          <Link to="/survey" className="hover:text-accent transition-colors">Survey</Link>
+          <Link to="/drone" className="hover:text-accent transition-colors">Drone</Link>
+          <Link to="/about" className="hover:text-accent transition-colors">About</Link>
+          <Link to="/contact" className="hover:text-accent transition-colors">Contact</Link>
+        </nav>
 
         {/* Massive Branding Headline — clamp(min, vw, max) + nowrap = one line always */}
         <div className="mb-16 select-none pointer-events-none w-full text-center">

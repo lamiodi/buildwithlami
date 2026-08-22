@@ -14,6 +14,8 @@ import { Link } from 'react-router-dom';
 import WorkspaceListPage, { StatusBadge } from '../../../components/admin/WorkspaceListPage';
 import { Icon } from '../../../data/adminNavItems.jsx';
 
+import { Plus } from 'lucide-react';
+
 const AdminSurveyProjects = () => (
     <WorkspaceListPage
         title="Survey Projects"
@@ -22,6 +24,14 @@ const AdminSurveyProjects = () => (
         icon={Icon.Satellite}
         endpoint="/divisions/survey/projects"
         searchFields={['title', 'summary', 'content', 'tech_stack', 'location', 'client_name']}
+        headerAction={
+            <Link
+                to="/admin/survey/portfolio"
+                className="bg-amber-500 hover:bg-amber-600 text-white font-bold py-2.5 px-5 rounded-xl transition-all shadow-md inline-flex items-center gap-2 text-xs uppercase tracking-wider"
+            >
+                <Plus size={16} /> New Survey Project
+            </Link>
+        }
         columns={[
             { key: 'title', label: 'Project', render: (p) => (
                 <div className="flex items-center gap-3">
