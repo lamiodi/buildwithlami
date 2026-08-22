@@ -23,7 +23,7 @@ const About = () => {
         {/* Main Image */}
         <motion.div variants={item} className="w-full h-64 md:h-[500px] bg-gray-200 dark:bg-gray-800 mb-16 relative overflow-hidden shadow-2xl rounded-sm">
           <img 
-            src="https://images.unsplash.com/photo-1547394765-185e1e68f34e?q=80&w=2070&auto=format&fit=crop" 
+            src="/Rectangle 50 (1).png" 
             alt="My Desk Setup" 
             className="w-full h-full object-cover opacity-90 dark:opacity-80"
           />

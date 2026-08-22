@@ -169,18 +169,13 @@ const AboutPage = () => {
             transition={cardHoverTransition}
             className="md:col-span-4 bg-white dark:bg-gradient-to-br dark:from-[#1e1e1e] dark:to-[#151515] p-5 sm:p-6 rounded-[1.75rem] sm:rounded-[2rem] border border-gray-200 dark:border-white/5 flex items-center justify-center shadow-xl"
           >
-            <div className="relative w-full aspect-square overflow-hidden rounded-3xl bg-accent">
-              {/*
-                TODO: Replace this placeholder with your professional headshot.
-                Recommended: square (1:1), high-resolution, well-lit portrait.
-                Example: <img src="/images/eugene-headshot.jpg" alt="Eugene Odibenuah" ... />
-              */}
+            <div className="relative w-full aspect-square overflow-hidden rounded-3xl bg-gray-900">
               <img
-                src="https://images.unsplash.com/photo-1547394765-185e1e68f34e?q=80&w=2070&auto=format&fit=crop"
-                alt="Placeholder portrait — replace with professional headshot of Eugene Odibenuah"
+                src="/ChatGPT Image Aug 22, 2026, 06_24_14 PM.png"
+                alt="Eugene Odibenuah — Founder of BuildWithLami"
                 loading="lazy"
                 decoding="async"
-                className="w-full h-full object-cover opacity-90 mix-blend-overlay"
+                className="w-full h-full object-cover"
               />
             </div>
           </motion.article>
