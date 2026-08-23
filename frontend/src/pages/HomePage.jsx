@@ -40,7 +40,7 @@ const HomePage = () => {
       <WhyChoose />
       <HowItWorks />
       <Testimonials />
-      <Pricing />
+      <Pricing isHomepage={true} />
       <About />
       <SaaSProducts />
       <FAQ />

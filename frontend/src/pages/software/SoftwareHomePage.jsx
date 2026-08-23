@@ -34,11 +34,11 @@ import {
 } from '../../components/ui/select';
 
 const PROJECT_TYPES = [
-  { id: 'landing', name: 'Starter / Landing Platform', baseCostNGN: 250000, baseCostUSD: 800, baseWeeks: 2, icon: Monitor, desc: 'Ultra-fast high-converting web platform built for instant credibility and conversions.' },
   { id: 'business', name: 'Business Corporate Platform', baseCostNGN: 600000, baseCostUSD: 1600, baseWeeks: 3, icon: Layers, desc: 'Bespoke corporate website with CMS, lead capture automation, and SEO.' },
   { id: 'ecommerce', name: 'E-Commerce Growth Engine', baseCostNGN: 850000, baseCostUSD: 2400, baseWeeks: 4, icon: Zap, desc: 'Scalable commerce system with accounts, cart recovery, discount engine & payments.' },
-  { id: 'web_app', name: 'Custom Web Application & Portal', baseCostNGN: 1200000, baseCostUSD: 3200, baseWeeks: 6, icon: Database, desc: 'Custom internal dashboards, client portals, booking systems, or SaaS prototypes.' },
-  { id: 'saas', name: 'Multi-Tenant SaaS & Enterprise ERP', baseCostNGN: 1800000, baseCostUSD: 4800, baseWeeks: 8, icon: Server, desc: 'Mission-critical multi-tenant architecture, subscription billing, and enterprise APIs.' },
+  { id: 'mvp', name: 'MVP / Startup Prototype', baseCostNGN: 1200000, baseCostUSD: 3200, baseWeeks: 6, icon: Database, desc: 'Custom full-stack software built to test product-market fit and onboard early users.' },
+  { id: 'growth_platform', name: 'Growth Platform & Custom ERP', baseCostNGN: 2000000, baseCostUSD: 5000, baseWeeks: 8, icon: Server, desc: 'Scaling business software with multi-role workflows, automated ledgers & portals.' },
+  { id: 'saas_enterprise', name: 'Enterprise Multi-Tenant SaaS', baseCostNGN: 3500000, baseCostUSD: 9000, baseWeeks: 12, icon: Cpu, desc: 'Mission-critical distributed architecture, subscription billing, and dedicated cloud SLAs.' },
 ];
 
 const ADDON_OPTIONS = [
