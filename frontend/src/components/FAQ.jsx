@@ -25,7 +25,7 @@ const faqs = [
   },
   {
     question: "What are your payment terms?",
-    answer: "Typically, I structure payments: 60% upfront to secure a spot in the schedule and begin work, and 40% prior to final launch and handover."
+    answer: "Typically, I structure payments: 50% upfront to secure a spot in the schedule and begin architecture & development, and the remaining 50% upon final delivery, testing, and project handover."
   }
 ];
 

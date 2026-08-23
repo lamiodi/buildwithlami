@@ -346,6 +346,29 @@ const PaymentPage = () => {
                         </div>
                     </div>
 
+                    {Number(invoice.deposit_required) > 0 && !isPaid && (
+                        <div className="mt-6 bg-blue-50 border border-blue-200 rounded-xl p-4 flex items-center justify-between flex-wrap gap-3">
+                            <div>
+                                <span className="text-[10px] font-extrabold uppercase tracking-wider text-blue-800 block">Milestone Payment Plan</span>
+                                <p className="text-xs text-blue-900 font-medium">Upfront Deposit Required (50% Kickoff)</p>
+                            </div>
+                            <div className="text-right">
+                                <span className="text-xs text-gray-500 block">Deposit Amount</span>
+                                <span className="text-lg font-bold font-mono text-blue-900">
+                                    {invoice.currency === 'NGN' ? '₦' : invoice.currency === 'USD' ? '$' : invoice.currency === 'GBP' ? '£' : ''}
+                                    {Number(invoice.deposit_required).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                </span>
+                            </div>
+                        </div>
+                    )}
+
+                    {invoice.notes && (
+                        <div className="mt-4 p-3.5 bg-gray-50 rounded-xl border border-gray-100 text-xs text-gray-600">
+                            <span className="font-bold text-gray-800 block mb-0.5">Notes & Terms:</span>
+                            <p className="whitespace-pre-line">{invoice.notes}</p>
+                        </div>
+                    )}
+
                     {isPaid && (
                         <div className="mt-6 bg-green-50 border border-green-200 rounded-xl p-4 flex items-center gap-3">
                             <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-700 text-xl">✓</div>

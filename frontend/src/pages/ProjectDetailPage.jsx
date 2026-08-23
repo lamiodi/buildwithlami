@@ -795,7 +795,7 @@ const ProjectDetailPage = () => {
                   number="01"
                   eyebrow="Overview"
                   title={project.summary || 'A premium software build, end to end.'}
-                  lede="The story behind the project, distilled to what matters: the goal, the audience, the role."
+                  lede="The core problem, operational goal, and my role on the project."
                 />
 
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16">
@@ -808,10 +808,10 @@ const ProjectDetailPage = () => {
 
                   <motion.div variants={item} className="lg:col-span-5 space-y-6">
                     {[
-                      { label: 'Business Goal', value: project.solution?.architecture || project.summary },
+                      { label: 'Business Goal', value: project.goal || project.tagline || 'Centralize retail, service scheduling, workforce management, and POS operations into a single system while reducing manual administrative work.' },
+                      { label: 'Technical Approach', value: project.solution?.architecture || 'Modular Node.js architecture with clear domain boundaries, real-time WebSocket state synchronization, and a PostgreSQL database with strict constraint validation.' },
                       { label: 'Target Audience', value: project.industry ? `Operators and decision-makers in ${project.industry.toLowerCase()}.` : 'Founders, operators, and end users who expect more from software.' },
                       { label: 'Main Challenge', value: project.challenge?.problem || 'Replacing fragmented workflows with a single, dependable system.' },
-                      { label: 'Key Solution', value: 'A focused product built around the operator — fast, accessible, and engineered for the long term.' },
                       { label: 'My Role', value: project.role || 'Lead Engineer' },
                       { label: 'Timeline', value: project.duration || 'Ongoing' },
                     ].map((row) => (
@@ -843,8 +843,8 @@ const ProjectDetailPage = () => {
                 <SectionHeader
                   number="02"
                   eyebrow="The Challenge"
-                  title="What we had to solve — and why it was hard."
-                  lede="Every premium build starts with a real problem. Here is the one we set out to fix."
+                  title="What I had to solve — and why it was hard."
+                  lede="The core operational bottlenecks and constraints that defined the project requirements."
                 />
 
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16">
@@ -926,7 +926,7 @@ const ProjectDetailPage = () => {
                   number="03"
                   eyebrow="The Solution"
                   title="The decisions that made it work."
-                  lede="Not a list of features — a record of why each layer was built the way it was."
+                  lede="A record of why each architectural layer was engineered the way it was."
                 />
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
@@ -965,7 +965,7 @@ const ProjectDetailPage = () => {
             )}
 
             {/* ═══════════════════════════════════════════════════════════════
-                5. RESULTS — animated metric cards
+                5. RESULTS — metric cards
                 ═══════════════════════════════════════════════════════════════ */}
             {Array.isArray(project.results) && project.results.length > 0 && (
               <motion.section
@@ -978,8 +978,8 @@ const ProjectDetailPage = () => {
                 <SectionHeader
                   number="04"
                   eyebrow="Results"
-                  title="Measurable outcomes from the field."
-                  lede="No fluff. The numbers that mattered when the project landed in production."
+                  title="Measurable outcomes & operational impact."
+                  lede="Concrete improvements delivered once the system was deployed to production."
                 />
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 md:gap-6">
@@ -996,7 +996,7 @@ const ProjectDetailPage = () => {
                         aria-hidden="true"
                       />
                       <div className="relative">
-                        <div className="text-4xl md:text-6xl font-heading font-bold text-black dark:text-white tracking-tight">
+                        <div className="text-3xl md:text-5xl font-heading font-bold text-black dark:text-white tracking-tight">
                           {r.value}
                         </div>
                         <div className="mt-3 text-sm md:text-base font-bold text-black dark:text-white">
@@ -1029,7 +1029,7 @@ const ProjectDetailPage = () => {
                   number="05"
                   eyebrow="Feature Showcase"
                   title="What the product does — by surface area."
-                  lede="Grouped by how a user would actually encounter them, not by internal hierarchy."
+                  lede="Grouped by how an operator actually encounters them, not by internal hierarchy."
                 />
 
                 <div className="space-y-10 md:space-y-14">
@@ -1089,11 +1089,10 @@ const ProjectDetailPage = () => {
                   number="06"
                   eyebrow="Application Flow"
                   title="A typical journey through the product."
-                  lede="How a real user — or operator — moves from one end of the system to the other."
+                  lede="How an operator or customer moves from one end of the system to the other."
                 />
 
                 <div className="relative">
-                  {/* Desktop vertical timeline rail */}
                   <div
                     className="hidden md:block absolute left-1/2 -translate-x-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-accent/50 via-accent/20 to-transparent"
                     aria-hidden="true"
@@ -1137,120 +1136,7 @@ const ProjectDetailPage = () => {
             )}
 
             {/* ═══════════════════════════════════════════════════════════════
-                8. TECHNOLOGY STACK — categorized cards
-                ═══════════════════════════════════════════════════════════════ */}
-            {Array.isArray(project.techCategories) && project.techCategories.length > 0 && (
-              <motion.section
-                className="max-w-7xl mx-auto px-6 md:px-12 py-16 md:py-24 border-t border-gray-200 dark:border-gray-800"
-                initial="hidden"
-                whileInView="visible"
-                viewport={sectionViewport}
-                variants={container}
-              >
-                <SectionHeader
-                  number="07"
-                  eyebrow="Technology Stack"
-                  title="Engineered with a focused, modern toolkit."
-                  lede="Each category was chosen for a specific job. Nothing added for show."
-                />
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
-                  {project.techCategories.map((cat) => (
-                    <motion.div
-                      key={cat.name}
-                      variants={item}
-                      whileHover={shouldReduce ? {} : cardHover}
-                      transition={cardHoverTransition}
-                      className="bg-white dark:bg-gradient-to-br dark:from-[#1e1e1e] dark:to-[#151515] p-6 md:p-7 rounded-2xl border border-gray-200 dark:border-white/5 shadow-lg"
-                    >
-                      <div className="flex items-center gap-3 mb-5">
-                        <span className="w-10 h-10 rounded-xl bg-accent/10 text-accent flex items-center justify-center">
-                          <Icon name={cat.icon || 'tag'} className="w-5 h-5" />
-                        </span>
-                        <h3 className="text-base md:text-lg font-heading font-bold text-black dark:text-white">
-                          {cat.name}
-                        </h3>
-                      </div>
-                      <ul className="space-y-2">
-                        {cat.items.map((t, i) => (
-                          <li
-                            key={`${cat.name}-${i}`}
-                            className="flex items-center gap-3 text-sm md:text-base text-gray-800 dark:text-gray-200"
-                          >
-                            <img
-                              src={getTechIcon(t)}
-                              alt=""
-                              className="w-5 h-5 object-contain"
-                              loading="lazy"
-                              width="20"
-                              height="20"
-                            />
-                            <span className="font-medium">{t}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </motion.div>
-                  ))}
-                </div>
-              </motion.section>
-            )}
-
-            {/* ═══════════════════════════════════════════════════════════════
-                9. SYSTEM ARCHITECTURE — diagram-style technical doc
-                ═══════════════════════════════════════════════════════════════ */}
-            {Array.isArray(project.architecture) && project.architecture.length > 0 && (
-              <motion.section
-                className="max-w-7xl mx-auto px-6 md:px-12 py-16 md:py-24 border-t border-gray-200 dark:border-gray-800"
-                initial="hidden"
-                whileInView="visible"
-                viewport={sectionViewport}
-                variants={container}
-              >
-                <SectionHeader
-                  number="08"
-                  eyebrow="System Architecture"
-                  title="How the layers talk to each other."
-                  lede="A simplified view of the production topology. Designed to be readable in one breath."
-                />
-
-                <div className="max-w-4xl mx-auto space-y-4">
-                  {project.architecture.map((layer, i) => (
-                    <motion.div
-                      key={`${layer.layer}-${i}`}
-                      variants={item}
-                      className="relative"
-                    >
-                      <div className="grid grid-cols-1 md:grid-cols-12 gap-3 md:gap-6 items-stretch bg-white dark:bg-gradient-to-br dark:from-[#1e1e1e] dark:to-[#151515] border border-gray-200 dark:border-white/5 rounded-2xl shadow-md overflow-hidden">
-                        <div className="md:col-span-3 p-5 md:p-6 bg-gray-50 dark:bg-white/5 border-b md:border-b-0 md:border-r border-gray-200 dark:border-white/5 flex items-center gap-3">
-                          <span className="text-accent font-mono text-xs md:text-sm font-bold">
-                            {String(i + 1).padStart(2, '0')}
-                          </span>
-                          <h4 className="text-base md:text-lg font-heading font-bold text-black dark:text-white">
-                            {layer.layer}
-                          </h4>
-                        </div>
-                        <div className="md:col-span-9 p-5 md:p-6 flex items-center">
-                          <p className="text-sm md:text-base text-gray-800 dark:text-gray-200 leading-relaxed">
-                            {layer.detail}
-                          </p>
-                        </div>
-                      </div>
-                      {i < project.architecture.length - 1 && (
-                        <div
-                          className="flex justify-center my-2 text-accent"
-                          aria-hidden="true"
-                        >
-                          <Icon name="arrow-down" className="w-5 h-5" />
-                        </div>
-                      )}
-                    </motion.div>
-                  ))}
-                </div>
-              </motion.section>
-            )}
-
-            {/* ═══════════════════════════════════════════════════════════════
-                10. RESPONSIVE GALLERY — desktop / tablet / phone mockups
+                8. RESPONSIVE GALLERY — desktop / tablet / phone mockups
                 ═══════════════════════════════════════════════════════════════ */}
             {galleryItems.length > 0 && (
               <motion.section
@@ -1261,7 +1147,7 @@ const ProjectDetailPage = () => {
                 variants={container}
               >
                 <SectionHeader
-                  number="09"
+                  number="07"
                   eyebrow="Responsive Gallery"
                   title="The product, in context."
                   lede="A look at the interfaces across desktop, tablet, and mobile — every screen hand-tuned."
@@ -1315,155 +1201,146 @@ const ProjectDetailPage = () => {
             )}
 
             {/* ═══════════════════════════════════════════════════════════════
-                11. DEVELOPMENT TIMELINE — vertical timeline
+                9. PROGRESSIVE DISCLOSURE: TECHNICAL DEEP DIVE & ARCHITECTURE
                 ═══════════════════════════════════════════════════════════════ */}
-            {Array.isArray(project.timeline) && project.timeline.length > 0 && (
-              <motion.section
-                className="max-w-7xl mx-auto px-6 md:px-12 py-16 md:py-24 border-t border-gray-200 dark:border-gray-800"
-                initial="hidden"
-                whileInView="visible"
-                viewport={sectionViewport}
-                variants={container}
-              >
-                <SectionHeader
-                  number="10"
-                  eyebrow="Development Timeline"
-                  title="From discovery to launch."
-                  lede="The cadence we followed — visible, predictable, and designed to de-risk every milestone."
-                />
+            {(project.architecture || project.techCategories || project.timeline || project.responsibilities || project.metrics) && (
+              <section className="max-w-7xl mx-auto px-6 md:px-12 py-16 border-t border-gray-200 dark:border-gray-800">
+                <div className="bg-white dark:bg-[#141414] border border-gray-200 dark:border-white/10 rounded-3xl p-8 md:p-12 shadow-xl space-y-12">
+                  
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-8 border-b border-gray-200 dark:border-white/10">
+                    <div>
+                      <p className="text-xs uppercase tracking-[0.3em] text-accent font-bold mb-2">Technical Deep Dive</p>
+                      <h3 className="text-2xl md:text-4xl font-heading font-bold text-black dark:text-white">
+                        Architecture & Engineering Specifications
+                      </h3>
+                    </div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400 font-mono">
+                      {project.title} · Technical Authority Blueprint
+                    </div>
+                  </div>
 
-                <div className="relative max-w-4xl mx-auto">
-                  <div
-                    className="absolute left-4 md:left-1/2 md:-translate-x-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-accent via-accent/30 to-transparent"
-                    aria-hidden="true"
-                  />
-                  <ol className="space-y-6 md:space-y-8">
-                    {project.timeline.map((t, i) => (
-                      <motion.li
-                        key={`${t.phase}-${i}`}
-                        variants={item}
-                        className={`relative pl-12 md:grid md:grid-cols-2 md:gap-12 md:pl-0 ${
-                          i % 2 === 1 ? 'md:[direction:rtl]' : ''
-                        }`}
-                      >
-                        <span
-                          className="absolute left-0 md:left-1/2 md:-translate-x-1/2 top-1 w-8 h-8 rounded-full bg-accent text-white font-heading font-bold text-sm flex items-center justify-center shadow-md shadow-accent/30 z-10"
-                          aria-hidden="true"
-                        >
-                          {i + 1}
-                        </span>
-                        <div
-                          className={`bg-white dark:bg-gradient-to-br dark:from-[#1e1e1e] dark:to-[#151515] p-5 md:p-6 rounded-2xl border border-gray-200 dark:border-white/5 shadow-lg [direction:ltr] ${
-                            i % 2 === 1 ? 'md:text-left' : 'md:text-right'
-                          }`}
-                        >
-                          <div className="text-[10px] md:text-xs uppercase tracking-[0.3em] text-accent font-bold mb-2">
-                            Phase {String(i + 1).padStart(2, '0')}
+                  {/* System Architecture Topology */}
+                  {Array.isArray(project.architecture) && project.architecture.length > 0 && (
+                    <div>
+                      <div className="mb-6">
+                        <span className="text-xs uppercase tracking-[0.25em] font-bold text-accent">System Architecture</span>
+                        <h4 className="text-xl md:text-2xl font-heading font-bold text-black dark:text-white mt-1">
+                          Production Topology & Data Flow
+                        </h4>
+                      </div>
+                      <div className="space-y-3">
+                        {project.architecture.map((layer, i) => (
+                          <div
+                            key={`${layer.layer}-${i}`}
+                            className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/5 rounded-xl p-4 md:p-5"
+                          >
+                            <div className="md:col-span-3 flex items-center gap-3">
+                              <span className="text-accent font-mono text-xs font-bold">
+                                {String(i + 1).padStart(2, '0')}
+                              </span>
+                              <h5 className="font-heading font-bold text-black dark:text-white text-base">
+                                {layer.layer}
+                              </h5>
+                            </div>
+                            <div className="md:col-span-9 text-sm text-gray-700 dark:text-gray-300 font-light leading-relaxed">
+                              {layer.detail}
+                            </div>
                           </div>
-                          <h4 className="text-lg md:text-xl font-heading font-bold text-black dark:text-white mb-2">
-                            {t.phase}
-                          </h4>
-                          <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
-                            {t.detail}
-                          </p>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Tech Stack Pillars */}
+                  {Array.isArray(project.techCategories) && project.techCategories.length > 0 && (
+                    <div className="pt-8 border-t border-gray-200 dark:border-white/10">
+                      <div className="mb-6">
+                        <span className="text-xs uppercase tracking-[0.25em] font-bold text-accent">Categorized Tooling</span>
+                        <h4 className="text-xl md:text-2xl font-heading font-bold text-black dark:text-white mt-1">
+                          Technology Stack Breakdown
+                        </h4>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                        {project.techCategories.map((cat) => (
+                          <div
+                            key={cat.name}
+                            className="bg-gray-50 dark:bg-white/5 p-6 rounded-2xl border border-gray-200 dark:border-white/5"
+                          >
+                            <div className="flex items-center gap-3 mb-4">
+                              <span className="w-8 h-8 rounded-lg bg-accent/10 text-accent flex items-center justify-center">
+                                <Icon name={cat.icon || 'tag'} className="w-4 h-4" />
+                              </span>
+                              <h5 className="text-sm font-heading font-bold text-black dark:text-white">
+                                {cat.name}
+                              </h5>
+                            </div>
+                            <ul className="space-y-2">
+                              {cat.items.map((t, i) => (
+                                <li key={i} className="flex items-center gap-2.5 text-xs text-gray-800 dark:text-gray-200 font-medium">
+                                  <img src={getTechIcon(t)} alt="" className="w-4 h-4 object-contain" loading="lazy" />
+                                  <span>{t}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Responsibilities & Timeline Grid */}
+                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 pt-8 border-t border-gray-200 dark:border-white/10">
+                    {/* Responsibilities */}
+                    {Array.isArray(project.responsibilities) && project.responsibilities.length > 0 && (
+                      <div className="lg:col-span-6 space-y-4">
+                        <span className="text-xs uppercase tracking-[0.25em] font-bold text-accent">Scope & Ownership</span>
+                        <h4 className="text-lg md:text-xl font-heading font-bold text-black dark:text-white">
+                          My Engineering Responsibilities
+                        </h4>
+                        <div className="flex flex-wrap gap-2 pt-2">
+                          {project.responsibilities.map((r, i) => (
+                            <span
+                              key={i}
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-full text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wider"
+                            >
+                              <span className="w-1.5 h-1.5 rounded-full bg-accent" />
+                              {r}
+                            </span>
+                          ))}
                         </div>
-                        <div className="hidden md:block [direction:ltr]" aria-hidden="true" />
-                      </motion.li>
-                    ))}
-                  </ol>
+                      </div>
+                    )}
+
+                    {/* Timeline Phases */}
+                    {Array.isArray(project.timeline) && project.timeline.length > 0 && (
+                      <div className="lg:col-span-6 space-y-4">
+                        <span className="text-xs uppercase tracking-[0.25em] font-bold text-accent">Process Cadence</span>
+                        <h4 className="text-lg md:text-xl font-heading font-bold text-black dark:text-white">
+                          Development Phases
+                        </h4>
+                        <div className="space-y-2.5 pt-2">
+                          {project.timeline.map((t, i) => (
+                            <div key={i} className="flex items-start gap-3 text-xs">
+                              <span className="font-mono font-bold text-accent shrink-0 mt-0.5">
+                                0{i + 1}
+                              </span>
+                              <div>
+                                <span className="font-bold text-black dark:text-white mr-1.5">{t.phase}:</span>
+                                <span className="text-gray-600 dark:text-gray-400 font-light">{t.detail}</span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
                 </div>
-              </motion.section>
+              </section>
             )}
 
             {/* ═══════════════════════════════════════════════════════════════
-                12. MY RESPONSIBILITIES — professional responsibility chips
-                ═══════════════════════════════════════════════════════════════ */}
-            {Array.isArray(project.responsibilities) && project.responsibilities.length > 0 && (
-              <motion.section
-                className="max-w-7xl mx-auto px-6 md:px-12 py-16 md:py-24 border-t border-gray-200 dark:border-gray-800"
-                initial="hidden"
-                whileInView="visible"
-                viewport={sectionViewport}
-                variants={container}
-              >
-                <SectionHeader
-                  number="11"
-                  eyebrow="My Responsibilities"
-                  title="What I owned on this project."
-                  lede="Not a wish list — the actual scope I carried end to end."
-                />
-
-                <div className="flex flex-wrap gap-3 md:gap-4 max-w-5xl">
-                  {project.responsibilities.map((r, i) => (
-                    <motion.div
-                      key={`${r}-${i}`}
-                      variants={item}
-                      whileHover={shouldReduce ? {} : cardHover}
-                      transition={cardHoverTransition}
-                      className="inline-flex items-center gap-2 px-4 md:px-5 py-2.5 md:py-3 bg-white dark:bg-gradient-to-br dark:from-[#1e1e1e] dark:to-[#151515] border border-gray-200 dark:border-white/5 rounded-full shadow-md"
-                    >
-                      <span className="w-1.5 h-1.5 rounded-full bg-accent" aria-hidden="true" />
-                      <span className="text-xs md:text-sm font-bold text-black dark:text-white uppercase tracking-widest">
-                        {r}
-                      </span>
-                    </motion.div>
-                  ))}
-                </div>
-              </motion.section>
-            )}
-
-            {/* ═══════════════════════════════════════════════════════════════
-                13. PERFORMANCE — real technical metrics
-                ═══════════════════════════════════════════════════════════════ */}
-            {project.metrics && (
-              <motion.section
-                className="max-w-7xl mx-auto px-6 md:px-12 py-16 md:py-24 border-t border-gray-200 dark:border-gray-800"
-                initial="hidden"
-                whileInView="visible"
-                viewport={sectionViewport}
-                variants={container}
-              >
-                <SectionHeader
-                  number="12"
-                  eyebrow="Performance"
-                  title="The numbers behind the experience."
-                  lede="Captured at the time of launch. Real metrics, not aspirational."
-                />
-
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-                  {[
-                    { label: 'Lighthouse', value: project.metrics.lighthouse, suffix: '/100' },
-                    { label: 'Performance', value: project.metrics.performance, suffix: '/100' },
-                    { label: 'Accessibility', value: project.metrics.accessibility, suffix: '/100' },
-                    { label: 'SEO', value: project.metrics.seo, suffix: '/100' },
-                    { label: 'Best Practices', value: project.metrics.bestPractices, suffix: '/100' },
-                    { label: 'API Response', value: project.metrics.apiResponse, suffix: '' },
-                    { label: 'Bundle Size', value: project.metrics.bundle, suffix: '' },
-                  ]
-                    .filter((m) => m.value !== undefined && m.value !== null && m.value !== '')
-                    .map((m) => (
-                      <motion.div
-                        key={m.label}
-                        variants={item}
-                        whileHover={shouldReduce ? {} : cardHover}
-                        transition={cardHoverTransition}
-                        className="bg-white dark:bg-gradient-to-br dark:from-[#1e1e1e] dark:to-[#151515] p-5 md:p-7 rounded-2xl border border-gray-200 dark:border-white/5 shadow-lg text-center"
-                      >
-                        <div className="text-3xl md:text-5xl font-heading font-bold text-black dark:text-white">
-                          {m.value}
-                          {m.suffix}
-                        </div>
-                        <div className="mt-2 text-[10px] md:text-xs uppercase tracking-[0.25em] text-gray-500 dark:text-gray-400 font-bold">
-                          {m.label}
-                        </div>
-                      </motion.div>
-                    ))}
-                </div>
-              </motion.section>
-            )}
-
-            {/* ═══════════════════════════════════════════════════════════════
-                14. RELATED PROJECTS — premium hover cards
+                10. RELATED PROJECTS — hover cards
                 ═══════════════════════════════════════════════════════════════ */}
             {relatedProjects.length > 0 && (
               <motion.section
@@ -1474,7 +1351,7 @@ const ProjectDetailPage = () => {
                 variants={container}
               >
                 <SectionHeader
-                  number="13"
+                  number="08"
                   eyebrow="Related Projects"
                   title="More selected work."
                   lede="Other case studies in the same orbit."
@@ -1538,71 +1415,73 @@ const ProjectDetailPage = () => {
             )}
 
             {/* ═══════════════════════════════════════════════════════════════
-                15. FINAL CTA — large editorial call to action
+                11. FINAL CTA — focused dual action call to action
                 ═══════════════════════════════════════════════════════════════ */}
             <motion.section
-              className="max-w-7xl mx-auto px-6 md:px-12 py-20 md:py-32 border-t border-gray-200 dark:border-gray-800"
+              className="max-w-7xl mx-auto px-6 md:px-12 py-20 md:py-28 border-t border-gray-200 dark:border-gray-800"
               initial="hidden"
               whileInView="visible"
               viewport={sectionViewport}
               variants={container}
             >
-              <div className="max-w-4xl mx-auto text-center">
+              <div className="max-w-4xl mx-auto text-center bg-white dark:bg-[#141414] border border-gray-200 dark:border-white/10 rounded-3xl p-12 md:p-20 shadow-xl relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-accent to-transparent"></div>
                 <motion.p
                   variants={item}
-                  className="text-xs md:text-sm uppercase tracking-[0.3em] text-accent font-bold mb-5"
+                  className="text-xs uppercase tracking-[0.3em] text-accent font-bold mb-4"
                 >
                   Ready when you are
                 </motion.p>
                 <motion.h2
                   variants={item}
-                  className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-heading font-bold tracking-tight text-black dark:text-white leading-[1.02]"
+                  className="text-4xl sm:text-5xl md:text-6xl font-heading font-bold tracking-tight text-black dark:text-white leading-[1.05]"
                 >
                   Let&rsquo;s build something{' '}
                   <span className="text-accent">exceptional.</span>
                 </motion.h2>
                 <motion.p
                   variants={item}
-                  className="mt-6 text-lg md:text-xl text-gray-700 dark:text-gray-300 max-w-2xl mx-auto font-light leading-relaxed"
+                  className="mt-6 text-base md:text-lg text-gray-700 dark:text-gray-300 max-w-2xl mx-auto font-light leading-relaxed mb-10"
                 >
-                  A discovery call is the fastest way to find out if we&rsquo;re a fit. No pitch deck, no pressure — just a clear conversation about what you&rsquo;re building.
+                  Tell me what you're building, what you're trying to achieve, and where you're stuck. I'll help you determine the right technical approach.
                 </motion.p>
                 <motion.div
                   variants={item}
-                  className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3 md:gap-4"
+                  className="flex flex-col sm:flex-row items-center justify-center gap-4"
                 >
-                  <motion.a
-                    href="/#contact"
-                    className="inline-flex items-center justify-center bg-accent text-white font-bold uppercase tracking-[0.2em] text-xs px-7 py-4 hover:bg-black dark:hover:bg-white dark:hover:text-black transition-colors"
+                  <motion.div
                     whileHover={shouldReduce ? {} : buttonHover}
                     whileTap={shouldReduce ? {} : buttonTap}
                   >
-                    Start a Project
-                    <Icon name="arrow-right" className="w-4 h-4 ml-2" />
-                  </motion.a>
-                  <motion.a
-                    href={`https://wa.me/${CONTACT.phoneE164}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center border border-gray-300 dark:border-white/10 text-black dark:text-white font-bold uppercase tracking-[0.2em] text-xs px-7 py-4 hover:border-accent hover:text-accent transition-colors"
-                    whileHover={shouldReduce ? {} : buttonHover}
-                    whileTap={shouldReduce ? {} : buttonTap}
-                  >
-                    Book Discovery Call
-                  </motion.a>
+                    <Link
+                      to="/contact"
+                      className="inline-flex items-center justify-center bg-accent text-white font-bold uppercase tracking-[0.2em] text-xs px-8 py-4 rounded-xl shadow-lg hover:bg-black dark:hover:bg-white dark:hover:text-black transition-colors"
+                    >
+                      Start a Project →
+                    </Link>
+                  </motion.div>
                   <motion.div
                     whileHover={shouldReduce ? {} : buttonHover}
                     whileTap={shouldReduce ? {} : buttonTap}
                   >
                     <Link
                       to="/projects"
-                      className="inline-flex items-center justify-center text-black dark:text-white font-bold uppercase tracking-[0.2em] text-xs px-5 py-4 hover:text-accent transition-colors"
+                      className="inline-flex items-center justify-center border border-gray-300 dark:border-white/20 text-black dark:text-white font-bold uppercase tracking-[0.2em] text-xs px-8 py-4 rounded-xl hover:border-accent hover:text-accent transition-colors"
                     >
                       View More Projects
-                      <Icon name="arrow-up-right" className="w-4 h-4 ml-2" />
                     </Link>
                   </motion.div>
                 </motion.div>
+                <div className="mt-8">
+                  <a
+                    href={`https://wa.me/${CONTACT.phoneE164 || '2348085186714'}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs font-mono text-gray-500 hover:text-accent transition-colors underline"
+                  >
+                    Or chat directly via WhatsApp ↗
+                  </a>
+                </div>
               </div>
             </motion.section>
           </>
@@ -1618,7 +1497,7 @@ const ProjectDetailPage = () => {
         onNext={nextImage}
       />
 
-      {/* Security popup — shown when the user requests source code. */}
+      {/* Security popup */}
       <SecurityPopup
         isOpen={showSecurityPopup}
         onClose={() => setShowSecurityPopup(false)}

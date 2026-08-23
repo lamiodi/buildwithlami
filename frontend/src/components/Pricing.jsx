@@ -186,14 +186,14 @@ const Pricing = () => {
           </motion.h2>
 
           <motion.p variants={item} className="text-gray-700 dark:text-gray-200 max-w-2xl mx-auto font-light leading-relaxed opacity-95">
-            Quality software is an investment. I offer competitive, value-based pricing for high-end custom development.
+            Every project is scoped around its goals, complexity, and business requirements. I provide clear pricing after understanding exactly what needs to be built.
           </motion.p>
 
-          {/* 60/40 Payment Split Badge */}
+          {/* 50/50 Payment Split Badge */}
           <motion.div variants={item} className="mt-8 inline-block border border-gray-200 dark:border-white/10 bg-white dark:bg-[#1c1c1c] px-6 py-3 shadow-sm">
             <p className="text-[11px] font-bold uppercase tracking-widest text-gray-800 dark:text-gray-200">
               <span className="text-accent mr-2">✦</span>
-              Flexible Payments: <span className="font-medium text-gray-600 dark:text-gray-300">60% upfront, 40% upon launch</span>
+              Flexible Payments: <span className="font-medium text-gray-600 dark:text-gray-300">50% upfront, 50% upon delivery</span>
             </p>
           </motion.div>
         </motion.div>

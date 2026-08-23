@@ -12,11 +12,10 @@ const ServicesPage = () => {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    // SEO Best Practices
-    document.title = "Services | BuildWithLami - Premium Web Development & SEO Strategy";
+    document.title = "Services | BuildWithLami — Web Platforms & Technical Strategy";
     const metaDesc = document.querySelector('meta[name="description"]');
     if (metaDesc) {
-      metaDesc.setAttribute("content", "Explore our enterprise-grade services including custom web platforms, high-performance interfaces, secure API systems, technical audits, and data-driven SEO growth strategies.");
+      metaDesc.setAttribute("content", "Bespoke web platforms, high-performance interfaces, secure data backends, technical audits, and organic SEO growth strategies engineered by Eugene Odibenuah.");
     }
   }, []);
 
@@ -24,124 +23,138 @@ const ServicesPage = () => {
     "Founders launching MVPs",
     "Businesses upgrading websites",
     "Teams needing internal tools",
-    "Brands focused on SEO growth"
+    "Businesses focused on organic growth"
   ];
 
   const workflowSteps = [
     {
+      num: "01",
       title: "Discovery",
-      desc: "We clarify goals, scope, priorities, and the right technical direction."
+      desc: "Goals, users, scope, and technical requirements."
     },
     {
-      title: "Build",
-      desc: "I design, develop, and refine the product with performance and clarity in mind."
+      num: "02",
+      title: "Proposal",
+      desc: "Technical approach, architecture, timeline, and clear milestone investment."
     },
     {
-      title: "Launch",
-      desc: "Everything is tested, deployed, and prepared for a smooth public release."
+      num: "03",
+      title: "Design & Architecture",
+      desc: "UX workflows, database schema, API contracts, and system planning."
     },
     {
+      num: "04",
+      title: "Development",
+      desc: "Milestone-based implementation with regular progress reviews."
+    },
+    {
+      num: "05",
+      title: "QA & Launch",
+      desc: "End-to-end testing, security checks, production deployment, and handoff."
+    },
+    {
+      num: "06",
       title: "Support",
-      desc: "You get handoff guidance plus post-launch maintenance and improvement support."
+      desc: "4 months of included maintenance, performance monitoring, and updates."
     }
   ];
 
   const trustItems = [
-    "Fast delivery with clear milestones",
-    "Security-first engineering approach",
-    "SEO-ready and mobile-first builds",
-    "4 months free maintenance after launch"
+    "Direct Developer Communication",
+    "50/50 Milestone Invoicing (50% Upfront, 50% on Delivery)",
+    "100% Source Code & IP Transfer",
+    "4 Months Free Maintenance Post-Launch"
   ];
 
   const services = [
     {
       id: "01",
       title: "Custom Web Platforms",
-      desc: "Need a complete solution from scratch? I build entire web-based products from the ground up—handling everything from strategy and design to final deployment and scaling. I turn complex ideas into functional, reliable software.",
-      bestFor: "Best for startups, business owners, and teams building a product from the ground up.",
-      outcome: "You get a launch-ready platform built around your actual workflows, users, and growth goals.",
-      cta: "Build My Platform",
-      features: [
+      bestFor: "Startups · Businesses · Product Teams",
+      desc: "I design and build complete web platforms—from strategy and architecture through development and deployment. I turn complex business workflows into functional, reliable software.",
+      outcome: "A launch-ready platform built around your workflows, users, and growth goals.",
+      cta: "Build My Platform →",
+      deliverables: [
         "SaaS & Dashboard Products",
         "E-commerce & Marketplaces",
-        "Internal Business Tools",
-        "MVP Development (Startups)",
+        "Internal Business Tools & ERPs",
+        "Startup MVP Development",
         "Third-Party API Integrations"
       ],
       icon: (
-        <svg className="w-10 h-10 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" /></svg>
+        <svg className="w-8 h-8 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" /></svg>
       )
     },
     {
       id: "02",
       title: "High-Performance Interfaces",
-      desc: "I create the fast, beautiful, and interactive layer your users touch. I focus on pixel-perfect designs that convert visitors into customers through extreme speed, mobile responsiveness, and engaging animations.",
-      bestFor: "Best for brands that need stronger first impressions, clearer UX, and better conversion.",
-      outcome: "You get a faster, more polished interface that feels premium and keeps users engaged.",
-      cta: "Design My Frontend",
-      features: [
-        "Animated Marketing Sites",
-        "Interactive Web Apps",
-        "Mobile-First Design",
-        "Performance & SEO Optimization",
-        "Modern JS Frameworks (React/Vue)"
+      bestFor: "Brands · Modern Web Apps · Scaling Products",
+      desc: "I create fast, polished interfaces that make your product easier to understand, easier to use, and more effective at converting visitors into customers.",
+      outcome: "A faster, more polished interface that feels premium, loads instantly, and keeps users engaged.",
+      cta: "Design My Frontend →",
+      deliverables: [
+        "Responsive React / Next.js Frontends",
+        "Ultra-Fast Interaction & Motion",
+        "Mobile-First User Experience",
+        "Design System & Component Library",
+        "Core Web Vitals Optimization"
       ],
       icon: (
-        <svg className="w-10 h-10 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>
+        <svg className="w-8 h-8 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>
       )
     },
     {
       id: "03",
       title: "Secure API & Data Systems",
-      desc: "I build the secure 'brain' behind your application. My focus is on robust data management, high-speed server logic, and protecting your users' information with modern security protocols and cloud infrastructure.",
-      bestFor: "Best for apps that need stable backend logic, secure data handling, and automation.",
-      outcome: "You get backend systems that are scalable, structured, and built for reliability.",
-      cta: "Build My Backend",
-      features: [
-        "Scalable Server Architecture",
-        "Database Design & Migration",
-        "Secure Auth (JWT, OAuth)",
-        "Cloud Infrastructure (AWS/Vercel)",
-        "Workflow & Task Automation"
+      bestFor: "Complex Data · Automation · Multi-Tenant Apps",
+      desc: "I build the secure backbone behind your application: robust database schemas, high-speed API endpoints, and protected authentication protocols built for reliability.",
+      outcome: "Backend systems that are structured, secure, and ready to handle business volume.",
+      cta: "Build My Backend →",
+      deliverables: [
+        "Scalable Node.js / Express / REST APIs",
+        "PostgreSQL / Supabase Schema Modeling",
+        "Role-Based Auth & 2FA Security",
+        "Cloud Deployment & CI/CD Pipelines",
+        "Payment & Webhook Automations"
       ],
       icon: (
-        <svg className="w-10 h-10 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" /></svg>
+        <svg className="w-8 h-8 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" /></svg>
       )
     },
     {
       id: "04",
       title: "Technical Strategy & Audits",
-      desc: "I help you plan for the future. Whether it's auditing an existing codebase for security flaws or selecting the right tech stack for a new venture, I provide the roadmap to ensure your project is stable and scalable.",
-      bestFor: "Best for teams making technical decisions, fixing bottlenecks, or planning a rebuild.",
-      outcome: "You get clear recommendations, risk visibility, and a roadmap you can actually execute.",
-      cta: "Audit My System",
-      features: [
-        "Performance & Security Audits",
-        "Code Modernization",
-        "Tech Stack Selection",
-        "Scalability Roadmaps",
-        "System Architecture Design"
+      bestFor: "Decision Makers · Codebase Modernization · Rebuilds",
+      desc: "I help you evaluate technical architecture, audit existing codebases for bottlenecks and security risks, and chart clear engineering roadmaps before you invest in development.",
+      outcome: "Clear recommendations, risk visibility, and an actionable roadmap you can execute with confidence.",
+      cta: "Audit My System →",
+      deliverables: [
+        "Code Quality & Security Audits",
+        "Performance & Latency Bottleneck Analysis",
+        "Tech Stack Selection & Architecture Blueprint",
+        "Refactoring & Modernization Roadmap",
+        "Scalability & Infrastructure Review"
       ],
       icon: (
-        <svg className="w-10 h-10 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" /></svg>
+        <svg className="w-8 h-8 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" /></svg>
       )
     },
     {
       id: "05",
-      title: "SEO & Growth Strategy",
-      desc: "I help your business get found by the right audience. My approach to SEO isn't just about keywords; it's about technical performance, content structure, and user intent. I optimize every layer of your site to ensure it ranks high and converts.",
-      bestFor: "Best for businesses that want better search visibility, stronger content structure, and measurable traffic growth.",
-      outcome: "You get a stronger foundation for ranking, reach, and long-term inbound growth.",
-      cta: "Improve My SEO",
-      features: [
-        "Technical SEO Audits",
-        "Search Engine Visibility",
-        "Core Web Vitals Optimization",
-        "Content & Growth Strategy",
-        "Analytics & Performance Tracking"
+      title: "SEO & Organic Growth",
+      bestFor: "Organic Search · Inbound Lead Gen · Sustainable Reach",
+      desc: "I optimize your site's technical foundation, structure, performance, and content strategy to improve search visibility and create a stronger foundation for organic growth.",
+      outcome: "A solid technical search foundation, fast indexing, and sustainable organic reach.",
+      cta: "Improve My SEO →",
+      deliverables: [
+        "Technical SEO & Crawlability Audits",
+        "Structured Schema Markup & Metadata",
+        "Core Web Vitals & Speed Optimization",
+        "Search-Aligned Architecture & URL Structure",
+        "Performance Analytics & Tracking Setup"
       ],
       icon: (
-        <svg className="w-10 h-10 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
+        <svg className="w-8 h-8 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
       )
     }
   ];
@@ -155,18 +168,18 @@ const ServicesPage = () => {
           initial={shouldReduce ? {} : { opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: shouldReduce ? 0 : 0.6 }}
-          className="text-center max-w-3xl mx-auto mb-20"
+          className="text-center max-w-3xl mx-auto mb-16"
         >
-          <p className="uppercase tracking-widest text-sm text-gray-700 dark:text-gray-300 mb-4 font-bold">What I Do</p>
-          <h1 className="text-5xl md:text-7xl font-heading font-bold mb-8 tracking-tight text-black dark:text-white">
+          <p className="uppercase tracking-widest text-xs text-accent mb-3 font-bold">What I Do</p>
+          <h1 className="text-5xl md:text-7xl font-heading font-bold mb-6 tracking-tight text-black dark:text-white">
             My <span className="text-accent">Services</span>
           </h1>
-          <p className="text-lg md:text-xl text-gray-800 dark:text-gray-200 font-light leading-relaxed opacity-95">
-            I offer comprehensive technical solutions tailored to your business needs. 
-            From interactive user interfaces to complex backend architectures, I build software that performs.
+          <p className="text-lg md:text-xl text-gray-700 dark:text-gray-300 font-light leading-relaxed">
+            I design and build full-stack web platforms, high-performance interfaces, secure data backends, and sustainable growth architectures tailored to real business workflows.
           </p>
         </motion.div>
 
+        {/* Who I Help (Audience Pills) */}
         <motion.div
           variants={container}
           initial="hidden"
@@ -177,221 +190,182 @@ const ServicesPage = () => {
             <motion.div
               key={audience}
               variants={item}
-              className="bg-white dark:bg-[#151515] border border-gray-200 dark:border-white/5 px-5 py-4 text-sm font-medium text-gray-800 dark:text-gray-200 shadow-sm"
+              className="bg-white dark:bg-[#151515] border border-gray-200 dark:border-white/5 px-5 py-4 text-xs font-bold uppercase tracking-wider text-gray-800 dark:text-gray-200 shadow-sm text-center"
             >
               {audience}
             </motion.div>
           ))}
         </motion.div>
 
-        {/* Services List */}
+        {/* Streamlined Services List */}
         <motion.div 
           variants={container}
           initial="hidden"
           whileInView="visible"
           viewport={sectionViewport}
-          className="space-y-16 md:space-y-24"
+          className="space-y-8 md:space-y-10 mb-28"
         >
-          {services.map((service, index) => (
+          {services.map((service) => (
             <motion.div 
               key={service.id}
               variants={item}
-              className={`flex flex-col ${index % 2 !== 0 ? 'md:flex-row-reverse' : 'md:flex-row'} gap-8 md:gap-16 items-center`}
+              whileHover={shouldReduce ? {} : cardHover}
+              transition={cardHoverTransition}
+              className="bg-white dark:bg-[#141414] border border-gray-200 dark:border-white/10 rounded-2xl p-8 md:p-12 shadow-sm hover:shadow-xl hover:border-accent/40 transition-all group"
             >
-              {/* Left/Right Text Content */}
-              <div className="w-full md:w-1/2 space-y-6">
-                <div className="flex items-center gap-4 mb-2">
-                  <span className="text-5xl font-heading font-bold text-gray-200 dark:text-white/10">{service.id}</span>
-                  {service.icon}
-                </div>
-                <h2 className="text-3xl md:text-4xl font-heading font-bold text-black dark:text-white flex items-center flex-wrap gap-4">
-                  {service.title}
-                  {service.isComingSoon && (
-                    <span className="inline-block bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 text-[10px] md:text-xs font-bold px-3 py-1 uppercase rounded-full tracking-wider mt-1 md:mt-0">
-                      Launching Soon
-                    </span>
-                  )}
-                </h2>
-                <p className="inline-flex items-center bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 px-4 py-2 text-xs uppercase tracking-widest text-gray-700 dark:text-gray-300 font-bold">
-                  {service.bestFor}
-                </p>
-                <p className="text-gray-800 dark:text-gray-200 text-lg leading-relaxed font-light opacity-95">
-                  {service.desc}
-                </p>
-                <p className="text-base text-black dark:text-white font-medium leading-relaxed">
-                  {service.outcome}
-                </p>
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
                 
-                <div className="pt-6 border-t border-gray-200 dark:border-white/10">
-                  <h4 className="text-sm font-bold uppercase tracking-widest mb-4 text-black dark:text-white">Key Features:</h4>
-                  <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {service.features.map((feature, i) => (
-                      <li key={i} className="flex items-start text-gray-800 dark:text-gray-200 text-sm">
-                        <span className="text-accent mr-2 mt-1">●</span>
-                        {feature}
-                      </li>
-                    ))}
-                  </ul>
+                {/* Header & Core Description (7 Cols) */}
+                <div className="lg:col-span-7 space-y-5">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-xl bg-gray-100 dark:bg-white/5 flex items-center justify-center group-hover:scale-105 transition-transform">
+                      {service.icon}
+                    </div>
+                    <div>
+                      <span className="text-xs font-mono font-bold text-accent uppercase tracking-widest">{service.id} — SERVICE</span>
+                      <h2 className="text-2xl md:text-3xl font-heading font-bold text-black dark:text-white group-hover:text-accent transition-colors">
+                        {service.title}
+                      </h2>
+                    </div>
+                  </div>
+
+                  <div className="inline-block bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 px-3.5 py-1 text-[11px] uppercase tracking-wider text-gray-700 dark:text-gray-300 font-bold rounded-md">
+                    Best for: {service.bestFor}
+                  </div>
+
+                  <p className="text-gray-700 dark:text-gray-300 text-base md:text-lg font-light leading-relaxed">
+                    {service.desc}
+                  </p>
+
+                  <div className="pt-2 border-l-2 border-accent pl-4">
+                    <p className="text-xs uppercase tracking-widest font-bold text-accent mb-1">Expected Outcome</p>
+                    <p className="text-sm font-medium text-black dark:text-white leading-relaxed">
+                      {service.outcome}
+                    </p>
+                  </div>
                 </div>
 
-                {service.isComingSoon ? (
-                  <motion.div
-                    whileHover={shouldReduce ? {} : buttonHover}
-                    whileTap={shouldReduce ? {} : buttonTap}
-                  >
-                    <Link
-                      to="/contact"
-                      className="inline-flex items-center justify-center border border-gray-300 dark:border-white/10 bg-white dark:bg-transparent text-black dark:text-white font-bold px-6 py-3 text-xs uppercase tracking-widest hover:border-accent hover:text-accent transition-colors"
-                    >
-                      {service.cta}
-                    </Link>
-                  </motion.div>
-                ) : (
-                  <motion.div
-                    whileHover={shouldReduce ? {} : buttonHover}
-                    whileTap={shouldReduce ? {} : buttonTap}
-                  >
-                    <Link
-                      to="/contact"
-                      className="inline-flex items-center justify-center bg-black text-white dark:bg-white dark:text-black font-bold px-6 py-3 text-xs uppercase tracking-widest hover:bg-accent hover:text-white transition-colors"
-                    >
-                      {service.cta}
-                    </Link>
-                  </motion.div>
-                )}
-              </div>
-
-              {/* Service Summary Panel */}
-              <motion.div 
-                whileHover={shouldReduce ? {} : cardHover}
-                transition={cardHoverTransition}
-                className="w-full md:w-1/2 h-auto bg-white dark:bg-[#151515] border border-gray-200 dark:border-white/5 rounded-2xl p-8 relative overflow-hidden group shadow-lg flex items-center justify-center"
-              >
-                 <div className="absolute inset-0 opacity-10 dark:opacity-20 flex items-center justify-center pointer-events-none">
-                   <div className="w-64 h-64 border-4 border-accent rounded-full absolute -top-10 -right-10 group-hover:scale-110 transition-transform duration-700"></div>
-                   <div className="w-48 h-48 border border-black dark:border-white rounded-full absolute bottom-10 left-10 group-hover:-translate-x-4 transition-transform duration-700"></div>
-                 </div>
-                 
-                 <div className="relative z-10 w-full max-w-md">
-                    <div className="w-20 h-20 bg-accent rounded-full mb-6 flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform duration-500">
-                      <span className="text-white font-heading font-bold text-2xl">{service.id}</span>
-                    </div>
-                    <h3 className="text-2xl font-heading font-bold text-black dark:text-white group-hover:text-accent transition-colors mb-5">
-                      {service.title}
+                {/* Deliverables & Direct CTA (5 Cols) */}
+                <div className="lg:col-span-5 bg-gray-50 dark:bg-[#1a1a1a] border border-gray-200 dark:border-white/5 rounded-xl p-6 md:p-8 flex flex-col justify-between h-full space-y-6">
+                  <div>
+                    <h3 className="text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-4">
+                      What You Get / Key Deliverables
                     </h3>
-                    <div className="space-y-4">
-                      <div className="border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-black/20 p-4">
-                        <p className="text-xs uppercase tracking-widest text-gray-700 dark:text-gray-300 mb-2 font-bold">Best For</p>
-                        <p className="text-sm text-gray-800 dark:text-gray-200">{service.bestFor}</p>
-                      </div>
-                      <div className="border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-black/20 p-4">
-                        <p className="text-xs uppercase tracking-widest text-gray-700 dark:text-gray-300 mb-2 font-bold">Expected Outcome</p>
-                        <p className="text-sm text-gray-800 dark:text-gray-200">{service.outcome}</p>
-                      </div>
-                      <div className="border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-black/20 p-4">
-                        <p className="text-xs uppercase tracking-widest text-gray-700 dark:text-gray-300 mb-3 font-bold">Common Deliverables</p>
-                        <ul className="space-y-2">
-                          {service.features.slice(0, 3).map((feature) => (
-                            <li key={feature} className="flex items-start gap-2 text-sm text-gray-800 dark:text-gray-200">
-                              <span className="text-accent mt-1">●</span>
-                              <span>{feature}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    </div>
-                 </div>
-              </motion.div>
+                    <ul className="space-y-2.5">
+                      {service.deliverables.map((item, idx) => (
+                        <li key={idx} className="flex items-start text-xs md:text-sm text-gray-800 dark:text-gray-200 font-medium">
+                          <span className="text-accent mr-2 mt-0.5">✦</span>
+                          <span>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <div className="pt-4 border-t border-gray-200 dark:border-white/10">
+                    <motion.div
+                      whileHover={shouldReduce ? {} : buttonHover}
+                      whileTap={shouldReduce ? {} : buttonTap}
+                    >
+                      <Link
+                        to="/contact"
+                        className="w-full inline-flex items-center justify-center bg-black text-white dark:bg-white dark:text-black font-bold px-6 py-3.5 text-xs uppercase tracking-widest hover:bg-accent dark:hover:bg-accent dark:hover:text-white transition-colors rounded-lg shadow-sm"
+                      >
+                        {service.cta}
+                      </Link>
+                    </motion.div>
+                  </div>
+                </div>
+
+              </div>
             </motion.div>
           ))}
         </motion.div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 md:px-12 mt-28">
+      {/* How I Work: 6-Step Workflow */}
+      <div className="max-w-7xl mx-auto px-6 md:px-12 mt-16 mb-28">
         <motion.div
           initial={shouldReduce ? {} : { opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={sectionViewport}
           transition={{ duration: shouldReduce ? 0 : 0.6 }}
-          className="mb-20"
         >
-          <div className="text-center max-w-3xl mx-auto mb-12">
-            <p className="uppercase tracking-widest text-sm text-gray-700 dark:text-gray-300 mb-4 font-bold">Process</p>
-            <h2 className="text-4xl md:text-5xl font-heading font-bold text-black dark:text-white mb-6">
-              How I <span className="text-accent">Work</span>
+          <div className="text-center max-w-3xl mx-auto mb-14">
+            <p className="uppercase tracking-widest text-xs text-accent mb-3 font-bold">Process</p>
+            <h2 className="text-4xl md:text-5xl font-heading font-bold text-black dark:text-white mb-4">
+              How a project <span className="text-accent">moves forward</span>
             </h2>
-            <p className="text-lg text-gray-800 dark:text-gray-200 font-light leading-relaxed opacity-95">
-              Every project follows a clear structure so you always know what happens next, what is being built, and how we move from idea to launch.
+            <p className="text-base md:text-lg text-gray-700 dark:text-gray-300 font-light leading-relaxed">
+              A structured, transparent engineering process so you always know what happens next, what is being built, and how we launch.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {workflowSteps.map((step, index) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
+            {workflowSteps.map((step) => (
               <div
-                key={step.title}
-                className="bg-white dark:bg-[#151515] border border-gray-200 dark:border-white/5 rounded-2xl p-8 shadow-sm"
+                key={step.num}
+                className="bg-white dark:bg-[#141414] border border-gray-200 dark:border-white/10 rounded-2xl p-7 shadow-sm hover:border-accent/40 transition-all flex flex-col justify-between"
               >
-                <div className="w-12 h-12 bg-accent text-white font-heading font-bold text-lg flex items-center justify-center rounded-full mb-5">
-                  0{index + 1}
+                <div>
+                  <div className="w-10 h-10 bg-accent/10 border border-accent/20 text-accent font-mono font-bold text-sm flex items-center justify-center rounded-xl mb-4">
+                    {step.num}
+                  </div>
+                  <h3 className="text-xl font-heading font-bold text-black dark:text-white mb-2">{step.title}</h3>
+                  <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed font-light">{step.desc}</p>
                 </div>
-                <h3 className="text-2xl font-heading font-bold text-black dark:text-white mb-3">{step.title}</h3>
-                <p className="text-gray-800 dark:text-gray-200 leading-relaxed opacity-95">{step.desc}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {trustItems.map((trustItem) => (
+              <div
+                key={trustItem}
+                className="border border-gray-200 dark:border-white/10 bg-white dark:bg-[#141414] px-5 py-4 text-center text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300 rounded-lg shadow-sm"
+              >
+                {trustItem}
               </div>
             ))}
           </div>
         </motion.div>
-
-        <motion.div
-          initial={shouldReduce ? {} : { opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={sectionViewport}
-          transition={{ duration: shouldReduce ? 0 : 0.6 }}
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-20"
-        >
-          {trustItems.map((trustItem) => (
-            <div
-              key={trustItem}
-              className="border border-gray-200 dark:border-white/10 bg-white dark:bg-[#0a0a0a] px-5 py-4 text-center text-xs font-bold uppercase tracking-widest text-gray-700 dark:text-gray-300"
-            >
-              {trustItem}
-            </div>
-          ))}
-        </motion.div>
       </div>
 
-      {/* Pricing Section - Full Width */}
+      {/* Pricing Section */}
       <Suspense fallback={<div className="h-96 flex items-center justify-center"><div className="animate-spin rounded-full h-12 w-12 border-4 border-accent border-t-transparent" /></div>}>
         <Pricing />
       </Suspense>
 
-      <div className="max-w-7xl mx-auto px-6 md:px-12">
-        {/* CTA Section */}
+      {/* Final CTA Section */}
+      <div className="max-w-7xl mx-auto px-6 md:px-12 mt-28">
         <motion.div 
           initial={shouldReduce ? {} : { opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={sectionViewport}
           transition={{ duration: shouldReduce ? 0 : 0.6 }}
-          className="mt-32 text-center bg-white dark:bg-[#151515] border border-gray-200 dark:border-white/5 rounded-[2rem] p-12 md:p-20 shadow-xl relative overflow-hidden"
+          className="text-center bg-white dark:bg-[#141414] border border-gray-200 dark:border-white/10 rounded-3xl p-12 md:p-20 shadow-xl relative overflow-hidden"
         >
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-accent to-transparent"></div>
           <h2 className="text-4xl md:text-5xl font-heading font-bold text-black dark:text-white mb-6">
-            Ready to start your project?
+            Have a project in mind?
           </h2>
-          <p className="text-gray-800 dark:text-gray-200 text-lg max-w-2xl mx-auto mb-10 font-light opacity-95">
-            Whether you need a full-stack application built from the ground up or just a specialized backend API, I'm here to help turn your ideas into reality.
+          <p className="text-gray-700 dark:text-gray-300 text-lg max-w-2xl mx-auto mb-10 font-light leading-relaxed">
+            Tell me what you're building, what you're trying to achieve, and where you're stuck. I'll help you determine the right technical approach.
           </p>
           <motion.div
             whileHover={shouldReduce ? {} : buttonHover}
             whileTap={shouldReduce ? {} : buttonTap}
             className="inline-block"
           >
-            <Link to="/contact" className="inline-flex items-center justify-center bg-accent text-white font-bold px-10 py-4 text-sm uppercase tracking-widest hover:bg-[#d43d1a] transition-colors rounded-sm">
-              Get in touch
-              <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+            <Link 
+              to="/contact" 
+              className="inline-flex items-center justify-center bg-accent text-white font-bold px-10 py-4 text-xs uppercase tracking-widest hover:bg-black dark:hover:bg-white dark:hover:text-black transition-colors rounded-xl shadow-lg"
+            >
+              Start a Project →
             </Link>
           </motion.div>
         </motion.div>
       </div>
+
     </div>
   );
 };

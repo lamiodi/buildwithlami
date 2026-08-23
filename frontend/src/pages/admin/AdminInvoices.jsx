@@ -339,7 +339,25 @@ const AdminInvoices = () => {
                                         <input type="number" step="0.01" name="discountAmount" value={formData.discountAmount} onChange={e => setFormData({ ...formData, discountAmount: e.target.value })} className={inputClass} />
                                     </div>
                                     <div>
-                                        <label className={labelClass}>Deposit Reqd</label>
+                                        <div className="flex items-center justify-between">
+                                            <label className={labelClass}>Deposit Reqd</label>
+                                            {Number(formData.amount) > 0 && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        const half = (Number(formData.amount) * 0.5).toFixed(2);
+                                                        setFormData(prev => ({
+                                                            ...prev,
+                                                            depositRequired: half,
+                                                            notes: prev.notes ? prev.notes : 'Payment terms: 50% upfront deposit to initiate development, 50% balance due upon final delivery and handover.'
+                                                        }));
+                                                    }}
+                                                    className="text-[10px] font-bold text-accent hover:underline mb-1"
+                                                >
+                                                    Set 50% (50/50)
+                                                </button>
+                                            )}
+                                        </div>
                                         <input type="number" step="0.01" name="depositRequired" value={formData.depositRequired} onChange={e => setFormData({ ...formData, depositRequired: e.target.value })} className={inputClass} />
                                     </div>
                                 </div>

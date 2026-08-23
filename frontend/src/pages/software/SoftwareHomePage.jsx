@@ -35,9 +35,9 @@ import {
 const PROJECT_TYPES = [
   { id: 'mvp', name: 'MVP / Startup Prototype', baseCostNGN: 450000, baseCostUSD: 1200, baseWeeks: 3, icon: Zap, desc: 'Fast, functional prototype to validate product-market fit.' },
   { id: 'web_app', name: 'Full-Stack Web Platform', baseCostNGN: 850000, baseCostUSD: 2400, baseWeeks: 5, icon: Layers, desc: 'Scalable custom application with database, auth, and dashboards.' },
-  { id: 'saas', name: 'Multi-Tenant SaaS System', baseCostNGN: 1600000, baseCostUSD: 4500, baseWeeks: 8, icon: Server, desc: 'Subscription billing, role-based access, and enterprise API layer.' },
-  { id: 'api_integration', name: 'API & Backend Infrastructure', baseCostNGN: 550000, baseCostUSD: 1500, baseWeeks: 3, icon: Database, desc: 'Microservices, third-party payment/CRM integrations & secure DB.' },
-  { id: 'landing', name: 'High-Converting Landing & SEO', baseCostNGN: 280000, baseCostUSD: 800, baseWeeks: 2, icon: Monitor, desc: 'Ultra-fast animated showcase built for maximum conversion.' },
+  { id: 'saas', name: 'Multi-Tenant SaaS System', baseCostNGN: 1600000, baseCostUSD: 4500, baseWeeks: 8, icon: Server, desc: 'Subscription billing, role-based access, and structured API layer.' },
+  { id: 'api_integration', name: 'API & Backend Infrastructure', baseCostNGN: 550000, baseCostUSD: 1500, baseWeeks: 3, icon: Database, desc: 'API endpoints, third-party payment/CRM integrations & secure DB modeling.' },
+  { id: 'landing', name: 'High-Converting Web App & SEO', baseCostNGN: 350000, baseCostUSD: 950, baseWeeks: 2, icon: Monitor, desc: 'Ultra-fast animated web platform built for high performance and conversions.' },
 ];
 
 const ADDON_OPTIONS = [
@@ -45,33 +45,33 @@ const ADDON_OPTIONS = [
   { id: 'payment_gateway', name: 'Paystack / Stripe / Grey Gateway', costNGN: 120000, costUSD: 300, weeks: 0.5 },
   { id: 'crm_leads', name: 'Custom CRM Pipeline & Leads Automation', costNGN: 150000, costUSD: 400, weeks: 1 },
   { id: 'seo_cwv', name: '100% Core Web Vitals & Technical SEO', costNGN: 95000, costUSD: 250, weeks: 0.5 },
-  { id: 'portal_vault', name: 'Client Portal & Encrypted Secrets Vault', costNGN: 180000, costUSD: 500, weeks: 1 },
+  { id: 'portal_vault', name: 'Client Portal & Protected Data Vault', costNGN: 180000, costUSD: 500, weeks: 1 },
 ];
 
 const TECH_CATEGORIES = [
   {
-    name: 'Frontend & UI Engineering',
+    name: 'Frontend',
     icon: Monitor,
-    description: 'Ultra-fast, responsive, accessible interfaces designed with high visual fidelity.',
-    items: ['React 19', 'Next.js', 'Vite', 'Tailwind CSS', 'Framer Motion', 'TypeScript', 'Redux / Zustand', 'Vue.js']
+    description: 'Modern, responsive, and accessible interfaces built for speed.',
+    items: ['Next.js', 'React', 'TypeScript', 'Tailwind CSS', 'Framer Motion']
   },
   {
-    name: 'Backend & Distributed Systems',
+    name: 'Backend & APIs',
     icon: Server,
-    description: 'High-throughput, rate-limited, and hardened server architectures.',
-    items: ['Node.js', 'Express.js', 'PostgreSQL', 'Redis', 'Python / FastAPI', 'JWT + TOTP 2FA', 'REST & GraphQL', 'Zod Validation']
+    description: 'Structured, reliable server architectures with safe data modeling.',
+    items: ['Node.js', 'Express', 'PostgreSQL', 'Prisma', 'REST APIs']
   },
   {
-    name: 'Cloud Infrastructure & DevOps',
+    name: 'Infrastructure & Cloud',
     icon: Cpu,
-    description: 'Automated deployment pipelines, zero-downtime releases, and edge proxies.',
-    items: ['Docker', 'Vercel / Render', 'AWS (S3, EC2)', 'GitHub Actions CI/CD', 'Cloudinary CDN', 'Helmet & CSRF Shield', 'Uptime Monitoring']
+    description: 'Automated deployment workflows, secure hosting, and edge performance.',
+    items: ['Vercel', 'Render', 'Supabase', 'Docker', 'GitHub Actions']
   },
   {
-    name: 'Integrations & Ecosystems',
+    name: 'Integrations & Payments',
     icon: Workflow,
-    description: 'Seamless third-party APIs, international payment gateways, and communications.',
-    items: ['Paystack Payments', 'Grey FX Transfer', 'Zoho Sign e-Contracts', 'Nodemailer / SMTP', 'Twilio / WhatsApp API', 'OpenFX Exchange Rates']
+    description: 'Seamless payment gateways, media delivery, and communications.',
+    items: ['Paystack', 'Stripe', 'Cloudinary', 'Resend', 'WhatsApp API']
   }
 ];
 
@@ -80,25 +80,25 @@ const SAAS_PRODUCTS = [
     name: 'NaijaPay Compliance Pro',
     tagline: 'Automated Nigerian Payroll & Tax Engine',
     desc: 'High-precision payroll calculation engine handling PAYE, PenCom, NHF, and direct bank disbursement schedules for SMEs.',
-    status: 'In Development',
+    status: 'IN DEVELOPMENT',
     statusColor: 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300',
     tags: ['Payroll', 'Fintech', 'Tax Compliance']
   },
   {
     name: 'School ERP Core v1.1',
     tagline: 'Frictionless School Management System',
-    desc: 'Enterprise academic portal with 1-click attendance, grading sheets, parent notifications, and online tuition invoicing.',
-    status: 'Live Production',
+    desc: 'Academic portal with 1-click attendance, WAEC-aligned grading sheets, parent SMS notifications, and online tuition invoicing.',
+    status: 'LIVE / INTERNAL PRODUCT',
     statusColor: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300',
     tags: ['Education', 'Portals', 'Fee Invoicing']
   },
   {
     name: 'Clinical Health ERP',
     tagline: 'High-Volume Patient & Record Management',
-    desc: 'Secure patient intake, encrypted medical history vault, doctor scheduling, and pharmacy inventory management.',
-    status: 'Beta Release',
+    desc: 'Privacy-focused architecture for patient intake, encrypted clinical records, doctor scheduling, and pharmacy inventory management.',
+    status: 'BETA',
     statusColor: 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300',
-    tags: ['Healthcare', 'HIPAA/GDPR', 'AES-256 Vault']
+    tags: ['Healthcare', 'Privacy-Focused', 'Clinical Records']
   }
 ];
 
@@ -109,7 +109,7 @@ const FAQS = [
   },
   {
     q: 'How are payments structured for software projects?',
-    a: 'We work on transparent milestone-based deliverables: typically 40% project kickoff, 30% alpha/staging demo, and 30% final deployment & handoff. We accept NGN via Paystack and USD/GBP/EUR via international bank transfer.'
+    a: 'Software projects are structured with a transparent 50/50 milestone payment model: 50% upfront to reserve your schedule and begin architecture & development, and the remaining 50% upon final delivery, testing, and production deployment. I accept NGN via Paystack and USD/GBP/EUR via international bank transfer.'
   },
   {
     q: 'What post-launch support and warranty is included?',
@@ -117,7 +117,7 @@ const FAQS = [
   },
   {
     q: 'Can you work with existing codebases and legacy systems?',
-    a: 'Yes. We frequently conduct code audits, refactoring, performance optimizations, and feature expansions for existing React, Node, Python, and PostgreSQL systems.'
+    a: 'Yes. I frequently conduct code audits, refactoring, performance optimizations, and feature expansions for existing React, Node, Python, and PostgreSQL systems.'
   }
 ];
 
@@ -151,10 +151,10 @@ const SoftwareHomePage = () => {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    document.title = "Software Engineering & SaaS Architecture | BuildWithLami";
+    document.title = "Software Engineering & Architecture | BuildWithLami";
     const metaDesc = document.querySelector('meta[name="description"]');
     if (metaDesc) {
-      metaDesc.setAttribute("content", "BuildWithLami Software Division: Custom web platforms, high-performance applications, secure APIs, and enterprise SaaS systems built by Eugene Odibenuah.");
+      metaDesc.setAttribute("content", "BuildWithLami Software Division: Custom web platforms, high-performance applications, secure APIs, and tailored SaaS systems built by Eugene Odibenuah.");
     }
 
     const fetchSoftwareProjects = async () => {
@@ -198,12 +198,26 @@ const SoftwareHomePage = () => {
       }
     });
 
+    const upfrontAmount = Math.round(base * 0.5);
+    const deliveryAmount = base - upfrontAmount;
+
     const formattedCost = isUSD 
       ? `$${base.toLocaleString()}`
       : `₦${base.toLocaleString()}`;
 
+    const formattedUpfront = isUSD
+      ? `$${upfrontAmount.toLocaleString()}`
+      : `₦${upfrontAmount.toLocaleString()}`;
+
+    const formattedDelivery = isUSD
+      ? `$${deliveryAmount.toLocaleString()}`
+      : `₦${deliveryAmount.toLocaleString()}`;
+
     return {
+      total: base,
       cost: formattedCost,
+      upfront: formattedUpfront,
+      delivery: formattedDelivery,
       weeks: Math.ceil(weeks),
       symbol: isUSD ? '$' : '₦'
     };
@@ -245,17 +259,15 @@ const SoftwareHomePage = () => {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-[#0A0A0A] text-gray-900 dark:text-white font-body selection:bg-accent selection:text-white transition-colors duration-300">
       
-      {/* ── TOP DIVISION NAVIGATION BADGE ── */}
+      {/* ── TOP DIVISION BADGE ── */}
       <div className="bg-blue-600/10 border-b border-blue-500/20 py-2.5 px-4 text-center">
         <div className="max-w-7xl mx-auto flex items-center justify-between text-xs font-bold uppercase tracking-widest">
           <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400">
             <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
             <span>Division: Software & SaaS Engineering</span>
           </div>
-          <div className="flex items-center gap-4 text-gray-600 dark:text-gray-400">
-            <span>Explore Other Divisions:</span>
-            <Link to="/survey" className="hover:text-accent transition-colors font-extrabold text-amber-600 dark:text-amber-400">Land Surveying →</Link>
-            <Link to="/drone" className="hover:text-accent transition-colors font-extrabold text-indigo-600 dark:text-indigo-400">Drone Services →</Link>
+          <div className="hidden sm:block text-[11px] text-gray-500 dark:text-gray-400 font-medium">
+            Bespoke Web Platforms · SaaS Architecture · APIs
           </div>
         </div>
       </div>
@@ -275,30 +287,30 @@ const SoftwareHomePage = () => {
           </div>
 
           <h1 className="text-4xl sm:text-6xl md:text-7xl font-extrabold font-heading tracking-tight leading-[1.05] text-gray-900 dark:text-white mb-6">
-            Architecting <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-accent bg-clip-text text-transparent">Enterprise Software</span> Built for Scale.
+            Engineering <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-accent bg-clip-text text-transparent">Software</span> Built for Real Business Scale.
           </h1>
 
           <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto mb-10 leading-relaxed font-light">
-            From zero-to-one startup MVPs to robust multi-tenant SaaS platforms. We engineer secure, fast, and maintainable software systems designed to handle real business volume.
+            From zero-to-one startup MVPs to robust multi-tenant SaaS platforms. I engineer secure, fast, and maintainable software systems designed to handle real business volume.
           </p>
 
-          {/* Quick Metrics Bar */}
+          {/* Quick Realistic Metrics Bar */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm max-w-3xl mx-auto mb-10">
             <div className="p-3 text-center border-r border-gray-100 dark:border-gray-800 last:border-none">
-              <div className="text-2xl font-extrabold font-mono text-accent">&lt; 50ms</div>
-              <div className="text-[11px] text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider mt-0.5">API Latency</div>
+              <div className="text-2xl font-extrabold font-mono text-accent">4+</div>
+              <div className="text-[11px] text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider mt-0.5">Software Projects</div>
             </div>
             <div className="p-3 text-center border-r border-gray-100 dark:border-gray-800 last:border-none">
-              <div className="text-2xl font-extrabold font-mono text-emerald-600 dark:text-emerald-400">99.9%</div>
-              <div className="text-[11px] text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider mt-0.5">Uptime SLA</div>
+              <div className="text-2xl font-extrabold font-mono text-emerald-600 dark:text-emerald-400">4 Months</div>
+              <div className="text-[11px] text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider mt-0.5">Included Support</div>
             </div>
             <div className="p-3 text-center border-r border-gray-100 dark:border-gray-800 last:border-none">
-              <div className="text-2xl font-extrabold font-mono text-blue-600 dark:text-blue-400">AES-256</div>
-              <div className="text-[11px] text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider mt-0.5">Encrypted Vault</div>
+              <div className="text-2xl font-extrabold font-mono text-blue-600 dark:text-blue-400">100%</div>
+              <div className="text-[11px] text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider mt-0.5">Source Code Ownership</div>
             </div>
             <div className="p-3 text-center">
-              <div className="text-2xl font-extrabold font-mono text-purple-600 dark:text-purple-400">4 Mo.</div>
-              <div className="text-[11px] text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider mt-0.5">Included Support</div>
+              <div className="text-2xl font-extrabold font-mono text-purple-600 dark:text-purple-400">24hr</div>
+              <div className="text-[11px] text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider mt-0.5">Typical Response</div>
             </div>
           </div>
 
@@ -316,20 +328,25 @@ const SoftwareHomePage = () => {
               Book Discovery Call
             </a>
           </div>
+
+          <div className="mt-6 flex items-center justify-center gap-2 text-xs font-semibold text-gray-500 dark:text-gray-400">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+            <span>Structured 50% Upfront · 50% On Delivery Milestone Billing</span>
+          </div>
         </motion.div>
       </section>
 
-      {/* ── INTERACTIVE PROJECT SCOPE & COST ESTIMATOR ── */}
+      {/* ── PROJECT COST ESTIMATOR ── */}
       <section id="estimator" className="py-20 px-6 md:px-12 max-w-7xl mx-auto border-t border-gray-200 dark:border-gray-800">
         <div className="text-center max-w-3xl mx-auto mb-14">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/10 text-accent text-xs font-extrabold uppercase tracking-wider mb-3">
-            <Calculator className="w-3.5 h-3.5" /> Interactive Pricing Estimator
+            <Calculator className="w-3.5 h-3.5" /> Project Cost Estimator
           </div>
           <h2 className="text-3xl md:text-5xl font-extrabold font-heading text-gray-900 dark:text-white tracking-tight">
             Calculate Your Project Scope & Timeline
           </h2>
           <p className="text-gray-600 dark:text-gray-400 mt-3 text-base">
-            Select your software requirements to generate an instant transparent estimate before scheduling kickoff.
+            Get a preliminary estimate based on your project requirements. Final pricing is confirmed after technical discovery.
           </p>
 
           {/* Currency Toggle */}
@@ -436,6 +453,24 @@ const SoftwareHomePage = () => {
                 </div>
               </div>
 
+              {/* 50/50 Milestone Payment Structure Box */}
+              <div className="p-3.5 rounded-xl bg-blue-50/70 dark:bg-blue-950/30 border border-blue-200/70 dark:border-blue-800/60 space-y-2">
+                <div className="flex items-center justify-between text-[11px] font-extrabold uppercase tracking-wider text-blue-800 dark:text-blue-300">
+                  <span>Payment Structure</span>
+                  <span className="bg-blue-600 text-white dark:bg-blue-500 text-[9px] px-2 py-0.5 rounded-full font-mono">50 / 50</span>
+                </div>
+                <div className="grid grid-cols-2 gap-2 pt-1 border-t border-blue-200/50 dark:border-blue-800/40">
+                  <div>
+                    <span className="text-[10px] text-gray-600 dark:text-gray-400 block font-medium">50% Upfront (Kickoff)</span>
+                    <span className="text-xs font-bold font-mono text-gray-900 dark:text-white">{calculatedEstimate.upfront}</span>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-[10px] text-gray-600 dark:text-gray-400 block font-medium">50% Final Delivery</span>
+                    <span className="text-xs font-bold font-mono text-gray-900 dark:text-white">{calculatedEstimate.delivery}</span>
+                  </div>
+                </div>
+              </div>
+
               <div className="space-y-3 text-xs">
                 <div className="flex justify-between text-gray-600 dark:text-gray-300">
                   <span>Architecture:</span>
@@ -446,8 +481,12 @@ const SoftwareHomePage = () => {
                   <span className="font-bold text-gray-900 dark:text-white">{selectedAddons.length} features</span>
                 </div>
                 <div className="flex justify-between text-gray-600 dark:text-gray-300">
-                  <span>Warranty Included:</span>
-                  <span className="font-bold text-emerald-600 dark:text-emerald-400">4 Months SLA</span>
+                  <span>Milestone Terms:</span>
+                  <span className="font-bold text-blue-600 dark:text-blue-400">50% Upfront / 50% Delivery</span>
+                </div>
+                <div className="flex justify-between text-gray-600 dark:text-gray-300">
+                  <span>Support Included:</span>
+                  <span className="font-bold text-emerald-600 dark:text-emerald-400">4 Months Warranty</span>
                 </div>
                 <div className="flex justify-between text-gray-600 dark:text-gray-300">
                   <span>Source Code:</span>
@@ -461,7 +500,7 @@ const SoftwareHomePage = () => {
                   setForm(prev => ({
                     ...prev,
                     project_type: selectedType.name,
-                    budget: calculatedEstimate.cost,
+                    budget: `${calculatedEstimate.cost} (50% Upfront: ${calculatedEstimate.upfront}, 50% Delivery: ${calculatedEstimate.delivery})`,
                     timeline: `${calculatedEstimate.weeks} weeks`
                   }));
                 }}
@@ -478,17 +517,17 @@ const SoftwareHomePage = () => {
         </div>
       </section>
 
-      {/* ── ENGINEERING CAPABILITIES & TECH STACK ── */}
+      {/* ── MODERN ENGINEERING STACK ── */}
       <section className="py-20 px-6 md:px-12 max-w-7xl mx-auto border-t border-gray-200 dark:border-gray-800">
         <div className="text-center max-w-3xl mx-auto mb-16">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-xs font-extrabold uppercase tracking-wider mb-3">
             <Code className="w-3.5 h-3.5" /> Modern Engineering Stack
           </div>
           <h2 className="text-3xl md:text-5xl font-extrabold font-heading text-gray-900 dark:text-white tracking-tight">
-            Battle-Tested Technologies & Tooling
+            Core Technologies & Architecture
           </h2>
-          <p className="text-gray-600 dark:text-gray-400 mt-3 text-base">
-            We build software using modern, production-hardened libraries and protocols designed for high concurrency and zero runtime regressions.
+          <p className="text-gray-600 dark:text-gray-400 mt-3 text-base leading-relaxed">
+            I use modern, well-supported technologies selected for performance, maintainability, security, and long-term scalability.
           </p>
         </div>
 
@@ -524,9 +563,85 @@ const SoftwareHomePage = () => {
             );
           })}
         </div>
+
+        <div className="text-center mt-10">
+          <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">
+            Additional technologies and architectures available when specific project requirements call for them.
+          </p>
+        </div>
       </section>
 
-      {/* ── INTERNAL SAAS VENTURES SHOWCASE ── */}
+      {/* ── SELECTED SOFTWARE CASE STUDIES ── */}
+      <section className="py-20 px-6 md:px-12 max-w-7xl mx-auto border-t border-gray-200 dark:border-gray-800">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+          <div>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/10 text-accent text-xs font-extrabold uppercase tracking-wider mb-3">
+              <FolderGit2 className="w-3.5 h-3.5" /> Technical Case Studies
+            </div>
+            <h2 className="text-3xl md:text-5xl font-extrabold font-heading text-gray-900 dark:text-white tracking-tight">
+              Selected Software Case Studies
+            </h2>
+          </div>
+          <Link 
+            to="/projects" 
+            className="inline-flex items-center gap-2 text-sm font-extrabold text-accent hover:underline uppercase tracking-wider"
+          >
+            View Complete Portfolio ({projects.length}+ projects) →
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {projects.map((p, idx) => (
+            <div 
+              key={p.id || idx}
+              className="group rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 overflow-hidden shadow-sm hover:shadow-xl hover:border-accent/40 transition-all flex flex-col"
+            >
+              {(p.image_url || p.image) && (
+                <div className="h-56 overflow-hidden relative">
+                  <img 
+                    src={p.image_url || p.image} 
+                    alt={p.title} 
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                  />
+                  <div className="absolute top-3 right-3">
+                    <span className="px-2.5 py-1 rounded-md bg-black/70 backdrop-blur-md text-white text-[10px] font-mono font-bold uppercase tracking-wider">
+                      {p.category || 'Full-Stack'}
+                    </span>
+                  </div>
+                </div>
+              )}
+              <div className="p-6 flex-1 flex flex-col justify-between">
+                <div>
+                  <h3 className="text-xl font-bold font-heading text-gray-900 dark:text-white group-hover:text-accent transition-colors">
+                    {p.title}
+                  </h3>
+                  <p className="text-xs text-gray-600 dark:text-gray-400 mt-2 line-clamp-2 leading-relaxed font-light">
+                    {p.summary || p.description}
+                  </p>
+                </div>
+
+                <div className="pt-6 mt-6 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between">
+                  <div className="flex flex-wrap gap-1">
+                    {(p.tech_stack || []).slice(0, 3).map((t, tid) => (
+                      <span key={tid} className="text-[10px] font-mono px-2 py-0.5 rounded bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300">
+                        {t}
+                      </span>
+                    ))}
+                  </div>
+                  <Link 
+                    to={`/projects/${p.slug || p.id}`}
+                    className="text-xs font-bold text-accent inline-flex items-center gap-1 hover:translate-x-1 transition-transform"
+                  >
+                    Deep Dive →
+                  </Link>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── INTERNAL SAAS PRODUCTS ── */}
       <section className="py-20 px-6 md:px-12 max-w-7xl mx-auto border-t border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/30">
         <div className="text-center max-w-3xl mx-auto mb-16">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 text-xs font-extrabold uppercase tracking-wider mb-3">
@@ -536,7 +651,7 @@ const SoftwareHomePage = () => {
             Internal SaaS Products & Platforms
           </h2>
           <p className="text-gray-600 dark:text-gray-400 mt-3 text-base">
-            In addition to bespoke client engineering, we build and operate commercial SaaS platforms solving mission-critical business challenges.
+            In addition to bespoke client engineering, I build and operate focused software products solving real business challenges.
           </p>
         </div>
 
@@ -580,73 +695,38 @@ const SoftwareHomePage = () => {
         </div>
       </section>
 
-      {/* ── SELECTED SOFTWARE CASE STUDIES ── */}
-      <section className="py-20 px-6 md:px-12 max-w-7xl mx-auto border-t border-gray-200 dark:border-gray-800">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
-          <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/10 text-accent text-xs font-extrabold uppercase tracking-wider mb-3">
-              <FolderGit2 className="w-3.5 h-3.5" /> Proven Track Record
-            </div>
-            <h2 className="text-3xl md:text-5xl font-extrabold font-heading text-gray-900 dark:text-white tracking-tight">
-              Selected Software Case Studies
-            </h2>
-          </div>
-          <Link 
-            to="/projects" 
-            className="inline-flex items-center gap-2 text-sm font-extrabold text-accent hover:underline uppercase tracking-wider"
-          >
-            View Complete Portfolio ({projects.length}+ projects) →
-          </Link>
+      {/* ── TECHNICAL FAQS SECTION ── */}
+      <section className="py-20 px-6 md:px-12 max-w-4xl mx-auto border-t border-gray-200 dark:border-gray-800">
+        <div className="text-center mb-12">
+          <span className="text-accent font-bold tracking-widest uppercase text-xs mb-2 block">Clear Answers</span>
+          <h2 className="text-3xl font-extrabold font-heading text-gray-900 dark:text-white">
+            Frequently Asked Questions
+          </h2>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {projects.map((p, idx) => (
-            <div 
-              key={p.id || idx}
-              className="group rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 overflow-hidden shadow-sm hover:shadow-xl hover:border-accent/40 transition-all flex flex-col"
-            >
-              {p.image_url && (
-                <div className="h-56 overflow-hidden relative">
-                  <img 
-                    src={p.image_url} 
-                    alt={p.title} 
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
-                  />
-                  <div className="absolute top-3 right-3">
-                    <span className="px-2.5 py-1 rounded-md bg-black/70 backdrop-blur-md text-white text-[10px] font-mono font-bold uppercase tracking-wider">
-                      {p.category || 'Full-Stack'}
-                    </span>
+        <div className="space-y-4">
+          {FAQS.map((faq, idx) => {
+            const isOpen = activeFaq === idx;
+            return (
+              <div 
+                key={idx}
+                className="border border-gray-200 dark:border-gray-800 rounded-2xl bg-white dark:bg-gray-900 overflow-hidden"
+              >
+                <button
+                  onClick={() => setActiveFaq(isOpen ? null : idx)}
+                  className="w-full p-6 text-left font-bold text-gray-900 dark:text-white flex items-center justify-between text-base"
+                >
+                  <span>{faq.q}</span>
+                  <ChevronDown className={`w-5 h-5 text-gray-500 transition-transform duration-200 ${isOpen ? 'rotate-180 text-accent' : ''}`} />
+                </button>
+                {isOpen && (
+                  <div className="px-6 pb-6 text-sm text-gray-600 dark:text-gray-400 border-t border-gray-100 dark:border-gray-800/60 pt-4 leading-relaxed">
+                    {faq.a}
                   </div>
-                </div>
-              )}
-              <div className="p-6 flex-1 flex flex-col justify-between">
-                <div>
-                  <h3 className="text-xl font-bold font-heading text-gray-900 dark:text-white group-hover:text-accent transition-colors">
-                    {p.title}
-                  </h3>
-                  <p className="text-xs text-gray-600 dark:text-gray-400 mt-2 line-clamp-2 leading-relaxed">
-                    {p.summary || p.content}
-                  </p>
-                </div>
-
-                <div className="pt-6 mt-6 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between">
-                  <div className="flex flex-wrap gap-1">
-                    {(p.tech_stack || []).slice(0, 3).map((t, tid) => (
-                      <span key={tid} className="text-[10px] font-mono px-2 py-0.5 rounded bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300">
-                        {t}
-                      </span>
-                    ))}
-                  </div>
-                  <Link 
-                    to={`/projects/${p.id}`}
-                    className="text-xs font-bold text-accent inline-flex items-center gap-1 hover:translate-x-1 transition-transform"
-                  >
-                    Deep Dive →
-                  </Link>
-                </div>
+                )}
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </section>
 
@@ -655,13 +735,13 @@ const SoftwareHomePage = () => {
         <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-3xl p-8 md:p-12 shadow-2xl">
           <div className="text-center max-w-2xl mx-auto mb-10">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-xs font-extrabold uppercase tracking-wider mb-3">
-              <Terminal className="w-3.5 h-3.5" /> Kickoff Consultation
+              <Terminal className="w-3.5 h-3.5" /> Technical Discovery
             </div>
             <h2 className="text-3xl md:text-4xl font-extrabold font-heading text-gray-900 dark:text-white tracking-tight">
               Start Your Software Discovery Call
             </h2>
-            <p className="text-gray-600 dark:text-gray-400 mt-2 text-sm">
-              Tell us about your project vision, timeline, and goals. We review all technical requirements and respond within 24 business hours.
+            <p className="text-gray-600 dark:text-gray-400 mt-2 text-sm leading-relaxed">
+              Tell me about your project, timeline, and goals. I'll review the requirements and get back to you within 24 business hours.
             </p>
           </div>
 
@@ -672,7 +752,7 @@ const SoftwareHomePage = () => {
               </div>
               <h3 className="text-xl font-bold text-emerald-900 dark:text-emerald-200">Technical Inquiry Received!</h3>
               <p className="text-sm text-emerald-700 dark:text-emerald-400 max-w-md mx-auto">
-                Thank you for reaching out. We will review your requirements and schedule an initial discovery session with you shortly.
+                Thank you for reaching out. I will review your requirements and get back to you within 24 hours.
               </p>
               <button 
                 onClick={() => setFormSuccess(false)}
@@ -783,41 +863,6 @@ const SoftwareHomePage = () => {
               </button>
             </form>
           )}
-        </div>
-      </section>
-
-      {/* ── FAQS SECTION ── */}
-      <section className="py-20 px-6 md:px-12 max-w-4xl mx-auto border-t border-gray-200 dark:border-gray-800">
-        <div className="text-center mb-12">
-          <span className="text-accent font-bold tracking-widest uppercase text-xs mb-2 block">Clear Answers</span>
-          <h2 className="text-3xl font-extrabold font-heading text-gray-900 dark:text-white">
-            Frequently Asked Questions
-          </h2>
-        </div>
-
-        <div className="space-y-4">
-          {FAQS.map((faq, idx) => {
-            const isOpen = activeFaq === idx;
-            return (
-              <div 
-                key={idx}
-                className="border border-gray-200 dark:border-gray-800 rounded-2xl bg-white dark:bg-gray-900 overflow-hidden"
-              >
-                <button
-                  onClick={() => setActiveFaq(isOpen ? null : idx)}
-                  className="w-full p-6 text-left font-bold text-gray-900 dark:text-white flex items-center justify-between text-base"
-                >
-                  <span>{faq.q}</span>
-                  <ChevronDown className={`w-5 h-5 text-gray-500 transition-transform duration-200 ${isOpen ? 'rotate-180 text-accent' : ''}`} />
-                </button>
-                {isOpen && (
-                  <div className="px-6 pb-6 text-sm text-gray-600 dark:text-gray-400 border-t border-gray-100 dark:border-gray-800/60 pt-4 leading-relaxed">
-                    {faq.a}
-                  </div>
-                )}
-              </div>
-            );
-          })}
         </div>
       </section>
 
