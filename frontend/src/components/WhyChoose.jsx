@@ -65,7 +65,7 @@ const WhyChoose = () => {
           <motion.div
             key={idx}
             variants={item}
-            className="min-w-[82vw] sm:min-w-[280px] md:min-w-0 snap-center p-6 bg-white dark:bg-[#141414] rounded-2xl shadow-sm border border-gray-200 dark:border-white/10 hover:border-accent/50 transition-all flex flex-col justify-between"
+            className="shrink-0 md:shrink w-[82vw] max-w-[320px] sm:w-[290px] md:w-auto min-w-0 snap-center p-6 bg-white dark:bg-[#141414] rounded-2xl shadow-sm border border-gray-200 dark:border-white/10 hover:border-accent/50 transition-all flex flex-col justify-between"
           >
             <div>
               <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center text-accent mb-4">

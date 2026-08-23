@@ -69,7 +69,7 @@ const Testimonials = () => {
           <motion.div
             key={testimonial.id}
             variants={item}
-            className="min-w-[88vw] sm:min-w-[320px] md:min-w-0 snap-center p-7 bg-gray-50 dark:bg-[#141414] border border-gray-200 dark:border-white/10 rounded-2xl relative flex flex-col justify-between shadow-sm"
+            className="shrink-0 md:shrink w-[85vw] max-w-[360px] sm:w-[320px] md:w-auto min-w-0 snap-center p-7 bg-gray-50 dark:bg-[#141414] border border-gray-200 dark:border-white/10 rounded-2xl relative flex flex-col justify-between shadow-sm"
           >
             <div className="absolute top-6 right-6 text-accent opacity-20">
               <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">

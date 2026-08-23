@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useLayoutEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, ArrowUpRight, Plus, Minus, Download } from 'lucide-react';
+import { ArrowRight, ArrowUpRight, Plus, Minus, Download, Check, X, Layers, Shield, Compass, FileText, Sliders } from 'lucide-react';
 import { api } from '../../services/api';
 import { surveyPlaceholder, projectPlaceholder } from '../../utils/placeholders';
 import { validateBooking, validateField } from '../../utils/formValidation';
@@ -12,6 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../../components/ui/select';
+import SurveyFooter from '../../components/SurveyFooter';
 
 // ── Survey-page fonts ────────────────────────────────────
 // "Manrope" for headings, "Mulish" for body text. Both are
@@ -80,6 +81,11 @@ const SurveyHomePage = () => {
   const [bookingStatus, setBookingStatus] = useState('idle'); // idle | submitting | success | error
   const [bookingErrors, setBookingErrors] = useState({});
 
+  // -- Modal & Filter States --
+  const [selectedServiceModal, setSelectedServiceModal] = useState(null);
+  const [standardsModal, setStandardsModal] = useState(false);
+  const [activeCategory, setActiveCategory] = useState('ALL');
+
   const handleBookingFieldChange = (field, value) => {
     setBooking({ ...booking, [field]: value });
     if (bookingErrors[field]) {
@@ -95,22 +101,16 @@ const SurveyHomePage = () => {
   const handleBooking = async (e) => {
     e.preventDefault();
 
-    // Client-side validation - COMPLETE AND RIGHTEOUS!
+    // Client-side validation
     const validation = validateBooking(booking);
     if (!validation.valid) {
-      // Show ALL validation errors
       setBookingErrors(validation.errors);
-      
-      // Focus first field with error
       const firstError = Object.keys(validation.errors)[0];
       const el = document.querySelector(`[name="survey_booking_${firstError}"]`);
       if (el) el.focus();
-      
-      console.log('Form validation failed:', validation.errors);
-      return; // CRITICAL: Don't submit API call when form is invalid
+      return;
     }
 
-    // Clear all errors before API call
     setBookingErrors({});
     setBookingStatus('submitting');
     
@@ -118,75 +118,138 @@ const SurveyHomePage = () => {
       const res = await api.post('/bookings', { ...booking, division: 'SURVEY' });
       if (res.ok) {
         setBookingStatus('success');
-        // RESET FORM ON SUCCESS ONLY
         setBooking({ full_name: '', email: '', phone: '', service: '', location: '', preferred_date: '', notes: '' });
         setTimeout(() => setBookingStatus('idle'), 5000);
-        console.log('Survey booking submitted successfully');
       } else {
         setBookingStatus('error');
-        console.error('Survey booking API error:', res.error || 'Unknown error');
         setTimeout(() => setBookingStatus('idle'), 5000);
       }
     } catch (err) {
-      // HANDLE NETWORK/UNKNOWN ERRORS
       setBookingStatus('error');
-      console.error('Survey booking network error:', err);
       setTimeout(() => setBookingStatus('idle'), 5000);
     }
   };
 
-  // -- Data specific to Lami Survey Division --
-  // Authentic services delivered with a total station, GNSS receiver,
-  // and DJI Mini-series drones. No sonar, no LiDAR, no hydrographic
-  // watercraft — just disciplined fieldwork and clean deliverables.
-  const services = [
+  // 4 Core Primary Disciplines
+  const servicePillars = [
     {
-      title: "Boundary Demarcation",
-      description: "Precise property line marking with reinforced concrete monuments, prepared in line with Nigeria's Land Instruments Preparation Act.",
+      id: 'cadastral',
+      category: 'Boundary & Cadastral Demarcation',
+      number: '01',
+      headline: 'Legally Valid Boundary & Cadastral Demarcation',
+      description: 'Precise boundary marking with reinforced concrete monument pillars, prepared in accordance with SURCON regulations and Nigeria’s Land Instruments Preparation Act.',
+      deliverables: 'Registered Survey Plan, Beacon Coordinate Sheet, AutoCAD (.DWG/.DXF), Deed Plan Annexure',
+      timeline: '3–5 business days',
+      subItems: [
+        'Official Boundary Demarcation & Beacon Installation',
+        'Perimeter Coordinate Mapping (Minna Datum / UTM 31N/32N)',
+        'Lodgement-Ready Registered Survey Plans',
+        'Title Verification & Boundary Dispute Resolution'
+      ]
     },
     {
-      title: "Topographic Surveys",
-      description: "Detailed 2D and 3D terrain maps showing elevation, slopes, and natural features — for architects, engineers, and planners.",
+      id: 'topographic',
+      category: 'Topographic Baseline Surveys',
+      number: '02',
+      headline: 'High-Precision 2D & 3D Terrain & Contour Baselines',
+      description: 'Detailed elevation models, contours, spot heights, and natural/built feature mapping for architectural master plans and civil engineering design.',
+      deliverables: '2D/3D Contour Plan, Digital Elevation Model (DEM), Spot Heights Grid, GeoTIFF Orthomosaic',
+      timeline: '4–7 business days',
+      subItems: [
+        'Contour Interval Generation (0.5m / 1.0m intervals)',
+        'Digital Terrain & Surface Modeling (DTM / DSM)',
+        'Natural & Built Feature Asset Location',
+        'Earthwork Cut & Fill Volume Calculations'
+      ]
     },
     {
-      title: "Cadastral Surveys",
-      description: "Official surveys for landed property boundaries, including deed preparation and registration-ready plan production.",
+      id: 'engineering',
+      category: 'Engineering & Construction Setting Out',
+      number: '03',
+      headline: 'Millimeter-Accurate Construction Layouts',
+      description: 'Translating structural blueprints onto physical ground with high-precision grid pegging, column alignment, and as-built verification.',
+      deliverables: 'Setting Out Certificate, Grid Alignment Sheet, As-Built Deviation Report',
+      timeline: 'Scheduled per project phase',
+      subItems: [
+        'Building Footprint & Column Grid Alignment',
+        'Road Centerlines, Corridors & Drainage Levels',
+        'Pile Position & Foundation Axis Staking',
+        'As-Built Quality Control & Tolerance Audits'
+      ]
     },
     {
-      title: "Engineering & Setting Out",
-      description: "Construction layout, as-built surveys, and volume calculations tailored to civil engineering and architectural projects.",
-    },
-    {
-      title: "Site Layout & Subdivision",
-      description: "Estate and plot subdivision into sellable units with road alignment, drainage corridors, and access planning.",
-    },
-    {
-      title: "Drone Mapping & Photogrammetry",
-      description: "Orthomosaic maps, digital surface models, and contour generation from DJI Mini 4 Pro aerial imagery.",
-    },
-    {
-      title: "GIS Mapping & Spatial Data",
-      description: "Geospatial database design, asset mapping, and presentation-ready cartographic outputs for planning teams.",
-    },
-    {
-      title: "GPS / GNSS Control Surveys",
-      description: "Establishment of ground control points and coordinate reference frameworks using survey-grade GNSS receivers.",
-    },
-    {
-      title: "Land Documentation",
-      description: "Clean AutoCAD drawings, GeoTIFFs, and printed survey plans ready for architects, lawyers, and government filing.",
+      id: 'subdivision',
+      category: 'Estate Layout & Land Subdivision',
+      number: '04',
+      headline: 'Master Plan Demarcation & Plot Partitioning',
+      description: 'Partitioning large virgin landholdings and commercial estates into demarcated, sellable units with road network alignment and drainage corridors.',
+      deliverables: 'Master Subdivision Plan, Individual Plot Beacon Sheets, Road Network Layout',
+      timeline: '1–2 weeks depending on acreage',
+      subItems: [
+        'Master Layout Plot Demarcation & Beaconing',
+        'Estate Road Network & Infrastructure Staking',
+        'Utility Corridor & Drainage Reservation Planning',
+        'Commercial & Residential Allocation Plans'
+      ]
     }
   ];
+
+  const filteredServices = activeCategory === 'ALL'
+    ? servicePillars
+    : servicePillars.filter(s => s.id === activeCategory);
+
+  // Precision Instrument Roster (3 High-Precision Pillars)
+  const precisionEquipment = [
+    {
+      name: "GNSS RTK / Static Receiver",
+      tagline: "Satellite Positioning",
+      accuracy: "Sub-Centimeter Accuracy",
+      spec: "Multi-constellation GPS, GLONASS, and Galileo tracking for primary ground control and boundary coordinate baselines.",
+      badge: "Satellite GNSS",
+      image_url: "/images/survey/survey_inst_gnss.jpg"
+    },
+    {
+      name: "Total Station & Electronic Theodolite",
+      tagline: "Optical Precision",
+      accuracy: "2\" Angular / 1mm+2ppm Distance",
+      spec: "Electronic distance and angle measurement for architectural baselines, structural setting out, and dense urban boundaries.",
+      badge: "Optical & EDM",
+      image_url: "/images/survey/survey_inst_totalstation.jpg"
+    },
+    {
+      name: "DJI Aerial Mapping Drone",
+      tagline: "Aerial Photogrammetry",
+      accuracy: "High-Resolution GSD Orthomosaics",
+      spec: "DJI Mini 4 Pro aircraft for photogrammetric contours, orthomosaics, and visual estate verification.",
+      badge: "Aerial Photogrammetry",
+      image_url: "/images/drone/drone_thumb_mini4pro.jpg"
+    }
+  ];
+
+  // Technical Standards & Datums Data
+  const technicalStandards = {
+    coordinateDatums: [
+      { name: "Minna Datum (Clarke 1880)", usage: "Official Nigerian National Cadastral Coordinate System" },
+      { name: "UTM Zone 31N & 32N", usage: "Universal Transverse Mercator Projection for Nigeria" },
+      { name: "WGS 84 (EPSG:4326)", usage: "Global Satellite Positioning and GIS Integration" }
+    ],
+    fileDeliverables: [
+      { format: "AutoCAD (.DWG / .DXF)", desc: "Layered vector CAD files with clean coordinate geometry" },
+      { format: "GeoTIFF & Orthomosaics", desc: "Georeferenced high-resolution aerial raster datasets" },
+      { format: "Registered Hardcopy Plans", desc: "SURCON compliant stamped survey plans for legal lodgement" },
+      { format: "CSV / PDF Coordinate Sheets", desc: "Tabulated Eastings, Northings, and Elevation benchmarks" }
+    ]
+  };
 
   // Fallback projects shown if the API is unreachable or empty.
   // Keeps the page presentable until the admin publishes real
   // entries from /admin/portfolio. Placeholders only — replace
   // with verified client work before going public.
   const fallbackProjects = [
-    { id: 'fallback-1', title: "Residential Estate Boundary Survey", summary: 'Cadastral demarcation for a 40-unit housing estate', area: "8 Ha",  tags: ['Cadastral'],   location: "Lagos" },
-    { id: 'fallback-2', title: "Subdivision Layout — Lekki Axis",  summary: 'Plot subdivision and access road alignment',      area: "12 Ha",  tags: ['Subdivision'], location: "Lagos" },
-    { id: 'fallback-3', title: "Topographic Baseline for Site Plan", summary: 'Terrain map for an architect’s master plan',    area: "5 Ha",   tags: ['Topographic'], location: "FCT" },
-    { id: 'fallback-4', title: "Construction Setting Out",          summary: 'Building footprint and column setting out',       area: "2 Ha",   tags: ['Engineering'], location: "Lagos" },
+    { id: 'fallback-1', title: "Residential Estate Boundary Survey", summary: 'Cadastral demarcation for a 40-unit housing estate', area: "8 Ha",  tags: ['Cadastral'],   location: "Lagos", image_url: '/images/survey/survey_proj_boundary.jpg' },
+    { id: 'fallback-2', title: "Subdivision Layout — Lekki Axis",  summary: 'Plot subdivision and access road alignment',      area: "12 Ha",  tags: ['Subdivision'], location: "Lagos", image_url: '/images/survey/survey_proj_subdivision.jpg' },
+    { id: 'fallback-3', title: "Topographic Baseline for Site Plan", summary: 'Terrain map for an architect’s master plan',    area: "5 Ha",   tags: ['Topographic'], location: "FCT", image_url: '/images/survey/survey_proj_topographic.jpg' },
+    { id: 'fallback-4', title: "Construction Setting Out",          summary: 'Building footprint and column setting out',       area: "2 Ha",   tags: ['Engineering'], location: "Lagos", image_url: '/images/survey/survey_proj_boundary.jpg' },
   ];
 
   // Live projects fetched from /api/projects/division/SURVEY.
@@ -269,6 +332,14 @@ const SurveyHomePage = () => {
   const [visibleElements, setVisibleElements] = useState(new Set());
   
   useEffect(() => {
+    document.title = "GeoSurvey — Precision Geomatics & Land Surveying";
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) {
+      metaDesc.setAttribute(
+        'content',
+        'GeoSurvey — SURCON-compliant land surveying, cadastral boundary demarcation, engineering setting out, and high-precision topographic mapping across Nigeria.'
+      );
+    }
     // Cleanup on unmount ONLY - no duplicate observers on re-render
     return () => {
       if (observerRef.current) {
@@ -324,7 +395,7 @@ const SurveyHomePage = () => {
           {/* Left Column - Typography */}
           <div className="w-full md:w-[35%] flex flex-col justify-between p-8 md:p-12 relative border-b md:border-b-0 md:border-r border-gray-300 min-h-[90vh] md:min-h-[auto]">
             <div className="flex items-center gap-6 mb-16">
-              <div className="border-2 border-black w-12 h-12 flex items-center justify-center font-bold text-xl">L.</div>
+              <div className="border-2 border-black px-2.5 h-10 flex items-center justify-center font-black text-sm tracking-wider uppercase">GEOSURVEY</div>
               <nav className="hidden xl:flex gap-6 text-[10px] uppercase font-bold tracking-widest border-b border-black pb-2">
                 <button onClick={() => scrollTo('services')} className="hover:text-gray-500 transition-colors">Services</button>
                 <button onClick={() => scrollTo('projects')} className="hover:text-gray-500 transition-colors">Projects</button>
@@ -335,7 +406,7 @@ const SurveyHomePage = () => {
 
             <div className="relative mb-16 flex-1 flex flex-col justify-center">
               <div className="absolute left-[-2rem] top-1/2 -translate-y-1/2 -rotate-90 origin-center text-[10px] font-bold tracking-[0.4em] uppercase text-black">
-                SURVEY
+                GEOSURVEY
               </div>
               <h1 className="survey-heading text-[5rem] md:text-[6rem] lg:text-[8rem] font-black leading-[0.85] tracking-tighter uppercase">
                 PRE<br />CI<br />SION
@@ -368,9 +439,9 @@ const SurveyHomePage = () => {
           <div className="w-full md:w-[35%] bg-[#e6e6e6] flex flex-col border-b md:border-b-0 md:border-r border-gray-300">
             <div className="w-full h-[50vh] md:h-[70%] bg-gray-200 overflow-hidden">
               <img
-                src={surveyPlaceholder({ width: 600, height: 800, label: 'Cadastral Survey' })}
-                alt="Cadastral Survey"
-                className="w-full h-full object-cover grayscale-[20%] contrast-125"
+                src="/images/survey/survey_hero_field.jpg"
+                alt="Cadastral Survey Field Operations"
+                className="w-full h-full object-cover grayscale-[10%] contrast-110 hover:scale-105 transition-transform duration-700"
               />
             </div>
             <div className="p-8 md:p-12 flex flex-col justify-between flex-1">
@@ -388,30 +459,25 @@ const SurveyHomePage = () => {
           {/* Right Column - Project Details */}
           <div className="w-full md:w-[30%] bg-[#f2f2f2] p-8 md:p-12 flex flex-col relative min-h-[600px]">
             <div className="flex gap-2 mb-12">
-              <div className="w-2.5 h-2.5 rounded-full border-2 border-black flex items-center justify-center"><div className="w-1 h-1 bg-black rounded-full"></div></div>
-              <div className="w-2 h-2 rounded-full bg-gray-300 mt-[2px]"></div>
-              <div className="w-2 h-2 rounded-full bg-gray-300 mt-[2px]"></div>
+              <span className="w-2 h-2 rounded-full bg-black"></span>
+              <span className="w-2 h-2 rounded-full bg-gray-400"></span>
+              <span className="w-2 h-2 rounded-full bg-gray-400"></span>
             </div>
-            <div className="flex-1">
-              <h2 className="survey-heading text-xl font-bold uppercase tracking-wider mb-6">Featured Project</h2>
-              <p className="text-[10px] font-bold uppercase tracking-widest leading-relaxed text-gray-600 mb-12 max-w-[250px]">
-                Topographic baseline survey with drone-captured orthomosaic — clean contours and elevations ready for the architect’s master plan.
+            
+            <div className="mb-auto">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500 block mb-2">01 / LATEST PROJECT</span>
+              <h3 className="survey-heading text-2xl font-bold uppercase tracking-tight mb-4">Lekki Phase 1 Commercial Boundary</h3>
+              <p className="text-xs text-gray-700 leading-relaxed uppercase tracking-wider mb-6 font-medium">
+                Comprehensive perimeter boundary demarcation and beacon placement for a 1,200m² commercial development.
               </p>
-              <div className="space-y-4 mb-16 w-full max-w-[300px]">
+              
+              <div className="space-y-2 mb-6">
                 <div className="flex justify-between border-b border-gray-300 pb-2">
-                  <span className="text-[10px] font-bold uppercase tracking-widest">Service</span>
-                  <span className="text-[10px] font-bold uppercase tracking-widest flex items-center gap-2"><span className="text-xs">⚙</span> Topographic</span>
+                  <span className="text-[10px] font-bold uppercase tracking-widest">Scope</span>
+                  <span className="text-[10px] font-bold uppercase tracking-widest">Boundary + Topo</span>
                 </div>
                 <div className="flex justify-between border-b border-gray-300 pb-2">
-                  <span className="text-[10px] font-bold uppercase tracking-widest">Type</span>
-                  <span className="text-[10px] font-bold uppercase tracking-widest">Site Survey.</span>
-                </div>
-                <div className="flex justify-between border-b border-gray-300 pb-2">
-                  <span className="text-[10px] font-bold uppercase tracking-widest">Area</span>
-                  <span className="text-[10px] font-bold uppercase tracking-widest">5 HA</span>
-                </div>
-                <div className="flex justify-between border-b border-gray-300 pb-2">
-                  <span className="text-[10px] font-bold uppercase tracking-widest">Method</span>
+                  <span className="text-[10px] font-bold uppercase tracking-widest">Instruments</span>
                   <span className="text-[10px] font-bold uppercase tracking-widest">Total Station + Drone</span>
                 </div>
                 <div className="flex justify-between border-b border-gray-300 pb-2">
@@ -424,64 +490,117 @@ const SurveyHomePage = () => {
               </button>
             </div>
             <div className="absolute bottom-8 right-8 w-32 h-32 hidden lg:flex items-center justify-center">
-              {/* Decorative rotating text — hidden from screen readers
-                  because it's purely visual (the "LAMI SURV" overlay
-                  below is the actual content). */}
+              {/* Decorative rotating text */}
               <svg className="w-full h-full animate-[spin_20s_linear_infinite]" viewBox="0 0 100 100" aria-hidden="true">
                 <path id="circlePath" fill="none" d="M 50, 50 m -35, 0 a 35,35 0 1,1 70,0 a 35,35 0 1,1 -70,0" />
                 <text className="text-[8.5px] font-bold tracking-[0.2em] uppercase">
-                  <textPath href="#circlePath" startOffset="0%">• LAMI SURVEY DIVISION • PRECISION AND ACCURACY</textPath>
+                  <textPath href="#circlePath" startOffset="0%">• GEOSURVEY • PRECISION AND ACCURACY</textPath>
                 </text>
               </svg>
-              <div className="absolute font-black text-sm uppercase text-center leading-none" aria-label="Lami Survey Division">LAMI<br />SURV</div>
+              <div className="absolute font-black text-xs uppercase text-center leading-tight tracking-wider" aria-label="GeoSurvey">GEO<br />SURVEY</div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ==== SERVICES SECTION ==== */}
+      {/* ==== SERVICES SECTION (4 Core Primary Disciplines) ==== */}
       <section 
         ref={(el) => (sectionsRef.current['services'] = el)} 
         className="py-24 px-6 md:px-12 max-w-[1400px] mx-auto border-t border-gray-300"
       >
         <div className={`observe ${visibleElements.has('services-header') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'} transition-all duration-1000`} data-id="services-header">
-          <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
+          <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
             <div>
-              <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-500 mb-4">— What We Do</p>
+              <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-500 mb-4">— Survey Disciplines</p>
               <h2 className="survey-heading text-6xl md:text-8xl font-black tracking-tighter uppercase leading-[0.85]">
                 Serv<br />ices
               </h2>
             </div>
-            <p className="text-xs font-bold uppercase tracking-widest leading-relaxed text-gray-700 max-w-md">
-              Fieldwork, drafting, and drone-assisted mapping — delivered with the gear we actually carry, and the standards a property transaction deserves.
-            </p>
+            <div className="max-w-md">
+              <p className="text-xs font-bold uppercase tracking-widest leading-relaxed text-gray-700 mb-4">
+                Four core survey disciplines delivered under SURCON-compliant supervision with Total Stations, GNSS receivers, and aerial photogrammetry.
+              </p>
+              <button
+                onClick={() => setStandardsModal(true)}
+                className="text-[11px] font-black uppercase tracking-widest text-black underline underline-offset-4 hover:text-gray-500 flex items-center gap-1.5 transition-colors"
+              >
+                <Compass className="w-3.5 h-3.5" /> View Deliverable Formats &amp; Datums
+              </button>
+            </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-gray-300 border border-gray-300">
-          {services.map((service, idx) => (
+        {/* Category Filter Pills */}
+        <div className="flex flex-wrap gap-2 mb-10">
+          {[
+            { id: 'ALL', label: 'All Disciplines' },
+            { id: 'cadastral', label: 'Boundary & Cadastral' },
+            { id: 'topographic', label: 'Topographic Baseline' },
+            { id: 'engineering', label: 'Setting Out & Layout' },
+            { id: 'subdivision', label: 'Estate Subdivision' },
+          ].map(cat => (
+            <button
+              key={cat.id}
+              onClick={() => setActiveCategory(cat.id)}
+              className={`px-4 py-2 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all ${
+                activeCategory === cat.id
+                  ? 'bg-black text-white shadow-md'
+                  : 'bg-[#f0f0f0] text-gray-600 hover:bg-gray-200'
+              }`}
+            >
+              {cat.label}
+            </button>
+          ))}
+        </div>
+
+        {/* 4 Core Disciplines Grid (Horizontal Snap on Mobile) */}
+        <div className="flex md:grid md:grid-cols-2 gap-6 overflow-x-auto md:overflow-visible pb-6 md:pb-0 snap-x snap-mandatory scrollbar-none -mx-6 px-6 md:mx-0 md:px-0">
+          {filteredServices.map((service, idx) => (
             <div 
-              key={idx}
-              className={`observe ${visibleElements.has(`service-${idx}`) ? 'opacity-100' : 'opacity-0'} transition-all duration-700`}
+              key={service.id}
+              className={`w-[85vw] sm:w-[340px] md:w-auto shrink-0 snap-center observe ${visibleElements.has(`service-${idx}`) ? 'opacity-100' : 'opacity-0'} transition-all duration-700`}
               data-id={`service-${idx}`}
               style={{ transitionDelay: `${idx * 100}ms` }}
             >
-              <div className="bg-[#f2f2f2] p-10 h-full hover:bg-white transition-colors duration-500 group cursor-pointer">
-                <div className="flex justify-between items-start mb-12">
-                  <span className="text-4xl font-black text-gray-200 group-hover:text-black transition-colors duration-500">0{idx + 1}</span>
-                  <ArrowRight className="w-6 h-6 text-gray-300 group-hover:text-black group-hover:translate-x-2 transition-all duration-500" />
+              <div className="bg-[#f2f2f2] p-8 md:p-10 h-full hover:bg-white hover:shadow-xl transition-all duration-500 group flex flex-col justify-between border border-gray-200">
+                <div>
+                  <div className="flex justify-between items-start mb-8">
+                    <span className="text-4xl font-black text-gray-300 group-hover:text-black transition-colors duration-500 font-mono">{service.number}</span>
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500 bg-white px-3 py-1 border border-gray-200 rounded-full">
+                      {service.timeline}
+                    </span>
+                  </div>
+                  <h3 className="survey-heading text-xl md:text-2xl font-black uppercase tracking-tight mb-3">{service.category}</h3>
+                  <p className="text-xs font-medium text-gray-600 leading-relaxed mb-6">
+                    {service.description}
+                  </p>
+
+                  <ul className="space-y-2 border-t border-gray-200 pt-4 mb-6">
+                    {service.subItems.map((sub, i) => (
+                      <li key={i} className="flex items-center gap-2.5 text-xs font-semibold text-gray-800">
+                        <Check className="w-3.5 h-3.5 text-black shrink-0" />
+                        <span>{sub}</span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-                <h3 className="survey-heading text-2xl font-black uppercase tracking-tight mb-4">{service.title}</h3>
-                <p className="text-xs font-semibold text-gray-600 leading-relaxed uppercase tracking-wider">
-                  {service.description}
-                </p>
+
+                <div className="pt-4 border-t border-gray-200 flex items-center justify-between">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Lodgement Standard</span>
+                  <button
+                    onClick={() => setSelectedServiceModal(service)}
+                    className="text-xs font-bold uppercase tracking-wider text-black flex items-center gap-1.5 hover:text-gray-500 group-hover:translate-x-1 duration-300"
+                  >
+                    Scope &amp; Deliverables <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
               </div>
             </div>
           ))}
         </div>
       </section>
 
-      {/* ==== PROJECTS SECTION ==== */}
+      {/* ==== PROJECTS SECTION (Horizontal Snap on Mobile) ==== */}
       <section 
         ref={(el) => (sectionsRef.current['projects'] = el)} 
         className="py-24 px-6 md:px-12 max-w-[1400px] mx-auto border-t border-gray-300"
@@ -497,11 +616,11 @@ const SurveyHomePage = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8" role="region" aria-label="Survey portfolio projects" aria-busy={projectsLoading}>
+        <div className="flex md:grid md:grid-cols-2 gap-8 overflow-x-auto md:overflow-visible pb-6 md:pb-0 snap-x snap-mandatory scrollbar-none -mx-6 px-6 md:mx-0 md:px-0" role="region" aria-label="Survey portfolio projects" aria-busy={projectsLoading}>
           {projectsLoading && projects.length === 0 ? (
             <>
               {[0, 1, 2, 3].map((i) => (
-                <div key={`skel-${i}`} className="animate-pulse">
+                <div key={`skel-${i}`} className="w-[85vw] sm:w-[320px] md:w-auto shrink-0 snap-center animate-pulse">
                   <div className="aspect-[4/3] bg-gray-200 dark:bg-gray-700 rounded-2xl mb-4" />
                   <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/3 mb-3" />
                   <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-2" />
@@ -511,10 +630,6 @@ const SurveyHomePage = () => {
               ))}
             </>
           ) : projects.map((proj, idx) => {
-            // API rows are an object with `id` (uuid). Fallback
-            // rows have `id: 'fallback-N'` and a string `type`
-            // — we map that to a single-element `tags` array so
-            // the badge below renders the same way.
             const isFallback = typeof proj.id === 'string' && proj.id.startsWith('fallback-');
             const tag = (proj.tags && proj.tags[0]) || proj.type || 'Survey';
             const imgSrc = proj.image_url
@@ -528,7 +643,7 @@ const SurveyHomePage = () => {
                             alt={proj.title}
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                         />
-                        <div className="absolute top-4 left-4 bg-white px-3 py-1 text-[9px] font-bold tracking-widest uppercase">
+                        <div className="absolute top-4 left-4 bg-white px-3 py-1 text-[9px] font-bold tracking-widest uppercase shadow-sm">
                             {tag}
                         </div>
                     </div>
@@ -552,7 +667,7 @@ const SurveyHomePage = () => {
             return (
                 <div
                     key={proj.id || idx}
-                    className={`observe ${visibleElements.has(`proj-${idx}`) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'} transition-all duration-1000`}
+                    className={`w-[85vw] sm:w-[320px] md:w-auto shrink-0 snap-center observe ${visibleElements.has(`proj-${idx}`) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'} transition-all duration-1000`}
                     data-id={`proj-${idx}`}
                 >
                     {isFallback ? (
@@ -568,33 +683,60 @@ const SurveyHomePage = () => {
         </div>
       </section>
 
-      {/* ==== EQUIPMENT SECTION ==== */}
+      {/* ==== PRECISION INSTRUMENT ROSTER ==== */}
       <section 
         ref={(el) => (sectionsRef.current['equipment'] = el)} 
         className="py-24 px-6 md:px-12 max-w-[1400px] mx-auto border-t border-gray-300"
       >
         <div className={`observe ${visibleElements.has('equipment-header') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'} transition-all duration-1000`} data-id="equipment-header">
-          <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-500 mb-4">— The Tools</p>
-          <h2 className="survey-heading text-6xl md:text-8xl font-black tracking-tighter uppercase leading-[0.85] mb-16">
-            Equip<br />ment
-          </h2>
+          <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
+            <div>
+              <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-500 mb-4">— Field Instruments</p>
+              <h2 className="survey-heading text-6xl md:text-8xl font-black tracking-tighter uppercase leading-[0.85]">
+                Equip<br />ment
+              </h2>
+            </div>
+            <button
+              onClick={() => setStandardsModal(true)}
+              className="border border-black px-6 py-3 text-xs font-bold uppercase tracking-widest hover:bg-black hover:text-white transition-colors"
+            >
+              Coordinate Systems &amp; Standards
+            </button>
+          </div>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-          {equipment.map((eq, idx) => (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {precisionEquipment.map((eq, idx) => (
             <div
               key={idx}
-              className={`observe ${visibleElements.has(`eq-${idx}`) ? 'opacity-100' : 'opacity-0'} transition-all duration-700`}
+              className={`observe ${visibleElements.has(`eq-${idx}`) ? 'opacity-100' : 'opacity-0'} transition-all duration-700 bg-[#f9f9f9] border border-gray-200 p-8 flex flex-col justify-between hover:bg-white hover:shadow-xl transition-all duration-500 rounded-2xl group`}
               data-id={`eq-${idx}`}
               style={{ transitionDelay: `${idx * 150}ms` }}
             >
-              <div className="bg-[#e6e6e6] aspect-square mb-4 flex items-center justify-center p-8 group hover:bg-[#1a1a1a] transition-colors duration-500">
-                <div className="w-16 h-16 border-2 border-black group-hover:border-white transition-colors duration-500 flex items-center justify-center">
-                  <span className="text-2xl font-black group-hover:text-white transition-colors duration-500">⚙</span>
+              <div>
+                <div className="flex justify-between items-start mb-4">
+                  <span className="text-[10px] font-bold uppercase tracking-widest bg-black text-white px-3 py-1 rounded-full">
+                    {eq.badge}
+                  </span>
+                  <span className="text-xs font-bold font-mono text-gray-400">0{idx + 1}</span>
                 </div>
+                {eq.image_url && (
+                  <div className="w-full aspect-[4/3] bg-white rounded-xl mb-6 overflow-hidden border border-gray-100 flex items-center justify-center p-4">
+                    <img 
+                      src={eq.image_url} 
+                      alt={eq.name} 
+                      className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500" 
+                    />
+                  </div>
+                )}
+                <h3 className="survey-heading text-xl font-black uppercase tracking-tight mb-2">{eq.name}</h3>
+                <p className="text-xs font-bold text-gray-800 uppercase tracking-wider mb-3">{eq.accuracy}</p>
+                <p className="text-xs font-medium text-gray-600 leading-relaxed mb-6">{eq.spec}</p>
               </div>
-              <h3 className="survey-heading text-sm font-black uppercase tracking-tight">{eq.name}</h3>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">{eq.spec}</p>
+
+              <div className="pt-4 border-t border-gray-200 text-[10px] font-bold uppercase tracking-wider text-gray-400 flex items-center gap-2">
+                <Check className="w-3.5 h-3.5 text-black" /> Calibrated &amp; Certified
+              </div>
             </div>
           ))}
         </div>
@@ -796,13 +938,13 @@ const SurveyHomePage = () => {
                       bookingErrors.service ? 'border-red-500' : 'border-gray-300 dark:border-gray-700 focus:border-black dark:focus:border-white'
                     }`}
                   >
-                    <SelectValue placeholder="— Select Service —" />
+                    <SelectValue placeholder="— Select Survey Discipline —" />
                   </SelectTrigger>
                   <SelectContent className="bg-white dark:bg-zinc-900 border-gray-200 dark:border-gray-800 shadow-2xl">
                     <SelectGroup>
-                      {services.map((s, i) => (
-                        <SelectItem key={i} value={s.title} className="cursor-pointer font-bold text-xs uppercase tracking-wider">
-                          {s.title}
+                      {servicePillars.map((s, i) => (
+                        <SelectItem key={i} value={s.category} className="cursor-pointer font-bold text-xs uppercase tracking-wider">
+                          {s.category}
                         </SelectItem>
                       ))}
                     </SelectGroup>
@@ -816,6 +958,7 @@ const SurveyHomePage = () => {
                   id="survey_booking_location"
                   name="survey_booking_location"
                   type="text"
+                  placeholder="e.g. Lekki Phase 1, Lagos"
                   value={booking.location}
                   onChange={e => handleBookingFieldChange('location', e.target.value)}
                   className="w-full bg-transparent border-b-2 border-black py-3 text-sm font-bold uppercase tracking-wider focus:outline-none focus:border-gray-500 transition-colors"
@@ -846,6 +989,7 @@ const SurveyHomePage = () => {
                   name="survey_booking_notes"
                   rows="4"
                   maxLength={1000}
+                  placeholder="Estimated site size (plots/hectares), title status, and timeline..."
                   value={booking.notes}
                   onChange={e => handleBookingFieldChange('notes', e.target.value)}
                   className="w-full bg-transparent border-b-2 border-black py-3 text-sm font-bold uppercase tracking-wider focus:outline-none focus:border-gray-500 transition-colors resize-none"
@@ -879,19 +1023,127 @@ const SurveyHomePage = () => {
         </div>
       </section>
 
-      {/* ==== FOOTER ==== */}
-      <footer className="border-t border-gray-300 mt-12">
-        <div className="max-w-[1400px] mx-auto px-6 md:px-12 py-8 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
-            © 2026 Lami Survey Division // Built with precision
-          </p>
-          <div className="flex gap-6 text-[10px] font-bold uppercase tracking-widest">
-            <a href="#" className="hover:text-black text-gray-500 transition-colors">Instagram</a>
-            <a href="#" className="hover:text-black text-gray-500 transition-colors">LinkedIn</a>
-            <a href="#" className="hover:text-black text-gray-500 transition-colors">X</a>
+      {/* ==== SERVICE SCOPE MODAL ==== */}
+      {selectedServiceModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+          <div className="bg-white text-black max-w-2xl w-full p-8 md:p-10 shadow-2xl relative max-h-[90vh] overflow-y-auto scrollbar-none border-2 border-black">
+            <button
+              onClick={() => setSelectedServiceModal(null)}
+              className="absolute top-6 right-6 w-10 h-10 border border-black hover:bg-black hover:text-white flex items-center justify-center transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="mb-6">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500 block mb-1">Pillar {selectedServiceModal.number}</span>
+              <h3 className="survey-heading text-2xl font-black uppercase text-gray-900">{selectedServiceModal.category}</h3>
+            </div>
+
+            <p className="text-xs font-medium text-gray-700 leading-relaxed mb-6">
+              {selectedServiceModal.description}
+            </p>
+
+            <div className="mb-6 bg-[#f7f7f7] p-6 border border-gray-200">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-gray-900 mb-4 flex items-center gap-2">
+                <Layers className="w-4 h-4 text-black" />
+                Key Fieldwork &amp; Drafting Standards
+              </h4>
+              <ul className="space-y-2.5">
+                {selectedServiceModal.subItems.map((item, i) => (
+                  <li key={i} className="flex items-center gap-2.5 text-xs font-semibold text-gray-800">
+                    <Check className="w-4 h-4 text-black shrink-0" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8 text-xs font-medium">
+              <div className="p-4 bg-[#f7f7f7] border border-gray-200">
+                <span className="text-[9px] font-bold uppercase text-gray-500 block mb-1">Standard Turnaround</span>
+                <span className="font-bold text-gray-900 uppercase">{selectedServiceModal.timeline}</span>
+              </div>
+              <div className="p-4 bg-[#f7f7f7] border border-gray-200">
+                <span className="text-[9px] font-bold uppercase text-gray-500 block mb-1">Included Deliverables</span>
+                <span className="font-bold text-gray-900 uppercase">{selectedServiceModal.deliverables}</span>
+              </div>
+            </div>
+
+            <button
+              onClick={() => {
+                handleBookingFieldChange('service', selectedServiceModal.category);
+                setSelectedServiceModal(null);
+                scrollTo('contact');
+              }}
+              className="w-full py-4 bg-black text-white hover:bg-gray-800 font-bold uppercase text-xs tracking-widest transition-colors flex items-center justify-center gap-2"
+            >
+              Request Quote for This Discipline <ArrowRight className="w-4 h-4" />
+            </button>
           </div>
         </div>
-      </footer>
+      )}
+
+      {/* ==== TECHNICAL STANDARDS & DATUMS MODAL ==== */}
+      {standardsModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+          <div className="bg-white text-black max-w-2xl w-full p-8 md:p-10 shadow-2xl relative max-h-[90vh] overflow-y-auto scrollbar-none border-2 border-black">
+            <button
+              onClick={() => setStandardsModal(false)}
+              className="absolute top-6 right-6 w-10 h-10 border border-black hover:bg-black hover:text-white flex items-center justify-center transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="mb-6">
+              <span className="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-500 block mb-1">Technical Reference</span>
+              <h3 className="survey-heading text-2xl font-black uppercase text-gray-900">Coordinate Datums &amp; Deliverables</h3>
+            </div>
+
+            <div className="mb-6">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-gray-900 mb-3 flex items-center gap-2">
+                <Compass className="w-4 h-4 text-black" />
+                Nigerian Reference Datums
+              </h4>
+              <div className="space-y-2">
+                {technicalStandards.coordinateDatums.map((datum, i) => (
+                  <div key={i} className="p-3.5 bg-[#f7f7f7] border border-gray-200 flex justify-between items-center text-xs">
+                    <span className="font-bold text-gray-900 uppercase">{datum.name}</span>
+                    <span className="text-gray-600 text-right text-[11px] font-medium">{datum.usage}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="mb-8">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-gray-900 mb-3 flex items-center gap-2">
+                <FileText className="w-4 h-4 text-black" />
+                Digital CAD &amp; GIS Deliverable Formats
+              </h4>
+              <div className="space-y-2">
+                {technicalStandards.fileDeliverables.map((item, i) => (
+                  <div key={i} className="p-3.5 bg-[#f7f7f7] border border-gray-200 flex justify-between items-center text-xs">
+                    <span className="font-bold text-gray-900 uppercase">{item.format}</span>
+                    <span className="text-gray-600 text-right text-[11px] font-medium">{item.desc}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <button
+              onClick={() => {
+                setStandardsModal(false);
+                scrollTo('contact');
+              }}
+              className="w-full py-4 bg-black text-white hover:bg-gray-800 font-bold uppercase text-xs tracking-widest transition-colors flex items-center justify-center gap-2"
+            >
+              Book Survey Consultation <ArrowRight className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ==== SURVEY DIVISION FOOTER ==== */}
+      <SurveyFooter />
     </div>
   );
 };

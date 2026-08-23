@@ -250,22 +250,22 @@ const SoftwareHomePage = () => {
           </p>
 
           {/* Quick Realistic Metrics Bar */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm max-w-3xl mx-auto mb-10">
-            <div className="p-3 text-center border-r border-gray-100 dark:border-gray-800 last:border-none">
-              <div className="text-2xl font-extrabold font-mono text-accent">4+</div>
-              <div className="text-[11px] text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider mt-0.5">Software Projects</div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4 p-4 rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm max-w-3xl mx-auto mb-10">
+            <div className="p-3 text-center border-r border-b md:border-b-0 border-gray-100 dark:border-gray-800">
+              <div className="text-xl sm:text-2xl font-extrabold font-mono text-accent">4+</div>
+              <div className="text-[10px] sm:text-[11px] text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider mt-0.5">Software Projects</div>
             </div>
-            <div className="p-3 text-center border-r border-gray-100 dark:border-gray-800 last:border-none">
-              <div className="text-2xl font-extrabold font-mono text-emerald-600 dark:text-emerald-400">4 Months</div>
-              <div className="text-[11px] text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider mt-0.5">Included Support</div>
+            <div className="p-3 text-center border-b md:border-b-0 md:border-r border-gray-100 dark:border-gray-800">
+              <div className="text-xl sm:text-2xl font-extrabold font-mono text-emerald-600 dark:text-emerald-400">4 Months</div>
+              <div className="text-[10px] sm:text-[11px] text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider mt-0.5">Included Support</div>
             </div>
-            <div className="p-3 text-center border-r border-gray-100 dark:border-gray-800 last:border-none">
-              <div className="text-2xl font-extrabold font-mono text-blue-600 dark:text-blue-400">100%</div>
-              <div className="text-[11px] text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider mt-0.5">Source Code Ownership</div>
+            <div className="p-3 text-center border-r border-gray-100 dark:border-gray-800">
+              <div className="text-xl sm:text-2xl font-extrabold font-mono text-blue-600 dark:text-blue-400">100%</div>
+              <div className="text-[10px] sm:text-[11px] text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider mt-0.5">Code Ownership</div>
             </div>
             <div className="p-3 text-center">
-              <div className="text-2xl font-extrabold font-mono text-purple-600 dark:text-purple-400">24hr</div>
-              <div className="text-[11px] text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider mt-0.5">Typical Response</div>
+              <div className="text-xl sm:text-2xl font-extrabold font-mono text-purple-600 dark:text-purple-400">24hr</div>
+              <div className="text-[10px] sm:text-[11px] text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider mt-0.5">Typical Response</div>
             </div>
           </div>
 

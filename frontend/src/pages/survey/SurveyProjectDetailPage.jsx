@@ -44,6 +44,7 @@ import {
   Clock,
   Image as ImageIcon,
   ZoomIn,
+  Eye,
 } from 'lucide-react';
 import {
   motion,
@@ -57,6 +58,7 @@ import { api } from '../../services/api';
 import { renderSafeMarkdownSync } from '../../utils/markdown';
 import { surveyPlaceholder, projectPlaceholder } from '../../utils/placeholders';
 import { CONTACT } from '../../config/contact';
+import SurveyFooter from '../../components/SurveyFooter';
 
 // ── Page-scoped fonts (Manrope + Mulish) ──────────────────
 //
@@ -561,13 +563,13 @@ const SurveyProjectDetailPage = () => {
       }
       setLoading(false);
 
-      document.title = `${res.data?.title || 'Project'} | BuildWithLami Survey`;
+      document.title = `${res.data?.title || 'Project'} | GeoSurvey`;
       const metaDesc = document.querySelector('meta[name="description"]');
       if (metaDesc) {
         metaDesc.setAttribute(
           'content',
           res.data?.summary ||
-            `Survey case study — ${res.data?.title || 'project'} by BuildWithLami.`
+            `Survey case study — ${res.data?.title || 'project'} by GeoSurvey.`
         );
       }
     };
@@ -1437,6 +1439,9 @@ const SurveyProjectDetailPage = () => {
           </div>
         </motion.div>
       </section>
+
+      {/* ── Division Dedicated Footer ── */}
+      <SurveyFooter />
 
       {/* ── Lightbox overlay ── */}
       <Lightbox

@@ -113,9 +113,9 @@ const HowItWorks = () => {
           </motion.p>
         </motion.div>
 
-        {/* Steps Grid (Horizontal Snap on Mobile, 4-Col on Desktop) */}
+        {/* Steps Grid (Horizontal Snap on Mobile, 2-Col on Tablet, 4-Col on Desktop) */}
         <motion.div
-          className="flex lg:grid lg:grid-cols-4 gap-6 mb-16 overflow-x-auto lg:overflow-visible pb-4 lg:pb-0 snap-x snap-mandatory scrollbar-none -mx-6 px-6 lg:mx-0 lg:px-0"
+          className="flex md:grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16 overflow-x-auto md:overflow-visible pb-4 md:pb-0 snap-x snap-mandatory scrollbar-none -mx-6 px-6 md:mx-0 md:px-0"
           variants={container}
           initial="hidden"
           whileInView="visible"
@@ -127,7 +127,7 @@ const HowItWorks = () => {
               variants={item}
               whileHover={shouldReduce ? {} : cardHover}
               transition={cardHoverTransition}
-              className="min-w-[78vw] sm:min-w-[280px] lg:min-w-0 snap-center relative group p-6 sm:p-7 border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-[#141414] rounded-2xl hover:border-accent/40 transition-all duration-300 flex flex-col justify-between"
+              className="shrink-0 md:shrink w-[80vw] max-w-[320px] sm:w-[300px] md:w-auto min-w-0 snap-center relative group p-6 sm:p-7 border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-[#141414] rounded-2xl hover:border-accent/40 transition-all duration-300 flex flex-col justify-between"
             >
               {/* Step Number */}
               <span className="absolute top-4 right-4 text-[10px] font-mono font-bold tracking-widest text-accent bg-accent/10 px-2 py-0.5 rounded-full border border-accent/20">

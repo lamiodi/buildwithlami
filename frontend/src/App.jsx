@@ -163,10 +163,8 @@ function App() {
 
   // Determine if the current route should hide the global Navbar and Footer
   const hideGlobalLayout =
-    location.pathname === '/drone' ||
-    location.pathname === '/survey' ||
-    location.pathname.startsWith('/drone/projects') ||
-    location.pathname.startsWith('/survey/projects') ||
+    location.pathname.startsWith('/drone') ||
+    location.pathname.startsWith('/survey') ||
     location.pathname.startsWith('/admin') ||
     location.pathname.startsWith('/portal') ||
     location.pathname === '/login';

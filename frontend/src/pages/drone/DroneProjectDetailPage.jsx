@@ -42,7 +42,9 @@ import {
   HardDrive,
   Clock,
   Maximize2,
+  Eye,
 } from 'lucide-react';
+import DroneFooter from '../../components/DroneFooter';
 import { motion, useReducedMotion, useScroll, useTransform, useInView, AnimatePresence } from 'framer-motion';
 import { api } from '../../services/api';
 import { dronePlaceholder } from '../../utils/placeholders';
@@ -1170,6 +1172,9 @@ const DroneProjectDetailPage = () => {
           </div>
         </motion.div>
       </section>
+
+      {/* ── Division Dedicated Footer ── */}
+      <DroneFooter />
 
       {/* ── Lightbox overlay ── */}
       <Lightbox

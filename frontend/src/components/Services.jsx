@@ -194,7 +194,7 @@ const Services = () => {
             whileHover={shouldReduce ? {} : cardHover}
             transition={cardHoverTransition}
             onClick={() => handleOpenModal(service)}
-            className="min-w-[85vw] sm:min-w-[340px] md:min-w-0 snap-center bg-white dark:bg-[#141414] border border-gray-200 dark:border-white/10 hover:border-accent dark:hover:border-accent transition-all p-6 sm:p-7 rounded-2xl relative overflow-hidden group cursor-pointer shadow-sm flex flex-col justify-between"
+            className="shrink-0 md:shrink w-[85vw] max-w-[360px] sm:w-[340px] md:w-auto min-w-0 snap-center bg-white dark:bg-[#141414] border border-gray-200 dark:border-white/10 hover:border-accent dark:hover:border-accent transition-all p-6 sm:p-7 rounded-2xl relative overflow-hidden group cursor-pointer shadow-sm flex flex-col justify-between"
           >
             {/* Orange gradient accent on hover */}
             <div className="absolute inset-0 bg-gradient-to-tr from-accent/10 dark:from-accent/15 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
