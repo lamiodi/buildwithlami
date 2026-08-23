@@ -370,121 +370,97 @@ const ContactPage = () => {
             </form>
           </motion.div>
 
-          {/* Right Column (5 cols on lg): Direct Reach & Booking Panels */}
+          {/* Right Column (5 cols on lg): Unified Direct Connect & Verification Card */}
           <div className="lg:col-span-5 space-y-6">
-            
-            {/* Panel 1: Prefer to reach me directly? */}
             <div className="bg-white dark:bg-[#141414] border border-gray-200 dark:border-white/10 rounded-3xl p-6 sm:p-8 shadow-xl space-y-6">
               <div>
-                <span className="text-xs uppercase tracking-[0.25em] font-bold text-accent">Direct Reach</span>
-                <h3 className="text-xl font-heading font-bold text-black dark:text-white mt-1">
-                  Prefer to reach me directly?
+                <span className="text-xs uppercase tracking-[0.25em] font-bold text-accent">Direct Contact</span>
+                <h3 className="text-2xl font-heading font-bold text-black dark:text-white mt-1">
+                  Direct Reach & Verification
                 </h3>
+                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 font-light mt-2 leading-relaxed">
+                  Work directly with the engineer building your platform. No agency middlemen or junior handoffs.
+                </p>
               </div>
 
-              <div className="space-y-4 text-sm">
-                <div>
-                  <span className="block text-[11px] uppercase tracking-wider font-bold text-gray-500 mb-0.5">Email</span>
-                  <a href={`mailto:${CONTACT.email}`} className="text-black dark:text-white font-medium hover:text-accent transition-colors">
-                    {CONTACT.email}
-                  </a>
-                </div>
-                <div>
-                  <span className="block text-[11px] uppercase tracking-wider font-bold text-gray-500 mb-0.5">WhatsApp</span>
+              {/* Direct Channels */}
+              <div className="space-y-3 pt-2">
+                <a 
+                  href={`mailto:${CONTACT.email}`}
+                  className="flex items-center justify-between p-3.5 rounded-2xl bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/5 hover:border-accent/40 transition-colors group"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-xl bg-accent/10 text-accent flex items-center justify-center font-bold text-xs">
+                      @
+                    </div>
+                    <div>
+                      <span className="block text-[10px] uppercase tracking-wider font-bold text-gray-500">Email Directly</span>
+                      <span className="text-xs sm:text-sm font-semibold text-black dark:text-white group-hover:text-accent transition-colors">
+                        {CONTACT.email}
+                      </span>
+                    </div>
+                  </div>
+                  <span className="text-xs text-gray-400">↗</span>
+                </a>
+
+                <a 
+                  href={`https://wa.me/${CONTACT.phoneE164 || '2348085186714'}?text=${encodeURIComponent("Hi Eugene, I would like to discuss my project scope and architecture requirements.")}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-between p-3.5 rounded-2xl bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-200/60 dark:border-emerald-800/40 hover:border-emerald-500 transition-colors group"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold text-xs">
+                      💬
+                    </div>
+                    <div>
+                      <span className="block text-[10px] uppercase tracking-wider font-bold text-emerald-700 dark:text-emerald-400">WhatsApp Instant Chat</span>
+                      <span className="text-xs sm:text-sm font-semibold text-emerald-950 dark:text-emerald-200">
+                        {CONTACT.phoneDisplay || '+234 906 418 5442'}
+                      </span>
+                    </div>
+                  </div>
+                  <span className="text-xs text-emerald-600">↗</span>
+                </a>
+              </div>
+
+              {/* Social Verification Links */}
+              <div className="pt-4 border-t border-gray-100 dark:border-white/5">
+                <span className="block text-[11px] uppercase tracking-wider font-bold text-gray-500 mb-3">
+                  Code & Network Profiles
+                </span>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowSecurityPopup(true)}
+                    className="flex items-center gap-2 p-2.5 rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/5 hover:border-accent/40 text-xs font-bold text-gray-700 dark:text-gray-300 transition-colors"
+                  >
+                    <span>🔒</span>
+                    <span>GitHub Codebase</span>
+                  </button>
                   <a
-                    href={`https://wa.me/${CONTACT.phoneE164 || '2348085186714'}`}
+                    href="https://linkedin.com"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-black dark:text-white font-medium hover:text-accent transition-colors"
+                    className="flex items-center gap-2 p-2.5 rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/5 hover:border-accent/40 text-xs font-bold text-gray-700 dark:text-gray-300 transition-colors"
                   >
-                    {CONTACT.phoneDisplay || '+234 906 418 5442'}
+                    <span>💼</span>
+                    <span>LinkedIn Profile</span>
                   </a>
                 </div>
-                <div>
-                  <span className="block text-[11px] uppercase tracking-wider font-bold text-gray-500 mb-0.5">Based in</span>
-                  <p className="text-black dark:text-white font-medium">
-                    Lagos, Nigeria · Available worldwide remotely
-                  </p>
+              </div>
+
+              {/* Response Promise Footer */}
+              <div className="p-4 rounded-2xl bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/5 space-y-2 text-xs">
+                <div className="flex items-center gap-2 font-mono text-gray-700 dark:text-gray-300">
+                  <span className="w-2 h-2 rounded-full bg-green-500 shrink-0 animate-pulse" />
+                  <span className="font-bold">Average Response: &lt; 4 Hours</span>
                 </div>
-              </div>
-
-              <div className="pt-4 border-t border-gray-200 dark:border-white/10 flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400 font-mono">
-                <span className="w-2 h-2 rounded-full bg-green-500 shrink-0" />
-                <span>Usually responds within a few hours.</span>
+                <p className="text-[11px] text-gray-500 font-light leading-relaxed">
+                  Every inquiry is personally reviewed by Eugene Odibenuah with architectural notes and milestone timeline estimates.
+                </p>
               </div>
             </div>
-
-            {/* Panel 2: Direct WhatsApp Chat */}
-            <div className="bg-white dark:bg-[#141414] border border-gray-200 dark:border-white/10 rounded-3xl p-6 sm:p-8 shadow-xl space-y-4">
-              <span className="text-xs uppercase tracking-[0.25em] font-bold text-accent">Direct WhatsApp</span>
-              <h3 className="text-xl font-heading font-bold text-black dark:text-white">
-                Prefer a quick chat?
-              </h3>
-              <p className="text-xs sm:text-sm text-gray-700 dark:text-gray-300 font-light leading-relaxed">
-                If you have quick technical questions about architecture, stack compatibility, or urgency, reach out directly.
-              </p>
-              <a
-                href={`https://wa.me/${CONTACT.phoneE164 || '2348085186714'}?text=${encodeURIComponent("Hi Eugene, I would like to discuss my project scope and architecture requirements directly.")}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center w-full bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 hover:bg-accent hover:text-white hover:border-accent text-black dark:text-white text-xs font-bold uppercase tracking-[0.2em] py-3.5 rounded-xl transition-all shadow-sm"
-              >
-                Chat on WhatsApp →
-              </a>
-            </div>
-
-            {/* Panel 3: Social Profiles */}
-            <div className="bg-white dark:bg-[#141414] border border-gray-200 dark:border-white/10 rounded-3xl p-6 sm:p-8 shadow-xl space-y-4">
-              <span className="text-xs uppercase tracking-[0.25em] font-bold text-accent">Social & Code</span>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {SOCIAL_LINKS.map((soc) => {
-                  if (soc.action === 'github') {
-                    return (
-                      <button
-                        key={soc.name}
-                        type="button"
-                        onClick={() => setShowSecurityPopup(true)}
-                        className="flex items-start gap-3 p-3 rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/5 hover:border-accent/40 text-left transition-colors group"
-                      >
-                        <span className="text-gray-700 dark:text-gray-300 group-hover:text-accent transition-colors mt-0.5">
-                          {soc.icon}
-                        </span>
-                        <div>
-                          <div className="text-xs font-bold text-black dark:text-white group-hover:text-accent transition-colors">
-                            {soc.name}
-                          </div>
-                          <div className="text-[10px] text-gray-500 dark:text-gray-400 font-light line-clamp-1">
-                            {soc.desc}
-                          </div>
-                        </div>
-                      </button>
-                    );
-                  }
-                  return (
-                    <a
-                      key={soc.name}
-                      href={soc.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-start gap-3 p-3 rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/5 hover:border-accent/40 text-left transition-colors group"
-                    >
-                      <span className="text-gray-700 dark:text-gray-300 group-hover:text-accent transition-colors mt-0.5">
-                        {soc.icon}
-                      </span>
-                      <div>
-                        <div className="text-xs font-bold text-black dark:text-white group-hover:text-accent transition-colors">
-                          {soc.name}
-                        </div>
-                        <div className="text-[10px] text-gray-500 dark:text-gray-400 font-light line-clamp-1">
-                          {soc.desc}
-                        </div>
-                      </div>
-                    </a>
-                  );
-                })}
-              </div>
-            </div>
-
           </div>
         </div>
 

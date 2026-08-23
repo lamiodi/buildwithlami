@@ -158,53 +158,30 @@ const Services = () => {
 
   return (
     <section id="services" className="px-6 md:px-12 max-w-7xl mx-auto py-24">
+      {/* Section Header */}
       <motion.div
-        className="grid grid-cols-1 lg:grid-cols-[1.15fr_0.85fr] gap-8 items-start mb-16"
+        className="max-w-3xl mb-12"
         variants={container}
         initial="hidden"
         whileInView="visible"
         viewport={sectionViewport}
       >
-        <motion.div variants={item}>
-          <p className="text-gray-800 dark:text-gray-200 tracking-widest uppercase text-sm mb-4 font-semibold flex items-center gap-2">
-            <span className="text-accent">✦</span>
-            What I Can Build For You
-            <span className="text-accent">✦</span>
-          </p>
-          <h3 className="text-3xl md:text-5xl font-heading font-bold mb-6 text-black dark:text-white leading-tight">
-            Need A Website, Platform, Or Audit?
-          </h3>
-          <p className="text-base md:text-lg text-gray-800 dark:text-gray-200 leading-relaxed max-w-3xl opacity-90">
-            Get a build strategy that fits your business, not just your idea. If you already know what you need or you want help defining scope, I can help you move from concept to a clear launch plan.
-          </p>
-        </motion.div>
-
-        <motion.div variants={item} className="bg-white dark:bg-[#111] border border-gray-200 dark:border-gray-800 p-6 md:p-8 shadow-sm">
-          <p className="text-[11px] font-bold uppercase tracking-[0.24em] text-accent mb-3 flex items-center gap-2">
-            <span className="text-accent">❖</span>
-            How I Help
-            <span className="text-accent">❖</span>
-          </p>
-          <ul className="space-y-4 text-sm md:text-base text-gray-800 dark:text-gray-200">
-            <li className="flex items-start">
-              <span className="text-accent mr-3 mt-1 text-[10px]">✓</span>
-              Clarify what to build first and what can wait.
-            </li>
-            <li className="flex items-start">
-              <span className="text-accent mr-3 mt-1 text-[10px]">▸</span>
-              Turn rough ideas into a defined scope and launch plan.
-            </li>
-            <li className="flex items-start">
-              <span className="text-accent mr-3 mt-1 text-[10px]">⦿</span>
-              Improve existing websites, platforms, and technical foundations.
-            </li>
-          </ul>
-        </motion.div>
+        <motion.p variants={item} className="text-gray-800 dark:text-gray-200 tracking-widest uppercase text-xs mb-3 font-bold flex items-center gap-2">
+          <span className="text-accent">✦</span>
+          Bespoke Digital Solutions
+          <span className="text-accent">✦</span>
+        </motion.p>
+        <motion.h3 variants={item} className="text-3xl md:text-5xl font-heading font-bold mb-4 text-black dark:text-white leading-tight">
+          What I Can Build <span className="text-accent">For You</span>
+        </motion.h3>
+        <motion.p variants={item} className="text-base md:text-lg text-gray-700 dark:text-gray-300 leading-relaxed font-light">
+          From custom software platforms and conversion-focused interfaces to robust APIs and search architecture, engineered for longevity, speed, and real business results.
+        </motion.p>
       </motion.div>
 
-      {/* Services Grid */}
+      {/* Services Grid (Horizontal Snap on Mobile, 2-Col on Desktop) */}
       <motion.div
-        className="grid grid-cols-1 md:grid-cols-2 gap-6"
+        className="flex md:grid md:grid-cols-2 lg:grid-cols-3 gap-6 overflow-x-auto md:overflow-visible pb-6 md:pb-0 snap-x snap-mandatory scrollbar-none -mx-6 px-6 md:mx-0 md:px-0"
         variants={container}
         initial="hidden"
         whileInView="visible"
@@ -217,17 +194,17 @@ const Services = () => {
             whileHover={shouldReduce ? {} : cardHover}
             transition={cardHoverTransition}
             onClick={() => handleOpenModal(service)}
-            className="bg-white dark:bg-[#111] border border-gray-200 dark:border-gray-800 hover:border-accent dark:hover:border-accent transition-colors p-8 relative overflow-hidden group cursor-pointer shadow-sm flex flex-col justify-between"
+            className="min-w-[85vw] sm:min-w-[340px] md:min-w-0 snap-center bg-white dark:bg-[#141414] border border-gray-200 dark:border-white/10 hover:border-accent dark:hover:border-accent transition-all p-6 sm:p-7 rounded-2xl relative overflow-hidden group cursor-pointer shadow-sm flex flex-col justify-between"
           >
             {/* Orange gradient accent on hover */}
-            <div className="absolute inset-0 bg-gradient-to-tr from-accent/10 dark:from-accent/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
+            <div className="absolute inset-0 bg-gradient-to-tr from-accent/10 dark:from-accent/15 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
             
             <div className="relative z-10">
               <div className="flex items-center justify-between gap-2 mb-3">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-accent bg-accent/10 dark:bg-accent/20 px-2.5 py-1 border border-accent/20">
+                <span className="text-[10px] font-bold uppercase tracking-widest text-accent bg-accent/10 dark:bg-accent/20 px-2.5 py-1 rounded-full border border-accent/20">
                   {service.badge}
                 </span>
-                <span className="text-[11px] font-medium text-gray-500 dark:text-gray-400">
+                <span className="text-[11px] font-mono text-gray-500 dark:text-gray-400">
                   {service.timeline}
                 </span>
               </div>
@@ -235,22 +212,26 @@ const Services = () => {
               <h4 className="text-xl font-heading font-bold mb-2 text-black dark:text-white group-hover:text-accent transition-colors">
                 {service.title}
               </h4>
-              <p className="text-gray-700 dark:text-gray-200 text-sm leading-relaxed mb-4 opacity-90">{service.desc}</p>
-              <p className="text-black dark:text-white text-sm font-medium leading-relaxed mb-6">{service.outcome}</p>
+              <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed mb-4 font-light">{service.desc}</p>
               
-              <ul className="space-y-3 mb-8 text-sm text-gray-700 dark:text-gray-200">
+              <div className="bg-gray-50 dark:bg-white/5 border-l-2 border-accent p-3 rounded-r-lg mb-5">
+                <p className="text-[11px] font-bold uppercase tracking-wider text-accent mb-0.5">Key Outcome</p>
+                <p className="text-xs text-black dark:text-white font-medium">{service.outcome}</p>
+              </div>
+
+              <ul className="space-y-2 mb-6 text-xs text-gray-700 dark:text-gray-300">
                 {service.features.map((feature, i) => (
                   <li key={`feature-${i}`} className="flex items-start">
-                    <span className="text-accent mr-2 mt-1 text-[10px]">■</span>
-                    {feature}
+                    <span className="text-accent mr-2 mt-0.5 font-bold text-xs">✦</span>
+                    <span>{feature}</span>
                   </li>
                 ))}
               </ul>
             </div>
 
-            <div className="relative z-10 flex items-center justify-between pt-4 border-t border-gray-100 dark:border-gray-800/80 mt-auto">
+            <div className="relative z-10 flex items-center justify-between pt-4 border-t border-gray-100 dark:border-white/10 mt-auto">
               <span className="text-xs font-bold uppercase tracking-wider text-accent flex items-center gap-1 group-hover:translate-x-1 transition-transform">
-                Explore Full Scope & Deliverables
+                Explore Full Scope
                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" />
                 </svg>
@@ -262,14 +243,11 @@ const Services = () => {
                   e.stopPropagation();
                   handleOpenModal(service);
                 }}
-                className="bg-black text-white dark:bg-white dark:text-black text-xs font-bold px-4 py-2 uppercase hover:bg-accent dark:hover:bg-accent dark:hover:text-white transition-colors"
+                className="bg-black text-white dark:bg-white dark:text-black text-[11px] font-bold px-3.5 py-1.5 uppercase rounded-lg hover:bg-accent dark:hover:bg-accent dark:hover:text-white transition-colors"
               >
-                View Details
+                Scope & Specs
               </button>
             </div>
-            
-            {/* Gray block decoration */}
-            <div className="absolute top-4 right-4 w-8 h-8 bg-gray-100 dark:bg-gray-800 group-hover:bg-accent transition-colors opacity-60"></div>
           </motion.div>
         ))}
       </motion.div>

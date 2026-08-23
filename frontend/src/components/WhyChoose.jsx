@@ -12,7 +12,7 @@ const reasons = [
   },
   {
     title: 'Business-Focused Solutions',
-    description: 'Every project starts with your goals — not a template. I scope, design, and build software that solves the actual problem.',
+    description: 'Every project starts with your goals, not a template. I scope, design, and build software that solves the actual problem.',
     icon: (
       <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
     )
@@ -26,7 +26,7 @@ const reasons = [
   },
   {
     title: 'Premium User Experience',
-    description: 'Beautiful, user-centric interfaces that feel polished on every device — designed to build trust and drive conversions.',
+    description: 'Beautiful, user-centric interfaces that feel polished on every device, designed to build trust and drive conversions.',
     icon: (
       <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
     )
@@ -39,22 +39,23 @@ const WhyChoose = () => {
   const item = shouldReduce ? reducedMotionVariants : fadeUpItem;
 
   return (
-    <section id="why-choose" className="px-6 md:px-12 max-w-7xl mx-auto py-24 bg-gray-50 dark:bg-gray-900 border-t border-b border-gray-200 dark:border-gray-800">
+    <section id="why-choose" className="px-6 md:px-12 max-w-7xl mx-auto py-20 bg-gray-50 dark:bg-[#0f0f0f] border-t border-b border-gray-200 dark:border-white/5 transition-colors duration-300">
       <motion.div
-        className="text-center mb-16"
-        initial={shouldReduce ? {} : { opacity: 0, y: 40 }}
+        className="text-center mb-12"
+        initial={shouldReduce ? {} : { opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={sectionViewport}
         transition={{ duration: shouldReduce ? 0 : 0.5, ease: 'easeOut' }}
       >
-        <h3 className="text-3xl md:text-4xl font-heading font-bold mb-4 text-black dark:text-white">Why BuildWithLami</h3>
-        <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto text-lg">
-          I combine engineering, product thinking, and premium design to build software that is practical, scalable, and ready for real business use.
+        <p className="text-xs uppercase tracking-widest text-accent font-bold mb-2">Core Engineering Principles</p>
+        <h3 className="text-3xl md:text-4xl font-heading font-bold text-black dark:text-white">Why BuildWithLami</h3>
+        <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto text-sm md:text-base font-light mt-3">
+          I combine clean engineering, systems architecture, and conversion-focused UX to build software that is practical, fast, and ready for production scale.
         </p>
       </motion.div>
 
       <motion.div
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"
+        className="flex md:grid md:grid-cols-2 lg:grid-cols-4 gap-6 overflow-x-auto md:overflow-visible pb-4 md:pb-0 snap-x snap-mandatory scrollbar-none -mx-6 px-6 md:mx-0 md:px-0"
         variants={container}
         initial="hidden"
         whileInView="visible"
@@ -64,15 +65,17 @@ const WhyChoose = () => {
           <motion.div
             key={idx}
             variants={item}
-            className="p-6 bg-white dark:bg-gray-800 rounded-sm shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow"
+            className="min-w-[82vw] sm:min-w-[280px] md:min-w-0 snap-center p-6 bg-white dark:bg-[#141414] rounded-2xl shadow-sm border border-gray-200 dark:border-white/10 hover:border-accent/50 transition-all flex flex-col justify-between"
           >
-            <div className="text-accent mb-4">
-              {reason.icon}
+            <div>
+              <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center text-accent mb-4">
+                {reason.icon}
+              </div>
+              <h4 className="text-lg font-heading font-bold mb-2 text-gray-900 dark:text-white">{reason.title}</h4>
+              <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 font-light leading-relaxed">
+                {reason.description}
+              </p>
             </div>
-            <h4 className="text-xl font-bold mb-2 text-gray-900 dark:text-white">{reason.title}</h4>
-            <p className="text-gray-600 dark:text-gray-400">
-              {reason.description}
-            </p>
           </motion.div>
         ))}
       </motion.div>

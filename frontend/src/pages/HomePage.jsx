@@ -5,10 +5,8 @@ import About from '../components/About';
 import Services from '../components/Services';
 import WhyChoose from '../components/WhyChoose';
 import Pricing from '../components/Pricing';
-
 import Projects from '../components/Projects';
 import Testimonials from '../components/Testimonials';
-import SaaSProducts from '../components/SaaSProducts';
 import FAQ from '../components/FAQ';
 import Contact from '../components/Contact';
 
@@ -42,7 +40,6 @@ const HomePage = () => {
       <Testimonials />
       <Pricing isHomepage={true} />
       <About />
-      <SaaSProducts />
       <FAQ />
       <Contact />
     </>

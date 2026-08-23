@@ -76,33 +76,6 @@ const TECH_CATEGORIES = [
   }
 ];
 
-const SAAS_PRODUCTS = [
-  {
-    name: 'NaijaPay Compliance Pro',
-    tagline: 'Automated Nigerian Payroll & Tax Engine',
-    desc: 'High-precision payroll calculation engine handling PAYE, PenCom, NHF, and direct bank disbursement schedules for SMEs.',
-    status: 'IN DEVELOPMENT',
-    statusColor: 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300',
-    tags: ['Payroll', 'Fintech', 'Tax Compliance']
-  },
-  {
-    name: 'School ERP Core v1.1',
-    tagline: 'Frictionless School Management System',
-    desc: 'Academic portal with 1-click attendance, WAEC-aligned grading sheets, parent SMS notifications, and online tuition invoicing.',
-    status: 'LIVE / INTERNAL PRODUCT',
-    statusColor: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300',
-    tags: ['Education', 'Portals', 'Fee Invoicing']
-  },
-  {
-    name: 'Clinical Health ERP',
-    tagline: 'High-Volume Patient & Record Management',
-    desc: 'Privacy-focused architecture for patient intake, encrypted clinical records, doctor scheduling, and pharmacy inventory management.',
-    status: 'BETA',
-    statusColor: 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300',
-    tags: ['Healthcare', 'Privacy-Focused', 'Clinical Records']
-  }
-];
-
 const FAQS = [
   {
     q: 'Do I own 100% of the code and intellectual property?',
@@ -131,20 +104,6 @@ const SoftwareHomePage = () => {
   // Interactive Estimator State
   const [selectedType, setSelectedType] = useState(PROJECT_TYPES[1]);
   const [selectedAddons, setSelectedAddons] = useState(['auth_2fa', 'payment_gateway']);
-
-  // Inquiry Form State
-  const [form, setForm] = useState({
-    full_name: '',
-    email: '',
-    phone: '',
-    project_type: selectedType.name,
-    budget: '',
-    timeline: '',
-    message: '',
-    honeypot: '' // Anti-spam
-  });
-  const [submitting, setSubmitting] = useState(false);
-  const [formSuccess, setFormSuccess] = useState(false);
   const [activeFaq, setActiveFaq] = useState(null);
 
   // Live projects from API
@@ -173,11 +132,6 @@ const SoftwareHomePage = () => {
     };
     fetchSoftwareProjects();
   }, []);
-
-  // Update form when estimator changes
-  useEffect(() => {
-    setForm(prev => ({ ...prev, project_type: selectedType.name }));
-  }, [selectedType]);
 
   const toggleAddon = (id) => {
     setSelectedAddons(prev => 
@@ -642,66 +596,12 @@ const SoftwareHomePage = () => {
         </div>
       </section>
 
-      {/* ── INTERNAL SAAS PRODUCTS ── */}
-      <section className="py-20 px-6 md:px-12 max-w-7xl mx-auto border-t border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/30">
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 text-xs font-extrabold uppercase tracking-wider mb-3">
-            <Server className="w-3.5 h-3.5" /> Proprietary SaaS
-          </div>
-          <h2 className="text-3xl md:text-5xl font-extrabold font-heading text-gray-900 dark:text-white tracking-tight">
-            Internal SaaS Products & Platforms
-          </h2>
-          <p className="text-gray-600 dark:text-gray-400 mt-3 text-base">
-            In addition to bespoke client engineering, I build and operate focused software products solving real business challenges.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {SAAS_PRODUCTS.map((prod, idx) => (
-            <div 
-              key={idx}
-              className="p-7 rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm flex flex-col justify-between hover:shadow-xl transition-all"
-            >
-              <div>
-                <div className="flex items-center justify-between mb-4">
-                  <span className={`px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider ${prod.statusColor}`}>
-                    {prod.status}
-                  </span>
-                </div>
-                <h4 className="text-xl font-bold font-heading text-gray-900 dark:text-white">{prod.name}</h4>
-                <p className="text-xs font-bold text-accent mt-1 mb-3">{prod.tagline}</p>
-                <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed mb-6">
-                  {prod.desc}
-                </p>
-              </div>
-
-              <div className="space-y-4 pt-4 border-t border-gray-100 dark:border-gray-800">
-                <div className="flex flex-wrap gap-1.5">
-                  {prod.tags.map((t, tid) => (
-                    <span key={tid} className="text-[10px] uppercase tracking-wider font-extrabold px-2 py-0.5 rounded bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400">
-                      {t}
-                    </span>
-                  ))}
-                </div>
-                <a 
-                  href="#contact-form"
-                  onClick={() => setForm(prev => ({ ...prev, project_type: `Inquiry: ${prod.name}`, message: `I am interested in licensing or building a system like ${prod.name}.` }))}
-                  className="inline-flex items-center gap-1.5 text-xs font-extrabold text-blue-600 dark:text-blue-400 hover:text-accent transition-colors"
-                >
-                  Request Demo / Early Access <ArrowRight className="w-3.5 h-3.5" />
-                </a>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
       {/* ── TECHNICAL FAQS SECTION ── */}
       <section className="py-20 px-6 md:px-12 max-w-4xl mx-auto border-t border-gray-200 dark:border-gray-800">
         <div className="text-center mb-12">
           <span className="text-accent font-bold tracking-widest uppercase text-xs mb-2 block">Clear Answers</span>
           <h2 className="text-3xl font-extrabold font-heading text-gray-900 dark:text-white">
-            Frequently Asked Questions
+            Frequently Asked Technical Questions
           </h2>
         </div>
 
@@ -721,7 +621,7 @@ const SoftwareHomePage = () => {
                   <ChevronDown className={`w-5 h-5 text-gray-500 transition-transform duration-200 ${isOpen ? 'rotate-180 text-accent' : ''}`} />
                 </button>
                 {isOpen && (
-                  <div className="px-6 pb-6 text-sm text-gray-600 dark:text-gray-400 border-t border-gray-100 dark:border-gray-800/60 pt-4 leading-relaxed">
+                  <div className="px-6 pb-6 text-sm text-gray-600 dark:text-gray-400 border-t border-gray-100 dark:border-gray-800/60 pt-4 leading-relaxed font-light">
                     {faq.a}
                   </div>
                 )}
@@ -731,139 +631,56 @@ const SoftwareHomePage = () => {
         </div>
       </section>
 
-      {/* ── ENGINEERING BRIEF & TECHNICAL KICKOFF ── */}
-      <section id="contact-form" className="py-20 px-6 md:px-12 max-w-4xl mx-auto border-t border-gray-200 dark:border-gray-800">
-        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-3xl p-8 md:p-12 shadow-2xl">
-          <div className="text-center max-w-2xl mx-auto mb-10">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-50 dark:bg-blue-950/50 border border-blue-200 dark:border-blue-800/60 text-blue-700 dark:text-blue-300 text-xs font-bold uppercase tracking-wider mb-3">
-              <Terminal className="w-3.5 h-3.5" /> Engineering Brief
+      {/* ── ENGINEERING BRIEF & DIRECT INTAKE ACTION BANNER ── */}
+      <section id="contact-action" className="py-20 px-6 md:px-12 max-w-5xl mx-auto border-t border-gray-200 dark:border-gray-800">
+        <div className="bg-gradient-to-br from-gray-900 via-[#141414] to-black border border-white/10 rounded-3xl p-8 sm:p-12 md:p-16 shadow-2xl text-center space-y-8 relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-transparent via-accent to-transparent" />
+          
+          <div className="max-w-2xl mx-auto space-y-4">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-accent/20 border border-accent/30 text-accent text-xs font-bold uppercase tracking-wider">
+              <Terminal className="w-3.5 h-3.5" /> Direct Engineering Intake
             </div>
-            <h2 className="text-3xl md:text-4xl font-extrabold font-heading text-gray-900 dark:text-white tracking-tight">
-              Submit Your Project Specification
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold font-heading text-white tracking-tight leading-tight">
+              Ready to Scope Your <span className="text-accent">System Architecture?</span>
             </h2>
-            <p className="text-gray-600 dark:text-gray-400 mt-2 text-sm leading-relaxed">
-              Direct founder-to-engineer communication. Share your scope, user workflows, or deadlines below. I will personally review the architecture and return a concrete technical roadmap within 24 hours.
+            <p className="text-gray-300 text-sm sm:text-base font-light leading-relaxed">
+              Direct founder-to-engineer collaboration. Share your workflow specifications, technical requirements, or launch target. I will personally review your brief and return a concrete architectural roadmap within 24 hours.
             </p>
           </div>
 
-          {formSuccess ? (
-            <div className="p-8 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 text-center space-y-4">
-              <div className="w-12 h-12 rounded-full bg-emerald-500 text-white flex items-center justify-center mx-auto shadow-md">
-                <Check className="w-6 h-6 stroke-[3]" />
-              </div>
-              <h3 className="text-xl font-bold text-emerald-900 dark:text-emerald-200">Technical Brief Received</h3>
-              <p className="text-sm text-emerald-700 dark:text-emerald-400 max-w-md mx-auto">
-                Thank you for reaching out. Eugene will review your architecture requirements and return a detailed response within 24 hours.
-              </p>
-              <button 
-                onClick={() => setFormSuccess(false)}
-                className="text-xs font-bold uppercase tracking-wider text-emerald-800 dark:text-emerald-300 underline pt-2"
-              >
-                Submit another technical brief
-              </button>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
+            <Link
+              to={`/contact?service=${encodeURIComponent(selectedType.name)}&budget=${encodeURIComponent(calculatedEstimate.cost)}`}
+              className="w-full sm:w-auto inline-flex items-center justify-center bg-accent text-white font-bold text-xs uppercase tracking-[0.2em] px-8 py-4 rounded-xl shadow-lg hover:bg-white hover:text-black transition-all"
+            >
+              Submit Project Brief with Selected Scope ({calculatedEstimate.cost}) →
+            </Link>
+            <Link
+              to="/pricing"
+              className="w-full sm:w-auto inline-flex items-center justify-center border border-white/20 text-white font-bold text-xs uppercase tracking-[0.2em] px-8 py-4 rounded-xl hover:bg-white/10 transition-all"
+            >
+              Open Full Pricing Matrix ↗
+            </Link>
+          </div>
+
+          <div className="pt-8 border-t border-white/10 grid grid-cols-2 md:grid-cols-4 gap-4 text-left max-w-3xl mx-auto">
+            <div>
+              <span className="text-[10px] uppercase font-mono text-accent font-bold block">Invoicing</span>
+              <span className="text-xs text-white font-bold">50/50 Milestones</span>
             </div>
-          ) : (
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Honeypot anti-spam field */}
-              <input 
-                type="text" 
-                name="website_url" 
-                value={form.honeypot} 
-                onChange={e => setForm({ ...form, honeypot: e.target.value })} 
-                className="hidden" 
-                tabIndex={-1} 
-                autoComplete="off" 
-              />
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-[11px] font-mono font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-2">
-                    Full Name *
-                  </label>
-                  <input 
-                    type="text" 
-                    required
-                    placeholder="e.g. David Adeleke"
-                    value={form.full_name}
-                    onChange={e => setForm({ ...form, full_name: e.target.value })}
-                    className="w-full p-3.5 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-accent"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[11px] font-mono font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-2">
-                    Email Address *
-                  </label>
-                  <input 
-                    type="email" 
-                    required
-                    placeholder="david@company.com"
-                    value={form.email}
-                    onChange={e => setForm({ ...form, email: e.target.value })}
-                    className="w-full p-3.5 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-accent"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-[11px] font-mono font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-2">
-                    Architecture Type
-                  </label>
-                  <Select
-                    value={form.project_type}
-                    onValueChange={val => setForm({ ...form, project_type: val })}
-                  >
-                    <SelectTrigger className="w-full h-12 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-accent">
-                      <SelectValue placeholder="Select architecture type" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-white dark:bg-[#1f1f1f] border-gray-200 dark:border-gray-700 shadow-xl">
-                      <SelectGroup>
-                        {PROJECT_TYPES.map(t => (
-                          <SelectItem key={t.id} value={t.name} className="cursor-pointer">
-                            {t.name}
-                          </SelectItem>
-                        ))}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <label className="block text-[11px] font-mono font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-2">
-                    Estimated Budget Allocation
-                  </label>
-                  <input 
-                    type="text" 
-                    placeholder="e.g. ₦1,200,000 / $3,200"
-                    value={form.budget}
-                    onChange={e => setForm({ ...form, budget: e.target.value })}
-                    className="w-full p-3.5 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-accent"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-mono font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-2">
-                  System Requirements & Technical Brief *
-                </label>
-                <textarea 
-                  required
-                  rows={5}
-                  placeholder="Describe your core product requirements, user workflows, integrations, target audience, or specific launch deadlines..."
-                  value={form.message}
-                  onChange={e => setForm({ ...form, message: e.target.value })}
-                  className="w-full p-3.5 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-accent leading-relaxed"
-                />
-              </div>
-
-              <button 
-                type="submit"
-                disabled={submitting}
-                className="w-full bg-accent hover:bg-orange-600 text-white font-extrabold py-4 px-8 rounded-xl transition-all shadow-lg hover:shadow-accent/30 text-xs uppercase tracking-widest disabled:opacity-50 flex items-center justify-center gap-2"
-              >
-                {submitting ? 'Submitting Technical Brief...' : 'Submit Technical Brief & Roadmap Inquiry →'}
-              </button>
-            </form>
-          )}
+            <div>
+              <span className="text-[10px] uppercase font-mono text-accent font-bold block">Code Transfer</span>
+              <span className="text-xs text-white font-bold">100% IP Ownership</span>
+            </div>
+            <div>
+              <span className="text-[10px] uppercase font-mono text-accent font-bold block">Warranty</span>
+              <span className="text-xs text-white font-bold">4 Months Included</span>
+            </div>
+            <div>
+              <span className="text-[10px] uppercase font-mono text-accent font-bold block">Response Time</span>
+              <span className="text-xs text-white font-bold">&lt; 24 Hours</span>
+            </div>
+          </div>
         </div>
       </section>
 

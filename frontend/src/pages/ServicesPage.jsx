@@ -1,12 +1,12 @@
-import React, { useEffect, Suspense, lazy } from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useReducedMotion } from 'framer-motion';
 import { staggerContainer, fadeUpItem, cardHover, cardHoverTransition, buttonHover, buttonTap, sectionViewport, reducedMotionVariants } from '../utils/motion';
-
-const Pricing = lazy(() => import('../components/Pricing'));
+import { useAutomatedCurrency } from '../utils/currency';
 
 const ServicesPage = () => {
   const shouldReduce = useReducedMotion();
+  const currency = useAutomatedCurrency();
   const container = shouldReduce ? reducedMotionVariants : staggerContainer;
   const item = shouldReduce ? reducedMotionVariants : fadeUpItem;
 
@@ -23,135 +23,120 @@ const ServicesPage = () => {
     "Founders launching MVPs",
     "Businesses upgrading websites",
     "Teams needing internal tools",
-    "Businesses focused on organic growth"
+    "Brands expanding e-commerce"
   ];
 
   const workflowSteps = [
     {
       num: "01",
-      title: "Discovery",
-      desc: "Goals, users, scope, and technical requirements."
+      title: "Discovery & Requirements",
+      desc: "Deep-dive scoping call to map business goals, user journeys, data models, and edge cases."
     },
     {
       num: "02",
-      title: "Proposal",
-      desc: "Technical approach, architecture, timeline, and clear milestone investment."
+      title: "Architecture & Sprints",
+      desc: "Transparent roadmap with 50/50 milestone agreements and high-fidelity UX reviews."
     },
     {
       num: "03",
-      title: "Design & Architecture",
-      desc: "UX workflows, database schema, API contracts, and system planning."
+      title: "Full-Stack Development",
+      desc: "Production-ready engineering in React, Node, and PostgreSQL with continuous staging previews."
     },
     {
       num: "04",
-      title: "Development",
-      desc: "Milestone-based implementation with regular progress reviews."
-    },
-    {
-      num: "05",
-      title: "QA & Launch",
-      desc: "End-to-end testing, security checks, production deployment, and handoff."
-    },
-    {
-      num: "06",
-      title: "Support",
-      desc: "4 months of included maintenance, performance monitoring, and updates."
+      title: "Production Launch & 4-Mo SLA",
+      desc: "SSL security hardening, domain cutover, full GitHub code transfer, and 4 months of free warranty."
     }
   ];
 
   const trustItems = [
-    "Direct Developer Communication",
-    "50/50 Milestone Invoicing (50% Upfront, 50% on Delivery)",
-    "100% Source Code & IP Transfer",
-    "4 Months Free Maintenance Post-Launch"
+    "50/50 Milestone Terms",
+    "4 Months Included Support",
+    "100% Code & IP Ownership",
+    "Sub-Second Performance SLA"
   ];
 
   const services = [
     {
-      id: "01",
-      title: "Custom Web Platforms",
-      bestFor: "Startups · Businesses · Product Teams",
-      desc: "I design and build complete web platforms—from strategy and architecture through development and deployment. I turn complex business workflows into functional, reliable software.",
-      outcome: "A launch-ready platform built around your workflows, users, and growth goals.",
-      cta: "Build My Platform →",
+      id: "web-platforms",
+      title: "Custom Web Platforms & Portals",
+      bestFor: "Complex business systems, internal operations & client dashboards",
+      desc: "Engineered web applications built with scalable backend architectures, structured relational databases, role-based authentication, and modern user interfaces.",
+      outcome: "A secure, launch-ready platform engineered for high reliability, fast query times, and long-term business scalability.",
       deliverables: [
-        "SaaS & Dashboard Products",
-        "E-commerce & Marketplaces",
-        "Internal Business Tools & ERPs",
-        "Startup MVP Development",
-        "Third-Party API Integrations"
+        "React / Next.js + Node.js / PostgreSQL Architecture",
+        "Role-Based Access Control (RBAC) & Secure Sessions",
+        "Automated Payment & Transactional Messaging Pipelines",
+        "Admin Operational Dashboards & Analytics",
+        "100% Code & IP Ownership Transfer + 4 Months Support"
       ],
       icon: (
-        <svg className="w-8 h-8 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" /></svg>
+        <svg className="w-8 h-8 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
       )
     },
     {
-      id: "02",
-      title: "High-Performance Interfaces",
-      bestFor: "Brands · Modern Web Apps · Scaling Products",
-      desc: "I create fast, polished interfaces that make your product easier to understand, easier to use, and more effective at converting visitors into customers.",
-      outcome: "A faster, more polished interface that feels premium, loads instantly, and keeps users engaged.",
-      cta: "Design My Frontend →",
+      id: "interfaces",
+      title: "High-Performance Digital Storefronts & UIs",
+      bestFor: "Brands needing high-ticket conversion, rapid speed & polished aesthetics",
+      desc: "Modern digital interfaces engineered with sub-second page loads, micro-animations, accessible design systems, and seamless responsive layouts.",
+      outcome: "A high-converting digital storefront that builds immediate authority and delivers seamless browsing across mobile and desktop.",
       deliverables: [
-        "Responsive React / Next.js Frontends",
-        "Ultra-Fast Interaction & Motion",
-        "Mobile-First User Experience",
-        "Design System & Component Library",
-        "Core Web Vitals Optimization"
+        "Bespoke Visual Identity & Micro-Interactions",
+        "Sub-Second Load Times Scoring 95+ on Google Lighthouse",
+        "Flawless Mobile-First Layout & Touch Experience",
+        "Interactive Quotation Tools & Scoping Calculators",
+        "Frictionless Lead Capture & Spam Protection"
       ],
       icon: (
-        <svg className="w-8 h-8 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>
+        <svg className="w-8 h-8 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
       )
     },
     {
-      id: "03",
-      title: "Secure API & Data Systems",
-      bestFor: "Complex Data · Automation · Multi-Tenant Apps",
-      desc: "I build the secure backbone behind your application: robust database schemas, high-speed API endpoints, and protected authentication protocols built for reliability.",
-      outcome: "Backend systems that are structured, secure, and ready to handle business volume.",
-      cta: "Build My Backend →",
+      id: "backend-data",
+      title: "Robust Backend, APIs & Database Systems",
+      bestFor: "Mission-critical data structures, microservices & 3rd-party integrations",
+      desc: "Scalable server architectures, type-safe REST APIs, relational database design, asynchronous queues, and hardened authentication systems.",
+      outcome: "A resilient backend infrastructure capable of handling high concurrency without downtime or data corruption.",
       deliverables: [
-        "Scalable Node.js / Express / REST APIs",
-        "PostgreSQL / Supabase Schema Modeling",
-        "Role-Based Auth & 2FA Security",
-        "Cloud Deployment & CI/CD Pipelines",
-        "Payment & Webhook Automations"
+        "Documented, Type-Safe REST API Endpoints",
+        "Normalized PostgreSQL / Supabase Schema Architecture",
+        "Paystack, Stripe, Grey & International Payment Gateways",
+        "Automated Database Backup Protocols & Rate-Limiting",
+        "Complete API Postman Collections & Technical Runbooks"
       ],
       icon: (
-        <svg className="w-8 h-8 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" /></svg>
+        <svg className="w-8 h-8 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" /></svg>
       )
     },
     {
-      id: "04",
-      title: "Technical Strategy & Audits",
-      bestFor: "Decision Makers · Codebase Modernization · Rebuilds",
-      desc: "I help you evaluate technical architecture, audit existing codebases for bottlenecks and security risks, and chart clear engineering roadmaps before you invest in development.",
-      outcome: "Clear recommendations, risk visibility, and an actionable roadmap you can execute with confidence.",
-      cta: "Audit My System →",
+      id: "audits-strategy",
+      title: "Technical Architecture & Code Audits",
+      bestFor: "Legacy codebases, pre-funding due diligence & system migrations",
+      desc: "Deep-dive inspections of existing codebases, performance bottlenecks, security vulnerabilities, and architecture roadmaps.",
+      outcome: "A prioritized, business-aligned roadmap detailing exactly what to refactor, upgrade, or rebuild for maximum ROI.",
       deliverables: [
-        "Code Quality & Security Audits",
-        "Performance & Latency Bottleneck Analysis",
-        "Tech Stack Selection & Architecture Blueprint",
-        "Refactoring & Modernization Roadmap",
-        "Scalability & Infrastructure Review"
+        "Comprehensive Code Quality & Vulnerability Report",
+        "Core Web Vitals & Frontend Performance Teardown",
+        "Database Indexing & Query Optimization Roadmap",
+        "Concrete Milestone Roadmap & Budget Estimates",
+        "1-on-1 Strategy Walkthrough Video Session"
       ],
       icon: (
-        <svg className="w-8 h-8 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" /></svg>
+        <svg className="w-8 h-8 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
       )
     },
     {
-      id: "05",
-      title: "SEO & Organic Growth",
-      bestFor: "Organic Search · Inbound Lead Gen · Sustainable Reach",
-      desc: "I optimize your site's technical foundation, structure, performance, and content strategy to improve search visibility and create a stronger foundation for organic growth.",
-      outcome: "A solid technical search foundation, fast indexing, and sustainable organic reach.",
-      cta: "Improve My SEO →",
+      id: "seo-growth",
+      title: "Technical SEO & Structured Growth Engine",
+      bestFor: "Businesses seeking compounding inbound organic search traffic",
+      desc: "Full-stack technical search optimization ensuring clean crawlability, JSON-LD structured data, rich social cards, and speed scores.",
+      outcome: "A technical SEO foundation that enables search engines to index your pages properly and rank key revenue keywords.",
       deliverables: [
         "Technical SEO & Crawlability Audits",
-        "Structured Schema Markup & Metadata",
-        "Core Web Vitals & Speed Optimization",
-        "Search-Aligned Architecture & URL Structure",
-        "Performance Analytics & Tracking Setup"
+        "Structured Schema Markup (JSON-LD) Implementation",
+        "Core Web Vitals Speed Tuning (LCP, INP, CLS)",
+        "Dynamic XML Sitemaps, Robots.txt & OpenGraph Cards",
+        "Search Console & Google Analytics 4 Telemetry"
       ],
       icon: (
         <svg className="w-8 h-8 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
@@ -160,22 +145,25 @@ const ServicesPage = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-background text-black dark:text-white pt-32 pb-24 px-6 md:px-12 font-body selection:bg-accent selection:text-white transition-colors duration-300">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-gray-50 dark:bg-background text-black dark:text-white pt-32 pb-24 px-4 sm:px-6 md:px-12 font-body selection:bg-accent selection:text-white transition-colors duration-300 overflow-x-hidden">
+      <div className="max-w-7xl mx-auto space-y-20">
         
         {/* Header */}
         <motion.div 
           initial={shouldReduce ? {} : { opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: shouldReduce ? 0 : 0.6 }}
-          className="text-center max-w-3xl mx-auto mb-16"
+          transition={{ duration: shouldReduce ? 0 : 0.5 }}
+          className="text-left max-w-3xl"
         >
-          <p className="uppercase tracking-widest text-xs text-accent mb-3 font-bold">What I Do</p>
-          <h1 className="text-5xl md:text-7xl font-heading font-bold mb-6 tracking-tight text-black dark:text-white">
-            My <span className="text-accent">Services</span>
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-accent/10 border border-accent/20 text-accent text-xs font-bold uppercase tracking-wider mb-4">
+            <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
+            Engineering & Product Services
+          </div>
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-heading font-bold tracking-tight text-black dark:text-white leading-[1.08]">
+            Built for Scale, Speed & <span className="text-accent">Revenue.</span>
           </h1>
-          <p className="text-lg md:text-xl text-gray-700 dark:text-gray-300 font-light leading-relaxed">
-            I design and build full-stack web platforms, high-performance interfaces, secure data backends, and sustainable growth architectures tailored to real business workflows.
+          <p className="mt-6 text-base sm:text-lg md:text-xl text-gray-700 dark:text-gray-300 font-light leading-relaxed">
+            I engineer full-stack web platforms, high-performance interfaces, and secure API architectures. Direct founder-to-engineer collaboration with predictable 50/50 milestone delivery.
           </p>
         </motion.div>
 
@@ -184,13 +172,13 @@ const ServicesPage = () => {
           variants={container}
           initial="hidden"
           animate="visible"
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-20"
+          className="grid grid-cols-2 md:grid-cols-4 gap-3"
         >
           {audienceTypes.map((audience) => (
             <motion.div
               key={audience}
               variants={item}
-              className="bg-white dark:bg-[#151515] border border-gray-200 dark:border-white/5 px-5 py-4 text-xs font-bold uppercase tracking-wider text-gray-800 dark:text-gray-200 shadow-sm text-center"
+              className="bg-white dark:bg-[#141414] border border-gray-200 dark:border-white/10 px-4 py-3.5 text-xs font-bold uppercase tracking-wider text-gray-800 dark:text-gray-200 rounded-xl shadow-xs text-center flex items-center justify-center"
             >
               {audience}
             </motion.div>
@@ -203,7 +191,7 @@ const ServicesPage = () => {
           initial="hidden"
           whileInView="visible"
           viewport={sectionViewport}
-          className="space-y-8 md:space-y-10 mb-28"
+          className="space-y-8"
         >
           {services.map((service) => (
             <motion.div 
@@ -211,50 +199,50 @@ const ServicesPage = () => {
               variants={item}
               whileHover={shouldReduce ? {} : cardHover}
               transition={cardHoverTransition}
-              className="bg-white dark:bg-[#141414] border border-gray-200 dark:border-white/10 rounded-2xl p-8 md:p-12 shadow-sm hover:shadow-xl hover:border-accent/40 transition-all group"
+              className="bg-white dark:bg-[#141414] border border-gray-200 dark:border-white/10 rounded-3xl p-6 sm:p-10 shadow-sm hover:shadow-xl hover:border-accent/40 transition-all group"
             >
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
                 
                 {/* Header & Core Description (7 Cols) */}
-                <div className="lg:col-span-7 space-y-5">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-xl bg-gray-100 dark:bg-white/5 flex items-center justify-center group-hover:scale-105 transition-transform">
+                <div className="lg:col-span-7 space-y-4">
+                  <div className="flex items-center gap-3.5">
+                    <div className="w-12 h-12 rounded-2xl bg-accent/10 flex items-center justify-center group-hover:scale-105 transition-transform">
                       {service.icon}
                     </div>
                     <div>
-                      <span className="text-xs font-mono font-bold text-accent uppercase tracking-widest">{service.id} — SERVICE</span>
-                      <h2 className="text-2xl md:text-3xl font-heading font-bold text-black dark:text-white group-hover:text-accent transition-colors">
+                      <span className="text-[10px] font-mono font-bold text-accent uppercase tracking-widest">{service.id}</span>
+                      <h2 className="text-2xl sm:text-3xl font-heading font-bold text-black dark:text-white group-hover:text-accent transition-colors">
                         {service.title}
                       </h2>
                     </div>
                   </div>
 
-                  <div className="inline-block bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 px-3.5 py-1 text-[11px] uppercase tracking-wider text-gray-700 dark:text-gray-300 font-bold rounded-md">
+                  <div className="inline-block bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 px-3 py-1 text-[11px] uppercase tracking-wider text-gray-700 dark:text-gray-300 font-bold rounded-lg">
                     Best for: {service.bestFor}
                   </div>
 
-                  <p className="text-gray-700 dark:text-gray-300 text-base md:text-lg font-light leading-relaxed">
+                  <p className="text-gray-700 dark:text-gray-300 text-sm sm:text-base font-light leading-relaxed">
                     {service.desc}
                   </p>
 
-                  <div className="pt-2 border-l-2 border-accent pl-4">
-                    <p className="text-xs uppercase tracking-widest font-bold text-accent mb-1">Expected Outcome</p>
-                    <p className="text-sm font-medium text-black dark:text-white leading-relaxed">
+                  <div className="p-4 bg-accent/5 dark:bg-accent/10 border-l-3 border-accent rounded-r-xl">
+                    <p className="text-[11px] uppercase tracking-widest font-bold text-accent mb-0.5">Expected Outcome</p>
+                    <p className="text-xs sm:text-sm font-medium text-black dark:text-white leading-relaxed">
                       {service.outcome}
                     </p>
                   </div>
                 </div>
 
                 {/* Deliverables & Direct CTA (5 Cols) */}
-                <div className="lg:col-span-5 bg-gray-50 dark:bg-[#1a1a1a] border border-gray-200 dark:border-white/5 rounded-xl p-6 md:p-8 flex flex-col justify-between h-full space-y-6">
+                <div className="lg:col-span-5 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-2xl p-6 sm:p-8 flex flex-col justify-between h-full space-y-6">
                   <div>
-                    <h3 className="text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-4">
-                      What You Get / Key Deliverables
+                    <h3 className="text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-3">
+                      Key Deliverables & Included Scope
                     </h3>
-                    <ul className="space-y-2.5">
+                    <ul className="space-y-2">
                       {service.deliverables.map((item, idx) => (
-                        <li key={idx} className="flex items-start text-xs md:text-sm text-gray-800 dark:text-gray-200 font-medium">
-                          <span className="text-accent mr-2 mt-0.5">✦</span>
+                        <li key={idx} className="flex items-start text-xs sm:text-sm text-gray-800 dark:text-gray-200 font-medium">
+                          <span className="text-accent mr-2 mt-0.5 font-bold">✦</span>
                           <span>{item}</span>
                         </li>
                       ))}
@@ -267,10 +255,10 @@ const ServicesPage = () => {
                       whileTap={shouldReduce ? {} : buttonTap}
                     >
                       <Link
-                        to="/contact"
-                        className="w-full inline-flex items-center justify-center bg-black text-white dark:bg-white dark:text-black font-bold px-6 py-3.5 text-xs uppercase tracking-widest hover:bg-accent dark:hover:bg-accent dark:hover:text-white transition-colors rounded-lg shadow-sm"
+                        to={`/contact?service=${encodeURIComponent(service.title)}`}
+                        className="w-full inline-flex items-center justify-center bg-accent text-white font-bold px-6 py-3.5 text-xs uppercase tracking-widest hover:bg-black dark:hover:bg-white dark:hover:text-black transition-colors rounded-xl shadow-md"
                       >
-                        {service.cta}
+                        Start a Project with this Service →
                       </Link>
                     </motion.div>
                   </div>
@@ -280,92 +268,119 @@ const ServicesPage = () => {
             </motion.div>
           ))}
         </motion.div>
-      </div>
 
-      {/* How I Work: 6-Step Workflow */}
-      <div className="max-w-7xl mx-auto px-6 md:px-12 mt-16 mb-28">
-        <motion.div
-          initial={shouldReduce ? {} : { opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={sectionViewport}
-          transition={{ duration: shouldReduce ? 0 : 0.6 }}
-        >
-          <div className="text-center max-w-3xl mx-auto mb-14">
-            <p className="uppercase tracking-widest text-xs text-accent mb-3 font-bold">Process</p>
-            <h2 className="text-4xl md:text-5xl font-heading font-bold text-black dark:text-white mb-4">
+        {/* Process: 4-Step Structured Workflow */}
+        <div className="space-y-12">
+          <div className="text-center max-w-2xl mx-auto space-y-3">
+            <span className="text-xs uppercase tracking-[0.25em] font-bold text-accent">Process Framework</span>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-heading font-bold text-black dark:text-white">
               How a project <span className="text-accent">moves forward</span>
             </h2>
-            <p className="text-base md:text-lg text-gray-700 dark:text-gray-300 font-light leading-relaxed">
-              A structured, transparent engineering process so you always know what happens next, what is being built, and how we launch.
+            <p className="text-sm sm:text-base text-gray-700 dark:text-gray-300 font-light leading-relaxed">
+              A predictable 4-step engineering cadence so you always know what is being built, when it ships, and how we support it.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {workflowSteps.map((step) => (
               <div
                 key={step.num}
-                className="bg-white dark:bg-[#141414] border border-gray-200 dark:border-white/10 rounded-2xl p-7 shadow-sm hover:border-accent/40 transition-all flex flex-col justify-between"
+                className="bg-white dark:bg-[#141414] border border-gray-200 dark:border-white/10 rounded-2xl p-6 sm:p-7 shadow-xs hover:border-accent/40 transition-all flex flex-col justify-between"
               >
                 <div>
                   <div className="w-10 h-10 bg-accent/10 border border-accent/20 text-accent font-mono font-bold text-sm flex items-center justify-center rounded-xl mb-4">
                     {step.num}
                   </div>
-                  <h3 className="text-xl font-heading font-bold text-black dark:text-white mb-2">{step.title}</h3>
-                  <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed font-light">{step.desc}</p>
+                  <h3 className="text-lg font-heading font-bold text-black dark:text-white mb-2">{step.title}</h3>
+                  <p className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm leading-relaxed font-light">{step.desc}</p>
                 </div>
               </div>
             ))}
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {trustItems.map((trustItem) => (
               <div
                 key={trustItem}
-                className="border border-gray-200 dark:border-white/10 bg-white dark:bg-[#141414] px-5 py-4 text-center text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300 rounded-lg shadow-sm"
+                className="border border-gray-200 dark:border-white/10 bg-white dark:bg-[#141414] px-4 py-3.5 text-center text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300 rounded-xl shadow-xs"
               >
-                {trustItem}
+                ✓ {trustItem}
               </div>
             ))}
           </div>
-        </motion.div>
-      </div>
+        </div>
 
-      {/* Pricing Section */}
-      <Suspense fallback={<div className="h-96 flex items-center justify-center"><div className="animate-spin rounded-full h-12 w-12 border-4 border-accent border-t-transparent" /></div>}>
-        <Pricing />
-      </Suspense>
+        {/* ── High-Converting Pricing & Estimator Anchor Card ── */}
+        <div className="bg-gradient-to-br from-gray-900 to-black text-white rounded-3xl p-8 sm:p-12 md:p-16 border border-white/10 shadow-2xl relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-accent via-amber-400 to-accent" />
+          
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            <div className="lg:col-span-7 space-y-4">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/20 border border-accent/30 text-accent text-xs font-bold uppercase tracking-wider">
+                Transparent Studio Rates
+              </div>
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-heading font-bold tracking-tight text-white leading-tight">
+                Predictable Scope & <span className="text-accent">Milestone Invoicing</span>
+              </h2>
+              <p className="text-gray-300 text-sm sm:text-base font-light leading-relaxed">
+                All projects are billed on standard 50/50 milestone terms with 4 months of included maintenance and 100% intellectual property transfer. Use our interactive quotation builder to calculate your exact project scope.
+              </p>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+                <div className="bg-white/5 border border-white/10 p-3.5 rounded-xl">
+                  <span className="text-[10px] text-gray-400 uppercase tracking-widest font-mono block">Websites & Portals</span>
+                  <span className="text-sm font-bold text-white mt-1 block">
+                    From {currency === 'USD' ? '$700' : '₦250k'}
+                  </span>
+                </div>
+                <div className="bg-white/5 border border-white/10 p-3.5 rounded-xl">
+                  <span className="text-[10px] text-gray-400 uppercase tracking-widest font-mono block">E-Commerce Engines</span>
+                  <span className="text-sm font-bold text-white mt-1 block">
+                    From {currency === 'USD' ? '$1,800' : '₦650k'}
+                  </span>
+                </div>
+                <div className="bg-white/5 border border-white/10 p-3.5 rounded-xl">
+                  <span className="text-[10px] text-gray-400 uppercase tracking-widest font-mono block">Custom Software</span>
+                  <span className="text-sm font-bold text-white mt-1 block">
+                    From {currency === 'USD' ? '$3,200' : '₦1.2M'}
+                  </span>
+                </div>
+              </div>
+            </div>
 
-      {/* Final CTA Section */}
-      <div className="max-w-7xl mx-auto px-6 md:px-12 mt-28">
-        <motion.div 
-          initial={shouldReduce ? {} : { opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={sectionViewport}
-          transition={{ duration: shouldReduce ? 0 : 0.6 }}
-          className="text-center bg-white dark:bg-[#141414] border border-gray-200 dark:border-white/10 rounded-3xl p-12 md:p-20 shadow-xl relative overflow-hidden"
-        >
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-accent to-transparent"></div>
-          <h2 className="text-4xl md:text-5xl font-heading font-bold text-black dark:text-white mb-6">
+            <div className="lg:col-span-5 flex flex-col items-center lg:items-end justify-center space-y-4">
+              <Link
+                to="/pricing"
+                className="w-full sm:w-auto inline-flex items-center justify-center bg-accent text-white font-bold text-xs uppercase tracking-[0.2em] px-8 py-4 rounded-xl shadow-lg hover:bg-white hover:text-black transition-all text-center"
+              >
+                Open Pricing & Quote Calculator →
+              </Link>
+              <span className="text-xs text-gray-400 font-mono">
+                Interactive Scoping · Instant Estimates · Zero Obligation
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Final CTA Section */}
+        <div className="text-center bg-white dark:bg-[#141414] border border-gray-200 dark:border-white/10 rounded-3xl p-8 sm:p-12 md:p-16 shadow-xl relative overflow-hidden space-y-6">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-heading font-bold text-black dark:text-white">
             Have a project in mind?
           </h2>
-          <p className="text-gray-700 dark:text-gray-300 text-lg max-w-2xl mx-auto mb-10 font-light leading-relaxed">
-            Tell me what you're building, what you're trying to achieve, and where you're stuck. I'll help you determine the right technical approach.
+          <p className="text-gray-700 dark:text-gray-300 text-sm sm:text-base md:text-lg max-w-2xl mx-auto font-light leading-relaxed">
+            Tell me what you're building, key constraints, and your target timeline. I'll personally review your brief and return a concrete next step within 24 hours.
           </p>
-          <motion.div
-            whileHover={shouldReduce ? {} : buttonHover}
-            whileTap={shouldReduce ? {} : buttonTap}
-            className="inline-block"
-          >
+          <div className="pt-2">
             <Link 
               to="/contact" 
               className="inline-flex items-center justify-center bg-accent text-white font-bold px-10 py-4 text-xs uppercase tracking-widest hover:bg-black dark:hover:bg-white dark:hover:text-black transition-colors rounded-xl shadow-lg"
             >
               Start a Project →
             </Link>
-          </motion.div>
-        </motion.div>
-      </div>
+          </div>
+        </div>
 
+      </div>
     </div>
   );
 };

@@ -26,17 +26,21 @@ const TechStack = () => {
   const sectionRef = useRef(null);
   const engineRef = useRef(null);
   const runnerRef = useRef(null);
+  const animFrameRef = useRef(null);
+  const isVisibleRef = useRef(false);
 
   useEffect(() => {
     if (!sceneRef.current || !sectionRef.current) return;
 
-    const Engine = Matter.Engine,
-          Bodies = Matter.Bodies,
-          Composite = Matter.Composite,
-          Mouse = Matter.Mouse,
-          MouseConstraint = Matter.MouseConstraint,
-          Events = Matter.Events,
-          Runner = Matter.Runner;
+    const {
+      Engine,
+      Bodies,
+      Composite,
+      Mouse,
+      MouseConstraint,
+      Events,
+      Runner
+    } = Matter;
 
     const scene = sceneRef.current;
     const section = sectionRef.current;
@@ -44,10 +48,13 @@ const TechStack = () => {
     // Clear existing scene if any
     scene.innerHTML = '';
 
-    let width = section.offsetWidth;
-    let height = section.offsetHeight;
+    let width = section.offsetWidth || 600;
+    let height = section.offsetHeight || 380;
 
-    const engine = Engine.create();
+    // Create engine with sleep enabled for peak performance
+    const engine = Engine.create({
+      enableSleeping: true
+    });
     engineRef.current = engine;
     engine.world.gravity.y = 0.02;
 
@@ -64,7 +71,7 @@ const TechStack = () => {
 
     const cards = [];
     const cardElements = [];
-    const padding = 60;
+    const padding = 50;
 
     techStack.forEach((tech, index) => {
       const label = tech.name;
@@ -72,14 +79,14 @@ const TechStack = () => {
       const cw = isIconOnly ? ICON_CARD_SIZE : TEXT_CARD_W;
       const ch = isIconOnly ? ICON_CARD_SIZE : TEXT_CARD_H;
 
-      const x = padding + Math.random() * (width - cw - padding * 2);
-      const y = padding + Math.random() * (height - ch - padding * 2);
+      const x = padding + Math.random() * Math.max(50, width - cw - padding * 2);
+      const y = padding + Math.random() * Math.max(50, height - ch - padding * 2);
 
       const body = Bodies.rectangle(x, y, cw, ch, {
         restitution: 0.7,
         friction: 0.02,
-        frictionAir: 0.008,
-        angle: (Math.random() - 0.5) * 0.3,
+        frictionAir: 0.01,
+        angle: (Math.random() - 0.5) * 0.25,
         label: label,
         id: index
       });
@@ -93,10 +100,8 @@ const TechStack = () => {
       cardEl.setAttribute('tabindex', '0');
 
       if (isIconOnly) {
-        // Icon-only card: large centered logo, no text
-        cardEl.innerHTML = `<img src="${tech.icon}" alt="${label}" class="tech-logo" />`;
+        cardEl.innerHTML = `<img src="${tech.icon}" alt="${label}" class="tech-logo" loading="lazy" />`;
       } else {
-        // Text card: accent dot + label
         cardEl.innerHTML = `
           <div class="accent-dot"></div>
           <span>${label}</span>
@@ -113,7 +118,7 @@ const TechStack = () => {
     const mouseConstraint = MouseConstraint.create(engine, {
       mouse: mouse,
       constraint: {
-        stiffness: 0.2,
+        stiffness: 0.25,
         render: { visible: false }
       }
     });
@@ -125,7 +130,7 @@ const TechStack = () => {
     Events.on(mouseConstraint, 'startdrag', (event) => {
       draggedBody = event.body;
       const index = cards.indexOf(draggedBody);
-      if (index !== -1) {
+      if (index !== -1 && cardElements[index]) {
         cardElements[index].classList.add('dragging');
       }
     });
@@ -133,7 +138,7 @@ const TechStack = () => {
     Events.on(mouseConstraint, 'enddrag', (event) => {
       if (draggedBody) {
         const index = cards.indexOf(draggedBody);
-        if (index !== -1) {
+        if (index !== -1 && cardElements[index]) {
           cardElements[index].classList.remove('dragging');
         }
       }
@@ -145,31 +150,32 @@ const TechStack = () => {
 
     let time = 0;
     const beforeUpdate = () => {
-      if (prefersReducedMotion || isMobile) return;
+      if (prefersReducedMotion || isMobile || !isVisibleRef.current) return;
       time += 0.016;
       cards.forEach((card, index) => {
         if (!card.isStatic && card !== draggedBody) {
-          const floatX = Math.sin(time * 0.8 + index * 1.2) * 0.00015;
-          const floatY = Math.cos(time * 0.6 + index * 0.9) * 0.00015;
+          const floatX = Math.sin(time * 0.8 + index * 1.2) * 0.00012;
+          const floatY = Math.cos(time * 0.6 + index * 0.9) * 0.00012;
           Matter.Body.applyForce(card, card.position, { x: floatX, y: floatY });
-          Matter.Body.setAngularVelocity(card, card.angularVelocity * 0.995);
+          Matter.Body.setAngularVelocity(card, card.angularVelocity * 0.99);
         }
       });
     };
     Events.on(engine, 'beforeUpdate', beforeUpdate);
 
-    let animationFrameId;
     const updatePositions = () => {
-      cards.forEach((body, index) => {
-        const element = cardElements[index];
-        if (element) {
-          const x = body.position.x;
-          const y = body.position.y;
-          const angle = body.angle;
-          element.style.transform = `translate(${x}px, ${y}px) translate(-50%, -50%) rotate(${angle}rad)`;
-        }
-      });
-      animationFrameId = requestAnimationFrame(updatePositions);
+      if (isVisibleRef.current) {
+        cards.forEach((body, index) => {
+          const element = cardElements[index];
+          if (element) {
+            const x = body.position.x;
+            const y = body.position.y;
+            const angle = body.angle;
+            element.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%) rotate(${angle}rad)`;
+          }
+        });
+      }
+      animFrameRef.current = requestAnimationFrame(updatePositions);
     };
 
     const handleResize = () => {
@@ -184,60 +190,50 @@ const TechStack = () => {
 
       cards.forEach((card) => {
         const pos = card.position;
-        const boundedX = Math.max(50, Math.min(width - 50, pos.x));
-        const boundedY = Math.max(50, Math.min(height - 50, pos.y));
+        const boundedX = Math.max(40, Math.min(width - 40, pos.x));
+        const boundedY = Math.max(40, Math.min(height - 40, pos.y));
         if (pos.x !== boundedX || pos.y !== boundedY) {
           Matter.Body.setPosition(card, { x: boundedX, y: boundedY });
         }
       });
     };
 
-    window.addEventListener('resize', handleResize);
+    let resizeTimer;
+    const debouncedResize = () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(handleResize, 100);
+    };
 
-    const particleCount = isMobile ? 4 : 12;
-    for (let i = 0; i < particleCount; i++) {
-      const particle = document.createElement('div');
-      particle.className = 'particle';
-      particle.style.left = Math.random() * 100 + '%';
-      particle.style.top = Math.random() * 100 + '%';
-      particle.style.opacity = Math.random() * 0.3 + 0.1;
-      particle.style.transform = `scale(${Math.random() * 1.5 + 0.5})`;
-      scene.appendChild(particle);
-      
-      const duration = 8000 + Math.random() * 12000;
-      const startX = parseFloat(particle.style.left);
-      const startY = parseFloat(particle.style.top);
-      const endX = startX + (Math.random() - 0.5) * 20;
-      const endY = startY + (Math.random() - 0.5) * 20;
-
-      particle.animate([
-        { left: startX + '%', top: startY + '%', opacity: particle.style.opacity },
-        { left: endX + '%', top: endY + '%', opacity: parseFloat(particle.style.opacity) * 1.5 },
-        { left: startX + '%', top: startY + '%', opacity: particle.style.opacity }
-      ], {
-        duration: duration,
-        iterations: Infinity,
-        easing: 'ease-in-out'
-      });
-    }
-
-    cardElements.forEach((el, index) => {
-      el.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          const card = cards[index];
-          Matter.Body.applyForce(card, card.position, {
-            x: (Math.random() - 0.5) * 0.05,
-            y: (Math.random() - 0.5) * 0.05
-          });
-        }
-      });
-    });
+    window.addEventListener('resize', debouncedResize);
 
     const runner = Runner.create();
     runnerRef.current = runner;
-    Runner.run(runner, engine);
 
+    // Viewport-aware Intersection Observer: Pause physics when section is offscreen
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          isVisibleRef.current = entry.isIntersecting;
+          if (entry.isIntersecting) {
+            Runner.run(runner, engine);
+            if (!animFrameRef.current) {
+              updatePositions();
+            }
+          } else {
+            Runner.stop(runner);
+            if (animFrameRef.current) {
+              cancelAnimationFrame(animFrameRef.current);
+              animFrameRef.current = null;
+            }
+          }
+        });
+      },
+      { threshold: 0.05 }
+    );
+
+    observer.observe(section);
+
+    // Initial render
     updatePositions();
 
     if (prefersReducedMotion) {
@@ -245,8 +241,12 @@ const TechStack = () => {
     }
 
     return () => {
-      window.removeEventListener('resize', handleResize);
-      cancelAnimationFrame(animationFrameId);
+      observer.disconnect();
+      clearTimeout(resizeTimer);
+      window.removeEventListener('resize', debouncedResize);
+      if (animFrameRef.current) {
+        cancelAnimationFrame(animFrameRef.current);
+      }
       Events.off(engine, 'beforeUpdate', beforeUpdate);
       Runner.stop(runner);
       Engine.clear(engine);

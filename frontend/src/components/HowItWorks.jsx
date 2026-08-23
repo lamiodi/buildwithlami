@@ -26,7 +26,7 @@ const steps = [
   {
     number: '03',
     title: 'Build',
-    description: 'You get a real-time project tracker so you always know exactly where things stand — no chasing updates.',
+    description: 'You get a real-time project tracker so you always know exactly where things stand with zero chasing for updates.',
     icon: (
       <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
         <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
@@ -113,9 +113,9 @@ const HowItWorks = () => {
           </motion.p>
         </motion.div>
 
-        {/* Steps Grid */}
+        {/* Steps Grid (Horizontal Snap on Mobile, 4-Col on Desktop) */}
         <motion.div
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-20"
+          className="flex lg:grid lg:grid-cols-4 gap-6 mb-16 overflow-x-auto lg:overflow-visible pb-4 lg:pb-0 snap-x snap-mandatory scrollbar-none -mx-6 px-6 lg:mx-0 lg:px-0"
           variants={container}
           initial="hidden"
           whileInView="visible"
@@ -127,24 +127,26 @@ const HowItWorks = () => {
               variants={item}
               whileHover={shouldReduce ? {} : cardHover}
               transition={cardHoverTransition}
-              className="relative group p-8 border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-[#111] rounded-sm hover:border-accent/40 transition-all duration-500"
+              className="min-w-[78vw] sm:min-w-[280px] lg:min-w-0 snap-center relative group p-6 sm:p-7 border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-[#141414] rounded-2xl hover:border-accent/40 transition-all duration-300 flex flex-col justify-between"
             >
               {/* Step Number */}
-              <span className="absolute top-4 right-4 text-[11px] font-bold tracking-widest text-gray-400 dark:text-gray-500 uppercase">
+              <span className="absolute top-4 right-4 text-[10px] font-mono font-bold tracking-widest text-accent bg-accent/10 px-2 py-0.5 rounded-full border border-accent/20">
                 Step {step.number}
               </span>
               
-              {/* Icon */}
-              <div className="w-14 h-14 rounded-xl bg-accent/10 text-accent flex items-center justify-center mb-6 group-hover:bg-accent group-hover:text-white transition-all duration-300">
-                {step.icon}
+              <div>
+                {/* Icon */}
+                <div className="w-12 h-12 rounded-xl bg-accent/10 text-accent flex items-center justify-center mb-5 group-hover:bg-accent group-hover:text-white transition-all duration-300">
+                  {step.icon}
+                </div>
+                
+                <h3 className="text-xl font-heading font-bold text-black dark:text-white mb-2">
+                  {step.title}
+                </h3>
+                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 leading-relaxed font-light">
+                  {step.description}
+                </p>
               </div>
-              
-              <h3 className="text-xl font-heading font-bold text-black dark:text-white mb-3">
-                {step.title}
-              </h3>
-              <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed opacity-90">
-                {step.description}
-              </p>
 
               {/* Connector arrow (hidden on last + mobile) */}
               {i < steps.length - 1 && (
@@ -160,8 +162,8 @@ const HowItWorks = () => {
 
         {/* Trust Stats Banner */}
         <motion.div
-          className="bg-black dark:bg-[#111] border border-white/5 p-8 md:p-10"
-          initial={shouldReduce ? {} : { opacity: 0, y: 40 }}
+          className="bg-black dark:bg-[#141414] border border-gray-200 dark:border-white/10 rounded-2xl p-6 sm:p-8 md:p-10 shadow-xl"
+          initial={shouldReduce ? {} : { opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={sectionViewport}
           transition={{ duration: shouldReduce ? 0 : 0.5, ease: 'easeOut' }}

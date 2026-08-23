@@ -29,7 +29,7 @@ const PRICING_DATA = {
       websites: {
         id: "websites",
         label: "🌐 Websites",
-        title: "01 — Websites & Web Platforms",
+        title: "01. Websites & Web Platforms",
         desc: "High-converting corporate websites, portfolios, and company web platforms built for authority and conversions.",
         starting: "250,000",
         tiers: [
@@ -100,7 +100,7 @@ const PRICING_DATA = {
       ecommerce: {
         id: "ecommerce",
         label: "🛒 E-Commerce ⭐",
-        title: "02 — E-Commerce Engines",
+        title: "02. E-Commerce Engines",
         desc: "Scalable online stores engineered to convert visitors, accept multi-channel payments, and streamline fulfillment.",
         starting: "650,000",
         tiers: [
@@ -177,7 +177,7 @@ const PRICING_DATA = {
       software: {
         id: "software",
         label: "⚙️ Custom Software",
-        title: "03 — Custom Software & SaaS",
+        title: "03. Custom Software & SaaS",
         desc: "Bespoke web applications, SaaS prototypes, and internal systems built for operational scale.",
         starting: "1,200,000",
         tiers: [
@@ -252,7 +252,7 @@ const PRICING_DATA = {
       websites: {
         id: "websites",
         label: "🌐 Websites",
-        title: "01 — Websites & Web Platforms",
+        title: "01. Websites & Web Platforms",
         desc: "High-converting corporate websites, portfolios, and company web platforms built for authority and conversions.",
         starting: "800",
         tiers: [
@@ -323,7 +323,7 @@ const PRICING_DATA = {
       ecommerce: {
         id: "ecommerce",
         label: "🛒 E-Commerce ⭐",
-        title: "02 — E-Commerce Engines",
+        title: "02. E-Commerce Engines",
         desc: "Scalable online stores engineered to convert visitors, accept multi-channel payments, and streamline fulfillment.",
         starting: "1,800",
         tiers: [
@@ -400,7 +400,7 @@ const PRICING_DATA = {
       software: {
         id: "software",
         label: "⚙️ Custom Software",
-        title: "03 — Custom Software & SaaS",
+        title: "03. Custom Software & SaaS",
         desc: "Bespoke web applications, SaaS prototypes, and internal systems built for operational scale.",
         starting: "3,200",
         tiers: [
@@ -1063,7 +1063,7 @@ const Pricing = ({ isHomepage = false }) => {
                   {/* Step 1: Category */}
                   <div>
                     <label className="block text-[11px] font-mono font-bold uppercase tracking-widest text-gray-400 mb-3">
-                      01 — What are you building?
+                      01. What are you building?
                     </label>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                       {Object.values(activePricing.categories).map(cat => (
@@ -1090,7 +1090,7 @@ const Pricing = ({ isHomepage = false }) => {
                   {/* Step 2: Package Tier */}
                   <div>
                     <label className="block text-[11px] font-mono font-bold uppercase tracking-widest text-gray-400 mb-3">
-                      02 — Choose your package tier
+                      02. Choose your package tier
                     </label>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                       {builderCategoryData.tiers.map(t => (
@@ -1117,7 +1117,7 @@ const Pricing = ({ isHomepage = false }) => {
                   {/* Step 3: Infrastructure */}
                   <div>
                     <label className="block text-[11px] font-mono font-bold uppercase tracking-widest text-gray-400 mb-3">
-                      03 — Choose infrastructure resilience
+                      03. Choose infrastructure resilience
                     </label>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                       {INFRASTRUCTURE_TIERS.map(i => {
@@ -1144,7 +1144,7 @@ const Pricing = ({ isHomepage = false }) => {
                   {/* Step 4: Optional Features Pills */}
                   <div>
                     <label className="block text-[11px] font-mono font-bold uppercase tracking-widest text-gray-400 mb-3">
-                      04 — Select optional features
+                      04. Select optional features
                     </label>
                     <div className="flex flex-wrap gap-2">
                       {OPTIONAL_ADDONS.map(add => {

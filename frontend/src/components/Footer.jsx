@@ -7,19 +7,29 @@ const Footer = () => {
   const displayYear = 2026;
 
   return (
-    <footer className="bg-black text-white pt-20 pb-12 px-6 md:px-12 font-mono selection:bg-white selection:text-black">
-      <div className="max-w-[1400px] mx-auto">
+    <footer className="bg-black text-white pt-16 pb-12 px-6 md:px-12 font-mono selection:bg-white selection:text-black border-t border-white/10">
+      <div className="max-w-[1400px] mx-auto space-y-12">
 
-        {/* Top: QR and Professional Status Section */}
-        <div className="flex flex-col md:flex-row gap-4 mb-20">
-          <div className="w-full md:w-[240px] aspect-square bg-white flex items-center justify-center p-2 rounded-sm group overflow-hidden">
-            <img
-              src="/qr-code.svg"
-              alt="QR Code"
-              className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500"
-            />
+        {/* Top: QR, Studio Branding & Interactive TechStack Physics Section */}
+        <div className="flex flex-col lg:flex-row gap-6 mb-12">
+          {/* Studio Brand & QR Identity Card */}
+          <div className="w-full lg:w-[280px] bg-[#111] border border-white/10 p-6 rounded-2xl flex flex-col justify-between group shrink-0">
+            <div className="w-full aspect-square bg-white flex items-center justify-center p-3 rounded-xl overflow-hidden mb-6">
+              <img
+                src="/qr-code.svg"
+                alt="QR Code"
+                className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
+              />
+            </div>
+            <div className="space-y-1">
+              <span className="text-xs font-bold text-accent uppercase tracking-widest block">Software Studio</span>
+              <h3 className="text-xl font-heading font-bold text-white tracking-tight">BuildWithLami</h3>
+              <p className="text-xs text-gray-400 font-mono">Founded by Eugene Odibenuah</p>
+            </div>
           </div>
-          <div className="flex-1 min-h-[360px] rounded-sm relative overflow-hidden">
+
+          {/* Interactive Physics Canvas */}
+          <div className="flex-1 min-h-[380px] rounded-2xl relative overflow-hidden border border-white/10">
             <TechStack />
           </div>
         </div>

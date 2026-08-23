@@ -45,7 +45,7 @@ const About = () => {
             viewport={sectionViewport}
           >
             <p className="text-xl md:text-2xl leading-relaxed text-black dark:text-white font-heading font-bold">
-              Hi, I'm Eugene — a Nigerian full-stack software engineer.
+              Hi, I'm Eugene, a Nigerian full-stack software engineer.
             </p>
           </motion.div>
           <div className="md:w-1/2 flex flex-col items-start md:items-end text-left md:text-right">

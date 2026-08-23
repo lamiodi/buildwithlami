@@ -131,40 +131,6 @@ const toolCategories = [
   },
 ];
 
-// Visual 5-step Workflow / How I Build
-const workflowSteps = [
-  {
-    number: '01',
-    phase: 'Understand',
-    title: 'Discovery & Business Mapping',
-    desc: 'I learn the business model, users, operational goals, and constraints before choosing the technical architecture.',
-  },
-  {
-    number: '02',
-    phase: 'Design',
-    title: 'Experience & Systems Architecture',
-    desc: 'I map the complete user experience, database schemas, and API contracts before writing code.',
-  },
-  {
-    number: '03',
-    phase: 'Engineer',
-    title: 'Full-Stack Development',
-    desc: 'I build the frontend, backend, database models, integrations, and business logic with clean, maintainable code.',
-  },
-  {
-    number: '04',
-    phase: 'Test',
-    title: 'QA, Security & Performance',
-    desc: 'Performance audits, responsiveness, security measures, and real-world edge cases are thoroughly validated.',
-  },
-  {
-    number: '05',
-    phase: 'Launch',
-    title: 'Deployment & Ongoing Support',
-    desc: 'Production deployment, environment configuration, client training, and post-launch maintenance.',
-  },
-];
-
 // Working Style Pillars
 const workingStylePillars = [
   {
@@ -574,7 +540,7 @@ const AboutPage = () => {
           </div>
 
           {/* Categorized Tool Cards */}
-          <div className="space-y-10">
+          <div className="space-y-8">
             <AnimatePresence mode="wait">
               {displayedCategories.map((category) => (
                 <motion.div
@@ -583,10 +549,10 @@ const AboutPage = () => {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -15 }}
                   transition={{ duration: 0.3 }}
-                  className="space-y-4"
+                  className="space-y-3"
                 >
                   <div className="flex items-center justify-between">
-                    <h3 className="text-lg sm:text-xl font-heading font-bold text-black dark:text-white">
+                    <h3 className="text-base sm:text-lg font-heading font-bold text-black dark:text-white">
                       {category.name}
                     </h3>
                     <span className="text-xs text-gray-500 dark:text-gray-400 font-light hidden sm:inline">
@@ -594,82 +560,26 @@ const AboutPage = () => {
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
                     {category.tools.map((tool) => (
                       <motion.div
                         key={tool.name}
-                        whileHover={shouldReduce ? {} : { y: -4, scale: 1.02 }}
+                        whileHover={shouldReduce ? {} : { y: -3 }}
                         transition={{ duration: 0.2 }}
-                        className="group bg-gray-50 dark:bg-white/5 hover:bg-white dark:hover:bg-[#1a1a1a] p-4 rounded-2xl border border-gray-200 dark:border-white/5 hover:border-accent dark:hover:border-accent/40 shadow-sm hover:shadow-lg transition-all flex flex-col items-center text-center justify-between min-h-[140px]"
+                        className="group bg-gray-50 dark:bg-white/5 hover:bg-white dark:hover:bg-[#1a1a1a] p-3.5 rounded-xl border border-gray-200 dark:border-white/5 hover:border-accent dark:hover:border-accent/40 shadow-xs hover:shadow-md transition-all flex items-center gap-3"
                       >
-                        <div className="w-10 h-10 rounded-xl bg-white dark:bg-white/10 p-2 border border-gray-200 dark:border-white/10 flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
-                          <TechIcon name={tool.name} className="w-6 h-6" />
+                        <div className="w-8 h-8 rounded-lg bg-white dark:bg-white/10 p-1.5 border border-gray-200 dark:border-white/10 flex items-center justify-center shrink-0">
+                          <TechIcon name={tool.name} className="w-5 h-5" />
                         </div>
-                        <div className="mt-2">
-                          <h4 className="text-xs sm:text-sm font-heading font-bold text-black dark:text-white group-hover:text-accent transition-colors">
-                            {tool.name}
-                          </h4>
-                          <p className="text-[10px] text-gray-600 dark:text-gray-400 font-light mt-1 line-clamp-2 leading-tight">
-                            {tool.desc}
-                          </p>
-                        </div>
+                        <span className="text-xs font-heading font-bold text-black dark:text-white group-hover:text-accent transition-colors truncate">
+                          {tool.name}
+                        </span>
                       </motion.div>
                     ))}
                   </div>
                 </motion.div>
               ))}
             </AnimatePresence>
-          </div>
-        </motion.section>
-
-        {/* ═══════════════════════════════════════════════════════════════════
-            5. HOW I BUILD — 5-Step Workflow
-            ═══════════════════════════════════════════════════════════════════ */}
-        <motion.section
-          variants={container}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: '-50px' }}
-          className="space-y-8"
-        >
-          <div className="text-center max-w-2xl mx-auto">
-            <div className="flex items-center justify-center gap-2 text-accent text-xs font-bold uppercase tracking-[0.25em] mb-2">
-              <span>Methodology</span>
-            </div>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-heading font-bold text-black dark:text-white">
-              How I Build
-            </h2>
-            <p className="mt-3 text-sm sm:text-base text-gray-700 dark:text-gray-300 font-light">
-              A structured engineering workflow designed to de-risk every stage from discovery to production.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-            {workflowSteps.map((step, i) => (
-              <motion.div
-                key={step.number}
-                variants={item}
-                whileHover={hover}
-                transition={cardHoverTransition}
-                className="bg-white dark:bg-gradient-to-br dark:from-[#1e1e1e] dark:to-[#151515] p-5 sm:p-6 rounded-2xl border border-gray-200 dark:border-white/5 shadow-lg flex flex-col justify-between group relative overflow-hidden"
-              >
-                <div className="absolute top-0 left-0 w-full h-1 bg-accent/20 group-hover:bg-accent transition-colors" />
-                <div>
-                  <span className="font-mono text-2xl font-bold text-accent/80 block mb-2">
-                    {step.number}
-                  </span>
-                  <span className="text-[10px] uppercase tracking-widest text-accent font-bold block mb-1">
-                    {step.phase}
-                  </span>
-                  <h3 className="text-base font-heading font-bold text-black dark:text-white mb-2 leading-snug">
-                    {step.title}
-                  </h3>
-                  <p className="text-xs text-gray-700 dark:text-gray-300 font-light leading-relaxed">
-                    {step.desc}
-                  </p>
-                </div>
-              </motion.div>
-            ))}
           </div>
         </motion.section>
 
