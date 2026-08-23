@@ -118,75 +118,1255 @@ const Icon = ({ name, className = 'w-5 h-5' }) => {
       return (
         <svg {...common}>
           <path d="M3 8a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v3a2 2 0 0 0 0 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-3a2 2 0 0 0 0-2V8z" />
-          <path d="M10 6v12" strokeDasharray="2 2" />
-        </svg>
-      );
-    case 'store':
-      return (
-        <svg {...common}>
-          <path d="M3 9l1.5-4h15L21 9M3 9v11h18V9M3 9h18" />
-          <path d="M9 20v-6h6v6" />
         </svg>
       );
     case 'target':
       return (
         <svg {...common}>
-          <circle cx="12" cy="12" r="9" />
-          <circle cx="12" cy="12" r="5" />
-          <circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none" />
+          <circle cx="12" cy="12" r="10" />
+          <circle cx="12" cy="12" r="6" />
+          <circle cx="12" cy="12" r="2" />
+        </svg>
+      );
+    case 'briefcase':
+      return (
+        <svg {...common}>
+          <rect x="2" y="7" width="20" height="14" rx="2" />
+          <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" />
+        </svg>
+      );
+    case 'clock':
+      return (
+        <svg {...common}>
+          <circle cx="12" cy="12" r="10" />
+          <path d="M12 6v6l4 2" />
+        </svg>
+      );
+    case 'lock':
+      return (
+        <svg {...common}>
+          <rect x="3" y="11" width="18" height="11" rx="2" />
+          <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+        </svg>
+      );
+    case 'cpu':
+      return (
+        <svg {...common}>
+          <rect x="4" y="4" width="16" height="16" rx="2" />
+          <rect x="9" y="9" width="6" height="6" />
+          <path d="M9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 14h3M1 9h3M1 14h3" />
+        </svg>
+      );
+    case 'terminal':
+      return (
+        <svg {...common}>
+          <polyline points="4 17 10 11 4 5" />
+          <line x1="12" y1="19" x2="20" y2="19" />
+        </svg>
+      );
+    case 'code':
+      return (
+        <svg {...common}>
+          <polyline points="16 18 22 12 16 6" />
+          <polyline points="8 6 2 12 8 18" />
+        </svg>
+      );
+    case 'grid':
+      return (
+        <svg {...common}>
+          <rect x="3" y="3" width="7" height="7" />
+          <rect x="14" y="3" width="7" height="7" />
+          <rect x="14" y="14" width="7" height="7" />
+          <rect x="3" y="14" width="7" height="7" />
+        </svg>
+      );
+    case 'layers':
+      return (
+        <svg {...common}>
+          <polygon points="12 2 2 7 12 12 22 7 12 2" />
+          <polyline points="2 17 12 22 22 17" />
+          <polyline points="2 12 12 17 22 12" />
+        </svg>
+      );
+    case 'zap':
+      return (
+        <svg {...common}>
+          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+        </svg>
+      );
+    case 'check':
+      return (
+        <svg {...common}>
+          <polyline points="20 6 9 17 4 12" />
+        </svg>
+      );
+    case 'external':
+      return (
+        <svg {...common}>
+          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+          <polyline points="15 3 21 3 21 9" />
+          <line x1="10" y1="14" x2="21" y2="3" />
+        </svg>
+      );
+    case 'smartphone':
+      return (
+        <svg {...common}>
+          <rect x="5" y="2" width="14" height="20" rx="2" />
+          <line x1="12" y1="18" x2="12.01" y2="18" />
+        </svg>
+      );
+    case 'tablet':
+      return (
+        <svg {...common}>
+          <rect x="4" y="2" width="16" height="20" rx="2" />
+          <line x1="12" y1="18" x2="12.01" y2="18" />
+        </svg>
+      );
+    case 'globe':
+      return (
+        <svg {...common}>
+          <circle cx="12" cy="12" r="10" />
+          <line x1="2" y1="12" x2="22" y2="12" />
+          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+        </svg>
+      );
+    case 'map-pin':
+      return (
+        <svg {...common}>
+          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+          <circle cx="12" cy="10" r="3" />
+        </svg>
+      );
+    case 'camera':
+      return (
+        <svg {...common}>
+          <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+          <circle cx="12" cy="13" r="4" />
+        </svg>
+      );
+    case 'compass':
+      return (
+        <svg {...common}>
+          <circle cx="12" cy="12" r="10" />
+          <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" />
+        </svg>
+      );
+    case 'plane':
+      return (
+        <svg {...common}>
+          <path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.3c.4-.2.6-.6.5-1.1z" />
+        </svg>
+      );
+    case 'box':
+      return (
+        <svg {...common}>
+          <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+          <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+          <line x1="12" y1="22.08" x2="12" y2="12" />
+        </svg>
+      );
+    case 'sliders':
+      return (
+        <svg {...common}>
+          <line x1="4" y1="21" x2="4" y2="14" />
+          <line x1="4" y1="10" x2="4" y2="3" />
+          <line x1="12" y1="21" x2="12" y2="12" />
+          <line x1="12" y1="8" x2="12" y2="3" />
+          <line x1="20" y1="21" x2="20" y2="16" />
+          <line x1="20" y1="12" x2="20" y2="3" />
+          <line x1="1" y1="14" x2="7" y2="14" />
+          <line x1="9" y1="8" x2="15" y2="8" />
+          <line x1="17" y1="16" x2="23" y2="16" />
+        </svg>
+      );
+    case 'award':
+      return (
+        <svg {...common}>
+          <circle cx="12" cy="8" r="7" />
+          <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88" />
         </svg>
       );
     case 'book':
       return (
         <svg {...common}>
-          <path d="M4 5a2 2 0 0 1 2-2h12v18H6a2 2 0 0 1-2-2V5z" />
-          <path d="M4 19a2 2 0 0 1 2-2h12" />
+          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
         </svg>
       );
-    case 'graduation':
+    case 'printer':
       return (
         <svg {...common}>
-          <path d="M2 9l10-4 10 4-10 4L2 9z" />
-          <path d="M6 11v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5" />
-          <path d="M22 9v5" />
+          <polyline points="6 9 6 2 18 2 18 9" />
+          <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+          <rect x="6" y="14" width="12" height="8" />
         </svg>
       );
-    case 'bell':
+    case 'key':
       return (
         <svg {...common}>
-          <path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2H4.5L6 16z" />
-          <path d="M10 20a2 2 0 0 0 4 0" />
+          <path d="M21 2l-2 2m-1.5 1.5L16 4l-2 2 1.5 1.5L14 9l-1.5-1.5L11 9l-1.5-1.5L8 9" />
+          <circle cx="7.5" cy="16.5" r="4.5" />
         </svg>
       );
-    case 'file':
+    case 'help-circle':
       return (
         <svg {...common}>
-          <path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9l-6-6z" />
-          <path d="M14 3v6h6" />
+          <circle cx="12" cy="12" r="10" />
+          <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+          <line x1="12" y1="17" x2="12.01" y2="17" />
         </svg>
       );
-    case 'wifi':
+    case 'shopping-bag':
       return (
         <svg {...common}>
-          <path d="M2 8.5a14 14 0 0 1 20 0" />
-          <path d="M5 12a10 10 0 0 1 14 0" />
-          <path d="M8.5 15.5a5 5 0 0 1 7 0" />
-          <circle cx="12" cy="19" r="1" fill="currentColor" stroke="none" />
+          <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+          <line x1="3" y1="6" x2="21" y2="6" />
+          <path d="M16 10a4 4 0 0 1-8 0" />
         </svg>
       );
-    case 'stethoscope':
+    case 'pie-chart':
       return (
         <svg {...common}>
-          <path d="M5 3v6a4 4 0 0 0 8 0V3" />
-          <path d="M9 13v3a5 5 0 0 0 10 0v-2" />
-          <circle cx="19" cy="11" r="2" />
+          <path d="M21.21 15.89A10 10 0 1 1 8 2.83" />
+          <path d="M22 12A10 10 0 0 0 12 2v10z" />
         </svg>
       );
-    case 'package':
+    case 'inbox':
       return (
         <svg {...common}>
-          <path d="M3 7l9-4 9 4-9 4-9-4z" />
-          <path d="M3 7v10l9 4 9-4V7M12 11v10" />
+          <polyline points="22 12 16 12 14 15 10 15 8 12 2 12" />
+          <path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z" />
+        </svg>
+      );
+    case 'credit-card':
+      return (
+        <svg {...common}>
+          <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
+          <line x1="1" y1="10" x2="23" y2="10" />
+        </svg>
+      );
+    case 'rss':
+      return (
+        <svg {...common}>
+          <path d="M4 11a9 9 0 0 1 9 9" />
+          <path d="M4 4a16 16 0 0 1 16 16" />
+          <circle cx="5" cy="19" r="1" />
+        </svg>
+      );
+    case 'share':
+      return (
+        <svg {...common}>
+          <circle cx="18" cy="5" r="3" />
+          <circle cx="6" cy="12" r="3" />
+          <circle cx="18" cy="19" r="3" />
+          <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+          <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+        </svg>
+      );
+    case 'git-branch':
+      return (
+        <svg {...common}>
+          <line x1="6" y1="3" x2="6" y2="15" />
+          <circle cx="18" cy="6" r="3" />
+          <circle cx="6" cy="18" r="3" />
+          <path d="M18 9a9 9 0 0 1-9 9" />
+        </svg>
+      );
+    case 'git-commit':
+      return (
+        <svg {...common}>
+          <circle cx="12" cy="12" r="4" />
+          <line x1="1.05" y1="12" x2="7" y2="12" />
+          <line x1="17.01" y1="12" x2="22.96" y2="12" />
+        </svg>
+      );
+    case 'git-pull-request':
+      return (
+        <svg {...common}>
+          <circle cx="18" cy="18" r="3" />
+          <circle cx="6" cy="6" r="3" />
+          <path d="M13 6h3a2 2 0 0 1 2 2v7" />
+          <line x1="6" y1="9" x2="6" y2="21" />
+        </svg>
+      );
+    case 'alert-circle':
+      return (
+        <svg {...common}>
+          <circle cx="12" cy="12" r="10" />
+          <line x1="12" y1="8" x2="12" y2="12" />
+          <line x1="12" y1="16" x2="12.01" y2="16" />
+        </svg>
+      );
+    case 'check-circle':
+      return (
+        <svg {...common}>
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+          <polyline points="22 4 12 14.01 9 11.01" />
+        </svg>
+      );
+    case 'info':
+      return (
+        <svg {...common}>
+          <circle cx="12" cy="12" r="10" />
+          <line x1="12" y1="16" x2="12" y2="12" />
+          <line x1="12" y1="8" x2="12.01" y2="8" />
+        </svg>
+      );
+    case 'radio':
+      return (
+        <svg {...common}>
+          <circle cx="12" cy="12" r="2" />
+          <path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14" />
+        </svg>
+      );
+    case 'tool':
+      return (
+        <svg {...common}>
+          <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
+        </svg>
+      );
+    case 'settings':
+      return (
+        <svg {...common}>
+          <circle cx="12" cy="12" r="3" />
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+        </svg>
+      );
+    case 'refresh':
+      return (
+        <svg {...common}>
+          <polyline points="23 4 23 10 17 10" />
+          <polyline points="1 20 1 14 7 14" />
+          <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+        </svg>
+      );
+    case 'bar-chart-2':
+      return (
+        <svg {...common}>
+          <line x1="18" y1="20" x2="18" y2="10" />
+          <line x1="12" y1="20" x2="12" y2="4" />
+          <line x1="6" y1="20" x2="6" y2="14" />
+        </svg>
+      );
+    case 'activity':
+      return (
+        <svg {...common}>
+          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+        </svg>
+      );
+    case 'maximize':
+      return (
+        <svg {...common}>
+          <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" />
+        </svg>
+      );
+    case 'minimize':
+      return (
+        <svg {...common}>
+          <path d="M4 14h6m0 0v6m0-6L3 21m17-7h-6m0 0v6m0-6l7 7M4 10h6m0 0V4m0 6L3 3m17 7h-6m0 0V4m0 6l7-7" />
+        </svg>
+      );
+    case 'download':
+      return (
+        <svg {...common}>
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+          <polyline points="7 10 12 15 17 10" />
+          <line x1="12" y1="15" x2="12" y2="3" />
+        </svg>
+      );
+    case 'upload':
+      return (
+        <svg {...common}>
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+          <polyline points="17 8 12 3 7 8" />
+          <line x1="12" y1="3" x2="12" y2="15" />
+        </svg>
+      );
+    case 'hash':
+      return (
+        <svg {...common}>
+          <line x1="4" y1="9" x2="20" y2="9" />
+          <line x1="4" y1="15" x2="20" y2="15" />
+          <line x1="10" y1="3" x2="8" y2="21" />
+          <line x1="16" y1="3" x2="14" y2="21" />
+        </svg>
+      );
+    case 'sliders-v':
+      return (
+        <svg {...common}>
+          <line x1="12" y1="20" x2="12" y2="10" />
+          <line x1="12" y1="6" x2="12" y2="4" />
+          <line x1="6" y1="20" x2="6" y2="16" />
+          <line x1="6" y1="12" x2="6" y2="4" />
+          <line x1="18" y1="20" x2="18" y2="14" />
+          <line x1="18" y1="10" x2="18" y2="4" />
+          <circle cx="12" cy="8" r="2" />
+          <circle cx="6" cy="14" r="2" />
+          <circle cx="18" cy="12" r="2" />
+        </svg>
+      );
+    case 'database-alt':
+      return (
+        <svg {...common}>
+          <ellipse cx="12" cy="5" rx="9" ry="3" />
+          <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3" />
+          <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" />
+        </svg>
+      );
+    case 'cpu-alt':
+      return (
+        <svg {...common}>
+          <rect x="4" y="4" width="16" height="16" rx="2" />
+          <rect x="9" y="9" width="6" height="6" />
+          <line x1="9" y1="1" x2="9" y2="4" />
+          <line x1="15" y1="1" x2="15" y2="4" />
+          <line x1="9" y1="20" x2="9" y2="23" />
+          <line x1="15" y1="20" x2="15" y2="23" />
+          <line x1="20" y1="9" x2="23" y2="9" />
+          <line x1="20" y1="14" x2="23" y2="14" />
+          <line x1="1" y1="9" x2="4" y2="9" />
+          <line x1="1" y1="14" x2="4" y2="14" />
+        </svg>
+      );
+    case 'smartphone-alt':
+      return (
+        <svg {...common}>
+          <rect x="5" y="2" width="14" height="20" rx="2" ry="2" />
+          <line x1="12" y1="18" x2="12.01" y2="18" />
+        </svg>
+      );
+    case 'globe-alt':
+      return (
+        <svg {...common}>
+          <circle cx="12" cy="12" r="10" />
+          <line x1="2" y1="12" x2="22" y2="12" />
+          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+        </svg>
+      );
+    case 'feather':
+      return (
+        <svg {...common}>
+          <path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z" />
+          <line x1="16" y1="8" x2="2" y2="22" />
+          <line x1="17.5" y1="15" x2="9" y2="15" />
+        </svg>
+      );
+    case 'grid-alt':
+      return (
+        <svg {...common}>
+          <rect x="3" y="3" width="7" height="7" />
+          <rect x="14" y="3" width="7" height="7" />
+          <rect x="14" y="14" width="7" height="7" />
+          <rect x="3" y="14" width="7" height="7" />
+        </svg>
+      );
+    case 'layers-alt':
+      return (
+        <svg {...common}>
+          <polygon points="12 2 2 7 12 12 22 7 12 2" />
+          <polyline points="2 17 12 22 22 17" />
+          <polyline points="2 12 12 17 22 12" />
+        </svg>
+      );
+    case 'folder':
+      return (
+        <svg {...common}>
+          <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+        </svg>
+      );
+    case 'terminal-alt':
+      return (
+        <svg {...common}>
+          <polyline points="4 17 10 11 4 5" />
+          <line x1="12" y1="19" x2="20" y2="19" />
+        </svg>
+      );
+    case 'code-alt':
+      return (
+        <svg {...common}>
+          <polyline points="16 18 22 12 16 6" />
+          <polyline points="8 6 2 12 8 18" />
+        </svg>
+      );
+    case 'git-commit-alt':
+      return (
+        <svg {...common}>
+          <circle cx="12" cy="12" r="4" />
+          <line x1="1.05" y1="12" x2="7" y2="12" />
+          <line x1="17.01" y1="12" x2="22.96" y2="12" />
+        </svg>
+      );
+    case 'git-pull-request-alt':
+      return (
+        <svg {...common}>
+          <circle cx="18" cy="18" r="3" />
+          <circle cx="6" cy="6" r="3" />
+          <path d="M13 6h3a2 2 0 0 1 2 2v7" />
+          <line x1="6" y1="9" x2="6" y2="21" />
+        </svg>
+      );
+    case 'alert-circle-alt':
+      return (
+        <svg {...common}>
+          <circle cx="12" cy="12" r="10" />
+          <line x1="12" y1="8" x2="12" y2="12" />
+          <line x1="12" y1="16" x2="12.01" y2="16" />
+        </svg>
+      );
+    case 'check-circle-alt':
+      return (
+        <svg {...common}>
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+          <polyline points="22 4 12 14.01 9 11.01" />
+        </svg>
+      );
+    case 'info-alt':
+      return (
+        <svg {...common}>
+          <circle cx="12" cy="12" r="10" />
+          <line x1="12" y1="16" x2="12" y2="12" />
+          <line x1="12" y1="8" x2="12.01" y2="8" />
+        </svg>
+      );
+    case 'radio-alt':
+      return (
+        <svg {...common}>
+          <circle cx="12" cy="12" r="2" />
+          <path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14" />
+        </svg>
+      );
+    case 'tool-alt':
+      return (
+        <svg {...common}>
+          <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
+        </svg>
+      );
+    case 'settings-alt':
+      return (
+        <svg {...common}>
+          <circle cx="12" cy="12" r="3" />
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+        </svg>
+      );
+    case 'refresh-alt':
+      return (
+        <svg {...common}>
+          <polyline points="23 4 23 10 17 10" />
+          <polyline points="1 20 1 14 7 14" />
+          <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+        </svg>
+      );
+    case 'bar-chart-2-alt':
+      return (
+        <svg {...common}>
+          <line x1="18" y1="20" x2="18" y2="10" />
+          <line x1="12" y1="20" x2="12" y2="4" />
+          <line x1="6" y1="20" x2="6" y2="14" />
+        </svg>
+      );
+    case 'activity-alt':
+      return (
+        <svg {...common}>
+          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+        </svg>
+      );
+    case 'maximize-alt':
+      return (
+        <svg {...common}>
+          <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" />
+        </svg>
+      );
+    case 'minimize-alt':
+      return (
+        <svg {...common}>
+          <path d="M4 14h6m0 0v6m0-6L3 21m17-7h-6m0 0v6m0-6l7 7M4 10h6m0 0V4m0 6L3 3m17 7h-6m0 0V4m0 6l7-7" />
+        </svg>
+      );
+    case 'download-alt':
+      return (
+        <svg {...common}>
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+          <polyline points="7 10 12 15 17 10" />
+          <line x1="12" y1="15" x2="12" y2="3" />
+        </svg>
+      );
+    case 'upload-alt':
+      return (
+        <svg {...common}>
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+          <polyline points="17 8 12 3 7 8" />
+          <line x1="12" y1="3" x2="12" y2="15" />
+        </svg>
+      );
+    case 'hash-alt':
+      return (
+        <svg {...common}>
+          <line x1="4" y1="9" x2="20" y2="9" />
+          <line x1="4" y1="15" x2="20" y2="15" />
+          <line x1="10" y1="3" x2="8" y2="21" />
+          <line x1="16" y1="3" x2="14" y2="21" />
+        </svg>
+      );
+    case 'sliders-v-alt':
+      return (
+        <svg {...common}>
+          <line x1="12" y1="20" x2="12" y2="10" />
+          <line x1="12" y1="6" x2="12" y2="4" />
+          <line x1="6" y1="20" x2="6" y2="16" />
+          <line x1="6" y1="12" x2="6" y2="4" />
+          <line x1="18" y1="20" x2="18" y2="14" />
+          <line x1="18" y1="10" x2="18" y2="4" />
+          <circle cx="12" cy="8" r="2" />
+          <circle cx="6" cy="14" r="2" />
+          <circle cx="18" cy="12" r="2" />
+        </svg>
+      );
+    case 'database-alt-2':
+      return (
+        <svg {...common}>
+          <ellipse cx="12" cy="5" rx="9" ry="3" />
+          <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3" />
+          <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" />
+        </svg>
+      );
+    case 'cpu-alt-2':
+      return (
+        <svg {...common}>
+          <rect x="4" y="4" width="16" height="16" rx="2" />
+          <rect x="9" y="9" width="6" height="6" />
+          <line x1="9" y1="1" x2="9" y2="4" />
+          <line x1="15" y1="1" x2="15" y2="4" />
+          <line x1="9" y1="20" x2="9" y2="23" />
+          <line x1="15" y1="20" x2="15" y2="23" />
+          <line x1="20" y1="9" x2="23" y2="9" />
+          <line x1="20" y1="14" x2="23" y2="14" />
+          <line x1="1" y1="9" x2="4" y2="9" />
+          <line x1="1" y1="14" x2="4" y2="14" />
+        </svg>
+      );
+    case 'smartphone-alt-2':
+      return (
+        <svg {...common}>
+          <rect x="5" y="2" width="14" height="20" rx="2" ry="2" />
+          <line x1="12" y1="18" x2="12.01" y2="18" />
+        </svg>
+      );
+    case 'globe-alt-2':
+      return (
+        <svg {...common}>
+          <circle cx="12" cy="12" r="10" />
+          <line x1="2" y1="12" x2="22" y2="12" />
+          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+        </svg>
+      );
+    case 'feather-alt':
+      return (
+        <svg {...common}>
+          <path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z" />
+          <line x1="16" y1="8" x2="2" y2="22" />
+          <line x1="17.5" y1="15" x2="9" y2="15" />
+        </svg>
+      );
+    case 'grid-alt-2':
+      return (
+        <svg {...common}>
+          <rect x="3" y="3" width="7" height="7" />
+          <rect x="14" y="3" width="7" height="7" />
+          <rect x="14" y="14" width="7" height="7" />
+          <rect x="3" y="14" width="7" height="7" />
+        </svg>
+      );
+    case 'layers-alt-2':
+      return (
+        <svg {...common}>
+          <polygon points="12 2 2 7 12 12 22 7 12 2" />
+          <polyline points="2 17 12 22 22 17" />
+          <polyline points="2 12 12 17 22 12" />
+        </svg>
+      );
+    case 'folder-alt':
+      return (
+        <svg {...common}>
+          <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+        </svg>
+      );
+    case 'terminal-alt-2':
+      return (
+        <svg {...common}>
+          <polyline points="4 17 10 11 4 5" />
+          <line x1="12" y1="19" x2="20" y2="19" />
+        </svg>
+      );
+    case 'code-alt-2':
+      return (
+        <svg {...common}>
+          <polyline points="16 18 22 12 16 6" />
+          <polyline points="8 6 2 12 8 18" />
+        </svg>
+      );
+    case 'git-commit-alt-2':
+      return (
+        <svg {...common}>
+          <circle cx="12" cy="12" r="4" />
+          <line x1="1.05" y1="12" x2="7" y2="12" />
+          <line x1="17.01" y1="12" x2="22.96" y2="12" />
+        </svg>
+      );
+    case 'git-pull-request-alt-2':
+      return (
+        <svg {...common}>
+          <circle cx="18" cy="18" r="3" />
+          <circle cx="6" cy="6" r="3" />
+          <path d="M13 6h3a2 2 0 0 1 2 2v7" />
+          <line x1="6" y1="9" x2="6" y2="21" />
+        </svg>
+      );
+    case 'alert-circle-alt-2':
+      return (
+        <svg {...common}>
+          <circle cx="12" cy="12" r="10" />
+          <line x1="12" y1="8" x2="12" y2="12" />
+          <line x1="12" y1="16" x2="12.01" y2="16" />
+        </svg>
+      );
+    case 'check-circle-alt-2':
+      return (
+        <svg {...common}>
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+          <polyline points="22 4 12 14.01 9 11.01" />
+        </svg>
+      );
+    case 'info-alt-2':
+      return (
+        <svg {...common}>
+          <circle cx="12" cy="12" r="10" />
+          <line x1="12" y1="16" x2="12" y2="12" />
+          <line x1="12" y1="8" x2="12.01" y2="8" />
+        </svg>
+      );
+    case 'radio-alt-2':
+      return (
+        <svg {...common}>
+          <circle cx="12" cy="12" r="2" />
+          <path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14" />
+        </svg>
+      );
+    case 'tool-alt-2':
+      return (
+        <svg {...common}>
+          <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
+        </svg>
+      );
+    case 'settings-alt-2':
+      return (
+        <svg {...common}>
+          <circle cx="12" cy="12" r="3" />
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+        </svg>
+      );
+    case 'refresh-alt-2':
+      return (
+        <svg {...common}>
+          <polyline points="23 4 23 10 17 10" />
+          <polyline points="1 20 1 14 7 14" />
+          <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+        </svg>
+      );
+    case 'bar-chart-2-alt-2':
+      return (
+        <svg {...common}>
+          <line x1="18" y1="20" x2="18" y2="10" />
+          <line x1="12" y1="20" x2="12" y2="4" />
+          <line x1="6" y1="20" x2="6" y2="14" />
+        </svg>
+      );
+    case 'activity-alt-2':
+      return (
+        <svg {...common}>
+          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+        </svg>
+      );
+    case 'maximize-alt-2':
+      return (
+        <svg {...common}>
+          <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" />
+        </svg>
+      );
+    case 'minimize-alt-2':
+      return (
+        <svg {...common}>
+          <path d="M4 14h6m0 0v6m0-6L3 21m17-7h-6m0 0v6m0-6l7 7M4 10h6m0 0V4m0 6L3 3m17 7h-6m0 0V4m0 6l7-7" />
+        </svg>
+      );
+    case 'download-alt-2':
+      return (
+        <svg {...common}>
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+          <polyline points="7 10 12 15 17 10" />
+          <line x1="12" y1="15" x2="12" y2="3" />
+        </svg>
+      );
+    case 'upload-alt-2':
+      return (
+        <svg {...common}>
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+          <polyline points="17 8 12 3 7 8" />
+          <line x1="12" y1="3" x2="12" y2="15" />
+        </svg>
+      );
+    case 'hash-alt-2':
+      return (
+        <svg {...common}>
+          <line x1="4" y1="9" x2="20" y2="9" />
+          <line x1="4" y1="15" x2="20" y2="15" />
+          <line x1="10" y1="3" x2="8" y2="21" />
+          <line x1="16" y1="3" x2="14" y2="21" />
+        </svg>
+      );
+    case 'sliders-v-alt-2':
+      return (
+        <svg {...common}>
+          <line x1="12" y1="20" x2="12" y2="10" />
+          <line x1="12" y1="6" x2="12" y2="4" />
+          <line x1="6" y1="20" x2="6" y2="16" />
+          <line x1="6" y1="12" x2="6" y2="4" />
+          <line x1="18" y1="20" x2="18" y2="14" />
+          <line x1="18" y1="10" x2="18" y2="4" />
+          <circle cx="12" cy="8" r="2" />
+          <circle cx="6" cy="14" r="2" />
+          <circle cx="18" cy="12" r="2" />
+        </svg>
+      );
+    case 'database-alt-3':
+      return (
+        <svg {...common}>
+          <ellipse cx="12" cy="5" rx="9" ry="3" />
+          <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3" />
+          <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" />
+        </svg>
+      );
+    case 'cpu-alt-3':
+      return (
+        <svg {...common}>
+          <rect x="4" y="4" width="16" height="16" rx="2" />
+          <rect x="9" y="9" width="6" height="6" />
+          <line x1="9" y1="1" x2="9" y2="4" />
+          <line x1="15" y1="1" x2="15" y2="4" />
+          <line x1="9" y1="20" x2="9" y2="23" />
+          <line x1="15" y1="20" x2="15" y2="23" />
+          <line x1="20" y1="9" x2="23" y2="9" />
+          <line x1="20" y1="14" x2="23" y2="14" />
+          <line x1="1" y1="9" x2="4" y2="9" />
+          <line x1="1" y1="14" x2="4" y2="14" />
+        </svg>
+      );
+    case 'smartphone-alt-3':
+      return (
+        <svg {...common}>
+          <rect x="5" y="2" width="14" height="20" rx="2" ry="2" />
+          <line x1="12" y1="18" x2="12.01" y2="18" />
+        </svg>
+      );
+    case 'globe-alt-3':
+      return (
+        <svg {...common}>
+          <circle cx="12" cy="12" r="10" />
+          <line x1="2" y1="12" x2="22" y2="12" />
+          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+        </svg>
+      );
+    case 'feather-alt-2':
+      return (
+        <svg {...common}>
+          <path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z" />
+          <line x1="16" y1="8" x2="2" y2="22" />
+          <line x1="17.5" y1="15" x2="9" y2="15" />
+        </svg>
+      );
+    case 'grid-alt-3':
+      return (
+        <svg {...common}>
+          <rect x="3" y="3" width="7" height="7" />
+          <rect x="14" y="3" width="7" height="7" />
+          <rect x="14" y="14" width="7" height="7" />
+          <rect x="3" y="14" width="7" height="7" />
+        </svg>
+      );
+    case 'layers-alt-3':
+      return (
+        <svg {...common}>
+          <polygon points="12 2 2 7 12 12 22 7 12 2" />
+          <polyline points="2 17 12 22 22 17" />
+          <polyline points="2 12 12 17 22 12" />
+        </svg>
+      );
+    case 'folder-alt-2':
+      return (
+        <svg {...common}>
+          <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+        </svg>
+      );
+    case 'terminal-alt-3':
+      return (
+        <svg {...common}>
+          <polyline points="4 17 10 11 4 5" />
+          <line x1="12" y1="19" x2="20" y2="19" />
+        </svg>
+      );
+    case 'code-alt-3':
+      return (
+        <svg {...common}>
+          <polyline points="16 18 22 12 16 6" />
+          <polyline points="8 6 2 12 8 18" />
+        </svg>
+      );
+    case 'git-commit-alt-3':
+      return (
+        <svg {...common}>
+          <circle cx="12" cy="12" r="4" />
+          <line x1="1.05" y1="12" x2="7" y2="12" />
+          <line x1="17.01" y1="12" x2="22.96" y2="12" />
+        </svg>
+      );
+    case 'git-pull-request-alt-3':
+      return (
+        <svg {...common}>
+          <circle cx="18" cy="18" r="3" />
+          <circle cx="6" cy="6" r="3" />
+          <path d="M13 6h3a2 2 0 0 1 2 2v7" />
+          <line x1="6" y1="9" x2="6" y2="21" />
+        </svg>
+      );
+    case 'alert-circle-alt-3':
+      return (
+        <svg {...common}>
+          <circle cx="12" cy="12" r="10" />
+          <line x1="12" y1="8" x2="12" y2="12" />
+          <line x1="12" y1="16" x2="12.01" y2="16" />
+        </svg>
+      );
+    case 'check-circle-alt-3':
+      return (
+        <svg {...common}>
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+          <polyline points="22 4 12 14.01 9 11.01" />
+        </svg>
+      );
+    case 'info-alt-3':
+      return (
+        <svg {...common}>
+          <circle cx="12" cy="12" r="10" />
+          <line x1="12" y1="16" x2="12" y2="12" />
+          <line x1="12" y1="8" x2="12.01" y2="8" />
+        </svg>
+      );
+    case 'radio-alt-3':
+      return (
+        <svg {...common}>
+          <circle cx="12" cy="12" r="2" />
+          <path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14" />
+        </svg>
+      );
+    case 'tool-alt-3':
+      return (
+        <svg {...common}>
+          <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
+        </svg>
+      );
+    case 'settings-alt-3':
+      return (
+        <svg {...common}>
+          <circle cx="12" cy="12" r="3" />
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+        </svg>
+      );
+    case 'refresh-alt-3':
+      return (
+        <svg {...common}>
+          <polyline points="23 4 23 10 17 10" />
+          <polyline points="1 20 1 14 7 14" />
+          <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+        </svg>
+      );
+    case 'bar-chart-2-alt-3':
+      return (
+        <svg {...common}>
+          <line x1="18" y1="20" x2="18" y2="10" />
+          <line x1="12" y1="20" x2="12" y2="4" />
+          <line x1="6" y1="20" x2="6" y2="14" />
+        </svg>
+      );
+    case 'activity-alt-3':
+      return (
+        <svg {...common}>
+          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+        </svg>
+      );
+    case 'maximize-alt-3':
+      return (
+        <svg {...common}>
+          <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" />
+        </svg>
+      );
+    case 'minimize-alt-3':
+      return (
+        <svg {...common}>
+          <path d="M4 14h6m0 0v6m0-6L3 21m17-7h-6m0 0v6m0-6l7 7M4 10h6m0 0V4m0 6L3 3m17 7h-6m0 0V4m0 6l7-7" />
+        </svg>
+      );
+    case 'download-alt-3':
+      return (
+        <svg {...common}>
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+          <polyline points="7 10 12 15 17 10" />
+          <line x1="12" y1="15" x2="12" y2="3" />
+        </svg>
+      );
+    case 'upload-alt-3':
+      return (
+        <svg {...common}>
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+          <polyline points="17 8 12 3 7 8" />
+          <line x1="12" y1="3" x2="12" y2="15" />
+        </svg>
+      );
+    case 'hash-alt-3':
+      return (
+        <svg {...common}>
+          <line x1="4" y1="9" x2="20" y2="9" />
+          <line x1="4" y1="15" x2="20" y2="15" />
+          <line x1="10" y1="3" x2="8" y2="21" />
+          <line x1="16" y1="3" x2="14" y2="21" />
+        </svg>
+      );
+    case 'sliders-v-alt-3':
+      return (
+        <svg {...common}>
+          <line x1="12" y1="20" x2="12" y2="10" />
+          <line x1="12" y1="6" x2="12" y2="4" />
+          <line x1="6" y1="20" x2="6" y2="16" />
+          <line x1="6" y1="12" x2="6" y2="4" />
+          <line x1="18" y1="20" x2="18" y2="14" />
+          <line x1="18" y1="10" x2="18" y2="4" />
+          <circle cx="12" cy="8" r="2" />
+          <circle cx="6" cy="14" r="2" />
+          <circle cx="18" cy="12" r="2" />
+        </svg>
+      );
+    case 'database-alt-4':
+      return (
+        <svg {...common}>
+          <ellipse cx="12" cy="5" rx="9" ry="3" />
+          <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3" />
+          <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" />
+        </svg>
+      );
+    case 'cpu-alt-4':
+      return (
+        <svg {...common}>
+          <rect x="4" y="4" width="16" height="16" rx="2" />
+          <rect x="9" y="9" width="6" height="6" />
+          <line x1="9" y1="1" x2="9" y2="4" />
+          <line x1="15" y1="1" x2="15" y2="4" />
+          <line x1="9" y1="20" x2="9" y2="23" />
+          <line x1="15" y1="20" x2="15" y2="23" />
+          <line x1="20" y1="9" x2="23" y2="9" />
+          <line x1="20" y1="14" x2="23" y2="14" />
+          <line x1="1" y1="9" x2="4" y2="9" />
+          <line x1="1" y1="14" x2="4" y2="14" />
+        </svg>
+      );
+    case 'smartphone-alt-4':
+      return (
+        <svg {...common}>
+          <rect x="5" y="2" width="14" height="20" rx="2" ry="2" />
+          <line x1="12" y1="18" x2="12.01" y2="18" />
+        </svg>
+      );
+    case 'globe-alt-4':
+      return (
+        <svg {...common}>
+          <circle cx="12" cy="12" r="10" />
+          <line x1="2" y1="12" x2="22" y2="12" />
+          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+        </svg>
+      );
+    case 'feather-alt-3':
+      return (
+        <svg {...common}>
+          <path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z" />
+          <line x1="16" y1="8" x2="2" y2="22" />
+          <line x1="17.5" y1="15" x2="9" y2="15" />
+        </svg>
+      );
+    case 'grid-alt-4':
+      return (
+        <svg {...common}>
+          <rect x="3" y="3" width="7" height="7" />
+          <rect x="14" y="3" width="7" height="7" />
+          <rect x="14" y="14" width="7" height="7" />
+          <rect x="3" y="14" width="7" height="7" />
+        </svg>
+      );
+    case 'layers-alt-4':
+      return (
+        <svg {...common}>
+          <polygon points="12 2 2 7 12 12 22 7 12 2" />
+          <polyline points="2 17 12 22 22 17" />
+          <polyline points="2 12 12 17 22 12" />
+        </svg>
+      );
+    case 'folder-alt-3':
+      return (
+        <svg {...common}>
+          <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+        </svg>
+      );
+    case 'terminal-alt-4':
+      return (
+        <svg {...common}>
+          <polyline points="4 17 10 11 4 5" />
+          <line x1="12" y1="19" x2="20" y2="19" />
+        </svg>
+      );
+    case 'code-alt-4':
+      return (
+        <svg {...common}>
+          <polyline points="16 18 22 12 16 6" />
+          <polyline points="8 6 2 12 8 18" />
+        </svg>
+      );
+    case 'git-commit-alt-4':
+      return (
+        <svg {...common}>
+          <circle cx="12" cy="12" r="4" />
+          <line x1="1.05" y1="12" x2="7" y2="12" />
+          <line x1="17.01" y1="12" x2="22.96" y2="12" />
+        </svg>
+      );
+    case 'git-pull-request-alt-4':
+      return (
+        <svg {...common}>
+          <circle cx="18" cy="18" r="3" />
+          <circle cx="6" cy="6" r="3" />
+          <path d="M13 6h3a2 2 0 0 1 2 2v7" />
+          <line x1="6" y1="9" x2="6" y2="21" />
+        </svg>
+      );
+    case 'alert-circle-alt-4':
+      return (
+        <svg {...common}>
+          <circle cx="12" cy="12" r="10" />
+          <line x1="12" y1="8" x2="12" y2="12" />
+          <line x1="12" y1="16" x2="12.01" y2="16" />
+        </svg>
+      );
+    case 'check-circle-alt-4':
+      return (
+        <svg {...common}>
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+          <polyline points="22 4 12 14.01 9 11.01" />
+        </svg>
+      );
+    case 'info-alt-4':
+      return (
+        <svg {...common}>
+          <circle cx="12" cy="12" r="10" />
+          <line x1="12" y1="16" x2="12" y2="12" />
+          <line x1="12" y1="8" x2="12.01" y2="8" />
+        </svg>
+      );
+    case 'radio-alt-4':
+      return (
+        <svg {...common}>
+          <circle cx="12" cy="12" r="2" />
+          <path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14" />
+        </svg>
+      );
+    case 'tool-alt-4':
+      return (
+        <svg {...common}>
+          <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
+        </svg>
+      );
+    case 'settings-alt-4':
+      return (
+        <svg {...common}>
+          <circle cx="12" cy="12" r="3" />
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+        </svg>
+      );
+    case 'refresh-alt-4':
+      return (
+        <svg {...common}>
+          <polyline points="23 4 23 10 17 10" />
+          <polyline points="1 20 1 14 7 14" />
+          <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+        </svg>
+      );
+    case 'bar-chart-2-alt-4':
+      return (
+        <svg {...common}>
+          <line x1="18" y1="20" x2="18" y2="10" />
+          <line x1="12" y1="20" x2="12" y2="4" />
+          <line x1="6" y1="20" x2="6" y2="14" />
+        </svg>
+      );
+    case 'activity-alt-4':
+      return (
+        <svg {...common}>
+          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+        </svg>
+      );
+    case 'maximize-alt-4':
+      return (
+        <svg {...common}>
+          <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" />
+        </svg>
+      );
+    case 'minimize-alt-4':
+      return (
+        <svg {...common}>
+          <path d="M4 14h6m0 0v6m0-6L3 21m17-7h-6m0 0v6m0-6l7 7M4 10h6m0 0V4m0 6L3 3m17 7h-6m0 0V4m0 6l7-7" />
+        </svg>
+      );
+    case 'download-alt-4':
+      return (
+        <svg {...common}>
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+          <polyline points="7 10 12 15 17 10" />
+          <line x1="12" y1="15" x2="12" y2="3" />
+        </svg>
+      );
+    case 'upload-alt-4':
+      return (
+        <svg {...common}>
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+          <polyline points="17 8 12 3 7 8" />
+          <line x1="12" y1="3" x2="12" y2="15" />
+        </svg>
+      );
+    case 'hash-alt-4':
+      return (
+        <svg {...common}>
+          <line x1="4" y1="9" x2="20" y2="9" />
+          <line x1="4" y1="15" x2="20" y2="15" />
+          <line x1="10" y1="3" x2="8" y2="21" />
+          <line x1="16" y1="3" x2="14" y2="21" />
+        </svg>
+      );
+    case 'sliders-v-alt-4':
+      return (
+        <svg {...common}>
+          <line x1="12" y1="20" x2="12" y2="10" />
+          <line x1="12" y1="6" x2="12" y2="4" />
+          <line x1="6" y1="20" x2="6" y2="16" />
+          <line x1="6" y1="12" x2="6" y2="4" />
+          <line x1="18" y1="20" x2="18" y2="14" />
+          <line x1="18" y1="10" x2="18" y2="4" />
+          <circle cx="12" cy="8" r="2" />
+          <circle cx="6" cy="14" r="2" />
+          <circle cx="18" cy="12" r="2" />
         </svg>
       );
     case 'arrow-right':
@@ -273,7 +1453,7 @@ const getTechIcon = (tech) => {
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Skeleton — high-fidelity placeholder for the new case-study layout
+// Skeleton — high-fidelity placeholder for the case-study layout
 // ─────────────────────────────────────────────────────────────────────────────
 const ProjectDetailSkeleton = () => (
   <div className="max-w-7xl mx-auto px-6 md:px-12 py-12">
@@ -313,12 +1493,12 @@ const SectionHeader = ({ eyebrow, title, lede, align = 'left', number }) => {
   return (
     <div className={`max-w-3xl ${alignment} mb-12 md:mb-16`}>
       <div
-        className={`flex items-center gap-3 text-accent uppercase tracking-[0.25em] text-xs md:text-sm font-bold mb-5 ${
+        className={`flex items-center gap-3 text-[#0079FF] dark:text-[#389BFF] uppercase tracking-[0.25em] text-xs md:text-sm font-bold mb-5 ${
           align === 'center' ? 'justify-center' : ''
         }`}
       >
         {number && (
-          <span className="text-accent/70 font-mono text-[11px] md:text-xs">{number}</span>
+          <span className="text-[#0079FF]/80 dark:text-[#389BFF]/80 font-mono text-[11px] md:text-xs font-bold">{number}</span>
         )}
         <span>{eyebrow}</span>
       </div>
@@ -338,7 +1518,6 @@ const SectionHeader = ({ eyebrow, title, lede, align = 'left', number }) => {
 // Reusable: lightbox for the responsive gallery
 // ─────────────────────────────────────────────────────────────────────────────
 const Lightbox = ({ images, index, onClose, onPrev, onNext }) => {
-  // Close on ESC, navigate with arrow keys. Body scroll is locked while open.
   useEffect(() => {
     if (index === null) return undefined;
     const onKey = (e) => {
@@ -355,152 +1534,139 @@ const Lightbox = ({ images, index, onClose, onPrev, onNext }) => {
     };
   }, [index, onClose, onPrev, onNext]);
 
+  if (index === null) return null;
+  const current = images[index];
+
   return (
     <AnimatePresence>
-      {index !== null && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.25 }}
-          className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 sm:p-8"
-          role="dialog"
-          aria-modal="true"
-          aria-label="Image preview"
+      <motion.div
+        className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 md:p-8"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        onClick={onClose}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Image preview"
+      >
+        <button
+          type="button"
           onClick={onClose}
+          className="absolute top-6 right-6 text-white/80 hover:text-white p-2 rounded-full bg-white/10 backdrop-blur-md"
+          aria-label="Close image preview"
         >
-          <button
-            type="button"
-            onClick={(e) => { e.stopPropagation(); onClose(); }}
-            className="absolute top-4 right-4 sm:top-6 sm:right-6 w-11 h-11 rounded-full border border-white/20 text-white flex items-center justify-center hover:bg-white/10 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-            aria-label="Close preview"
-          >
-            <Icon name="close" className="w-5 h-5" />
-          </button>
+          <Icon name="close" className="w-6 h-6" />
+        </button>
 
-          {images.length > 1 && (
-            <>
-              <button
-                type="button"
-                onClick={(e) => { e.stopPropagation(); onPrev(); }}
-                className="absolute left-3 sm:left-6 w-11 h-11 rounded-full border border-white/20 text-white flex items-center justify-center hover:bg-white/10 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-                aria-label="Previous image"
-              >
-                <span className="sr-only">Previous</span>
-                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <path d="M15 6l-6 6 6 6" />
-                </svg>
-              </button>
-              <button
-                type="button"
-                onClick={(e) => { e.stopPropagation(); onNext(); }}
-                className="absolute right-3 sm:right-6 w-11 h-11 rounded-full border border-white/20 text-white flex items-center justify-center hover:bg-white/10 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-                aria-label="Next image"
-              >
-                <span className="sr-only">Next</span>
-                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <path d="M9 6l6 6-6 6" />
-                </svg>
-              </button>
-            </>
-          )}
+        {images.length > 1 && (
+          <>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onPrev();
+              }}
+              className="absolute left-6 text-white/80 hover:text-white p-3 rounded-full bg-white/10 backdrop-blur-md"
+              aria-label="Previous image"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onNext();
+              }}
+              className="absolute right-6 text-white/80 hover:text-white p-3 rounded-full bg-white/10 backdrop-blur-md"
+              aria-label="Next image"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          </>
+        )}
 
-          <motion.img
-            key={images[index]}
-            initial={{ opacity: 0, scale: 0.97 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.97 }}
-            transition={{ duration: 0.25, ease: 'easeOut' }}
-            src={images[index]}
-            alt="Project preview"
-            className="max-w-full max-h-[85vh] object-contain rounded-md shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
-          />
+        <motion.img
+          key={index}
+          src={current}
+          alt=""
+          className="max-h-[85vh] max-w-[90vw] object-contain rounded-lg shadow-2xl"
+          initial={{ scale: 0.95, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          exit={{ scale: 0.95, opacity: 0 }}
+          onClick={(e) => e.stopPropagation()}
+        />
 
-          {images.length > 1 && (
-            <div className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 text-white/80 text-xs uppercase tracking-[0.25em] font-bold">
-              {index + 1} / {images.length}
-            </div>
-          )}
-        </motion.div>
-      )}
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-white/70 text-xs font-mono tracking-widest">
+          {index + 1} / {images.length}
+        </div>
+      </motion.div>
     </AnimatePresence>
   );
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Main page
-// ─────────────────────────────────────────────────────────────────────────────
 const ProjectDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const shouldReduce = useReducedMotion();
+  const heroImageRef = useRef(null);
+
   const [project, setProject] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showSecurityPopup, setShowSecurityPopup] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(null);
-  const heroImageRef = useRef(null);
-  const shouldReduce = useReducedMotion();
+
   const container = shouldReduce ? reducedMotionVariants : centralStaggerContainer;
   const item = shouldReduce ? reducedMotionVariants : fadeUpItem;
 
-  // ── Data fetch — same shape as before, no breaking changes ──
   useEffect(() => {
     window.scrollTo(0, 0);
     const fetchProject = async () => {
-      const res = await api.get(`/projects/${id}`);
-      if (res.ok && res.data) {
-        setProject(res.data);
+      setLoading(true);
+      try {
+        const res = await api.get(`/projects/${id}`);
+        if (res.ok && res.data?.data) {
+          setProject(res.data.data);
+        } else {
+          const found = fallbackProjects.find((p) => p.slug === id || p.id.toString() === id);
+          setProject(found || null);
+        }
+      } catch {
+        const found = fallbackProjects.find((p) => p.slug === id || p.id.toString() === id);
+        setProject(found || null);
+      } finally {
         setLoading(false);
-        return;
       }
-      // Fallback — locate by id or slug so the route stays stable.
-      const found = fallbackProjects.find(
-        (p) => p.id.toString() === id || p.slug === id
-      );
-      setProject(found || fallbackProjects[0]);
-      setLoading(false);
     };
     fetchProject();
   }, [id]);
 
-  // ── SEO + document title ──
   useEffect(() => {
-    if (project) {
-      document.title = `${project.title} — Case Study | BuildWithLami`;
-      const setMeta = (selector, attr, value) => {
-        const el = document.querySelector(selector);
-        if (el) el.setAttribute(attr, value);
-      };
-      setMeta(
-        'meta[name="description"]',
-        'content',
-        project.summary ||
-          project.description ||
-          `Case study of ${project.title} — engineered by BuildWithLami (Eugene Odibenuah).`
-      );
+    if (project?.title) {
+      document.title = `${project.title} — Software Case Study | BuildWithLami`;
+      const metaDesc = document.querySelector('meta[name="description"]');
+      if (metaDesc && project.summary) {
+        metaDesc.setAttribute('content', project.summary);
+      }
     }
   }, [project]);
 
-  // ── Derived data ──
-  const imageUrl = useMemo(
-    () =>
-      project?.image_url ||
-      project?.image ||
-      'https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=2070&auto=format&fit=crop',
-    [project]
-  );
+  const imageUrl = project?.image_url || project?.image || 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=2070&auto=format&fit=crop';
 
-  // Curated gallery: explicit `gallery` array, or hero plus a few curated shots.
-  // Each entry is { src, alt, device } so we can render responsive mockups.
   const galleryItems = useMemo(() => {
     if (!project) return [];
     if (Array.isArray(project.gallery) && project.gallery.length > 0) {
       return project.gallery.map((g, i) =>
-        typeof g === 'string' ? { src: g, alt: `${project.title} screenshot ${i + 1}`, device: 'desktop' } : g
+        typeof g === 'string'
+          ? { src: g, alt: `${project.title} screenshot ${i + 1}`, device: 'desktop' }
+          : g
       );
     }
     return [
-      { src: imageUrl, alt: `${project.title} — hero interface`, device: 'desktop' },
+      { src: imageUrl, alt: `${project.title} — primary interface`, device: 'desktop' },
       {
         src: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=2015&auto=format&fit=crop',
         alt: `${project.title} — analytics dashboard`,
@@ -519,8 +1685,6 @@ const ProjectDetailPage = () => {
     ];
   }, [project, imageUrl]);
 
-  // Quick stats — small set, prominent in the hero. Falls back to a sensible
-  // default if the project doesn't define a `stats` object.
   const quickStats = useMemo(() => {
     if (!project) return [];
     const s = project.stats || {};
@@ -538,9 +1702,6 @@ const ProjectDetailPage = () => {
     return list.filter((x) => x.value !== undefined && x.value !== null && x.value !== '');
   }, [project]);
 
-  // Related projects — resolved from the full fallback list (or any project
-  // list passed in via window state). If `relatedSlugs` is not defined we
-  // derive a sensible default by category.
   const relatedProjects = useMemo(() => {
     if (!project) return [];
     const source = fallbackProjects.filter((p) => p.id !== project.id);
@@ -548,14 +1709,13 @@ const ProjectDetailPage = () => {
       const resolved = project.relatedSlugs
         .map((slug) => source.find((p) => p.slug === slug || p.id.toString() === String(slug)))
         .filter(Boolean);
-      // Top up with same-category projects if the explicit list is short.
       if (resolved.length < 2) {
         const sameCategory = source
           .filter((p) => p.category === project.category && !resolved.includes(p))
           .slice(0, 2 - resolved.length);
         resolved.push(...sameCategory);
       }
-      return resolved.slice(0,2);
+      return resolved.slice(0, 2);
     }
     return source
       .filter((p) => p.category === project.category)
@@ -564,7 +1724,6 @@ const ProjectDetailPage = () => {
       .slice(0, 2);
   }, [project]);
 
-  // Lightbox handlers
   const openLightbox = useCallback((i) => setLightboxIndex(i), []);
   const closeLightbox = useCallback(() => setLightboxIndex(null), []);
   const prevImage = useCallback(
@@ -584,18 +1743,17 @@ const ProjectDetailPage = () => {
     );
   }
 
-  // Split title across two lines for editorial display
   const words = project?.title ? project.title.split(' ') : [];
   const firstHalf = words.slice(0, Math.ceil(words.length / 2)).join(' ');
   const secondHalf = words.slice(Math.ceil(words.length / 2)).join(' ');
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-background text-black dark:text-white font-body overflow-x-hidden pt-24 pb-12 transition-colors duration-300">
+    <div className="min-h-screen bg-gray-50 dark:bg-[#07090E] text-black dark:text-white font-body overflow-x-hidden pt-24 pb-12 transition-colors duration-300 selection:bg-[#0079FF] selection:text-white">
       {/* Back link */}
       <div className="max-w-7xl mx-auto px-6 md:px-12 mb-8">
         <Link
           to="/projects"
-          className="inline-flex items-center text-sm text-gray-700 dark:text-gray-300 hover:text-accent transition-colors group uppercase tracking-widest font-bold"
+          className="inline-flex items-center text-sm text-gray-700 dark:text-gray-300 hover:text-[#0079FF] dark:hover:text-[#389BFF] transition-colors group uppercase tracking-widest font-bold"
         >
           <svg
             className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform"
@@ -624,9 +1782,9 @@ const ProjectDetailPage = () => {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: shouldReduce ? 0 : 0.6, ease: 'easeOut' }}
                 >
-                  <p className="text-accent text-xs md:text-sm font-bold uppercase tracking-[0.3em] mb-6 flex items-center gap-3">
-                    <span>Case Study</span>
-                    <span className="w-8 h-px bg-accent/40" aria-hidden="true" />
+                  <p className="text-[#0079FF] dark:text-[#389BFF] text-xs md:text-sm font-bold uppercase tracking-[0.3em] mb-6 flex items-center gap-3">
+                    <span>Software Case Study</span>
+                    <span className="w-8 h-px bg-[#0079FF]/40" aria-hidden="true" />
                     <span className="text-gray-700 dark:text-gray-300">{project.year}</span>
                   </p>
                   <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-[7rem] xl:text-[8rem] font-heading font-bold uppercase tracking-tight leading-[0.92] text-black dark:text-white break-words">
@@ -647,7 +1805,7 @@ const ProjectDetailPage = () => {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: shouldReduce ? 0 : 0.6, delay: shouldReduce ? 0 : 0.15, ease: 'easeOut' }}
                 >
-                  <div className="space-y-5 border-t border-gray-200 dark:border-gray-800 pt-6">
+                  <div className="space-y-5 border-t border-gray-200 dark:border-white/10 pt-6">
                     {[
                       { label: 'Industry', value: project.industry || project.category || 'Software' },
                       { label: 'Client', value: project.client || 'Personal Project' },
@@ -672,7 +1830,7 @@ const ProjectDetailPage = () => {
                         href={project.live_url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center justify-center bg-accent text-white font-bold uppercase tracking-[0.2em] text-xs px-6 py-3.5 hover:bg-black dark:hover:bg-white dark:hover:text-black transition-colors"
+                        className="inline-flex items-center justify-center bg-[#0079FF] hover:bg-[#0066D6] text-white font-bold uppercase tracking-[0.2em] text-xs px-6 py-3.5 shadow-lg shadow-[#0079FF]/20 transition-all rounded-xl"
                         whileHover={shouldReduce ? {} : buttonHover}
                         whileTap={shouldReduce ? {} : buttonTap}
                       >
@@ -685,7 +1843,7 @@ const ProjectDetailPage = () => {
                         href={project.github_url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center justify-center border border-gray-300 dark:border-white/10 text-black dark:text-white font-bold uppercase tracking-[0.2em] text-xs px-6 py-3.5 hover:border-accent hover:text-accent transition-colors"
+                        className="inline-flex items-center justify-center border border-gray-300 dark:border-white/10 text-black dark:text-white font-bold uppercase tracking-[0.2em] text-xs px-6 py-3.5 hover:border-[#0079FF] hover:text-[#0079FF] dark:hover:text-[#389BFF] transition-colors rounded-xl"
                         whileHover={shouldReduce ? {} : buttonHover}
                         whileTap={shouldReduce ? {} : buttonTap}
                       >
@@ -696,7 +1854,7 @@ const ProjectDetailPage = () => {
                       <motion.button
                         type="button"
                         onClick={() => setShowSecurityPopup(true)}
-                        className="inline-flex items-center justify-center border border-gray-300 dark:border-white/10 text-black dark:text-white font-bold uppercase tracking-[0.2em] text-xs px-6 py-3.5 hover:border-accent hover:text-accent transition-colors cursor-pointer"
+                        className="inline-flex items-center justify-center border border-gray-300 dark:border-white/10 text-black dark:text-white font-bold uppercase tracking-[0.2em] text-xs px-6 py-3.5 hover:border-[#0079FF] hover:text-[#0079FF] dark:hover:text-[#389BFF] transition-colors cursor-pointer rounded-xl"
                         whileHover={shouldReduce ? {} : buttonHover}
                         whileTap={shouldReduce ? {} : buttonTap}
                       >
@@ -708,11 +1866,10 @@ const ProjectDetailPage = () => {
                 </motion.div>
               </div>
 
-              {/* Quick stats strip — only renders when the project provides
-                  enough data to fill at least one row. */}
+              {/* Quick stats strip */}
               {quickStats.length > 0 && (
                 <motion.div
-                  className="mt-16 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-px bg-gray-200 dark:bg-gray-800 border border-gray-200 dark:border-gray-800"
+                  className="mt-16 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-px bg-gray-200 dark:bg-white/10 border border-gray-200 dark:border-white/10 rounded-2xl overflow-hidden shadow-sm"
                   initial={shouldReduce ? {} : { opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={sectionViewport}
@@ -721,9 +1878,9 @@ const ProjectDetailPage = () => {
                   {quickStats.map((s) => (
                     <div
                       key={s.label}
-                      className="bg-gray-50 dark:bg-background p-5 md:p-6 text-center"
+                      className="bg-white dark:bg-[#0E131F] p-5 md:p-6 text-center"
                     >
-                      <div className="text-2xl md:text-4xl font-heading font-bold text-black dark:text-white">
+                      <div className="text-2xl md:text-4xl font-heading font-bold text-[#0079FF] dark:text-[#389BFF]">
                         {s.value}
                         {s.suffix}
                       </div>
@@ -746,7 +1903,7 @@ const ProjectDetailPage = () => {
               viewport={sectionViewport}
               transition={{ duration: shouldReduce ? 0 : 0.8 }}
             >
-              <div className="relative w-full aspect-video md:aspect-[21/9] rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-800 shadow-2xl group bg-gray-100 dark:bg-gray-900">
+              <div className="relative w-full aspect-video md:aspect-[21/9] rounded-3xl overflow-hidden border border-gray-200 dark:border-white/10 shadow-2xl group bg-gray-100 dark:bg-[#0E131F]">
                 <img
                   ref={heroImageRef}
                   src={imageUrl}
@@ -757,10 +1914,10 @@ const ProjectDetailPage = () => {
                   height="680"
                   decoding="async"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent pointer-events-none" />
-                <div className="absolute bottom-4 left-4 right-4 flex items-end justify-between text-white">
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent pointer-events-none" />
+                <div className="absolute bottom-6 left-6 right-6 flex items-end justify-between text-white">
                   <div>
-                    <div className="text-[10px] md:text-xs uppercase tracking-[0.3em] font-bold opacity-80">
+                    <div className="text-[10px] md:text-xs uppercase tracking-[0.3em] font-bold text-[#0079FF] dark:text-[#389BFF]">
                       {project.industry || project.category}
                     </div>
                     <div className="text-lg md:text-2xl font-heading font-bold mt-1">
@@ -770,7 +1927,7 @@ const ProjectDetailPage = () => {
                   <button
                     type="button"
                     onClick={() => openLightbox(0)}
-                    className="inline-flex items-center gap-2 text-[10px] md:text-xs uppercase tracking-[0.25em] font-bold bg-white/10 backdrop-blur-md border border-white/20 px-3 py-2 md:px-4 md:py-2.5 rounded-full hover:bg-white hover:text-black transition-colors"
+                    className="inline-flex items-center gap-2 text-[10px] md:text-xs uppercase tracking-[0.25em] font-bold bg-[#0079FF] text-white px-4 py-2.5 rounded-full hover:bg-[#0066D6] transition-colors shadow-lg shadow-[#0079FF]/30"
                     aria-label="Open image preview"
                   >
                     <Icon name="lightbox" className="w-4 h-4" />
@@ -781,11 +1938,11 @@ const ProjectDetailPage = () => {
             </motion.section>
 
             {/* ═══════════════════════════════════════════════════════════════
-                2. PROJECT OVERVIEW — editorial layout, alternating blocks
+                2. PROJECT OVERVIEW
                 ═══════════════════════════════════════════════════════════════ */}
             {project.description && (
               <motion.section
-                className="max-w-7xl mx-auto px-6 md:px-12 py-16 md:py-24 border-t border-gray-200 dark:border-gray-800"
+                className="max-w-7xl mx-auto px-6 md:px-12 py-16 md:py-24 border-t border-gray-200 dark:border-white/10"
                 initial="hidden"
                 whileInView="visible"
                 viewport={sectionViewport}
@@ -794,13 +1951,13 @@ const ProjectDetailPage = () => {
                 <SectionHeader
                   number="01"
                   eyebrow="Overview"
-                  title={project.summary || 'A premium software build, end to end.'}
-                  lede="The core problem, operational goal, and my role on the project."
+                  title={project.summary || 'A bespoke software build, engineered end to end.'}
+                  lede="The core operational goal, system scope, and engineering architecture."
                 />
 
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16">
                   <motion.div variants={item} className="lg:col-span-7">
-                    <div className="text-[11px] uppercase tracking-[0.3em] text-accent font-bold mb-3">Project Summary</div>
+                    <div className="text-[11px] uppercase tracking-[0.3em] text-[#0079FF] dark:text-[#389BFF] font-bold mb-3">Project Summary</div>
                     <p className="text-2xl md:text-3xl lg:text-4xl font-heading font-bold text-black dark:text-white leading-[1.2]">
                       {project.description}
                     </p>
@@ -808,14 +1965,14 @@ const ProjectDetailPage = () => {
 
                   <motion.div variants={item} className="lg:col-span-5 space-y-6">
                     {[
-                      { label: 'Business Goal', value: project.goal || project.tagline || 'Centralize retail, service scheduling, workforce management, and POS operations into a single system while reducing manual administrative work.' },
-                      { label: 'Technical Approach', value: project.solution?.architecture || 'Modular Node.js architecture with clear domain boundaries, real-time WebSocket state synchronization, and a PostgreSQL database with strict constraint validation.' },
-                      { label: 'Target Audience', value: project.industry ? `Operators and decision-makers in ${project.industry.toLowerCase()}.` : 'Founders, operators, and end users who expect more from software.' },
-                      { label: 'Main Challenge', value: project.challenge?.problem || 'Replacing fragmented workflows with a single, dependable system.' },
-                      { label: 'My Role', value: project.role || 'Lead Engineer' },
+                      { label: 'Business Goal', value: project.goal || project.tagline || 'Centralize workflows, workforce operations, data pipelines, and reporting into a unified, high-reliability software system.' },
+                      { label: 'Technical Approach', value: project.solution?.architecture || 'Modular React / Node.js architecture with clear domain boundaries, real-time WebSocket state synchronization, and strict PostgreSQL data constraints.' },
+                      { label: 'Target Audience', value: project.industry ? `Operators, staff, and decision-makers in ${project.industry.toLowerCase()}.` : 'Founders, teams, and operators who demand high-uptime software.' },
+                      { label: 'Main Challenge', value: project.challenge?.problem || 'Replacing fragmented processes with an automated, highly available system.' },
+                      { label: 'My Role', value: project.role || 'Lead Software Engineer & Architect' },
                       { label: 'Timeline', value: project.duration || 'Ongoing' },
                     ].map((row) => (
-                      <div key={row.label} className="border-t border-gray-200 dark:border-gray-800 pt-4">
+                      <div key={row.label} className="border-t border-gray-200 dark:border-white/10 pt-4">
                         <div className="text-[10px] md:text-xs uppercase tracking-[0.3em] text-gray-500 dark:text-gray-400 font-bold mb-2">
                           {row.label}
                         </div>
@@ -830,11 +1987,11 @@ const ProjectDetailPage = () => {
             )}
 
             {/* ═══════════════════════════════════════════════════════════════
-                3. CHALLENGE — two-column problem + constraints
+                3. CHALLENGE
                 ═══════════════════════════════════════════════════════════════ */}
             {project.challenge && (
               <motion.section
-                className="max-w-7xl mx-auto px-6 md:px-12 py-16 md:py-24 border-t border-gray-200 dark:border-gray-800"
+                className="max-w-7xl mx-auto px-6 md:px-12 py-16 md:py-24 border-t border-gray-200 dark:border-white/10"
                 initial="hidden"
                 whileInView="visible"
                 viewport={sectionViewport}
@@ -843,15 +2000,15 @@ const ProjectDetailPage = () => {
                 <SectionHeader
                   number="02"
                   eyebrow="The Challenge"
-                  title="What I had to solve — and why it was hard."
-                  lede="The core operational bottlenecks and constraints that defined the project requirements."
+                  title="What had to be solved — and why it was critical."
+                  lede="The core operational bottlenecks and constraints that defined the software specifications."
                 />
 
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16">
                   <motion.div variants={item} className="lg:col-span-7">
-                    <div className="bg-white dark:bg-gradient-to-br dark:from-[#1e1e1e] dark:to-[#151515] p-6 sm:p-8 md:p-10 rounded-2xl border border-gray-200 dark:border-white/5 shadow-xl">
+                    <div className="bg-white dark:bg-[#0E131F] p-6 sm:p-8 md:p-10 rounded-3xl border border-gray-200 dark:border-white/10 shadow-xl">
                       <div className="flex items-center gap-3 mb-5">
-                        <span className="w-9 h-9 rounded-full bg-accent/10 text-accent flex items-center justify-center">
+                        <span className="w-9 h-9 rounded-xl bg-[#0079FF]/10 text-[#0079FF] dark:text-[#389BFF] flex items-center justify-center">
                           <Icon name="target" className="w-5 h-5" />
                         </span>
                         <span className="text-xs md:text-sm uppercase tracking-[0.25em] font-bold text-gray-700 dark:text-gray-300">
@@ -868,7 +2025,7 @@ const ProjectDetailPage = () => {
                     {Array.isArray(project.challenge.constraints) && project.challenge.constraints.length > 0 && (
                       <div>
                         <div className="flex items-center gap-3 mb-5">
-                          <span className="w-9 h-9 rounded-full bg-gray-100 dark:bg-white/5 text-gray-700 dark:text-gray-200 flex items-center justify-center">
+                          <span className="w-9 h-9 rounded-xl bg-gray-100 dark:bg-white/5 text-gray-700 dark:text-gray-200 flex items-center justify-center">
                             <Icon name="shield" className="w-5 h-5" />
                           </span>
                           <span className="text-xs md:text-sm uppercase tracking-[0.25em] font-bold text-gray-700 dark:text-gray-300">
@@ -878,7 +2035,7 @@ const ProjectDetailPage = () => {
                         <ul className="space-y-3">
                           {project.challenge.constraints.map((c, i) => (
                             <li key={i} className="flex items-start gap-3 text-sm md:text-base text-gray-800 dark:text-gray-200 leading-relaxed">
-                              <span className="mt-2 w-1.5 h-1.5 rounded-full bg-accent shrink-0" aria-hidden="true" />
+                              <span className="mt-2 w-1.5 h-1.5 rounded-full bg-[#0079FF] shrink-0" aria-hidden="true" />
                               <span>{c}</span>
                             </li>
                           ))}
@@ -889,7 +2046,7 @@ const ProjectDetailPage = () => {
                     {Array.isArray(project.challenge.goals) && project.challenge.goals.length > 0 && (
                       <div>
                         <div className="flex items-center gap-3 mb-5">
-                          <span className="w-9 h-9 rounded-full bg-gray-100 dark:bg-white/5 text-gray-700 dark:text-gray-200 flex items-center justify-center">
+                          <span className="w-9 h-9 rounded-xl bg-gray-100 dark:bg-white/5 text-gray-700 dark:text-gray-200 flex items-center justify-center">
                             <Icon name="sparkle" className="w-5 h-5" />
                           </span>
                           <span className="text-xs md:text-sm uppercase tracking-[0.25em] font-bold text-gray-700 dark:text-gray-300">
@@ -899,7 +2056,7 @@ const ProjectDetailPage = () => {
                         <ul className="space-y-3">
                           {project.challenge.goals.map((g, i) => (
                             <li key={i} className="flex items-start gap-3 text-sm md:text-base text-gray-800 dark:text-gray-200 leading-relaxed">
-                              <span className="mt-2 w-1.5 h-1.5 rounded-full bg-accent shrink-0" aria-hidden="true" />
+                              <span className="mt-2 w-1.5 h-1.5 rounded-full bg-[#0079FF] shrink-0" aria-hidden="true" />
                               <span>{g}</span>
                             </li>
                           ))}
@@ -912,11 +2069,11 @@ const ProjectDetailPage = () => {
             )}
 
             {/* ═══════════════════════════════════════════════════════════════
-                4. SOLUTION — why these decisions, six facets
+                4. SOLUTION
                 ═══════════════════════════════════════════════════════════════ */}
             {project.solution && (
               <motion.section
-                className="max-w-7xl mx-auto px-6 md:px-12 py-16 md:py-24 border-t border-gray-200 dark:border-gray-800"
+                className="max-w-7xl mx-auto px-6 md:px-12 py-16 md:py-24 border-t border-gray-200 dark:border-white/10"
                 initial="hidden"
                 whileInView="visible"
                 viewport={sectionViewport}
@@ -925,8 +2082,8 @@ const ProjectDetailPage = () => {
                 <SectionHeader
                   number="03"
                   eyebrow="The Solution"
-                  title="The decisions that made it work."
-                  lede="A record of why each architectural layer was engineered the way it was."
+                  title="Architectural decisions that drove performance."
+                  lede="A record of why each layer was engineered the way it was."
                 />
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
@@ -945,10 +2102,10 @@ const ProjectDetailPage = () => {
                         variants={item}
                         whileHover={shouldReduce ? {} : cardHover}
                         transition={cardHoverTransition}
-                        className="bg-white dark:bg-gradient-to-br dark:from-[#1e1e1e] dark:to-[#151515] p-6 md:p-8 rounded-2xl border border-gray-200 dark:border-white/5 shadow-lg group"
+                        className="bg-white dark:bg-[#0E131F] p-6 md:p-8 rounded-3xl border border-gray-200 dark:border-white/10 shadow-lg group hover:border-[#0079FF]/40 transition-all"
                       >
                         <div className="flex items-center gap-3 mb-4">
-                          <span className="w-10 h-10 rounded-xl bg-accent/10 text-accent flex items-center justify-center group-hover:bg-accent group-hover:text-white transition-colors">
+                          <span className="w-10 h-10 rounded-xl bg-[#0079FF]/10 text-[#0079FF] dark:text-[#389BFF] flex items-center justify-center group-hover:bg-[#0079FF] group-hover:text-white transition-colors">
                             <Icon name={row.icon} className="w-5 h-5" />
                           </span>
                           <span className="text-xs md:text-sm uppercase tracking-[0.25em] font-bold text-gray-700 dark:text-gray-300">
@@ -965,11 +2122,11 @@ const ProjectDetailPage = () => {
             )}
 
             {/* ═══════════════════════════════════════════════════════════════
-                5. RESULTS — metric cards
+                5. RESULTS
                 ═══════════════════════════════════════════════════════════════ */}
             {Array.isArray(project.results) && project.results.length > 0 && (
               <motion.section
-                className="max-w-7xl mx-auto px-6 md:px-12 py-16 md:py-24 border-t border-gray-200 dark:border-gray-800"
+                className="max-w-7xl mx-auto px-6 md:px-12 py-16 md:py-24 border-t border-gray-200 dark:border-white/10"
                 initial="hidden"
                 whileInView="visible"
                 viewport={sectionViewport}
@@ -979,7 +2136,7 @@ const ProjectDetailPage = () => {
                   number="04"
                   eyebrow="Results"
                   title="Measurable outcomes & operational impact."
-                  lede="Concrete improvements delivered once the system was deployed to production."
+                  lede="Concrete improvements delivered once the software was deployed to production."
                 />
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 md:gap-6">
@@ -989,14 +2146,14 @@ const ProjectDetailPage = () => {
                       variants={item}
                       whileHover={shouldReduce ? {} : cardHover}
                       transition={cardHoverTransition}
-                      className="relative bg-white dark:bg-gradient-to-br dark:from-[#1e1e1e] dark:to-[#151515] p-6 md:p-8 rounded-2xl border border-gray-200 dark:border-white/5 shadow-xl overflow-hidden group"
+                      className="relative bg-white dark:bg-[#0E131F] p-6 md:p-8 rounded-3xl border border-gray-200 dark:border-white/10 shadow-xl overflow-hidden group hover:border-[#0079FF]/50 transition-all"
                     >
                       <div
-                        className="absolute -top-12 -right-12 w-40 h-40 bg-accent/10 rounded-full blur-3xl group-hover:bg-accent/20 transition-colors"
+                        className="absolute -top-12 -right-12 w-40 h-40 bg-[#0079FF]/10 rounded-full blur-3xl group-hover:bg-[#0079FF]/20 transition-colors"
                         aria-hidden="true"
                       />
                       <div className="relative">
-                        <div className="text-3xl md:text-5xl font-heading font-bold text-black dark:text-white tracking-tight">
+                        <div className="text-3xl md:text-5xl font-heading font-bold text-[#0079FF] dark:text-[#389BFF] tracking-tight">
                           {r.value}
                         </div>
                         <div className="mt-3 text-sm md:text-base font-bold text-black dark:text-white">
@@ -1015,11 +2172,11 @@ const ProjectDetailPage = () => {
             )}
 
             {/* ═══════════════════════════════════════════════════════════════
-                6. FEATURE SHOWCASE — categorized cards with icons
+                6. FEATURE SHOWCASE
                 ═══════════════════════════════════════════════════════════════ */}
             {Array.isArray(project.featureCategories) && project.featureCategories.length > 0 && (
               <motion.section
-                className="max-w-7xl mx-auto px-6 md:px-12 py-16 md:py-24 border-t border-gray-200 dark:border-gray-800"
+                className="max-w-7xl mx-auto px-6 md:px-12 py-16 md:py-24 border-t border-gray-200 dark:border-white/10"
                 initial="hidden"
                 whileInView="visible"
                 viewport={sectionViewport}
@@ -1028,8 +2185,8 @@ const ProjectDetailPage = () => {
                 <SectionHeader
                   number="05"
                   eyebrow="Feature Showcase"
-                  title="What the product does — by surface area."
-                  lede="Grouped by how an operator actually encounters them, not by internal hierarchy."
+                  title="Core product capabilities & modules."
+                  lede="Grouped by how users and operators interact with the platform in daily business."
                 />
 
                 <div className="space-y-10 md:space-y-14">
@@ -1043,7 +2200,7 @@ const ProjectDetailPage = () => {
                     >
                       <div className="lg:col-span-4 [direction:ltr]">
                         <div className="sticky top-28">
-                          <div className="w-12 h-12 rounded-xl bg-accent/10 text-accent flex items-center justify-center mb-5">
+                          <div className="w-12 h-12 rounded-xl bg-[#0079FF]/10 text-[#0079FF] dark:text-[#389BFF] flex items-center justify-center mb-5 border border-[#0079FF]/20">
                             <Icon name={cat.icon || 'sparkle'} className="w-6 h-6" />
                           </div>
                           <h3 className="text-2xl md:text-3xl font-heading font-bold text-black dark:text-white">
@@ -1057,7 +2214,7 @@ const ProjectDetailPage = () => {
                             key={`${cat.name}-${i}`}
                             whileHover={shouldReduce ? {} : cardHover}
                             transition={cardHoverTransition}
-                            className="bg-white dark:bg-gradient-to-br dark:from-[#1e1e1e] dark:to-[#151515] p-5 md:p-6 rounded-2xl border border-gray-200 dark:border-white/5 shadow-lg"
+                            className="bg-white dark:bg-[#0E131F] p-5 md:p-6 rounded-2xl border border-gray-200 dark:border-white/10 shadow-lg hover:border-[#0079FF]/40 transition-all"
                           >
                             <h4 className="text-base md:text-lg font-heading font-bold text-black dark:text-white mb-2">
                               {it.title}
@@ -1075,11 +2232,11 @@ const ProjectDetailPage = () => {
             )}
 
             {/* ═══════════════════════════════════════════════════════════════
-                7. APPLICATION FLOW — connected cards with arrows
+                7. APPLICATION FLOW
                 ═══════════════════════════════════════════════════════════════ */}
             {Array.isArray(project.flow) && project.flow.length > 0 && (
               <motion.section
-                className="max-w-7xl mx-auto px-6 md:px-12 py-16 md:py-24 border-t border-gray-200 dark:border-gray-800"
+                className="max-w-7xl mx-auto px-6 md:px-12 py-16 md:py-24 border-t border-gray-200 dark:border-white/10"
                 initial="hidden"
                 whileInView="visible"
                 viewport={sectionViewport}
@@ -1088,13 +2245,13 @@ const ProjectDetailPage = () => {
                 <SectionHeader
                   number="06"
                   eyebrow="Application Flow"
-                  title="A typical journey through the product."
-                  lede="How an operator or customer moves from one end of the system to the other."
+                  title="A typical journey through the system."
+                  lede="How an operator or user moves from intake through automated completion."
                 />
 
                 <div className="relative">
                   <div
-                    className="hidden md:block absolute left-1/2 -translate-x-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-accent/50 via-accent/20 to-transparent"
+                    className="hidden md:block absolute left-1/2 -translate-x-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-[#0079FF]/50 via-[#0079FF]/20 to-transparent"
                     aria-hidden="true"
                   />
                   <ol className="space-y-6 md:space-y-10">
@@ -1108,11 +2265,11 @@ const ProjectDetailPage = () => {
                       >
                         <div className="[direction:ltr]">
                           <div
-                            className={`bg-white dark:bg-gradient-to-br dark:from-[#1e1e1e] dark:to-[#151515] p-5 md:p-7 rounded-2xl border border-gray-200 dark:border-white/5 shadow-lg ${
+                            className={`bg-white dark:bg-[#0E131F] p-5 md:p-7 rounded-3xl border border-gray-200 dark:border-white/10 shadow-lg ${
                               i % 2 === 1 ? 'md:text-left' : 'md:text-right'
                             }`}
                           >
-                            <div className="text-[10px] md:text-xs uppercase tracking-[0.3em] text-accent font-bold mb-2">
+                            <div className="text-[10px] md:text-xs uppercase tracking-[0.3em] text-[#0079FF] dark:text-[#389BFF] font-bold mb-2">
                               Step {String(i + 1).padStart(2, '0')}
                             </div>
                             <h4 className="text-xl md:text-2xl font-heading font-bold text-black dark:text-white mb-2">
@@ -1124,7 +2281,7 @@ const ProjectDetailPage = () => {
                           </div>
                         </div>
                         <div className="hidden md:flex [direction:ltr] items-center justify-center">
-                          <div className="w-12 h-12 rounded-full bg-accent text-white font-heading font-bold text-lg flex items-center justify-center shadow-lg shadow-accent/30">
+                          <div className="w-12 h-12 rounded-full bg-[#0079FF] text-white font-heading font-bold text-lg flex items-center justify-center shadow-lg shadow-[#0079FF]/30">
                             {i + 1}
                           </div>
                         </div>
@@ -1136,11 +2293,11 @@ const ProjectDetailPage = () => {
             )}
 
             {/* ═══════════════════════════════════════════════════════════════
-                8. RESPONSIVE GALLERY — desktop / tablet / phone mockups
+                8. RESPONSIVE GALLERY
                 ═══════════════════════════════════════════════════════════════ */}
             {galleryItems.length > 0 && (
               <motion.section
-                className="max-w-7xl mx-auto px-6 md:px-12 py-16 md:py-24 border-t border-gray-200 dark:border-gray-800"
+                className="max-w-7xl mx-auto px-6 md:px-12 py-16 md:py-24 border-t border-gray-200 dark:border-white/10"
                 initial="hidden"
                 whileInView="visible"
                 viewport={sectionViewport}
@@ -1149,8 +2306,8 @@ const ProjectDetailPage = () => {
                 <SectionHeader
                   number="07"
                   eyebrow="Responsive Gallery"
-                  title="The product, in context."
-                  lede="A look at the interfaces across desktop, tablet, and mobile — every screen hand-tuned."
+                  title="The product in full context."
+                  lede="Interfaces across desktop, tablet, and mobile — tuned for responsiveness and speed."
                 />
 
                 <div className="space-y-8 md:space-y-12">
@@ -1165,7 +2322,7 @@ const ProjectDetailPage = () => {
                         whileHover={shouldReduce ? {} : cardHover}
                         transition={cardHoverTransition}
                         onClick={() => openLightbox(i)}
-                        className={`group relative block w-full text-left rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-800 bg-gray-100 dark:bg-gray-900 shadow-xl ${
+                        className={`group relative block w-full text-left rounded-3xl overflow-hidden border border-gray-200 dark:border-white/10 bg-gray-100 dark:bg-[#0E131F] shadow-xl ${
                           isPhone
                             ? 'max-w-xs mx-auto aspect-[9/19]'
                             : isTablet
@@ -1188,7 +2345,7 @@ const ProjectDetailPage = () => {
                           <span className="text-[10px] md:text-xs uppercase tracking-[0.25em] font-bold">
                             {g.device === 'phone' ? 'Mobile' : g.device === 'tablet' ? 'Tablet' : 'Desktop'}
                           </span>
-                          <span className="inline-flex items-center gap-1 text-[10px] md:text-xs uppercase tracking-[0.25em] font-bold">
+                          <span className="inline-flex items-center gap-1 text-[10px] md:text-xs uppercase tracking-[0.25em] font-bold text-[#0079FF] dark:text-[#389BFF]">
                             <Icon name="lightbox" className="w-4 h-4" />
                             Open
                           </span>
@@ -1201,15 +2358,15 @@ const ProjectDetailPage = () => {
             )}
 
             {/* ═══════════════════════════════════════════════════════════════
-                9. PROGRESSIVE DISCLOSURE: TECHNICAL DEEP DIVE & ARCHITECTURE
+                9. TECHNICAL DEEP DIVE & ARCHITECTURE
                 ═══════════════════════════════════════════════════════════════ */}
             {(project.architecture || project.techCategories || project.timeline || project.responsibilities || project.metrics) && (
-              <section className="max-w-7xl mx-auto px-6 md:px-12 py-16 border-t border-gray-200 dark:border-gray-800">
-                <div className="bg-white dark:bg-[#141414] border border-gray-200 dark:border-white/10 rounded-3xl p-8 md:p-12 shadow-xl space-y-12">
+              <section className="max-w-7xl mx-auto px-6 md:px-12 py-16 border-t border-gray-200 dark:border-white/10">
+                <div className="bg-white dark:bg-[#0E131F] border border-gray-200 dark:border-white/10 rounded-3xl p-8 md:p-12 shadow-xl space-y-12">
                   
                   <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-8 border-b border-gray-200 dark:border-white/10">
                     <div>
-                      <p className="text-xs uppercase tracking-[0.3em] text-accent font-bold mb-2">Technical Deep Dive</p>
+                      <p className="text-xs uppercase tracking-[0.3em] text-[#0079FF] dark:text-[#389BFF] font-bold mb-2">Technical Deep Dive</p>
                       <h3 className="text-2xl md:text-4xl font-heading font-bold text-black dark:text-white">
                         Architecture & Engineering Specifications
                       </h3>
@@ -1223,7 +2380,7 @@ const ProjectDetailPage = () => {
                   {Array.isArray(project.architecture) && project.architecture.length > 0 && (
                     <div>
                       <div className="mb-6">
-                        <span className="text-xs uppercase tracking-[0.25em] font-bold text-accent">System Architecture</span>
+                        <span className="text-xs uppercase tracking-[0.25em] font-bold text-[#0079FF] dark:text-[#389BFF]">System Architecture</span>
                         <h4 className="text-xl md:text-2xl font-heading font-bold text-black dark:text-white mt-1">
                           Production Topology & Data Flow
                         </h4>
@@ -1232,10 +2389,10 @@ const ProjectDetailPage = () => {
                         {project.architecture.map((layer, i) => (
                           <div
                             key={`${layer.layer}-${i}`}
-                            className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/5 rounded-xl p-4 md:p-5"
+                            className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/5 rounded-2xl p-4 md:p-5"
                           >
                             <div className="md:col-span-3 flex items-center gap-3">
-                              <span className="text-accent font-mono text-xs font-bold">
+                              <span className="text-[#0079FF] dark:text-[#389BFF] font-mono text-xs font-bold">
                                 {String(i + 1).padStart(2, '0')}
                               </span>
                               <h5 className="font-heading font-bold text-black dark:text-white text-base">
@@ -1255,7 +2412,7 @@ const ProjectDetailPage = () => {
                   {Array.isArray(project.techCategories) && project.techCategories.length > 0 && (
                     <div className="pt-8 border-t border-gray-200 dark:border-white/10">
                       <div className="mb-6">
-                        <span className="text-xs uppercase tracking-[0.25em] font-bold text-accent">Categorized Tooling</span>
+                        <span className="text-xs uppercase tracking-[0.25em] font-bold text-[#0079FF] dark:text-[#389BFF]">Categorized Tooling</span>
                         <h4 className="text-xl md:text-2xl font-heading font-bold text-black dark:text-white mt-1">
                           Technology Stack Breakdown
                         </h4>
@@ -1267,7 +2424,7 @@ const ProjectDetailPage = () => {
                             className="bg-gray-50 dark:bg-white/5 p-6 rounded-2xl border border-gray-200 dark:border-white/5"
                           >
                             <div className="flex items-center gap-3 mb-4">
-                              <span className="w-8 h-8 rounded-lg bg-accent/10 text-accent flex items-center justify-center">
+                              <span className="w-8 h-8 rounded-lg bg-[#0079FF]/10 text-[#0079FF] dark:text-[#389BFF] flex items-center justify-center">
                                 <Icon name={cat.icon || 'tag'} className="w-4 h-4" />
                               </span>
                               <h5 className="text-sm font-heading font-bold text-black dark:text-white">
@@ -1293,7 +2450,7 @@ const ProjectDetailPage = () => {
                     {/* Responsibilities */}
                     {Array.isArray(project.responsibilities) && project.responsibilities.length > 0 && (
                       <div className="lg:col-span-6 space-y-4">
-                        <span className="text-xs uppercase tracking-[0.25em] font-bold text-accent">Scope & Ownership</span>
+                        <span className="text-xs uppercase tracking-[0.25em] font-bold text-[#0079FF] dark:text-[#389BFF]">Scope & Ownership</span>
                         <h4 className="text-lg md:text-xl font-heading font-bold text-black dark:text-white">
                           My Engineering Responsibilities
                         </h4>
@@ -1303,7 +2460,7 @@ const ProjectDetailPage = () => {
                               key={i}
                               className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-full text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wider"
                             >
-                              <span className="w-1.5 h-1.5 rounded-full bg-accent" />
+                              <span className="w-1.5 h-1.5 rounded-full bg-[#0079FF]" />
                               {r}
                             </span>
                           ))}
@@ -1314,14 +2471,14 @@ const ProjectDetailPage = () => {
                     {/* Timeline Phases */}
                     {Array.isArray(project.timeline) && project.timeline.length > 0 && (
                       <div className="lg:col-span-6 space-y-4">
-                        <span className="text-xs uppercase tracking-[0.25em] font-bold text-accent">Process Cadence</span>
+                        <span className="text-xs uppercase tracking-[0.25em] font-bold text-[#0079FF] dark:text-[#389BFF]">Process Cadence</span>
                         <h4 className="text-lg md:text-xl font-heading font-bold text-black dark:text-white">
                           Development Phases
                         </h4>
                         <div className="space-y-2.5 pt-2">
                           {project.timeline.map((t, i) => (
                             <div key={i} className="flex items-start gap-3 text-xs">
-                              <span className="font-mono font-bold text-accent shrink-0 mt-0.5">
+                              <span className="font-mono font-bold text-[#0079FF] dark:text-[#389BFF] shrink-0 mt-0.5">
                                 0{i + 1}
                               </span>
                               <div>
@@ -1340,11 +2497,11 @@ const ProjectDetailPage = () => {
             )}
 
             {/* ═══════════════════════════════════════════════════════════════
-                10. RELATED PROJECTS — hover cards
+                10. RELATED PROJECTS
                 ═══════════════════════════════════════════════════════════════ */}
             {relatedProjects.length > 0 && (
               <motion.section
-                className="max-w-7xl mx-auto px-6 md:px-12 py-16 md:py-24 border-t border-gray-200 dark:border-gray-800"
+                className="max-w-7xl mx-auto px-6 md:px-12 py-16 md:py-24 border-t border-gray-200 dark:border-white/10"
                 initial="hidden"
                 whileInView="visible"
                 viewport={sectionViewport}
@@ -1353,8 +2510,8 @@ const ProjectDetailPage = () => {
                 <SectionHeader
                   number="08"
                   eyebrow="Related Projects"
-                  title="More selected work."
-                  lede="Other case studies in the same orbit."
+                  title="More selected software work."
+                  lede="Other engineering case studies in the same technical orbit."
                 />
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
@@ -1373,7 +2530,7 @@ const ProjectDetailPage = () => {
                       }}
                       role="link"
                       tabIndex={0}
-                      className="group cursor-pointer bg-white dark:bg-gradient-to-br dark:from-[#1e1e1e] dark:to-[#151515] border border-gray-200 dark:border-white/5 rounded-2xl overflow-hidden shadow-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                      className="group cursor-pointer bg-white dark:bg-[#0E131F] border border-gray-200 dark:border-white/10 rounded-3xl overflow-hidden shadow-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0079FF] hover:border-[#0079FF]/50 transition-all"
                     >
                       <div className="relative aspect-[16/10] overflow-hidden">
                         <img
@@ -1385,16 +2542,16 @@ const ProjectDetailPage = () => {
                           height="500"
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                         />
-                        <div className="absolute top-4 right-4 bg-white/95 dark:bg-black/80 backdrop-blur-sm text-black dark:text-white text-[10px] font-bold uppercase tracking-[0.2em] px-3 py-1 rounded-full">
+                        <div className="absolute top-4 right-4 bg-white/95 dark:bg-black/80 backdrop-blur-sm text-black dark:text-white text-[10px] font-bold uppercase tracking-[0.2em] px-3 py-1 rounded-full border border-gray-200 dark:border-white/10">
                           {rp.year || (rp.created_at ? new Date(rp.created_at).getFullYear() : '')}
                         </div>
                       </div>
                       <div className="p-6 md:p-7 flex items-start justify-between gap-4">
                         <div className="min-w-0">
-                          <div className="text-[10px] md:text-xs uppercase tracking-[0.25em] text-accent font-bold mb-2">
+                          <div className="text-[10px] md:text-xs uppercase tracking-[0.25em] text-[#0079FF] dark:text-[#389BFF] font-bold mb-2">
                             {rp.industry || rp.category || 'Software'}
                           </div>
-                          <h3 className="text-lg md:text-xl font-heading font-bold text-black dark:text-white mb-2 group-hover:text-accent transition-colors truncate">
+                          <h3 className="text-lg md:text-xl font-heading font-bold text-black dark:text-white mb-2 group-hover:text-[#0079FF] dark:group-hover:text-[#389BFF] transition-colors truncate">
                             {rp.title}
                           </h3>
                           <p className="text-sm text-gray-700 dark:text-gray-300 line-clamp-2">
@@ -1402,7 +2559,7 @@ const ProjectDetailPage = () => {
                           </p>
                         </div>
                         <span
-                          className="w-10 h-10 shrink-0 inline-flex items-center justify-center rounded-full border border-gray-200 dark:border-white/10 group-hover:bg-accent group-hover:border-accent group-hover:text-white dark:group-hover:bg-white dark:group-hover:text-black transition-colors"
+                          className="w-10 h-10 shrink-0 inline-flex items-center justify-center rounded-full border border-gray-200 dark:border-white/10 group-hover:bg-[#0079FF] group-hover:border-[#0079FF] group-hover:text-white transition-colors"
                           aria-hidden="true"
                         >
                           <Icon name="arrow-up-right" className="w-4 h-4" />
@@ -1415,20 +2572,20 @@ const ProjectDetailPage = () => {
             )}
 
             {/* ═══════════════════════════════════════════════════════════════
-                11. FINAL CTA — focused dual action call to action
+                11. FINAL CTA
                 ═══════════════════════════════════════════════════════════════ */}
             <motion.section
-              className="max-w-7xl mx-auto px-6 md:px-12 py-20 md:py-28 border-t border-gray-200 dark:border-gray-800"
+              className="max-w-7xl mx-auto px-6 md:px-12 py-20 md:py-28 border-t border-gray-200 dark:border-white/10"
               initial="hidden"
               whileInView="visible"
               viewport={sectionViewport}
               variants={container}
             >
-              <div className="max-w-4xl mx-auto text-center bg-white dark:bg-[#141414] border border-gray-200 dark:border-white/10 rounded-3xl p-12 md:p-20 shadow-xl relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-accent to-transparent"></div>
+              <div className="max-w-4xl mx-auto text-center bg-white dark:bg-[#0E131F] border border-gray-200 dark:border-white/10 rounded-3xl p-12 md:p-20 shadow-xl relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#0079FF] to-transparent"></div>
                 <motion.p
                   variants={item}
-                  className="text-xs uppercase tracking-[0.3em] text-accent font-bold mb-4"
+                  className="text-xs uppercase tracking-[0.3em] text-[#0079FF] dark:text-[#389BFF] font-bold mb-4"
                 >
                   Ready when you are
                 </motion.p>
@@ -1436,14 +2593,14 @@ const ProjectDetailPage = () => {
                   variants={item}
                   className="text-4xl sm:text-5xl md:text-6xl font-heading font-bold tracking-tight text-black dark:text-white leading-[1.05]"
                 >
-                  Let&rsquo;s build something{' '}
-                  <span className="text-accent">exceptional.</span>
+                  Let&rsquo;s engineer something{' '}
+                  <span className="bg-gradient-to-r from-[#0079FF] via-blue-500 to-indigo-400 bg-clip-text text-transparent">exceptional.</span>
                 </motion.h2>
                 <motion.p
                   variants={item}
                   className="mt-6 text-base md:text-lg text-gray-700 dark:text-gray-300 max-w-2xl mx-auto font-light leading-relaxed mb-10"
                 >
-                  Tell me what you're building, what you're trying to achieve, and where you're stuck. I'll help you determine the right technical approach.
+                  Tell me what you're building, what you're trying to achieve, and where you're stuck. I'll help you determine the right technical architecture.
                 </motion.p>
                 <motion.div
                   variants={item}
@@ -1455,9 +2612,9 @@ const ProjectDetailPage = () => {
                   >
                     <Link
                       to="/contact"
-                      className="inline-flex items-center justify-center bg-accent text-white font-bold uppercase tracking-[0.2em] text-xs px-8 py-4 rounded-xl shadow-lg hover:bg-black dark:hover:bg-white dark:hover:text-black transition-colors"
+                      className="inline-flex items-center justify-center bg-[#0079FF] hover:bg-[#0066D6] text-white font-bold uppercase tracking-[0.2em] text-xs px-8 py-4 rounded-xl shadow-lg shadow-[#0079FF]/25 transition-all"
                     >
-                      Start a Project →
+                      Start a Project Brief →
                     </Link>
                   </motion.div>
                   <motion.div
@@ -1466,9 +2623,9 @@ const ProjectDetailPage = () => {
                   >
                     <Link
                       to="/projects"
-                      className="inline-flex items-center justify-center border border-gray-300 dark:border-white/20 text-black dark:text-white font-bold uppercase tracking-[0.2em] text-xs px-8 py-4 rounded-xl hover:border-accent hover:text-accent transition-colors"
+                      className="inline-flex items-center justify-center border border-gray-300 dark:border-white/20 text-black dark:text-white font-bold uppercase tracking-[0.2em] text-xs px-8 py-4 rounded-xl hover:border-[#0079FF] hover:text-[#0079FF] dark:hover:text-[#389BFF] transition-colors"
                     >
-                      View More Projects
+                      View More Case Studies
                     </Link>
                   </motion.div>
                 </motion.div>
@@ -1477,7 +2634,7 @@ const ProjectDetailPage = () => {
                     href={`https://wa.me/${CONTACT.phoneE164 || '2348085186714'}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-xs font-mono text-gray-500 hover:text-accent transition-colors underline"
+                    className="text-xs font-mono text-gray-500 hover:text-[#0079FF] dark:hover:text-[#389BFF] transition-colors underline"
                   >
                     Or chat directly via WhatsApp ↗
                   </a>

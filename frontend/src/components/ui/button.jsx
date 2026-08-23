@@ -12,6 +12,12 @@ const buttonVariants = cva(
           "bg-primary text-primary-foreground shadow hover:bg-primary/90",
         accent:
           "bg-accent text-white shadow hover:bg-[#d43d1a]",
+        software:
+          "bg-[#0079FF] text-white shadow-lg shadow-[#0079FF]/20 hover:bg-[#0066D6] hover:shadow-[#0079FF]/35 active:bg-[#005ECC]",
+        softwareOutline:
+          "border border-[#0079FF]/40 text-[#0079FF] dark:text-[#389BFF] hover:bg-[#0079FF]/10 dark:hover:bg-[#0079FF]/20",
+        softwareGhost:
+          "text-[#0079FF] dark:text-[#389BFF] hover:bg-[#0079FF]/10 dark:hover:bg-[#0079FF]/20",
         destructive:
           "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90",
         outline:
