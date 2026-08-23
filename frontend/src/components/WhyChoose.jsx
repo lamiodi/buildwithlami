@@ -4,29 +4,29 @@ import { staggerContainer, fadeUpItem, sectionViewport, reducedMotionVariants } 
 
 const reasons = [
   {
-    title: 'Enterprise-Grade Quality',
-    description: 'We build scalable, robust systems designed to handle high traffic and complex business logic.',
+    title: 'Production-Ready Engineering',
+    description: 'Clean architecture, secure data handling, responsive interfaces, and maintainable systems built for real-world business workflows.',
     icon: (
       <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
     )
   },
   {
-    title: 'Data-Driven SEO',
-    description: 'Every project is optimized for maximum organic reach and conversion rates right from the start.',
+    title: 'Business-Focused Solutions',
+    description: 'Every project starts with your goals — not a template. I scope, design, and build software that solves the actual problem.',
     icon: (
       <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
     )
   },
   {
-    title: 'Rapid Delivery',
-    description: 'Agile methodologies and modern stacks allow us to ship features quickly without sacrificing quality.',
+    title: 'Fast, Transparent Delivery',
+    description: "A clear four-step process with real-time progress tracking. You always know what's happening and when it ships.",
     icon: (
       <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
     )
   },
   {
-    title: 'Premium Design',
-    description: 'Beautiful, user-centric interfaces that provide exceptional user experiences and build brand trust.',
+    title: 'Premium User Experience',
+    description: 'Beautiful, user-centric interfaces that feel polished on every device — designed to build trust and drive conversions.',
     icon: (
       <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
     )
@@ -47,9 +47,9 @@ const WhyChoose = () => {
         viewport={sectionViewport}
         transition={{ duration: shouldReduce ? 0 : 0.5, ease: 'easeOut' }}
       >
-        <h3 className="text-3xl md:text-4xl font-heading font-bold mb-4 text-black dark:text-white">Why Choose Us</h3>
+        <h3 className="text-3xl md:text-4xl font-heading font-bold mb-4 text-black dark:text-white">Why BuildWithLami</h3>
         <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto text-lg">
-          We bring technical excellence, strategic thinking, and creative vision to every project.
+          I combine engineering, product thinking, and premium design to build software that is practical, scalable, and ready for real business use.
         </p>
       </motion.div>
 

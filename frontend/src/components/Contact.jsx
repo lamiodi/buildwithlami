@@ -82,10 +82,10 @@ const Contact = () => {
         <div className="w-full md:w-1/2 flex flex-col justify-between">
           <motion.div variants={item}>
             <h2 className="text-4xl md:text-5xl font-heading font-bold mb-8 text-white">
-              Let's Build Your Next Product
+              Have a business problem to solve?
             </h2>
             <p className="text-xl md:text-2xl text-white font-light mb-12 opacity-95">
-              Tell me what you're building — I'll help you design, develop, and launch it fast.
+              Tell me what you're trying to achieve. I'll help you determine what should be built, what can wait, and the fastest path to launch.
             </p>
           </motion.div>
           
@@ -210,7 +210,7 @@ const Contact = () => {
               whileHover={status === 'idle' && !shouldReduce ? buttonHover : {}}
               whileTap={status === 'idle' && !shouldReduce ? buttonTap : {}}
             >
-              {status === 'success' ? 'Message Sent!' : status === 'submitting' ? 'Sending...' : 'Start Your Project'}
+              {status === 'success' ? 'Message Sent!' : status === 'submitting' ? 'Sending...' : 'Start a Project'}
             </motion.button>
             
             {status === 'error' && (

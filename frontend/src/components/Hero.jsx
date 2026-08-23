@@ -24,7 +24,7 @@ const Hero = () => {
           Revenue
         </motion.h1>
         <motion.p variants={item} className="text-gray-600 dark:text-gray-300 text-lg md:text-xl max-w-xl leading-relaxed mb-10 font-medium">
-          From idea to launch in weeks, not months. I design, build, and ship high-performance web applications for founders and growing businesses.
+          From idea to launch, I design, build, and ship high-performance web applications for founders and growing businesses — with a clear process from scope to deployment.
         </motion.p>
         <motion.div variants={item} className="flex flex-col sm:flex-row sm:items-center gap-4">
           <motion.a
@@ -33,7 +33,7 @@ const Hero = () => {
             whileHover={shouldReduce ? {} : buttonHover}
             whileTap={shouldReduce ? {} : buttonTap}
           >
-            Start Your Project
+            Start a Project
           </motion.a>
           <motion.a
             href="#projects"

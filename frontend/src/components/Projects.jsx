@@ -56,9 +56,18 @@ const Projects = () => {
     return () => { cancelled = true; }; // Cleanup to prevent state updates on unmount
   }, []);
 
-  const featuredProject = projects.length > 0 ? projects[0] : fallbackProjects[0];
+  // Ensure VonneX2X is always the featured project
+  const vonnex2xIndex = projects.findIndex(p =>
+    (p.slug && p.slug.toLowerCase().includes('vonnex2x')) ||
+    (p.title && p.title.toLowerCase().includes('vonnex2x'))
+  );
+  const orderedProjects = vonnex2xIndex > 0
+    ? [projects[vonnex2xIndex], ...projects.filter((_, i) => i !== vonnex2xIndex)]
+    : projects.length > 0 ? projects : fallbackProjects;
 
-  const moreProjects = projects.length > 1 ? projects.slice(1, 4) : fallbackProjects.slice(1, 4);
+  const featuredProject = orderedProjects[0] || fallbackProjects[0];
+
+  const moreProjects = orderedProjects.length > 1 ? orderedProjects.slice(1, 4) : fallbackProjects.slice(1, 4);
 
   return (
     <section id="projects" className="px-6 md:px-12 max-w-7xl mx-auto py-24">
@@ -69,13 +78,13 @@ const Projects = () => {
             variants={item}
             className="text-accent uppercase tracking-[0.3em] text-[11px] font-bold mb-3"
           >
-            Selected Work & Case Studies
+            SELECTED WORK
           </motion.p>
           <motion.h2
             variants={item}
             className="text-4xl md:text-5xl lg:text-6xl font-heading font-bold tracking-tight text-black dark:text-white"
           >
-            Built For <span className="italic text-accent">Results</span>.
+            Software built for <span className="text-accent">real-world businesses.</span>
           </motion.h2>
         </div>
         <motion.p

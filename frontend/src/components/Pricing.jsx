@@ -102,7 +102,7 @@ const Pricing = () => {
       examples: "e.g., Personal Portfolios, Waitlists, Event Pages",
       timeline: "Timeline: 1-2 weeks",
       scope: "A high-converting landing page designed to capture leads, validate your idea, and establish immediate credibility.",
-      cta: "Book Landing Page",
+      cta: "Start a Project",
       features: [
         "Custom Minimalist Design",
         "Mobile-First Optimization",
@@ -120,7 +120,7 @@ const Pricing = () => {
       examples: "e.g., Law Firms, Agencies, Logistics Cos.",
       timeline: "Timeline: 2-4 weeks",
       scope: "A complete digital storefront designed to build instant trust, capture high-quality leads, and position you as the premium choice in your industry.",
-      cta: "Request Business Quote",
+      cta: "Get a Project Quote",
       features: [
         "Up to 10 Custom Pages",
         "CMS for Content Management",
@@ -140,7 +140,7 @@ const Pricing = () => {
       examples: "e.g., Online Stores, Hotel Booking, Course Sales",
       timeline: "Timeline: 3-6 weeks",
       scope: "A fully optimized shopping experience designed to reduce cart abandonment, showcase products beautifully, and streamline your operations.",
-      cta: "Plan Store Build",
+      cta: "Get a Project Quote",
       features: [
         "Full Product Management",
         "Payment Gateway Integration",
@@ -158,14 +158,14 @@ const Pricing = () => {
       examples: "e.g., Real Estate Portals, POS Systems, ERPs",
       timeline: "Timeline: scoped after discovery",
       scope: "Bespoke software architecture designed to eliminate manual tasks, unify your data, and scale your operational capacity.",
-      cta: "Discuss Enterprise Scope",
+      cta: "Discuss Project Scope",
       features: [
         "Full ERP & Inventory Logic",
         "Role-Based Access Control",
         "Custom Business Reports",
         "System-Wide Automation",
         "Third-party API Integrations",
-        "Dedicated Dedicated Account Manager"
+        "Direct Developer Communication"
       ]
     }
   ];

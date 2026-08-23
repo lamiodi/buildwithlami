@@ -47,10 +47,10 @@ const SaaSProducts = () => {
         viewport={sectionViewport}
         transition={{ duration: shouldReduce ? 0 : 0.5, ease: 'easeOut' }}
       >
-        <span className="text-accent font-bold tracking-widest uppercase text-sm mb-2 block">Our Products</span>
-        <h3 className="text-3xl md:text-4xl font-heading font-bold mb-4 text-black dark:text-white">Internal SaaS Ventures</h3>
+        <span className="text-accent font-bold tracking-widest uppercase text-sm mb-2 block">Products I'm Building</span>
+        <h3 className="text-3xl md:text-4xl font-heading font-bold mb-4 text-black dark:text-white">SaaS Products & Ventures</h3>
         <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto text-lg">
-          Beyond client services, we build and maintain specialized SaaS products solving real-world problems in niche markets.
+          Beyond client services, I build and maintain specialized SaaS products solving real-world problems in niche markets.
         </p>
       </motion.div>
 

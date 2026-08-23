@@ -5,27 +5,27 @@ import { staggerContainer, fadeUpItem, sectionViewport, reducedMotionVariants } 
 const faqs = [
   {
     question: "What is your typical project timeline?",
-    answer: "Our delivery timeline depends on the project's size and complexity:\n\nLanding Pages: 1–2 weeks\nBusiness Websites: 2–6 weeks\nE-commerce Websites: 4–8 weeks\nCustom Web Applications: 6–12 weeks\nEnterprise Platforms & SaaS: 3–6 months\n\nAfter our discovery session, we'll provide a tailored project schedule with key milestones, review stages, and an estimated launch date."
+    answer: "My delivery timeline depends on the project's size and complexity:\n\nLanding Pages: 1–2 weeks\nBusiness Websites: 2–6 weeks\nE-commerce Websites: 4–8 weeks\nCustom Web Applications: 6–12 weeks\nEnterprise Platforms & SaaS: 3–6 months\n\nAfter a discovery session, I'll provide a tailored project schedule with key milestones, review stages, and an estimated launch date."
   },
   {
     question: "Do you offer post-launch support and maintenance?",
-    answer: "Yes, we offer ongoing maintenance and support packages to ensure your application remains secure, up-to-date, and performs optimally as your user base grows."
+    answer: "Yes, I offer ongoing maintenance and support packages to ensure your application remains secure, up-to-date, and performs optimally as your user base grows."
   },
   {
     question: "How do you handle SEO?",
-    answer: "SEO is built into our process from day one. We ensure proper semantic HTML, optimized performance (Core Web Vitals), metadata management, and accessible architecture so search engines can easily crawl and index your content."
+    answer: "SEO is built into my process from day one. I ensure proper semantic HTML, optimized performance (Core Web Vitals), metadata management, and accessible architecture so search engines can easily crawl and index your content."
   },
   {
     question: "What technologies do you use?",
-    answer: "We specialize in the modern web stack: React/Next.js for the frontend, Node.js/Express for the backend, and PostgreSQL for the database. We also utilize Tailwind CSS, Framer Motion, and various cloud services like Supabase and AWS."
+    answer: "I specialize in the modern web stack: React/Next.js for the frontend, Node.js/Express for the backend, and PostgreSQL for the database. I also utilize Tailwind CSS, Framer Motion, and various cloud services like Supabase and AWS."
   },
   {
     question: "Can you help redesign an existing website?",
-    answer: "Absolutely. We often help clients modernize their legacy applications or websites, migrating them to newer, faster, and more secure technology stacks while improving the overall UX/UI."
+    answer: "Absolutely. I often help clients modernize their legacy applications or websites, migrating them to newer, faster, and more secure technology stacks while improving the overall UX/UI."
   },
   {
     question: "What are your payment terms?",
-    answer: "Typically, we structure payments: 60% upfront to secure a spot in our schedule and begin work, and 40% prior to final launch and handover."
+    answer: "Typically, I structure payments: 60% upfront to secure a spot in the schedule and begin work, and 40% prior to final launch and handover."
   }
 ];
 
@@ -50,7 +50,7 @@ const FAQ = () => {
       >
         <h3 className="text-3xl md:text-4xl font-heading font-bold mb-4 text-black dark:text-white">Frequently Asked Questions</h3>
         <p className="text-gray-600 dark:text-gray-400 text-lg">
-          Everything you need to know about our services, process, and billing.
+          Everything you need to know about my services, process, and billing.
         </p>
       </motion.div>
 

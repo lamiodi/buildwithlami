@@ -6,7 +6,7 @@ const steps = [
   {
     number: '01',
     title: 'Discovery',
-    description: 'We hop on a call, map out your goals, and define the scope so there are zero surprises.',
+    description: 'I hop on a call, map out your goals, and define the scope so there are zero surprises.',
     icon: (
       <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
         <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
@@ -47,7 +47,7 @@ const steps = [
 
 const stats = [
   { value: '2-4 wk', label: 'Avg. Delivery', isText: true },
-  { value: 100, label: 'Client Retention', suffix: '%' },
+  { value: 4, label: 'Months Free Maintenance', suffix: '' },
   { value: 24, label: 'Response Time', suffix: 'hr' },
 ];
 
@@ -178,7 +178,7 @@ const HowItWorks = () => {
               whileHover={shouldReduce ? {} : buttonHover}
               whileTap={shouldReduce ? {} : buttonTap}
             >
-              Start Your Project
+              Start a Project
             </motion.a>
           </div>
         </motion.div>

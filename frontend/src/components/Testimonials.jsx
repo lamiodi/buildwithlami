@@ -53,7 +53,7 @@ const Testimonials = () => {
       >
         <h3 className="text-3xl md:text-4xl font-heading font-bold mb-4 text-black dark:text-white">Client Success Stories</h3>
         <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto text-lg">
-          Don't just take our word for it. Here's what our clients have to say about working with BuildWithLami.
+          Don't just take my word for it. Here's what clients have to say about working with BuildWithLami.
         </p>
       </motion.div>
 

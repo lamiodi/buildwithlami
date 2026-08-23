@@ -240,17 +240,7 @@ const Services = () => {
         "Content and growth recommendations"
       ]
     },
-    {
-      title: "Social Media Management",
-      desc: "For brands that want help building consistency, engagement, and stronger communication online.",
-      outcome: "You get a more structured social presence designed to support awareness and trust.",
-      features: [
-        "Content planning and direction",
-        "Community engagement support",
-        "Reporting and campaign tracking"
-      ],
-      isComingSoon: true
-    }
+
   ];
 
   return (
@@ -342,7 +332,7 @@ const Services = () => {
                   whileHover={shouldReduce ? {} : buttonHover}
                   whileTap={shouldReduce ? {} : buttonTap}
                 >
-                  Start A Project
+                  Start a Project
                 </motion.a>
               )}
             </div>
