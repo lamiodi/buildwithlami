@@ -221,8 +221,22 @@ const Pricing = () => {
           ))}
         </motion.div>
 
+        {/* Mobile Swipe Hint Badge */}
+        <div className="md:hidden flex items-center justify-between gap-2 mb-4 px-2 text-gray-500 dark:text-gray-400">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-accent flex items-center gap-1.5">
+            <svg className="w-3.5 h-3.5 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+            </svg>
+            Swipe horizontally to compare tiers
+          </span>
+          <span className="text-[10px] uppercase tracking-widest text-gray-600 dark:text-gray-300 font-bold bg-gray-200 dark:bg-white/10 px-2 py-0.5 rounded-xs">
+            4 Packages
+          </span>
+        </div>
+
+        {/* Pricing Cards: Horizontal Snap Row on Mobile, Grid on Desktop */}
         <motion.div
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+          className="flex md:grid md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 overflow-x-auto md:overflow-visible snap-x snap-mandatory pb-6 pt-2 -mx-6 px-6 sm:-mx-12 sm:px-12 md:mx-0 md:px-0 no-scrollbar"
           variants={container}
           initial="hidden"
           whileInView="visible"
@@ -234,59 +248,62 @@ const Pricing = () => {
               variants={item}
               whileHover={shouldReduce ? {} : cardHover}
               transition={cardHoverTransition}
-              className={`relative p-8 border ${tier.popular ? 'border-accent shadow-[0_0_0_1px_rgba(244,74,34,0.15)]' : 'border-gray-200 dark:border-white/10'} bg-white dark:bg-[#1c1c1c] rounded-sm group hover:shadow-2xl transition-all duration-500`}
+              className={`relative p-6 sm:p-8 border ${tier.popular ? 'border-accent shadow-[0_0_0_1px_rgba(244,74,34,0.15)]' : 'border-gray-200 dark:border-white/10'} bg-white dark:bg-[#1c1c1c] rounded-sm group hover:shadow-2xl transition-all duration-500 w-[84vw] max-w-[340px] sm:w-[360px] md:w-auto shrink-0 snap-center flex flex-col justify-between`}
             >
-              {tier.popular && (
-                <span className="absolute top-0 right-0 bg-accent text-white text-[10px] font-bold uppercase tracking-widest px-3 py-1">
-                  Most Popular
-                </span>
-              )}
-              <h3 className="text-lg font-heading font-bold uppercase tracking-wide text-black dark:text-white mb-3">
-                {tier.name}
-              </h3>
-              <p className="inline-flex flex-col bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 px-3 py-2 mb-5 min-h-[56px] justify-center w-full">
-                <span className="text-[11px] uppercase tracking-widest text-gray-800 dark:text-gray-200 font-bold mb-1">{tier.bestFor}</span>
-                <span className="text-[10px] text-gray-600 dark:text-gray-300 italic">{tier.examples}</span>
-              </p>
-              <div className="flex flex-wrap items-baseline gap-1 mb-4">
-                {tier.price === "Custom Quote" ? (
-                  <span className="text-2xl xl:text-3xl font-heading font-bold text-black dark:text-white leading-none">{tier.price}</span>
-                ) : pricingData[currency].tiers[index].isRange ? (
-                  <div className="flex items-baseline gap-1 flex-nowrap whitespace-nowrap">
-                    <span className="text-lg font-bold text-accent leading-none">{pricingData[currency].symbol}</span>
-                    <span className="text-xl xl:text-2xl font-heading font-bold text-black dark:text-white leading-none">{tier.price}</span>
-                  </div>
-                ) : (
-                  <>
-                    <span className="text-xl font-bold text-accent leading-none">{pricingData[currency].symbol}</span>
-                    <span className="text-3xl xl:text-4xl font-heading font-bold text-black dark:text-white leading-none">{tier.price}</span>
-                    <span className="text-xs text-gray-600 dark:text-gray-300 font-semibold mb-1">{pricingData[currency].suffix}</span>
-                  </>
+              <div>
+                {tier.popular && (
+                  <span className="absolute top-0 right-0 bg-accent text-white text-[10px] font-bold uppercase tracking-widest px-3 py-1">
+                    Most Popular
+                  </span>
                 )}
-              </div>
-              {tier.popularReason && (
-                <p className="text-[11px] font-bold uppercase tracking-widest text-accent mb-4 bg-accent/10 px-3 py-2 border border-accent/20">
-                  {tier.popularReason}
+                <h3 className="text-lg font-heading font-bold uppercase tracking-wide text-black dark:text-white mb-3">
+                  {tier.name}
+                </h3>
+                <p className="inline-flex flex-col bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 px-3 py-2 mb-5 min-h-[56px] justify-center w-full">
+                  <span className="text-[11px] uppercase tracking-widest text-gray-800 dark:text-gray-200 font-bold mb-1">{tier.bestFor}</span>
+                  <span className="text-[10px] text-gray-600 dark:text-gray-300 italic">{tier.examples}</span>
                 </p>
-              )}
-              <p className="text-[15px] text-gray-800 dark:text-gray-200 leading-relaxed mb-5 min-h-[96px] font-medium whitespace-pre-line opacity-95">
-                {tier.desc}
-              </p>
-              <div className="mb-6 space-y-3 border-y border-gray-200 dark:border-white/10 py-5">
-                <p className="text-[11px] uppercase tracking-widest text-accent font-bold">{tier.timeline}</p>
-                <p className="text-[13px] leading-relaxed text-gray-800 dark:text-gray-200">{tier.scope}</p>
+                <div className="flex flex-wrap items-baseline gap-1 mb-4">
+                  {tier.price === "Custom Quote" ? (
+                    <span className="text-2xl xl:text-3xl font-heading font-bold text-black dark:text-white leading-none">{tier.price}</span>
+                  ) : pricingData[currency].tiers[index].isRange ? (
+                    <div className="flex items-baseline gap-1 flex-nowrap whitespace-nowrap">
+                      <span className="text-lg font-bold text-accent leading-none">{pricingData[currency].symbol}</span>
+                      <span className="text-xl xl:text-2xl font-heading font-bold text-black dark:text-white leading-none">{tier.price}</span>
+                    </div>
+                  ) : (
+                    <>
+                      <span className="text-xl font-bold text-accent leading-none">{pricingData[currency].symbol}</span>
+                      <span className="text-3xl xl:text-4xl font-heading font-bold text-black dark:text-white leading-none">{tier.price}</span>
+                      <span className="text-xs text-gray-600 dark:text-gray-300 font-semibold mb-1">{pricingData[currency].suffix}</span>
+                    </>
+                  )}
+                </div>
+                {tier.popularReason && (
+                  <p className="text-[11px] font-bold uppercase tracking-widest text-accent mb-4 bg-accent/10 px-3 py-2 border border-accent/20">
+                    {tier.popularReason}
+                  </p>
+                )}
+                <p className="text-[15px] text-gray-800 dark:text-gray-200 leading-relaxed mb-5 min-h-[72px] md:min-h-[96px] font-medium whitespace-pre-line opacity-95">
+                  {tier.desc}
+                </p>
+                <div className="mb-6 space-y-3 border-y border-gray-200 dark:border-white/10 py-5">
+                  <p className="text-[11px] uppercase tracking-widest text-accent font-bold">{tier.timeline}</p>
+                  <p className="text-[13px] leading-relaxed text-gray-800 dark:text-gray-200">{tier.scope}</p>
+                </div>
+                <ul className="space-y-4 mb-10">
+                  {tier.features.map((feature, i) => (
+                    <li key={i} className="flex items-start gap-3 text-[13px] text-gray-800 dark:text-gray-200 font-medium">
+                      <CheckIcon className="w-4 h-4 text-accent mt-0.5 shrink-0" />
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
               </div>
-              <ul className="space-y-4 mb-10">
-                {tier.features.map((feature, i) => (
-                  <li key={i} className="flex items-start gap-3 text-[13px] text-gray-800 dark:text-gray-200 font-medium">
-                    <CheckIcon className="w-4 h-4 text-accent mt-0.5 shrink-0" />
-                    {feature}
-                  </li>
-                ))}
-              </ul>
+
               <motion.a 
                 href="#contact" 
-                className={`block text-center py-4 text-xs font-bold uppercase tracking-widest transition-all ${
+                className={`block text-center py-4 text-xs font-bold uppercase tracking-widest transition-all mt-auto ${
                   tier.popular 
                   ? 'bg-accent text-white hover:bg-white hover:text-accent border border-accent' 
                   : 'bg-black text-white dark:bg-white dark:text-black hover:bg-accent hover:text-white'

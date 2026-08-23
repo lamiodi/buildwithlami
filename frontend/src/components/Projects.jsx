@@ -84,7 +84,7 @@ const Projects = () => {
             variants={item}
             className="text-4xl md:text-5xl lg:text-6xl font-heading font-bold tracking-tight text-black dark:text-white"
           >
-            Software built for <span className="text-accent">real-world businesses.</span>
+            Built for <span className="text-accent">real-world businesses.</span>
           </motion.h2>
         </div>
         <motion.p

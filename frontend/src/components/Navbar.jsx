@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getAuthToken, clearAuth, getAuthUser } from '../services/auth';
+import { soundManager } from '../utils/sound';
 
 const NAV_LINKS = [
   { name: 'Home', path: '#home', type: 'anchor' },
@@ -91,6 +92,7 @@ const Navbar = ({ isDark, toggleTheme }) => {
           <Link to="/admin/projects" className="hover:text-accent transition-colors">Admin</Link>
         ) : null}
 
+        <SoundToggle />
         <ThemeToggle isDark={isDark} toggleTheme={toggleTheme} />
 
         <a 
@@ -105,7 +107,8 @@ const Navbar = ({ isDark, toggleTheme }) => {
       </div>
 
       {/* Mobile Controls */}
-      <div className="md:hidden flex items-center space-x-4 z-50">
+      <div className="md:hidden flex items-center space-x-2 z-50">
+        <SoundToggle />
         <ThemeToggle isDark={isDark} toggleTheme={toggleTheme} />
         
         <button 
@@ -158,6 +161,44 @@ const Navbar = ({ isDark, toggleTheme }) => {
   );
 };
 
+const SoundToggle = () => {
+  const [soundOn, setSoundOn] = useState(() => {
+    try {
+      const saved = localStorage.getItem('bwl_sound_enabled');
+      return saved === null ? true : saved === 'true';
+    } catch {
+      return true;
+    }
+  });
+
+  const handleToggle = () => {
+    const next = !soundOn;
+    setSoundOn(next);
+    soundManager.setSoundEnabled(next);
+    if (next) soundManager.playPop();
+  };
+
+  return (
+    <button
+      onClick={handleToggle}
+      className="hover:text-accent transition-colors p-2 text-gray-700 dark:text-gray-200"
+      aria-label={soundOn ? "Mute audio feedback" : "Enable audio feedback"}
+      title={soundOn ? "Sound Effects: ON" : "Sound Effects: OFF"}
+    >
+      {soundOn ? (
+        <svg className="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M11 5L6 9H2v6h4l5 4V5z" />
+        </svg>
+      ) : (
+        <svg className="w-5 h-5 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5.586 15H2V9h3.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
+        </svg>
+      )}
+    </button>
+  );
+};
+
 const ThemeToggle = ({ isDark, toggleTheme }) => (
   <button 
     onClick={toggleTheme} 
@@ -177,3 +218,4 @@ const ThemeToggle = ({ isDark, toggleTheme }) => (
 );
 
 export default Navbar;
+

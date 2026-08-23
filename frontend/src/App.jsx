@@ -9,6 +9,7 @@ import Preloader from './components/Preloader';
 import ToastHost from './components/ToastHost';
 import ThemeToast from './components/ThemeToast';
 import { Toaster } from './components/ui/sonner';
+import SoundEffects from './components/SoundEffects';
 import { lazyWithRetry } from './utils/lazyWithRetry';
 
 const HomePage = lazyWithRetry(() => import('./pages/HomePage'));
@@ -259,6 +260,7 @@ function App() {
         />
         <ToastHost />
         <Toaster position="top-right" richColors />
+        <SoundEffects />
       </ErrorBoundary>
     </div>
     </ClientAuthProvider>

@@ -1,247 +1,160 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { staggerContainer, fadeUpItem, cardHover, cardHoverTransition, buttonHover, buttonTap, sectionViewport, reducedMotionVariants } from '../utils/motion';
-
-// ── High-Definition Icon Definitions ─────────────────────────────────
-const Icon = {
-    // Web & Platform Icons
-    Website: () => (
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
-            <line x1="2" y1="9" x2="22" y2="9"/>
-            <line x1="2" y1="15" x2="22" y2="15"/>
-        </svg>
-    ),
-    App: () => (
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-            <rect x="5" y="2" width="14" height="20" rx="2"/>
-            <circle cx="9" cy="9" r="1.5"/>
-            <circle cx="15" cy="9" r="1.5"/>
-            <path d="M7 14s1.5 1 4 1 4-1 4-1"/>
-        </svg>
-    ),
-    Dashboard: () => (
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-            <rect x="3" y="3" width="18" height="18" rx="2"/>
-            <line x1="3" y1="9" x2="21" y2="9"/>
-            <line x1="9" y1="21" x2="9" y2="9"/>
-            <line x1="16" y1="21" x2="16" y2="15"/>
-        </svg>
-    ),
-    Store: () => (
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M3 3h18v18H3z"/>
-            <line x1="3" y1="9" x2="21" y2="9"/>
-            <line x1="9" y1="21" x2="9" y2="9"/>
-            <line x1="16" y1="21" x2="16" y2="13"/>
-        </svg>
-    ),
-    
-    // Interface & Design Icons
-    Interface: () => (
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-            <rect x="2" y="2" width="20" height="20" rx="2"/>
-            <line x1="2" y1="6" x2="22" y2="6"/>
-            <line x1="2" y1="14" x2="22" y2="14"/>
-            <line x1="4" y1="10" x2="4" y2="10"/>
-            <line x1="8" y1="10" x2="8" y2="10"/>
-            <line x1="12" y1="10" x2="12" y2="10"/>
-            <line x1="16" y1="10" x2="16" y2="10"/>
-        </svg>
-    ),
-    Mobile: () => (
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-            <rect x="6" y="2" width="12" height="20" rx="1"/>
-            <line x1="10" y1="2" x2="14" y2="2"/>
-            <line x1="12" y1="18" x2="12" y2="20"/>
-        </svg>
-    ),
-    Speed: () => (
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="10"/>
-            <polyline points="12,2 12,8 12,14"/>
-            <line x1="2" y1="12" x2="6" y2="12"/>
-            <line x1="8" y1="12" x2="14" y2="18"/>
-        </svg>
-    ),
-    
-    // Security & Data Icons
-    Security: () => (
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-            <rect x="3" y="11" width="18" height="10" rx="2"/>
-            <circle cx="12" cy="16" r="1"/>
-            <path d="M7 11V7a5 5 0 0110 0v4"/>
-            <path d="M9 13v3"/>
-            <path d="M15 13v3"/>
-        </svg>
-    ),
-    Database: () => (
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-            <ellipse cx="12" cy="5" rx="9" ry="3"/>
-            <path d="M3 5v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2H5c-1.1 0-2.9 0-3 0z"/>
-            <path d="M3 12h18"/>
-            <path d="M3 17h18"/>
-            <path d="M12 5v14"/>
-            <path d="M12 12l-3 3 3 3"/>
-        </svg>
-    ),
-    Api: () => (
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M12 6.5v10.5l8-4.5z"/>
-            <path d="M4 6.5v10.5l8-4.5z"/>
-        </svg>
-    ),
-    
-    // Strategy & Analysis Icons
-    Analytics: () => (
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-            <rect x="2" y="4" width="20" height="16" rx="2"/>
-            <line x1="2" y1="20" x2="22" y2="20"/>
-            <line x1="2" y1="10" x2="8" y2="10"/>
-            <line x1="10" y1="8" x2="14" y2="8"/>
-            <line x1="2" y1="14" x2="8" y2="14"/>
-            <line x1="14" y1="8" x2="20" y2="8"/>
-            <line x1="14" y1="14" x2="20" y2="14"/>
-        </svg>
-    ),
-    Audit: () => (
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-            <rect x="3" y="3" width="18" height="18" rx="2"/>
-            <line x1="3" y1="9" x2="21" y2="9"/>
-            <line x1="9" y1="3" x2="9" y2="21"/>
-            <line x1="15" y1="3" x2="15" y2="21"/>
-        </svg>
-    ),
-    Planning: () => (
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-            <rect x="3" y="4" width="18" height="18" rx="2"/>
-            <line x1="8" y1="2" x2="8" y2="6"/>
-            <line x1="16" y1="2" x2="16" y2="6"/>
-            <line x1="3" y1="10" x2="21" y2="10"/>
-            <line x1="8" y1="14" x2="8" y2="18"/>
-            <line x1="12" y1="14" x2="12" y2="18"/>
-            <line x1="16" y1="14" x2="16" y2="18"/>
-        </svg>
-    ),
-    Shield: () => (
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-            <circle cx="12" cy="12" r="2"/>
-        </svg>
-    ),
-    
-    // SEO & Digital Marketing Icons
-    Seo: () => (
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="10"/>
-            <line x1="12" y1="2" x2="12" y2="4"/>
-            <line x1="12" y1="20" x2="12" y2="22"/>
-            <line x1="2" y1="12" x2="4" y2="12"/>
-            <line x1="20" y1="12" x2="22" y2="12"/>
-            <line x1="5.6" y1="5.6" x2="7.8" y2="7.8"/>
-            <line x1="16.2" y1="16.2" x2="18.4" y2="18.4"/>
-            <line x1="5.6" y1="18.4" x2="7.8" y2="16.2"/>
-            <line x1="16.2" y1="7.8" x2="18.4" y2="5.6"/>
-        </svg>
-    ),
-    Growth: () => (
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
-            <polyline points="17 6 23 6 23 12"/>
-        </svg>
-    ),
-    Speedometer: () => (
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="10"/>
-            <line x1="12" y1="12" x2="8" y2="8"/>
-            <line x1="12" y1="12" x2="16" y2="16"/>
-            <line x1="8" y1="12" x2="8" y2="8"/>
-            <line x1="16" y1="12" x2="16" y2="16"/>
-        </svg>
-    ),
-    
-    // Social Media Icons
-    MessageSquare: () => (
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M21 11.5a8.38 8.38 0 01-7.5 7.5 8.38 8.38 0 01-7.5-7.5 8.38 8.38 0 017.5-7.5A8.38 8.38 0 0121 11.5z"/>
-            <path d="M12 9v6m0 0l3-3m-3 3l-3-3"/>
-        </svg>
-    ),
-    Users: () => (
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M16 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
-            <circle cx="9" cy="7" r="4"/>
-            <path d="m22 21-3-3 3-3"/>
-            <path d="M16 16l4 4"/>
-        </svg>
-    ),
-    BarChart: () => (
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="12" y1="20" x2="12" y2="10"/>
-            <line x1="18" y1="20" x2="18" y2="4"/>
-            <line x1="6" y1="20" x2="6" y2="16"/>
-        </svg>
-    ),
-};
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from './ui/dialog';
+import { playPopSound } from '../utils/sound';
 
 const Services = () => {
   const shouldReduce = useReducedMotion();
   const container = shouldReduce ? reducedMotionVariants : staggerContainer;
   const item = shouldReduce ? reducedMotionVariants : fadeUpItem;
 
+  const [selectedService, setSelectedService] = useState(null);
+
   const services = [
     {
+      id: "web-platforms",
       title: "Custom Web Platforms",
+      badge: "Full-Stack Engineering",
+      timeline: "3–8 Weeks",
       desc: "For businesses that need a complete website, web app, or internal platform built around real goals.",
       outcome: "You get a launch-ready product with the pages, flows, and functionality your business actually needs.",
       features: [
         "Business websites and custom platforms",
         "Dashboards, portals, and internal tools",
         "E-commerce and customer-facing experiences"
-      ]
+      ],
+      detailedScope: "From database schema design to responsive frontend interfaces and automated background workflows, I build full-stack web platforms engineered for longevity, high concurrency, and real business operations.",
+      deliverables: [
+        "Full-stack web application (React/Next.js + Node/PostgreSQL)",
+        "Role-based authentication & secure session management",
+        "Admin control panel & operational metrics dashboard",
+        "Payment processing (Paystack, Stripe, Flutterwave)",
+        "Automated transactional emails & webhook pipelines",
+        "Production deployment with SSL & domain configuration",
+        "4 months of free post-launch support and bug fixes"
+      ],
+      idealFor: "Founders launching MVPs, companies automating manual spreadsheets, and businesses replacing outdated off-the-shelf software.",
+      stack: ["React / Next.js", "Node.js / Express", "PostgreSQL", "Tailwind CSS", "REST / GraphQL APIs"]
     },
     {
+      id: "interfaces",
       title: "High-Performance Interfaces",
+      badge: "UI/UX & Speed Optimization",
+      timeline: "1–3 Weeks",
       desc: "For brands that want a cleaner, faster, and more modern experience for customers and users.",
       outcome: "You get an interface that feels polished, works smoothly on every screen, and supports conversion.",
       features: [
         "Landing pages and marketing websites",
         "Responsive web app interfaces",
         "Mobile-first performance improvements"
-      ]
+      ],
+      detailedScope: "First impressions dictate conversion rates. I design and build lightning-fast, high-converting digital storefronts and marketing pages with fluid animations, zero layout shifts, and flawless mobile responsiveness.",
+      deliverables: [
+        "Custom UI design with bespoke brand aesthetics & micro-animations",
+        "Sub-second load times scoring 95+ on Google PageSpeed Insights",
+        "Flawless mobile, tablet, and widescreen responsiveness",
+        "Lead capture forms with real-time spam validation",
+        "Interactive product showcases, calculators, and interactive widgets",
+        "Complete Webflow / WordPress to modern React / Vite migration"
+      ],
+      idealFor: "B2B SaaS products, consulting firms, agencies, and high-ticket service providers needing immediate visual authority.",
+      stack: ["React", "Framer Motion", "Tailwind CSS", "Radix UI", "Vite"]
     },
     {
+      id: "backend-data",
       title: "Secure API & Data Systems",
+      badge: "Backend & Cloud Architecture",
+      timeline: "2–5 Weeks",
       desc: "For products that need a reliable backend, structured data, and secure user access.",
       outcome: "You get backend systems that are stable, scalable, and easier to maintain as the business grows.",
       features: [
         "Backend architecture and APIs",
         "Authentication and account security",
         "Database design and workflow logic"
-      ]
+      ],
+      detailedScope: "The engine beneath your product. I engineer robust RESTful and asynchronous API services, normalized relational databases, safe data migrations, and bank-grade security protocols.",
+      deliverables: [
+        "Well-documented, type-safe RESTful API architecture",
+        "Relational database modeling with indexing & query optimization",
+        "JWT / HttpOnly cookie authentication, 2FA, & RBAC rules",
+        "Third-party integrations (APIs, CRM, accounting, webhooks)",
+        "Automated backup procedures & rate-limiting protection",
+        "Complete API documentation and Postman collections"
+      ],
+      idealFor: "Applications requiring secure multi-tenant data isolation, fin-tech or healthcare compliance, and high throughput.",
+      stack: ["Node.js", "Express", "PostgreSQL / Supabase", "Redis", "Docker", "AWS / Vercel"]
     },
     {
+      id: "audits-strategy",
       title: "Technical Strategy & Audits",
+      badge: "Engineering Advisory",
+      timeline: "3–7 Business Days",
       desc: "For teams that need help defining scope, reviewing an existing product, or planning the right next step.",
       outcome: "You get clear technical direction, a realistic scope, and practical recommendations you can act on.",
       features: [
         "Website and platform audits",
         "Technical scope and launch planning",
         "Performance, security, and stack reviews"
-      ]
+      ],
+      detailedScope: "Avoid costly engineering dead-ends. I conduct deep technical audits of your current codebase, architecture, and cloud infrastructure, delivering an actionable roadmap prioritized by business impact.",
+      deliverables: [
+        "Comprehensive Code Quality & Security Vulnerability Report",
+        "Core Web Vitals & Frontend Performance Bottleneck Analysis",
+        "Architecture teardown with scalability recommendations",
+        "Realistic project roadmap, milestone breakdown, and cost estimation",
+        "1-on-1 strategy video walkthrough session"
+      ],
+      idealFor: "Founders with legacy codebases, teams considering major rebuilds, or businesses evaluating agency estimates.",
+      stack: ["Lighthouse", "Security Auditing", "Code Review", "Architecture RFCs"]
     },
     {
+      id: "seo-growth",
       title: "SEO & Growth Strategy",
+      badge: "Organic Search & Indexing",
+      timeline: "2–4 Weeks + Roadmap",
       desc: "For businesses that want stronger visibility in search and a site structure that supports growth.",
       outcome: "You get a stronger foundation for ranking, discoverability, and long-term inbound traffic.",
       features: [
         "Technical SEO and site audits",
         "Core Web Vitals improvements",
         "Content and growth recommendations"
-      ]
-    },
-
+      ],
+      detailedScope: "Organic search delivers the highest ROI over time. I overhaul your website's crawlability, structured data schemas, semantic hierarchy, and metadata to give you dominant visibility across search engines.",
+      deliverables: [
+        "Complete Technical SEO audit & indexing fix plan",
+        "Schema.org JSON-LD structured data implementation (Articles, FAQs, Products)",
+        "Automated dynamic sitemaps, robots.txt, and canonical URL handling",
+        "OpenGraph & Twitter preview optimization for social sharing",
+        "Performance tuning for Google's Core Web Vitals (LCP, INP, CLS)"
+      ],
+      idealFor: "E-commerce stores, content publishers, B2B SaaS, and local businesses wanting steady inbound leads without ad spend.",
+      stack: ["Schema.org", "Next.js Metadata", "Google Search Console", "Semantic HTML5"]
+    }
   ];
+
+  const handleOpenModal = (service) => {
+    playPopSound();
+    setSelectedService(service);
+  };
+
+  const handleCloseModal = () => {
+    setSelectedService(null);
+  };
+
+  const handleServiceSelect = (serviceTitle) => {
+    handleCloseModal();
+    const contactSection = document.getElementById('contact');
+    if (contactSection) {
+      contactSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
 
   return (
     <section id="services" className="px-6 md:px-12 max-w-7xl mx-auto py-24">
@@ -289,6 +202,7 @@ const Services = () => {
         </motion.div>
       </motion.div>
 
+      {/* Services Grid */}
       <motion.div
         className="grid grid-cols-1 md:grid-cols-2 gap-6"
         variants={container}
@@ -302,13 +216,25 @@ const Services = () => {
             variants={item}
             whileHover={shouldReduce ? {} : cardHover}
             transition={cardHoverTransition}
-            className="bg-white dark:bg-[#111] border border-gray-200 dark:border-gray-800 hover:border-accent dark:hover:border-accent transition-colors p-8 relative overflow-hidden group cursor-pointer shadow-sm"
+            onClick={() => handleOpenModal(service)}
+            className="bg-white dark:bg-[#111] border border-gray-200 dark:border-gray-800 hover:border-accent dark:hover:border-accent transition-colors p-8 relative overflow-hidden group cursor-pointer shadow-sm flex flex-col justify-between"
           >
             {/* Orange gradient accent on hover */}
-            <div className="absolute inset-0 bg-gradient-to-tr from-accent/10 dark:from-accent/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <div className="absolute inset-0 bg-gradient-to-tr from-accent/10 dark:from-accent/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
             
             <div className="relative z-10">
-              <h4 className="text-xl font-heading font-bold mb-1 text-black dark:text-white">{service.title}</h4>
+              <div className="flex items-center justify-between gap-2 mb-3">
+                <span className="text-[10px] font-bold uppercase tracking-widest text-accent bg-accent/10 dark:bg-accent/20 px-2.5 py-1 border border-accent/20">
+                  {service.badge}
+                </span>
+                <span className="text-[11px] font-medium text-gray-500 dark:text-gray-400">
+                  {service.timeline}
+                </span>
+              </div>
+
+              <h4 className="text-xl font-heading font-bold mb-2 text-black dark:text-white group-hover:text-accent transition-colors">
+                {service.title}
+              </h4>
               <p className="text-gray-700 dark:text-gray-200 text-sm leading-relaxed mb-4 opacity-90">{service.desc}</p>
               <p className="text-black dark:text-white text-sm font-medium leading-relaxed mb-6">{service.outcome}</p>
               
@@ -320,30 +246,124 @@ const Services = () => {
                   </li>
                 ))}
               </ul>
+            </div>
 
-              {service.isComingSoon ? (
-                <span className="inline-block bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-gray-700 text-xs font-bold px-4 py-2 uppercase select-none">
-                  Launching Soon
-                </span>
-              ) : (
-                <motion.a
-                  href="#contact"
-                  className="inline-block bg-black text-white dark:bg-white dark:text-black text-xs font-bold px-4 py-2 uppercase hover:bg-accent dark:hover:bg-gray-200 transition-colors"
-                  whileHover={shouldReduce ? {} : buttonHover}
-                  whileTap={shouldReduce ? {} : buttonTap}
-                >
-                  Start a Project
-                </motion.a>
-              )}
+            <div className="relative z-10 flex items-center justify-between pt-4 border-t border-gray-100 dark:border-gray-800/80 mt-auto">
+              <span className="text-xs font-bold uppercase tracking-wider text-accent flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+                Explore Full Scope & Deliverables
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" />
+                </svg>
+              </span>
+
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleOpenModal(service);
+                }}
+                className="bg-black text-white dark:bg-white dark:text-black text-xs font-bold px-4 py-2 uppercase hover:bg-accent dark:hover:bg-accent dark:hover:text-white transition-colors"
+              >
+                View Details
+              </button>
             </div>
             
             {/* Gray block decoration */}
-            <div className="absolute top-4 right-4 w-12 h-12 bg-gray-100 dark:bg-gray-800 group-hover:bg-accent transition-colors"></div>
+            <div className="absolute top-4 right-4 w-8 h-8 bg-gray-100 dark:bg-gray-800 group-hover:bg-accent transition-colors opacity-60"></div>
           </motion.div>
         ))}
       </motion.div>
+
+      {/* ── Interactive Service Scope Modal ── */}
+      <Dialog open={!!selectedService} onOpenChange={(open) => { if (!open) handleCloseModal(); }}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-white dark:bg-[#151515] border-gray-200 dark:border-gray-800 text-black dark:text-white p-6 sm:p-8">
+          {selectedService && (
+            <div>
+              <DialogHeader className="text-left space-y-3 pb-4 border-b border-gray-200 dark:border-gray-800">
+                <div className="flex items-center gap-3">
+                  <span className="text-xs font-bold uppercase tracking-widest text-accent bg-accent/10 px-3 py-1 border border-accent/20">
+                    {selectedService.badge}
+                  </span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">
+                    Typical Timeline: <strong className="text-black dark:text-white">{selectedService.timeline}</strong>
+                  </span>
+                </div>
+                <DialogTitle className="text-2xl sm:text-3xl font-heading font-bold text-black dark:text-white">
+                  {selectedService.title}
+                </DialogTitle>
+                <DialogDescription className="text-gray-600 dark:text-gray-300 text-sm sm:text-base leading-relaxed">
+                  {selectedService.detailedScope}
+                </DialogDescription>
+              </DialogHeader>
+
+              {/* Key Outcome Highlight */}
+              <div className="my-5 p-4 bg-accent/5 dark:bg-accent/10 border-l-4 border-accent">
+                <p className="text-xs font-bold uppercase tracking-widest text-accent mb-1">Target Result</p>
+                <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                  {selectedService.outcome}
+                </p>
+              </div>
+
+              {/* Key Deliverables */}
+              <div className="space-y-3 mb-6">
+                <h5 className="text-xs font-bold uppercase tracking-widest text-gray-800 dark:text-gray-200">
+                  What's Included & Deliverables
+                </h5>
+                <ul className="grid grid-cols-1 gap-2.5">
+                  {selectedService.deliverables.map((item, idx) => (
+                    <li key={idx} className="flex items-start text-xs sm:text-sm text-gray-700 dark:text-gray-300">
+                      <span className="text-accent font-bold mr-2.5 mt-0.5 text-xs">✓</span>
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Ideal For & Tech Stack */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 bg-gray-50 dark:bg-[#1a1a1a] border border-gray-200 dark:border-gray-800 mb-6 text-xs">
+                <div>
+                  <p className="font-bold uppercase tracking-wider text-gray-900 dark:text-white mb-1">Ideal For</p>
+                  <p className="text-gray-600 dark:text-gray-300 leading-relaxed">{selectedService.idealFor}</p>
+                </div>
+                <div>
+                  <p className="font-bold uppercase tracking-wider text-gray-900 dark:text-white mb-2">Technologies Used</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {selectedService.stack.map((t, idx) => (
+                      <span key={idx} className="bg-white dark:bg-[#242424] border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-200 px-2 py-0.5 rounded-xs text-[11px] font-medium">
+                        {t}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Modal Actions */}
+              <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                <motion.button
+                  type="button"
+                  onClick={() => handleServiceSelect(selectedService.title)}
+                  className="flex-1 bg-accent text-white py-3.5 px-6 text-xs font-bold uppercase tracking-widest hover:bg-accent/90 transition-colors text-center"
+                  whileHover={shouldReduce ? {} : buttonHover}
+                  whileTap={shouldReduce ? {} : buttonTap}
+                >
+                  Start a Project with this Service →
+                </motion.button>
+                
+                <button
+                  type="button"
+                  onClick={handleCloseModal}
+                  className="py-3 px-5 border border-gray-300 dark:border-gray-700 text-xs font-bold uppercase tracking-widest text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </section>
   );
 };
 
 export default Services;
+
