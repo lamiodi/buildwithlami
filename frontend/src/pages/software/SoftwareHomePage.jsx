@@ -33,11 +33,11 @@ import {
 } from '../../components/ui/select';
 
 const PROJECT_TYPES = [
-  { id: 'mvp', name: 'MVP / Startup Prototype', baseCostNGN: 450000, baseCostUSD: 1200, baseWeeks: 3, icon: Zap, desc: 'Fast, functional prototype to validate product-market fit.' },
-  { id: 'web_app', name: 'Full-Stack Web Platform', baseCostNGN: 850000, baseCostUSD: 2400, baseWeeks: 5, icon: Layers, desc: 'Scalable custom application with database, auth, and dashboards.' },
-  { id: 'saas', name: 'Multi-Tenant SaaS System', baseCostNGN: 1600000, baseCostUSD: 4500, baseWeeks: 8, icon: Server, desc: 'Subscription billing, role-based access, and structured API layer.' },
-  { id: 'api_integration', name: 'API & Backend Infrastructure', baseCostNGN: 550000, baseCostUSD: 1500, baseWeeks: 3, icon: Database, desc: 'API endpoints, third-party payment/CRM integrations & secure DB modeling.' },
-  { id: 'landing', name: 'High-Converting Web App & SEO', baseCostNGN: 350000, baseCostUSD: 950, baseWeeks: 2, icon: Monitor, desc: 'Ultra-fast animated web platform built for high performance and conversions.' },
+  { id: 'landing', name: 'Starter / Landing Platform', baseCostNGN: 250000, baseCostUSD: 800, baseWeeks: 2, icon: Monitor, desc: 'Ultra-fast high-converting web platform built for instant credibility and conversions.' },
+  { id: 'business', name: 'Business Corporate Platform', baseCostNGN: 600000, baseCostUSD: 1600, baseWeeks: 3, icon: Layers, desc: 'Bespoke corporate website with CMS, lead capture automation, and SEO.' },
+  { id: 'ecommerce', name: 'E-Commerce Growth Engine', baseCostNGN: 850000, baseCostUSD: 2400, baseWeeks: 4, icon: Zap, desc: 'Scalable commerce system with accounts, cart recovery, discount engine & payments.' },
+  { id: 'web_app', name: 'Custom Web Application & Portal', baseCostNGN: 1200000, baseCostUSD: 3200, baseWeeks: 6, icon: Database, desc: 'Custom internal dashboards, client portals, booking systems, or SaaS prototypes.' },
+  { id: 'saas', name: 'Multi-Tenant SaaS & Enterprise ERP', baseCostNGN: 1800000, baseCostUSD: 4800, baseWeeks: 8, icon: Server, desc: 'Mission-critical multi-tenant architecture, subscription billing, and enterprise APIs.' },
 ];
 
 const ADDON_OPTIONS = [
