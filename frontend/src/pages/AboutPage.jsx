@@ -11,6 +11,7 @@ import {
   reducedMotionVariants,
 } from '../utils/motion';
 import { CONTACT } from '../config/contact';
+import TechIcon from '../components/TechIcon';
 
 /* ────────────────────────────────────────────────────────────────────────────
  * Static Data Structures (Outside component to optimize re-renders)
@@ -68,19 +69,19 @@ const education = [
   },
 ];
 
-// Categorized Tools & Technologies with specific roles and CDN icons
+// Categorized Tools & Technologies with specific roles and native TechIcon components
 const toolCategories = [
   {
     name: 'Frontend Engineering',
     categoryKey: 'frontend',
     description: 'Interface architecture, responsive layouts, and fluid micro-interactions.',
     tools: [
-      { name: 'React', desc: 'UI component architecture & reactive state', icon: 'https://cdn.simpleicons.org/react/61DAFB' },
-      { name: 'Next.js', desc: 'Full-stack React, SSR & routing', icon: 'https://cdn.simpleicons.org/nextdotjs/ffffff' },
-      { name: 'TypeScript', desc: 'Type-safe enterprise application code', icon: 'https://cdn.simpleicons.org/typescript/3178C6' },
-      { name: 'JavaScript', desc: 'Modern ES6+ asynchronous execution', icon: 'https://cdn.simpleicons.org/javascript/F7DF1E' },
-      { name: 'Tailwind CSS', desc: 'Design token architecture & custom styling', icon: 'https://cdn.simpleicons.org/tailwindcss/06B6D4' },
-      { name: 'Framer Motion', desc: 'Fluid spring physics & UI animations', icon: 'https://cdn.simpleicons.org/framer/0055FF' },
+      { name: 'React', desc: 'UI component architecture & reactive state' },
+      { name: 'Next.js', desc: 'Full-stack React, SSR & routing' },
+      { name: 'TypeScript', desc: 'Type-safe enterprise application code' },
+      { name: 'JavaScript', desc: 'Modern ES6+ asynchronous execution' },
+      { name: 'Tailwind CSS', desc: 'Design token architecture & custom styling' },
+      { name: 'Framer Motion', desc: 'Fluid spring physics & UI animations' },
     ],
   },
   {
@@ -88,24 +89,23 @@ const toolCategories = [
     categoryKey: 'backend',
     description: 'Resilient APIs, relational data models, caching, and authentication.',
     tools: [
-      { name: 'Node.js', desc: 'Scalable asynchronous runtime', icon: 'https://cdn.simpleicons.org/nodedotjs/339933' },
-      { name: 'Express.js', desc: 'REST API endpoints & custom middleware', icon: 'https://cdn.simpleicons.org/express/ffffff' },
-      { name: 'PostgreSQL', desc: 'Relational data architecture & ACID compliance', icon: 'https://cdn.simpleicons.org/postgresql/4169E1' },
-      { name: 'Prisma / Drizzle', desc: 'Type-safe ORM & database migrations', icon: 'https://cdn.simpleicons.org/prisma/2D3748' },
-      { name: 'Supabase', desc: 'Cloud Postgres, auth & real-time sync', icon: 'https://cdn.simpleicons.org/supabase/3ECF8E' },
-      { name: 'Redis', desc: 'High-speed in-memory caching & session store', icon: 'https://cdn.simpleicons.org/redis/DC382D' },
+      { name: 'Node.js', desc: 'Scalable asynchronous runtime' },
+      { name: 'Express.js', desc: 'REST API endpoints & custom middleware' },
+      { name: 'PostgreSQL', desc: 'Relational data architecture & ACID compliance' },
+      { name: 'Prisma / Drizzle', desc: 'Type-safe ORM & database migrations' },
+      { name: 'Supabase', desc: 'Cloud Postgres, auth & real-time sync' },
+      { name: 'Redis', desc: 'High-speed in-memory caching & session store' },
     ],
   },
   {
     name: 'Cloud & Infrastructure',
     categoryKey: 'cloud',
-    description: 'Continuous integration, cloud deployment, containerization, and media delivery.',
+    description: 'Continuous integration, cloud deployment, and edge media delivery.',
     tools: [
-      { name: 'Vercel', desc: 'Edge hosting, instant rollbacks & CDN', icon: 'https://cdn.simpleicons.org/vercel/ffffff' },
-      { name: 'Render', desc: 'Containerized web services & background workers', icon: 'https://cdn.simpleicons.org/render/46E3B7' },
-      { name: 'Docker', desc: 'Environment parity & container deployment', icon: 'https://cdn.simpleicons.org/docker/2496ED' },
-      { name: 'GitHub Actions', desc: 'Automated CI/CD pipelines & quality checks', icon: 'https://cdn.simpleicons.org/github/ffffff' },
-      { name: 'Cloudinary', desc: 'Dynamic asset optimization & media CDN', icon: 'https://cdn.simpleicons.org/cloudinary/3448C5' },
+      { name: 'Vercel', desc: 'Edge hosting, instant rollbacks & CDN' },
+      { name: 'Render', desc: 'Containerized web services & background workers' },
+      { name: 'GitHub Actions', desc: 'Automated CI/CD pipelines & quality checks' },
+      { name: 'Cloudinary', desc: 'Dynamic asset optimization & media CDN' },
     ],
   },
   {
@@ -113,10 +113,10 @@ const toolCategories = [
     categoryKey: 'payments',
     description: 'Transaction processing, webhook handling, and transactional communications.',
     tools: [
-      { name: 'Paystack', desc: 'African payments, recurring billing & webhooks', icon: 'https://cdn.simpleicons.org/paystack/09A5DB' },
-      { name: 'Stripe', desc: 'Global card processing & subscription billing', icon: 'https://cdn.simpleicons.org/stripe/635BFF' },
-      { name: 'Resend', desc: 'High-deliverability transactional email', icon: 'https://cdn.simpleicons.org/resend/ffffff' },
-      { name: 'REST & Webhooks', desc: 'Third-party API contracts & data pipelines', icon: 'https://cdn.simpleicons.org/fastapi/009688' },
+      { name: 'Paystack', desc: 'African payments, recurring billing & webhooks' },
+      { name: 'Stripe', desc: 'Global card processing & subscription billing' },
+      { name: 'Resend', desc: 'High-deliverability transactional email' },
+      { name: 'REST & Webhooks', desc: 'Third-party API contracts & data pipelines' },
     ],
   },
   {
@@ -124,9 +124,9 @@ const toolCategories = [
     categoryKey: 'design',
     description: 'Design prototyping, developer tooling, and API validation environments.',
     tools: [
-      { name: 'Figma', desc: 'UI/UX prototyping, layout systems & specs', icon: 'https://cdn.simpleicons.org/figma/F24E1E' },
-      { name: 'VS Code', desc: 'Primary development environment & tooling', icon: 'https://cdn.simpleicons.org/visualstudiocode/007ACC' },
-      { name: 'Postman', desc: 'API testing, schema mocking & endpoint validation', icon: 'https://cdn.simpleicons.org/postman/FF6C37' },
+      { name: 'Figma', desc: 'UI/UX prototyping, layout systems & specs' },
+      { name: 'VS Code', desc: 'Primary development environment & tooling' },
+      { name: 'Postman', desc: 'API testing, schema mocking & endpoint validation' },
     ],
   },
 ];
@@ -493,6 +493,23 @@ const AboutPage = () => {
                     <p className="text-sm text-gray-800 dark:text-gray-200 font-light leading-relaxed">
                       {edu.details}
                     </p>
+
+                    {/* Handwritten Signature for Eugene Odibenuah */}
+                    {index === education.length - 1 && (
+                      <div className="pt-4 mt-4 border-t border-gray-100 dark:border-white/5 flex items-center justify-between">
+                        <div>
+                          <span className="text-[10px] font-mono uppercase tracking-widest text-gray-500 dark:text-gray-400 block font-semibold">
+                            Principal Engineer & Architect
+                          </span>
+                          <span className="text-3xl sm:text-4xl font-signature text-accent dark:text-accent font-bold tracking-wider select-none block transform -rotate-2 mt-1">
+                            Eugene Odibenuah
+                          </span>
+                        </div>
+                        <div className="w-11 h-11 rounded-full border border-accent/30 bg-accent/10 flex items-center justify-center text-accent font-mono text-xs font-extrabold shadow-inner">
+                          EO
+                        </div>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -586,16 +603,7 @@ const AboutPage = () => {
                         className="group bg-gray-50 dark:bg-white/5 hover:bg-white dark:hover:bg-[#1a1a1a] p-4 rounded-2xl border border-gray-200 dark:border-white/5 hover:border-accent dark:hover:border-accent/40 shadow-sm hover:shadow-lg transition-all flex flex-col items-center text-center justify-between min-h-[140px]"
                       >
                         <div className="w-10 h-10 rounded-xl bg-white dark:bg-white/10 p-2 border border-gray-200 dark:border-white/10 flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
-                          <img
-                            src={tool.icon}
-                            alt={tool.name}
-                            className="w-full h-full object-contain"
-                            loading="lazy"
-                            onError={(e) => {
-                              // Fallback if SimpleIcon fails to load
-                              e.target.style.display = 'none';
-                            }}
-                          />
+                          <TechIcon name={tool.name} className="w-6 h-6" />
                         </div>
                         <div className="mt-2">
                           <h4 className="text-xs sm:text-sm font-heading font-bold text-black dark:text-white group-hover:text-accent transition-colors">

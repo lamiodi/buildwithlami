@@ -168,20 +168,20 @@ const ContactPage = () => {
           transition={{ duration: shouldReduce ? 0 : 0.5 }}
           className="text-left max-w-3xl"
         >
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/10 border border-accent/20 text-accent text-xs font-bold uppercase tracking-wider mb-4">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-accent/10 border border-accent/20 text-accent text-xs font-bold uppercase tracking-wider mb-4">
             <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
-            Project Discovery & Consultation
+            Direct Engineering & Project Inquiries
           </div>
           <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-heading font-bold tracking-tight text-black dark:text-white leading-[1.08]">
-            Let&apos;s Build Something That <span className="text-accent">Matters.</span>
+            Let&apos;s Build Something That <span className="text-accent">Lasts.</span>
           </h1>
           <p className="mt-6 text-base sm:text-lg md:text-xl text-gray-700 dark:text-gray-300 font-light leading-relaxed">
-            Tell me what you&apos;re building, what you&apos;re trying to improve, or where you&apos;re stuck. I&apos;ll review the details and get back to you with the right next step.
+            Direct founder-to-engineer communication. Share what you&apos;re building, key technical requirements, or where you need architectural clarity. I will personally review your brief and return a concrete next step within 24 hours.
           </p>
         </motion.header>
 
         {/* ═══════════════════════════════════════════════════════════════════
-            2. MAIN CONSULTATION GRID: Intake Form + Direct Reach Panels
+            2. PROJECT BRIEF INTAKE & DIRECT REACH
             ═══════════════════════════════════════════════════════════════════ */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
           
@@ -193,9 +193,9 @@ const ContactPage = () => {
             className="lg:col-span-7 bg-white dark:bg-[#141414] border border-gray-200 dark:border-white/10 rounded-3xl p-6 sm:p-10 shadow-2xl space-y-8"
           >
             <div>
-              <span className="text-xs uppercase tracking-[0.25em] font-bold text-accent">Intake Questionnaire</span>
+              <span className="text-xs uppercase tracking-[0.25em] font-bold text-accent">Technical Project Brief</span>
               <h2 className="text-2xl sm:text-3xl font-heading font-bold text-black dark:text-white mt-1">
-                Start a Conversation
+                Tell Me About Your Project
               </h2>
             </div>
 
@@ -414,22 +414,22 @@ const ContactPage = () => {
               </div>
             </div>
 
-            {/* Panel 2: Prefer a direct conversation? */}
+            {/* Panel 2: Direct WhatsApp Chat */}
             <div className="bg-white dark:bg-[#141414] border border-gray-200 dark:border-white/10 rounded-3xl p-6 sm:p-8 shadow-xl space-y-4">
-              <span className="text-xs uppercase tracking-[0.25em] font-bold text-accent">Immediate Discovery</span>
+              <span className="text-xs uppercase tracking-[0.25em] font-bold text-accent">Direct WhatsApp</span>
               <h3 className="text-xl font-heading font-bold text-black dark:text-white">
-                Prefer a direct conversation?
+                Prefer a quick chat?
               </h3>
               <p className="text-xs sm:text-sm text-gray-700 dark:text-gray-300 font-light leading-relaxed">
-                If you already have clear requirements and want to discuss timelines, architecture, and technical feasibility directly, let&apos;s talk.
+                If you have quick technical questions about architecture, stack compatibility, or urgency, reach out directly.
               </p>
               <a
-                href={`https://wa.me/${CONTACT.phoneE164 || '2348085186714'}?text=${encodeURIComponent("Hi Lami, I would like to schedule a discovery call for my software project.")}`}
+                href={`https://wa.me/${CONTACT.phoneE164 || '2348085186714'}?text=${encodeURIComponent("Hi Eugene, I would like to discuss my project scope and architecture requirements directly.")}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center w-full bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 hover:bg-accent hover:text-white hover:border-accent text-black dark:text-white text-xs font-bold uppercase tracking-[0.2em] py-3.5 rounded-xl transition-all shadow-sm"
               >
-                Book a Discovery Call →
+                Chat on WhatsApp →
               </a>
             </div>
 

@@ -1,27 +1,25 @@
-import React, { useState, useId } from 'react';
+import React, { useState } from 'react';
 import { motion, useReducedMotion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { 
   Check, 
   ArrowRight, 
   Sparkles, 
-  ShieldCheck, 
   Server, 
   Cpu, 
   Layers, 
   Globe, 
   Zap, 
-  CreditCard, 
-  Truck, 
-  BarChart3, 
   Sliders, 
-  FileText,
   Calculator,
   ChevronRight,
-  Info
+  ShieldCheck,
+  Package,
+  Plus,
+  X
 } from 'lucide-react';
 import CheckIcon from './CheckIcon';
-import { staggerContainer, fadeUpItem, cardHover, buttonHover, buttonTap, sectionViewport, reducedMotionVariants } from '../utils/motion';
+import { staggerContainer, fadeUpItem, cardHover, sectionViewport, reducedMotionVariants } from '../utils/motion';
 import { useAutomatedCurrency } from '../utils/currency';
 
 const PRICING_DATA = {
@@ -29,8 +27,10 @@ const PRICING_DATA = {
     symbol: "₦",
     categories: {
       websites: {
+        id: "websites",
+        label: "🌐 Websites",
         title: "01 — Websites & Web Platforms",
-        desc: "High-converting corporate sites, portfolios, and company web platforms built for instant credibility.",
+        desc: "High-converting corporate websites, portfolios, and company web platforms built for authority and conversions.",
         starting: "250,000",
         tiers: [
           {
@@ -98,6 +98,8 @@ const PRICING_DATA = {
         ]
       },
       ecommerce: {
+        id: "ecommerce",
+        label: "🛒 E-Commerce ⭐",
         title: "02 — E-Commerce Engines",
         desc: "Scalable online stores engineered to convert visitors, accept multi-channel payments, and streamline fulfillment.",
         starting: "650,000",
@@ -157,7 +159,7 @@ const PRICING_DATA = {
             numPrice: 1200000,
             bestFor: "High-volume, multi-warehouse & international retailers",
             examples: "e.g. Global Retailers, Multi-Location Inventories",
-            timeline: "6–8 weeks",
+            timeline: "6–8+ weeks",
             support: "6 months post-launch support included",
             desc: "A high-performance commerce system engineered for multi-location logistics, complex product matrices, and ERP sync.",
             features: [
@@ -173,6 +175,8 @@ const PRICING_DATA = {
         ]
       },
       software: {
+        id: "software",
+        label: "⚙️ Custom Software",
         title: "03 — Custom Software & SaaS",
         desc: "Bespoke web applications, SaaS prototypes, and internal systems built for operational scale.",
         starting: "1,200,000",
@@ -246,8 +250,10 @@ const PRICING_DATA = {
     symbol: "$",
     categories: {
       websites: {
+        id: "websites",
+        label: "🌐 Websites",
         title: "01 — Websites & Web Platforms",
-        desc: "High-converting corporate sites, portfolios, and company web platforms built for instant credibility.",
+        desc: "High-converting corporate websites, portfolios, and company web platforms built for authority and conversions.",
         starting: "800",
         tiers: [
           {
@@ -315,6 +321,8 @@ const PRICING_DATA = {
         ]
       },
       ecommerce: {
+        id: "ecommerce",
+        label: "🛒 E-Commerce ⭐",
         title: "02 — E-Commerce Engines",
         desc: "Scalable online stores engineered to convert visitors, accept multi-channel payments, and streamline fulfillment.",
         starting: "1,800",
@@ -374,7 +382,7 @@ const PRICING_DATA = {
             numPrice: 3200,
             bestFor: "High-volume, multi-warehouse & international retailers",
             examples: "e.g. Global Retailers, Multi-Location Inventories",
-            timeline: "6–8 weeks",
+            timeline: "6–8+ weeks",
             support: "6 months post-launch support included",
             desc: "A high-performance commerce system engineered for multi-location logistics, complex product matrices, and ERP sync.",
             features: [
@@ -390,6 +398,8 @@ const PRICING_DATA = {
         ]
       },
       software: {
+        id: "software",
+        label: "⚙️ Custom Software",
         title: "03 — Custom Software & SaaS",
         desc: "Bespoke web applications, SaaS prototypes, and internal systems built for operational scale.",
         starting: "3,200",
@@ -464,56 +474,56 @@ const PRICING_DATA = {
 const INFRASTRUCTURE_TIERS = [
   {
     id: "standard",
-    name: "Standard Cloud",
+    name: "Standard",
     badge: "Included Baseline",
     costNGN: 0,
     costUSD: 0,
-    tag: "Normal Business Traffic",
-    desc: "Suitable for standard corporate websites, portfolios, and focused stores with predictable daily traffic.",
+    tag: "For normal business traffic",
+    desc: "Cloud deployment, SSL certificate, automated daily backups, global edge CDN, standard database.",
     specs: ["Global Edge CDN", "Free SSL Certificate", "Automated Daily Backups", "99.5% Uptime Target", "Standard DB Connection Pooling"]
   },
   {
     id: "performance",
-    name: "Performance Cloud",
-    badge: "High Performance",
+    name: "Performance ⭐",
+    badge: "Recommended Upgrade",
     costNGN: 150000,
     costUSD: 200,
     popular: true,
-    tag: "Fast Scaling Retail & SaaS",
-    desc: "Enhanced compute resources, Redis/edge caching, optimized database pooling, and Cloudinary media transformation.",
-    specs: ["High-Concurrency Redis Caching", "Optimized DB Connection Pool", "Cloudinary Media Optimization", "99.9% Uptime SLA", "2x Higher Server Memory"]
+    tag: "For growing stores & applications",
+    desc: "Higher server resources, Redis caching, optimized database pooling, Cloudinary image optimization, 99.9% uptime target.",
+    specs: ["High-Concurrency Redis Caching", "Optimized DB Connection Pool", "Cloudinary Media Optimization", "99.9% Uptime Target", "2x Server Memory Allocation"]
   },
   {
     id: "scale",
-    name: "Enterprise Scale",
-    badge: "Maximum Throughput",
+    name: "Scale",
+    badge: "High Throughput",
     costNGN: 350000,
     costUSD: 450,
-    tag: "High-Volume & Flash Sales",
-    desc: "Autoscaling cloud cluster, dedicated database instance, multi-region CDN, real-time error telemetry, and DDoS mitigation.",
-    specs: ["Autoscaling Compute Cluster", "Dedicated DB Instance", "Multi-Region Cloud Failover", "Real-Time Sentry & Telemetry", "Priority SLA & Incident Response"]
+    tag: "For high-volume operations & flash sales",
+    desc: "Autoscaling cloud cluster, dedicated database instance, multi-region CDN, advanced telemetry, priority incident response.",
+    specs: ["Autoscaling Compute Cluster", "Dedicated DB Instance", "Multi-Region Cloud Failover", "Real-Time Sentry Telemetry", "Priority Incident Response SLA"]
   }
 ];
 
 const OPTIONAL_ADDONS = [
-  { id: "addon_gateway", name: "Additional Payment Gateway", desc: "Stripe, UAE / Middle East Gateway, PayPal, or Crypto", costNGN: 80000, costUSD: 200 },
-  { id: "addon_shipping", name: "Advanced International Shipping", desc: "Multi-zone shipping rules, DHL / FedEx / Courier API sync", costNGN: 100000, costUSD: 250 },
-  { id: "addon_seo", name: "Advanced SEO & CWV Optimization", desc: "100% Core Web Vitals audit, schema markup & ranking strategy", costNGN: 100000, costUSD: 250 },
-  { id: "addon_pages", name: "Additional Custom Pages (Set of 3)", desc: "Tailored responsive pages designed with conversion copy", costNGN: 75000, costUSD: 180 },
-  { id: "addon_automation", name: "Custom Workflow Automations", desc: "Webhook pipelines, CRM auto-sync, Zapier & custom triggers", costNGN: 100000, costUSD: 250 },
+  { id: "addon_shipping", name: "International & Multi-Zone Shipping", desc: "Multi-zone shipping rules (UAE/Nigeria/Intl) + Courier API sync", costNGN: 100000, costUSD: 250, highlight: true },
+  { id: "addon_gateway", name: "Additional Payment Gateway (Stripe / UAE)", desc: "Accept cross-border cards, UAE gateways, PayPal, or Crypto", costNGN: 80000, costUSD: 200, highlight: true },
+  { id: "addon_seo", name: "Advanced SEO & Core Web Vitals", desc: "100% CWV audit, schema structured data & rank strategy", costNGN: 100000, costUSD: 250, highlight: true },
+  { id: "addon_automation", name: "Custom Workflow Automations", desc: "Webhook pipelines, CRM auto-sync & automated customer triggers", costNGN: 100000, costUSD: 250 },
   { id: "addon_crm", name: "CRM & Leads Pipeline Integration", desc: "HubSpot, Notion, Airtable, or custom lead database pipeline", costNGN: 100000, costUSD: 250 },
   { id: "addon_analytics", name: "Advanced Conversion Analytics", desc: "GA4 e-commerce events, Meta Pixel CAPI, funnel drop-off audit", costNGN: 50000, costUSD: 120 },
-  { id: "addon_multicurrency", name: "Multi-Currency / Multi-Language", desc: "Geo-targeted pricing display and regional localization", costNGN: 75000, costUSD: 180 },
-  { id: "addon_maintenance", name: "Extended Support Retainer (Monthly)", desc: "Ongoing monthly security patches, bug fixes & feature tweaks", costNGN: 50000, costUSD: 120 }
+  { id: "addon_multicurrency", name: "Multi-Currency & Language Localization", desc: "Geo-targeted pricing display and regional currency switcher", costNGN: 75000, costUSD: 180 },
+  { id: "addon_pages", name: "Additional Custom Pages (Set of 3)", desc: "Tailored responsive pages designed with high-conversion copy", costNGN: 75000, costUSD: 180 },
+  { id: "addon_maintenance", name: "Extended Support Retainer (Monthly)", desc: "Ongoing monthly security patches, bug fixes & feature enhancements", costNGN: 50000, costUSD: 120 }
 ];
 
 const ECOM_COMPARISON_MATRIX = [
   { feature: "Starting Investment", launch: "₦650k / $1,800", growth: "₦850k / $2,400 ⭐", pro: "₦1.2M+ / $3,200+" },
-  { feature: "Best For", launch: "New & boutique stores", growth: "Growing fashion & retail brands", pro: "High-volume / global operations" },
-  { feature: "Product Capacity", launch: "Up to 30 products", growth: "Up to 100 products + filters", pro: "100+ products (complex variants)" },
-  { feature: "Payment Gateways", launch: "1 Gateway (Paystack/Card)", growth: "Multiple (Local + Intl/UAE/Stripe)", pro: "Advanced global checkout & multi-currency" },
-  { feature: "Delivery & Shipping", launch: "Basic flat-rate delivery", growth: "UAE/Nigeria/local + international", pro: "Dynamic shipping rules & courier API sync" },
-  { feature: "Admin & Operations", launch: "Product & order dashboard", growth: "Full commerce dashboard + Accounts", pro: "Advanced operations & inventory ledger" },
+  { feature: "Best For", launch: "New stores", growth: "Growing brands (e.g. Sassy Brand)", pro: "Advanced commerce" },
+  { feature: "Products Capacity", launch: "Up to 30 products", growth: "Up to 100 products + filters", pro: "100+ products (complex variants)" },
+  { feature: "Payments", launch: "1 Gateway (Paystack/Card)", growth: "Multiple (Local + Intl/UAE/Stripe)", pro: "Advanced global checkout & multi-currency" },
+  { feature: "Shipping", launch: "Basic flat-rate delivery", growth: "UAE/Nigeria/local + international", pro: "Dynamic shipping rules & courier API sync" },
+  { feature: "Operations", launch: "Product & order dashboard", growth: "Full commerce dashboard + Accounts", pro: "Advanced operations & inventory ledger" },
   { feature: "SEO & Discovery", launch: "Basic on-page SEO", growth: "Advanced technical & schema SEO", pro: "Technical SEO + programmatic growth" },
   { feature: "Analytics & Tracking", launch: "Basic traffic metrics", growth: "GA4, Meta Pixel & funnel tracking", pro: "Advanced tracking, profit & cohort reporting" },
   { feature: "Sales Automations", launch: "Core order notifications", growth: "Abandoned cart & discount engine", pro: "Advanced custom pipelines & ERP sync" },
@@ -530,21 +540,26 @@ const Pricing = ({ isHomepage = false }) => {
   const activePricing = PRICING_DATA[currency] || PRICING_DATA.NGN;
   const symbol = activePricing.symbol;
 
-  const [activeCategory, setActiveCategory] = useState('all'); // 'all' | 'websites' | 'ecommerce' | 'software'
+  // Category Selector as Primary Navigation (defaults to 'ecommerce')
+  const [activeCategory, setActiveCategory] = useState('ecommerce');
+  const [showAddonsModal, setShowAddonsModal] = useState(false);
   const [showComparison, setShowComparison] = useState(false);
 
   // Interactive Quote Builder State
   const [quoteCategory, setQuoteCategory] = useState('ecommerce');
   const [quoteTierId, setQuoteTierId] = useState('ecom_growth');
   const [quoteInfraId, setQuoteInfraId] = useState('performance');
-  const [selectedAddons, setSelectedAddons] = useState(['addon_shipping', 'addon_seo']);
+  const [selectedAddons, setSelectedAddons] = useState(['addon_shipping', 'addon_gateway']);
 
-  // Get current selected tier
-  const currentCategoryTiers = activePricing.categories[quoteCategory]?.tiers || [];
-  const selectedTier = currentCategoryTiers.find(t => t.id === quoteTierId) || currentCategoryTiers[0] || {};
+  // Get active category object and tiers
+  const currentCategoryData = activePricing.categories[activeCategory] || activePricing.categories.ecommerce;
+  const currentTiers = currentCategoryData.tiers;
+
+  // Builder Calculations
+  const builderCategoryData = activePricing.categories[quoteCategory] || activePricing.categories.ecommerce;
+  const selectedTier = builderCategoryData.tiers.find(t => t.id === quoteTierId) || builderCategoryData.tiers[1] || builderCategoryData.tiers[0];
   const selectedInfra = INFRASTRUCTURE_TIERS.find(i => i.id === quoteInfraId) || INFRASTRUCTURE_TIERS[0];
 
-  // Calculate estimated investment
   const tierCost = selectedTier.numPrice || 0;
   const infraCost = currency === 'USD' ? selectedInfra.costUSD : selectedInfra.costNGN;
   const addonsCost = selectedAddons.reduce((sum, addonId) => {
@@ -568,24 +583,13 @@ const Pricing = ({ isHomepage = false }) => {
     );
   };
 
-  // Flattened tiers for "all" category
-  const allTiers = [
-    ...activePricing.categories.websites.tiers.map(t => ({ ...t, catKey: 'websites', catLabel: 'Websites & Portals' })),
-    ...activePricing.categories.ecommerce.tiers.map(t => ({ ...t, catKey: 'ecommerce', catLabel: 'E-Commerce Engines' })),
-    ...activePricing.categories.software.tiers.map(t => ({ ...t, catKey: 'software', catLabel: 'Custom Software & SaaS' }))
-  ];
-
-  const displayedTiers = activeCategory === 'all' 
-    ? allTiers 
-    : (activePricing.categories[activeCategory]?.tiers.map(t => ({ ...t, catKey: activeCategory, catLabel: activePricing.categories[activeCategory].title })) || []);
-
   return (
     <section id="pricing" className="py-24 px-6 md:px-12 bg-gray-50 dark:bg-background transition-colors duration-300">
       <div className="max-w-7xl mx-auto">
         
         {/* ── HEADER ── */}
         <motion.div
-          className="text-center mb-12"
+          className="text-center mb-14"
           variants={container}
           initial="hidden"
           whileInView="visible"
@@ -598,17 +602,17 @@ const Pricing = ({ isHomepage = false }) => {
             </span>
           </motion.div>
 
-          <motion.h2 variants={item} className="text-4xl md:text-5xl lg:text-6xl font-heading font-bold text-black dark:text-white tracking-tight mb-6">
+          <motion.h2 variants={item} className="text-4xl md:text-5xl lg:text-6xl font-heading font-bold text-black dark:text-white tracking-tight mb-5">
             Clear Tiers. Predictable Investment. <br />
-            <span className="italic font-normal text-accent">Zero Hidden Costs.</span>
+            <span className="italic font-normal text-accent">No Surprise Fees.</span>
           </motion.h2>
 
           <motion.p variants={item} className="text-gray-700 dark:text-gray-200 max-w-3xl mx-auto text-base sm:text-lg font-light leading-relaxed">
-            Projects starting from <span className="font-semibold text-black dark:text-white">{symbol}{activePricing.categories.websites.starting}</span>. 
-            Structured around <span className="font-semibold text-black dark:text-white">Project Scope → Infrastructure → Add-ons</span> to give you complete commercial flexibility.
+            Every feature, infrastructure upgrade, and optional service is clearly priced before development begins. 
+            Structured around <span className="font-semibold text-black dark:text-white">Scope → Infrastructure → Optional Features</span>.
           </motion.p>
 
-          {/* 50/50 Milestone Split Callout */}
+          {/* Milestone Invoicing & Support Promise Callouts */}
           <motion.div variants={item} className="mt-8 flex flex-wrap items-center justify-center gap-3">
             <div className="border border-gray-200 dark:border-white/10 bg-white dark:bg-[#1c1c1c] px-5 py-2.5 shadow-sm rounded-full flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
@@ -617,12 +621,12 @@ const Pricing = ({ isHomepage = false }) => {
               </p>
             </div>
             <div className="border border-gray-200 dark:border-white/10 bg-white dark:bg-[#1c1c1c] px-4 py-2.5 shadow-sm rounded-full text-xs font-semibold text-gray-600 dark:text-gray-300">
-              ✦ 4 months post-launch support included
+              ✦ Post-launch support included with every package
             </div>
           </motion.div>
         </motion.div>
 
-        {/* ── HOMEPAGE SUMMARY PILLARS (Rendered when isHomepage is true) ── */}
+        {/* ── HOMEPAGE SUMMARY PILLARS (Clean Overview for Homepage) ── */}
         {isHomepage ? (
           <div className="space-y-12">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -632,7 +636,7 @@ const Pricing = ({ isHomepage = false }) => {
                   <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-accent block mb-2">Category 01</span>
                   <h3 className="text-2xl font-bold font-heading text-black dark:text-white mb-2">Websites & Portals</h3>
                   <p className="text-xs text-gray-600 dark:text-gray-400 mb-6 leading-relaxed">
-                    Personal brands, high-converting portfolios, corporate sites, and structured agency platforms.
+                    Personal brands, high-converting portfolios, corporate sites, and structured company platforms.
                   </p>
                   <div className="p-4 rounded-2xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5 mb-6">
                     <span className="text-[10px] font-bold uppercase tracking-wider text-gray-500 block mb-1">Starting from</span>
@@ -642,7 +646,7 @@ const Pricing = ({ isHomepage = false }) => {
                   <ul className="space-y-2.5 text-xs text-gray-700 dark:text-gray-300 mb-6">
                     <li className="flex items-center gap-2"><CheckIcon className="w-4 h-4 shrink-0 text-accent" /> High-conversion responsive layout</li>
                     <li className="flex items-center gap-2"><CheckIcon className="w-4 h-4 shrink-0 text-accent" /> CMS content manager & lead capture</li>
-                    <li className="flex items-center gap-2"><CheckIcon className="w-4 h-4 shrink-0 text-accent" /> 4 months post-launch support included</li>
+                    <li className="flex items-center gap-2"><CheckIcon className="w-4 h-4 shrink-0 text-accent" /> Post-launch support included</li>
                   </ul>
                 </div>
                 <Link to="/pricing" className="w-full py-3 text-center text-xs font-extrabold uppercase tracking-wider rounded-xl bg-black text-white dark:bg-white dark:text-black hover:opacity-90 transition-all flex items-center justify-center gap-2">
@@ -664,12 +668,12 @@ const Pricing = ({ isHomepage = false }) => {
                   <div className="p-4 rounded-2xl bg-blue-50/60 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800/60 mb-6">
                     <span className="text-[10px] font-bold uppercase tracking-wider text-blue-700 dark:text-blue-300 block mb-1">Starting from</span>
                     <span className="text-3xl font-heading font-extrabold text-black dark:text-white">{symbol}{activePricing.categories.ecommerce.starting}</span>
-                    <span className="text-xs text-blue-700 dark:text-blue-300 block mt-1">Launch (₦650k) · Growth ⭐ (₦850k) · Commerce Pro (₦1.2M+)</span>
+                    <span className="text-xs text-blue-700 dark:text-blue-300 block mt-1">Launch (₦650k) · Growth ⭐ (₦850k) · Pro (₦1.2M+)</span>
                   </div>
                   <ul className="space-y-2.5 text-xs text-gray-700 dark:text-gray-300 mb-6">
                     <li className="flex items-center gap-2"><CheckIcon className="w-4 h-4 shrink-0 text-blue-500" /> Multi-gateway & multi-zone shipping</li>
                     <li className="flex items-center gap-2"><CheckIcon className="w-4 h-4 shrink-0 text-blue-500" /> Abandoned cart recovery & accounts</li>
-                    <li className="flex items-center gap-2"><CheckIcon className="w-4 h-4 shrink-0 text-blue-500" /> 4 months post-launch support included</li>
+                    <li className="flex items-center gap-2"><CheckIcon className="w-4 h-4 shrink-0 text-blue-500" /> 4 months post-launch support on Growth</li>
                   </ul>
                 </div>
                 <Link to="/pricing" className="w-full py-3 text-center text-xs font-extrabold uppercase tracking-wider rounded-xl bg-blue-600 text-white hover:bg-blue-700 transition-all flex items-center justify-center gap-2 shadow-md">
@@ -683,7 +687,7 @@ const Pricing = ({ isHomepage = false }) => {
                   <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-accent block mb-2">Category 03</span>
                   <h3 className="text-2xl font-bold font-heading text-black dark:text-white mb-2">Custom Software & SaaS</h3>
                   <p className="text-xs text-gray-600 dark:text-gray-400 mb-6 leading-relaxed">
-                    Custom web platforms, SaaS prototypes, booking engines, and internal ERP software.
+                    Custom web applications, SaaS prototypes, booking systems, and internal ERP software.
                   </p>
                   <div className="p-4 rounded-2xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5 mb-6">
                     <span className="text-[10px] font-bold uppercase tracking-wider text-gray-500 block mb-1">Starting from</span>
@@ -693,7 +697,7 @@ const Pricing = ({ isHomepage = false }) => {
                   <ul className="space-y-2.5 text-xs text-gray-700 dark:text-gray-300 mb-6">
                     <li className="flex items-center gap-2"><CheckIcon className="w-4 h-4 shrink-0 text-accent" /> Custom DB, RBAC Auth & REST APIs</li>
                     <li className="flex items-center gap-2"><CheckIcon className="w-4 h-4 shrink-0 text-accent" /> 100% IP & Source Code Transfer</li>
-                    <li className="flex items-center gap-2"><CheckIcon className="w-4 h-4 shrink-0 text-accent" /> 4 months post-launch support included</li>
+                    <li className="flex items-center gap-2"><CheckIcon className="w-4 h-4 shrink-0 text-accent" /> Post-launch support included</li>
                   </ul>
                 </div>
                 <Link to="/pricing" className="w-full py-3 text-center text-xs font-extrabold uppercase tracking-wider rounded-xl bg-black text-white dark:bg-white dark:text-black hover:opacity-90 transition-all flex items-center justify-center gap-2">
@@ -705,57 +709,59 @@ const Pricing = ({ isHomepage = false }) => {
             {/* Deep link CTA Banner on Homepage */}
             <div className="p-8 rounded-3xl bg-gradient-to-r from-gray-900 to-black text-white dark:from-neutral-900 dark:to-[#121212] border border-gray-800 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xl">
               <div>
-                <span className="text-[10px] font-extrabold uppercase tracking-widest text-accent block mb-1">Full Studio Catalogue</span>
-                <h4 className="text-xl font-bold font-heading">Need the complete 3-tier comparison & custom quotation builder?</h4>
-                <p className="text-xs text-gray-400 mt-1">Explore all 9 project packages, side-by-side matrices, decoupled cloud infrastructure tiers, and modular add-ons.</p>
+                <span className="text-[10px] font-extrabold uppercase tracking-widest text-accent block mb-1">Interactive Studio Matrix</span>
+                <h4 className="text-xl font-bold font-heading">Need the full 3-tier comparison & custom quotation builder?</h4>
+                <p className="text-xs text-gray-400 mt-1">Configure your project scope, choose decoupled infrastructure, and select optional add-ons on the full pricing page.</p>
               </div>
               <Link 
                 to="/pricing" 
                 className="shrink-0 px-6 py-3.5 rounded-full bg-accent text-white font-extrabold text-xs uppercase tracking-wider hover:bg-accent/90 transition-all flex items-center gap-2 shadow-lg"
               >
-                View Full Pricing Page <ChevronRight className="w-4 h-4" />
+                Open Full Pricing Page <ChevronRight className="w-4 h-4" />
               </Link>
             </div>
           </div>
         ) : (
-          /* ── FULL PRICING PAGE EXPERIENCE ── */
-          <div className="space-y-20">
+          /* ── FULL STUDIO PRICING PAGE EXPERIENCE ── */
+          <div className="space-y-16">
 
-            {/* ── 1. CATEGORY FILTER TABS & SIDE-BY-SIDE TOGGLE ── */}
+            {/* ── 1. PRIMARY CATEGORY NAVIGATION ── */}
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4 border-b border-gray-200 dark:border-white/10 pb-6">
               <div className="flex items-center gap-2 overflow-x-auto no-scrollbar w-full sm:w-auto">
-                {[
-                  { id: 'all', label: 'All Packages (9)' },
-                  { id: 'websites', label: '01 — Websites' },
-                  { id: 'ecommerce', label: '02 — E-Commerce ⭐' },
-                  { id: 'software', label: '03 — Custom Software' }
-                ].map(cat => (
+                {Object.values(activePricing.categories).map(cat => (
                   <button
                     key={cat.id}
-                    onClick={() => setActiveCategory(cat.id)}
-                    className={`px-5 py-2.5 rounded-full text-xs font-extrabold uppercase tracking-wider whitespace-nowrap transition-all ${
+                    onClick={() => {
+                      setActiveCategory(cat.id);
+                      setQuoteCategory(cat.id);
+                      const defaultTier = cat.tiers[1] || cat.tiers[0];
+                      if (defaultTier) setQuoteTierId(defaultTier.id);
+                    }}
+                    className={`px-5 py-2.5 rounded-full text-xs font-extrabold uppercase tracking-wider whitespace-nowrap transition-all flex items-center gap-2 ${
                       activeCategory === cat.id
-                        ? 'bg-black text-white dark:bg-white dark:text-black shadow-md'
+                        ? 'bg-black text-white dark:bg-white dark:text-black shadow-md ring-2 ring-accent/30'
                         : 'bg-white dark:bg-[#1c1c1c] text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-white/10 hover:border-accent/40'
                     }`}
                   >
-                    {cat.label}
+                    <span>{cat.label}</span>
                   </button>
                 ))}
               </div>
 
-              {/* Toggle Comparison Table */}
-              <button
-                onClick={() => setShowComparison(!showComparison)}
-                className="px-4 py-2 rounded-full border border-blue-300 dark:border-blue-800/80 bg-blue-50/60 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 text-xs font-bold flex items-center gap-2 hover:bg-blue-100 transition-all"
-              >
-                <Sliders className="w-3.5 h-3.5" />
-                {showComparison ? 'Hide E-Commerce Comparison Table' : 'View E-Commerce Comparison Table (3 Tiers)'}
-              </button>
+              {/* Side-by-Side Comparison Toggle (E-Commerce) */}
+              {activeCategory === 'ecommerce' && (
+                <button
+                  onClick={() => setShowComparison(!showComparison)}
+                  className="px-4 py-2 rounded-full border border-blue-300 dark:border-blue-800/80 bg-blue-50/60 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 text-xs font-bold flex items-center gap-2 hover:bg-blue-100 transition-all"
+                >
+                  <Sliders className="w-3.5 h-3.5" />
+                  {showComparison ? 'Hide Comparison Matrix' : 'View 3-Tier Comparison Matrix'}
+                </button>
+              )}
             </div>
 
-            {/* ── 2. E-COMMERCE SIDE-BY-SIDE COMPARISON TABLE ── */}
-            {showComparison && (
+            {/* ── 2. E-COMMERCE SIDE-BY-SIDE COMPARISON TABLE (If active) ── */}
+            {activeCategory === 'ecommerce' && showComparison && (
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -764,7 +770,7 @@ const Pricing = ({ isHomepage = false }) => {
                 <div className="mb-6">
                   <span className="text-[10px] font-extrabold uppercase tracking-widest text-blue-600 dark:text-blue-400 block mb-1">Side-by-Side Matrix</span>
                   <h3 className="text-2xl font-bold font-heading text-black dark:text-white">E-Commerce Tier Comparison</h3>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Directly compare deliverables for Launch (Basic), Growth (Standard ⭐), and Commerce Pro (Premium).</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Directly compare deliverables for Launch (Basic), Growth (Standard ⭐), and Commerce Pro (Advanced).</p>
                 </div>
 
                 <div className="overflow-x-auto">
@@ -794,153 +800,138 @@ const Pricing = ({ isHomepage = false }) => {
               </motion.div>
             )}
 
-            {/* ── 3. PRICING CARDS GRID ── */}
+            {/* ── 3. 3-TIER CARDS GRID (For Active Category) ── */}
             <div>
-              <div className="md:hidden flex items-center justify-between gap-2 mb-4 px-2 text-gray-500 dark:text-gray-400">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-accent flex items-center gap-1.5">
-                  <svg className="w-3.5 h-3.5 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-                  </svg>
-                  Swipe horizontally to compare tiers
-                </span>
-                <span className="text-[10px] uppercase tracking-widest text-gray-600 dark:text-gray-300 font-bold bg-gray-200 dark:bg-white/10 px-2 py-0.5 rounded-xs">
-                  {displayedTiers.length} Options
-                </span>
+              <div className="mb-6">
+                <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-accent block mb-1">{currentCategoryData.title}</span>
+                <h3 className="text-2xl font-bold font-heading text-black dark:text-white">{currentCategoryData.desc}</h3>
               </div>
 
               <motion.div
-                className="flex md:grid md:grid-cols-2 lg:grid-cols-3 gap-6 overflow-x-auto md:overflow-visible snap-x snap-mandatory pb-8 pt-2 -mx-6 px-6 sm:-mx-12 sm:px-12 md:mx-0 md:px-0 no-scrollbar"
+                className="grid grid-cols-1 md:grid-cols-3 gap-6"
                 variants={container}
                 initial="hidden"
                 whileInView="visible"
                 viewport={sectionViewport}
               >
-                <AnimatePresence mode="popLayout">
-                  {displayedTiers.map((tier) => {
-                    const isCustom = tier.price === "Custom Quote";
+                {currentTiers.map((tier) => {
+                  const isCustom = tier.price === "Custom Quote";
 
-                    return (
-                      <motion.div
-                        key={tier.id}
-                        id={`pricing-card-${tier.id}`}
-                        layout
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.95 }}
-                        transition={{ duration: 0.3 }}
-                        whileHover={shouldReduce ? {} : cardHover}
-                        className={`relative p-6 sm:p-8 border ${
-                          tier.popular
-                            ? 'border-blue-500 dark:border-blue-500 shadow-xl ring-2 ring-blue-500/20'
-                            : 'border-gray-200 dark:border-white/10'
-                        } bg-white dark:bg-[#1c1c1c] rounded-3xl group hover:shadow-2xl transition-all duration-300 w-[85vw] max-w-[360px] sm:w-[380px] md:w-auto shrink-0 snap-center flex flex-col justify-between`}
-                      >
-                        <div>
-                          {tier.popular && (
-                            <span className="absolute -top-3.5 right-6 bg-blue-600 text-white text-[10px] font-extrabold uppercase tracking-widest px-3.5 py-1 rounded-full shadow-md">
-                              {tier.popularBadge || "⭐ Recommended"}
+                  return (
+                    <motion.div
+                      key={tier.id}
+                      id={`pricing-card-${tier.id}`}
+                      layout
+                      whileHover={shouldReduce ? {} : cardHover}
+                      className={`relative p-6 sm:p-8 border ${
+                        tier.popular
+                          ? 'border-blue-500 dark:border-blue-500 shadow-xl ring-2 ring-blue-500/20'
+                          : 'border-gray-200 dark:border-white/10'
+                      } bg-white dark:bg-[#1c1c1c] rounded-3xl group hover:shadow-2xl transition-all duration-300 flex flex-col justify-between`}
+                    >
+                      <div>
+                        {tier.popular && (
+                          <span className="absolute -top-3.5 right-6 bg-blue-600 text-white text-[10px] font-extrabold uppercase tracking-widest px-3.5 py-1 rounded-full shadow-md">
+                            {tier.popularBadge || "⭐ Recommended"}
+                          </span>
+                        )}
+
+                        <div className="flex items-baseline justify-between gap-2 mb-1">
+                          <h3 className="text-2xl font-heading font-bold text-black dark:text-white">
+                            {tier.name}
+                          </h3>
+                          {tier.tierLabel && (
+                            <span className="text-[10px] font-mono font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-2 py-0.5 rounded">
+                              {tier.tierLabel}
                             </span>
                           )}
+                        </div>
 
-                          <span className="text-[10px] font-mono uppercase tracking-widest text-accent font-bold block mb-1">
-                            {tier.catLabel}
-                          </span>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 font-semibold mb-4">{tier.badge}</p>
 
-                          <div className="flex items-baseline justify-between gap-2 mb-1">
-                            <h3 className="text-2xl font-heading font-bold text-black dark:text-white">
-                              {tier.name}
-                            </h3>
-                            {tier.tierLabel && (
-                              <span className="text-[10px] font-mono font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-2 py-0.5 rounded">
-                                {tier.tierLabel}
+                        <div className="p-3 bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5 rounded-xl mb-5">
+                          <span className="text-[11px] uppercase tracking-wider text-gray-800 dark:text-gray-200 font-bold block">{tier.bestFor}</span>
+                          <span className="text-[10px] text-gray-500 dark:text-gray-400 italic block mt-0.5">{tier.examples}</span>
+                        </div>
+
+                        {/* Price Tag */}
+                        <div className="flex flex-wrap items-baseline gap-1.5 mb-4 border-b border-gray-100 dark:border-white/5 pb-4">
+                          {isCustom ? (
+                            <span className="text-3xl font-heading font-bold text-black dark:text-white leading-none">{tier.price}</span>
+                          ) : (
+                            <>
+                              <span className="text-xs text-gray-500 font-semibold">from</span>
+                              <span className="text-3xl sm:text-4xl font-heading font-extrabold text-black dark:text-white tracking-tight leading-none">
+                                {symbol}{tier.price}
                               </span>
-                            )}
-                          </div>
-
-                          <p className="text-xs text-gray-500 dark:text-gray-400 font-semibold mb-4">{tier.badge}</p>
-
-                          <div className="p-3 bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5 rounded-xl mb-5">
-                            <span className="text-[11px] uppercase tracking-wider text-gray-800 dark:text-gray-200 font-bold block">{tier.bestFor}</span>
-                            <span className="text-[10px] text-gray-500 dark:text-gray-400 italic block mt-0.5">{tier.examples}</span>
-                          </div>
-
-                          {/* Price Tag */}
-                          <div className="flex flex-wrap items-baseline gap-1.5 mb-4 border-b border-gray-100 dark:border-white/5 pb-4">
-                            {isCustom ? (
-                              <span className="text-3xl font-heading font-bold text-black dark:text-white leading-none">{tier.price}</span>
-                            ) : (
-                              <>
-                                <span className="text-xs text-gray-500 font-semibold">from</span>
-                                <span className="text-3xl sm:text-4xl font-heading font-extrabold text-black dark:text-white tracking-tight leading-none">
-                                  {symbol}{tier.price}
-                                </span>
-                              </>
-                            )}
-                          </div>
-
-                          <div className="flex items-center gap-3 text-xs text-gray-600 dark:text-gray-400 font-medium mb-6">
-                            <span className="flex items-center gap-1">⏱ {tier.timeline}</span>
-                            <span>•</span>
-                            <span className="text-accent font-semibold">{tier.support}</span>
-                          </div>
-
-                          <p className="text-xs text-gray-600 dark:text-gray-300 leading-relaxed mb-6 font-light">
-                            {tier.desc}
-                          </p>
-
-                          {/* Deliverables List */}
-                          <div className="space-y-3 mb-8">
-                            <span className="text-[10px] font-extrabold uppercase tracking-widest text-gray-400 dark:text-gray-500 block">
-                              Deliverables & Capabilities
-                            </span>
-                            <ul className="space-y-2.5 text-xs text-gray-700 dark:text-gray-300">
-                              {tier.features.map((feat, fIdx) => (
-                                <li key={fIdx} className="flex items-start gap-2.5 leading-snug">
-                                  <CheckIcon className={`w-4 h-4 shrink-0 mt-0.5 ${tier.popular ? 'text-blue-500' : 'text-accent'}`} />
-                                  <span>{feat}</span>
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
+                            </>
+                          )}
                         </div>
 
-                        <div>
-                          <button
-                            onClick={() => {
-                              setQuoteCategory(tier.catKey);
-                              setQuoteTierId(tier.id);
-                              const el = document.getElementById('quote-builder');
-                              if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                            }}
-                            className={`w-full py-3.5 px-4 text-xs font-extrabold uppercase tracking-wider rounded-xl transition-all flex items-center justify-center gap-2 ${
-                              tier.popular
-                                ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-md'
-                                : 'bg-black text-white dark:bg-white dark:text-black hover:opacity-90'
-                            }`}
-                          >
-                            Select for Quote Breakdown <ArrowRight className="w-3.5 h-3.5" />
-                          </button>
-                          <p className="text-[10px] text-center text-gray-400 mt-2">
-                            50% upfront, 50% upon delivery
-                          </p>
+                        <div className="flex items-center gap-3 text-xs text-gray-600 dark:text-gray-400 font-medium mb-6">
+                          <span className="flex items-center gap-1">⏱ {tier.timeline}</span>
+                          <span>•</span>
+                          <span className="text-accent font-semibold">{tier.support}</span>
                         </div>
-                      </motion.div>
-                    );
-                  })}
-                </AnimatePresence>
+
+                        <p className="text-xs text-gray-600 dark:text-gray-300 leading-relaxed mb-6 font-light">
+                          {tier.desc}
+                        </p>
+
+                        {/* Deliverables List */}
+                        <div className="space-y-3 mb-8">
+                          <span className="text-[10px] font-extrabold uppercase tracking-widest text-gray-400 dark:text-gray-500 block">
+                            Deliverables & Capabilities
+                          </span>
+                          <ul className="space-y-2.5 text-xs text-gray-700 dark:text-gray-300">
+                            {tier.features.map((feat, fIdx) => (
+                              <li key={fIdx} className="flex items-start gap-2.5 leading-snug">
+                                <CheckIcon className={`w-4 h-4 shrink-0 mt-0.5 ${tier.popular ? 'text-blue-500' : 'text-accent'}`} />
+                                <span>{feat}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      </div>
+
+                      <div>
+                        <button
+                          onClick={() => {
+                            setQuoteCategory(activeCategory);
+                            setQuoteTierId(tier.id);
+                            const el = document.getElementById('quote-builder');
+                            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                          }}
+                          className={`w-full py-3.5 px-4 text-xs font-extrabold uppercase tracking-wider rounded-xl transition-all flex items-center justify-center gap-2 ${
+                            tier.popular
+                              ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-md'
+                              : 'bg-black text-white dark:bg-white dark:text-black hover:opacity-90'
+                          }`}
+                        >
+                          Select for Quote Breakdown <ArrowRight className="w-3.5 h-3.5" />
+                        </button>
+                        <p className="text-[10px] text-center text-gray-400 mt-2">
+                          50% upfront, 50% upon delivery
+                        </p>
+                      </div>
+                    </motion.div>
+                  );
+                })}
               </motion.div>
             </div>
 
-            {/* ── 4. DECOUPLED INFRASTRUCTURE TIERS ── */}
+            {/* ── 4. DECOUPLED INFRASTRUCTURE (Re-framed with Setup vs Cloud Operating Costs) ── */}
             <div className="p-8 sm:p-12 rounded-3xl bg-white dark:bg-[#161616] border border-gray-200 dark:border-white/10 shadow-lg">
               <div className="max-w-3xl mb-8">
-                <span className="text-[10px] font-extrabold uppercase tracking-widest text-accent block mb-1">Modular Hosting & Scalability</span>
+                <span className="text-[10px] font-extrabold uppercase tracking-widest text-accent block mb-1">Architecture & Hosting Resilience</span>
                 <h3 className="text-3xl font-bold font-heading text-black dark:text-white mb-3">
-                  Infrastructure is Decoupled from Website Pricing
+                  Choose the infrastructure your business needs.
                 </h3>
-                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 leading-relaxed font-light">
-                  Infrastructure is selected based on your expected traffic, application complexity, and operational requirements. 
-                  You don't need to purchase a higher project tier just to get enterprise cloud hosting. It can be upgraded anytime as your business grows.
+                <div className="p-4 rounded-2xl bg-blue-50/60 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900/50 mb-4 text-xs sm:text-sm text-blue-900 dark:text-blue-200 font-medium">
+                  💡 <span className="font-bold">Core Concept:</span> Your website package determines <span className="underline">what gets built</span>. Infrastructure determines <span className="underline">how much capacity and resilience it runs with</span>.
+                </div>
+                <p className="text-xs text-gray-500 dark:text-gray-400 font-light leading-relaxed">
+                  Infrastructure setup is a one-time engineering implementation fee. Cloud operating costs (hosting provider compute/bandwidth) are billed directly based on actual provider usage.
                 </p>
               </div>
 
@@ -989,20 +980,29 @@ const Pricing = ({ isHomepage = false }) => {
               </div>
             </div>
 
-            {/* ── 5. MODULAR OPTIONAL ADD-ONS CATALOG ── */}
+            {/* ── 5. OPTIONAL ADD-ONS (Clean preview + Modal option) ── */}
             <div className="p-8 sm:p-12 rounded-3xl bg-white dark:bg-[#161616] border border-gray-200 dark:border-white/10 shadow-lg">
-              <div className="max-w-3xl mb-8">
-                <span className="text-[10px] font-extrabold uppercase tracking-widest text-accent block mb-1">Protecting Your Scope</span>
-                <h3 className="text-3xl font-bold font-heading text-black dark:text-white mb-3">
-                  Optional Add-ons & Integrations
-                </h3>
-                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 leading-relaxed font-light">
-                  Rather than forcing unnecessary features into base packages, add exactly what your business requires. Protect margins while customizing your project scope.
-                </p>
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+                <div>
+                  <span className="text-[10px] font-extrabold uppercase tracking-widest text-accent block mb-1">Tailored Scope</span>
+                  <h3 className="text-3xl font-bold font-heading text-black dark:text-white mb-1">
+                    Need something extra?
+                  </h3>
+                  <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 font-light">
+                    Add functionality to your package as required without bloating your base tier.
+                  </p>
+                </div>
+                <button
+                  onClick={() => setShowAddonsModal(true)}
+                  className="px-5 py-2.5 rounded-xl bg-black text-white dark:bg-white dark:text-black text-xs font-bold uppercase tracking-wider hover:opacity-90 transition-all flex items-center gap-2 shrink-0 self-start md:self-auto"
+                >
+                  <Plus className="w-3.5 h-3.5" /> View All Add-ons ({OPTIONAL_ADDONS.length})
+                </button>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {OPTIONAL_ADDONS.map(addon => {
+              {/* Highlights List */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {OPTIONAL_ADDONS.slice(0, 6).map(addon => {
                   const cost = currency === 'USD' ? addon.costUSD : addon.costNGN;
                   const isChecked = selectedAddons.includes(addon.id);
 
@@ -1024,7 +1024,7 @@ const Pricing = ({ isHomepage = false }) => {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-baseline justify-between gap-2">
                           <h4 className="text-xs font-bold text-gray-900 dark:text-white truncate">{addon.name}</h4>
-                          <span className="text-xs font-mono font-bold text-accent whitespace-nowrap">from {symbol}{formatNumber(cost)}</span>
+                          <span className="text-xs font-mono font-bold text-accent whitespace-nowrap">+{symbol}{formatNumber(cost)}</span>
                         </div>
                         <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5 leading-snug">{addon.desc}</p>
                       </div>
@@ -1034,7 +1034,7 @@ const Pricing = ({ isHomepage = false }) => {
               </div>
             </div>
 
-            {/* ── 6. REAL-TIME INTERACTIVE QUOTATION BUILDER ── */}
+            {/* ── 6. INTERACTIVE PROJECT QUOTATION BUILDER ── */}
             <div id="quote-builder" className="p-8 sm:p-12 rounded-3xl bg-gradient-to-br from-gray-900 via-neutral-900 to-black text-white border border-gray-800 shadow-2xl">
               <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 border-b border-white/10 pb-8 mb-8">
                 <div>
@@ -1042,15 +1042,15 @@ const Pricing = ({ isHomepage = false }) => {
                     <Calculator className="w-3.5 h-3.5" /> Interactive Project Quotation Builder
                   </div>
                   <h3 className="text-3xl sm:text-4xl font-heading font-extrabold tracking-tight">
-                    Project Type → Package → Infrastructure → Add-ons
+                    Scope → Infrastructure → Optional Features
                   </h3>
                   <p className="text-xs sm:text-sm text-gray-400 mt-1 max-w-2xl">
-                    Configure your desired project combination below to see the instant milestone investment breakdown (50% Kickoff & 50% Delivery).
+                    Configure your project scope below to see the instant milestone investment breakdown (50% Kickoff & 50% Delivery).
                   </p>
                 </div>
 
                 <div className="text-left lg:text-right shrink-0 bg-white/5 p-4 rounded-2xl border border-white/10">
-                  <span className="text-[10px] font-mono uppercase tracking-widest text-gray-400 block mb-1">Estimated Total Investment</span>
+                  <span className="text-[10px] font-mono uppercase tracking-widest text-gray-400 block mb-1">Your Estimated Investment</span>
                   <div className="text-3xl sm:text-4xl font-extrabold font-heading text-white">
                     {totalEstimate ? `${symbol}${formatNumber(totalEstimate)}` : "Custom Quote"}
                   </div>
@@ -1058,25 +1058,21 @@ const Pricing = ({ isHomepage = false }) => {
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                {/* Left: Configuration Controls (8 cols) */}
+                {/* Left: Configuration Steps (8 cols) */}
                 <div className="lg:col-span-8 space-y-6">
                   {/* Step 1: Category */}
                   <div>
                     <label className="block text-[11px] font-mono font-bold uppercase tracking-widest text-gray-400 mb-3">
-                      1. Select Project Category
+                      01 — What are you building?
                     </label>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                      {[
-                        { id: 'websites', label: '01 — Websites' },
-                        { id: 'ecommerce', label: '02 — E-Commerce ⭐' },
-                        { id: 'software', label: '03 — Custom Software' }
-                      ].map(cat => (
+                      {Object.values(activePricing.categories).map(cat => (
                         <button
                           key={cat.id}
                           type="button"
                           onClick={() => {
                             setQuoteCategory(cat.id);
-                            const firstTier = activePricing.categories[cat.id]?.tiers[1] || activePricing.categories[cat.id]?.tiers[0];
+                            const firstTier = cat.tiers[1] || cat.tiers[0];
                             if (firstTier) setQuoteTierId(firstTier.id);
                           }}
                           className={`py-2.5 px-3 rounded-xl text-xs font-bold transition-all border text-center ${
@@ -1091,13 +1087,13 @@ const Pricing = ({ isHomepage = false }) => {
                     </div>
                   </div>
 
-                  {/* Step 2: Tier */}
+                  {/* Step 2: Package Tier */}
                   <div>
                     <label className="block text-[11px] font-mono font-bold uppercase tracking-widest text-gray-400 mb-3">
-                      2. Select Package Tier
+                      02 — Choose your package tier
                     </label>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                      {currentCategoryTiers.map(t => (
+                      {builderCategoryData.tiers.map(t => (
                         <button
                           key={t.id}
                           type="button"
@@ -1121,7 +1117,7 @@ const Pricing = ({ isHomepage = false }) => {
                   {/* Step 3: Infrastructure */}
                   <div>
                     <label className="block text-[11px] font-mono font-bold uppercase tracking-widest text-gray-400 mb-3">
-                      3. Select Cloud Infrastructure Level
+                      03 — Choose infrastructure resilience
                     </label>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                       {INFRASTRUCTURE_TIERS.map(i => {
@@ -1144,17 +1140,46 @@ const Pricing = ({ isHomepage = false }) => {
                       })}
                     </div>
                   </div>
+
+                  {/* Step 4: Optional Features Pills */}
+                  <div>
+                    <label className="block text-[11px] font-mono font-bold uppercase tracking-widest text-gray-400 mb-3">
+                      04 — Select optional features
+                    </label>
+                    <div className="flex flex-wrap gap-2">
+                      {OPTIONAL_ADDONS.map(add => {
+                        const cost = currency === 'USD' ? add.costUSD : add.costNGN;
+                        const isChecked = selectedAddons.includes(add.id);
+                        return (
+                          <button
+                            key={add.id}
+                            type="button"
+                            onClick={() => toggleAddon(add.id)}
+                            className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all flex items-center gap-1.5 ${
+                              isChecked
+                                ? 'bg-blue-600 text-white border-blue-400 shadow-sm'
+                                : 'bg-white/5 border-white/10 text-gray-300 hover:border-white/30'
+                            }`}
+                          >
+                            <span>{isChecked ? '✓' : '+'}</span>
+                            <span>{add.name}</span>
+                            <span className="text-[10px] font-mono opacity-80">(+{symbol}{formatNumber(cost)})</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
                 </div>
 
                 {/* Right: Milestone Breakdown Summary (4 cols) */}
                 <div className="lg:col-span-4 bg-white/5 p-6 rounded-2xl border border-white/10 flex flex-col justify-between">
                   <div>
-                    <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-accent block mb-2">Scope Summary</span>
+                    <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-accent block mb-2">Quotation Summary</span>
                     <h4 className="text-lg font-bold font-heading mb-4">{selectedTier.name} + {selectedInfra.name}</h4>
 
                     <div className="space-y-2 text-xs border-b border-white/10 pb-4 mb-4">
                       <div className="flex justify-between text-gray-300">
-                        <span>Base Tier ({selectedTier.name})</span>
+                        <span>Core Package ({selectedTier.name})</span>
                         <span className="font-mono">{selectedTier.numPrice ? `${symbol}${formatNumber(selectedTier.numPrice)}` : "Custom"}</span>
                       </div>
                       <div className="flex justify-between text-gray-300">
@@ -1162,15 +1187,15 @@ const Pricing = ({ isHomepage = false }) => {
                         <span className="font-mono">{infraCost === 0 ? "Included" : `+${symbol}${formatNumber(infraCost)}`}</span>
                       </div>
                       <div className="flex justify-between text-gray-300">
-                        <span>Add-ons ({selectedAddons.length} selected)</span>
+                        <span>Optional Add-ons ({selectedAddons.length} selected)</span>
                         <span className="font-mono">{addonsCost === 0 ? "₦0" : `+${symbol}${formatNumber(addonsCost)}`}</span>
                       </div>
                     </div>
 
-                    {/* 50/50 Milestone Breakdown Box */}
+                    {/* 50/50 Milestone Terms Breakdown Box */}
                     {totalEstimate && (
                       <div className="bg-white/5 p-3.5 rounded-xl border border-white/10 space-y-2 mb-6">
-                        <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider block">Structured 50/50 Milestone Terms</span>
+                        <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider block">50/50 Milestone Terms</span>
                         <div className="flex justify-between items-center text-xs">
                           <span className="text-emerald-400 font-semibold">1. 50% Kickoff Milestone:</span>
                           <span className="font-mono font-bold">{symbol}{formatNumber(upfrontFifty)}</span>
@@ -1188,10 +1213,10 @@ const Pricing = ({ isHomepage = false }) => {
                       to={`/contact?package=${encodeURIComponent(selectedTier.name || '')}&category=${encodeURIComponent(quoteCategory)}&infra=${encodeURIComponent(selectedInfra.name)}&addons=${encodeURIComponent(selectedAddons.join(','))}`}
                       className="w-full py-3.5 text-center text-xs font-extrabold uppercase tracking-wider rounded-xl bg-accent text-white hover:bg-accent/90 transition-all flex items-center justify-center gap-2 shadow-lg"
                     >
-                      Request Proposal with This Scope <ArrowRight className="w-3.5 h-3.5" />
+                      Request My Proposal <ArrowRight className="w-3.5 h-3.5" />
                     </Link>
                     <p className="text-[10px] text-center text-gray-400 mt-2">
-                      Includes 4 months post-launch support & 100% IP ownership
+                      Includes post-launch support & 100% source code ownership
                     </p>
                   </div>
                 </div>
@@ -1200,6 +1225,78 @@ const Pricing = ({ isHomepage = false }) => {
 
           </div>
         )}
+
+        {/* ── OPTIONAL ADD-ONS MODAL ── */}
+        <AnimatePresence>
+          {showAddonsModal && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm overflow-y-auto">
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-3xl p-6 sm:p-8 max-w-2xl w-full shadow-2xl space-y-6 my-8"
+              >
+                <div className="flex items-center justify-between border-b border-gray-100 dark:border-gray-800 pb-4">
+                  <div>
+                    <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-accent block">Modular Customization</span>
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-white">Optional Add-ons Catalog</h3>
+                  </div>
+                  <button onClick={() => setShowAddonsModal(false)} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-1">
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-1">
+                  {OPTIONAL_ADDONS.map(addon => {
+                    const cost = currency === 'USD' ? addon.costUSD : addon.costNGN;
+                    const isChecked = selectedAddons.includes(addon.id);
+
+                    return (
+                      <div
+                        key={addon.id}
+                        onClick={() => toggleAddon(addon.id)}
+                        className={`p-4 rounded-2xl border cursor-pointer transition-all flex items-start gap-3 ${
+                          isChecked
+                            ? 'border-blue-500 bg-blue-50/50 dark:bg-blue-950/40'
+                            : 'border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/40 hover:border-gray-300'
+                        }`}
+                      >
+                        <div className={`w-5 h-5 rounded-md border flex items-center justify-center mt-0.5 shrink-0 transition-all ${
+                          isChecked ? 'bg-blue-600 border-blue-600 text-white' : 'border-gray-400 dark:border-gray-600 bg-white dark:bg-black'
+                        }`}>
+                          {isChecked && <Check className="w-3.5 h-3.5" />}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-baseline justify-between gap-2">
+                            <h4 className="text-sm font-bold text-gray-900 dark:text-white">{addon.name}</h4>
+                            <span className="text-xs font-mono font-bold text-accent">+{symbol}{formatNumber(cost)}</span>
+                          </div>
+                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{addon.desc}</p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <div className="flex justify-between items-center pt-4 border-t border-gray-100 dark:border-gray-800">
+                  <span className="text-xs font-semibold text-gray-500">
+                    {selectedAddons.length} add-ons selected (+{symbol}{formatNumber(addonsCost)})
+                  </span>
+                  <button
+                    onClick={() => {
+                      setShowAddonsModal(false);
+                      const el = document.getElementById('quote-builder');
+                      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }}
+                    className="px-5 py-2.5 rounded-xl bg-accent text-white text-xs font-bold uppercase tracking-wider hover:bg-orange-600 transition-all"
+                  >
+                    Done / Update Quote
+                  </button>
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
 
       </div>
     </section>

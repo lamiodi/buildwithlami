@@ -137,4 +137,9 @@ header,
   scrollbar-width: none;
 }
 
+/* Handwritten Signature Font */
+.font-signature {
+  font-family: 'Caveat', 'Dancing Script', cursive, sans-serif;
+}
+
 

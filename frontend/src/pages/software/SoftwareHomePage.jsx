@@ -245,10 +245,10 @@ const SoftwareHomePage = () => {
 
       if (res.ok) {
         setFormSuccess(true);
-        notify.success('Consultation inquiry received! I will reply within 24 hours.');
+        notify.success('Technical brief received! Eugene will review and reply within 24 hours.');
         setForm({ full_name: '', email: '', phone: '', project_type: selectedType.name, budget: '', timeline: '', message: '', honeypot: '' });
       } else {
-        notify.error(res.error || 'Failed to submit inquiry.');
+        notify.error(res.error || 'Failed to submit brief.');
       }
     } catch {
       notify.error('Network error. Please try again or message directly.');
@@ -318,15 +318,15 @@ const SoftwareHomePage = () => {
           <div className="flex flex-wrap items-center justify-center gap-4">
             <a 
               href="#estimator" 
-              className="bg-accent hover:bg-orange-600 text-white font-bold px-8 py-4 rounded-xl transition-all shadow-lg hover:shadow-accent/30 inline-flex items-center gap-2 text-sm uppercase tracking-wider"
+              className="bg-accent hover:bg-orange-600 text-white font-extrabold px-8 py-4 rounded-xl transition-all shadow-lg hover:shadow-accent/30 inline-flex items-center gap-2 text-xs uppercase tracking-wider"
             >
-              <Calculator className="w-4 h-4" /> Estimate Project Cost
+              <Calculator className="w-4 h-4" /> Model Scope & Milestones
             </a>
             <a 
               href="#contact-form" 
-              className="bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-900 dark:text-white font-bold px-8 py-4 rounded-xl border border-gray-200 dark:border-gray-700 transition-all inline-flex items-center gap-2 text-sm uppercase tracking-wider"
+              className="bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-900 dark:text-white font-extrabold px-8 py-4 rounded-xl border border-gray-200 dark:border-gray-700 transition-all inline-flex items-center gap-2 text-xs uppercase tracking-wider"
             >
-              Book Discovery Call
+              Submit Technical Brief
             </a>
           </div>
 
@@ -337,27 +337,30 @@ const SoftwareHomePage = () => {
         </motion.div>
       </section>
 
-      {/* ── PROJECT COST ESTIMATOR ── */}
+      {/* ── INTERACTIVE ARCHITECTURE & SCOPING ESTIMATOR ── */}
       <section id="estimator" className="py-20 px-6 md:px-12 max-w-7xl mx-auto border-t border-gray-200 dark:border-gray-800">
         <div className="text-center max-w-3xl mx-auto mb-14">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/10 text-accent text-xs font-extrabold uppercase tracking-wider mb-3">
-            <Calculator className="w-3.5 h-3.5" /> Project Cost Estimator
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-50 dark:bg-blue-950/50 border border-blue-200 dark:border-blue-800/60 text-blue-700 dark:text-blue-300 text-xs font-bold uppercase tracking-wider mb-3">
+            <Calculator className="w-3.5 h-3.5" /> Technical Scoping & Architecture Planner
           </div>
           <h2 className="text-3xl md:text-5xl font-extrabold font-heading text-gray-900 dark:text-white tracking-tight">
-            Calculate Your Project Scope & Timeline
+            Model Your Build, Timeline & Milestones
           </h2>
-          <p className="text-gray-600 dark:text-gray-400 mt-3 text-base">
-            Get a preliminary estimate based on your project requirements. Final pricing is confirmed after technical discovery.
+          <p className="text-gray-600 dark:text-gray-400 mt-3 text-base leading-relaxed">
+            Configure core system requirements, infrastructure, and custom features. Receive an immediate, transparent estimate with structured 50/50 milestone invoicing.
           </p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          {/* Left: Project Type & Add-ons (8 cols) */}
+          {/* Left: Architecture Type & Modular Add-ons (8 cols) */}
           <div className="lg:col-span-8 space-y-8">
             <div>
-              <label className="block text-xs font-extrabold uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-4">
-                1. Select Architecture Type
-              </label>
+              <div className="flex items-center justify-between mb-4">
+                <label className="block text-xs font-mono font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400">
+                  01 — Core System Architecture
+                </label>
+                <span className="text-[11px] text-accent font-semibold">Select base platform</span>
+              </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {PROJECT_TYPES.map(type => {
                   const IconCmp = type.icon;
@@ -366,20 +369,28 @@ const SoftwareHomePage = () => {
                     <button
                       key={type.id}
                       onClick={() => setSelectedType(type)}
-                      className={`text-left p-5 rounded-2xl border transition-all duration-200 ${
+                      className={`text-left p-5 rounded-2xl border transition-all duration-200 flex flex-col justify-between ${
                         isSelected 
                           ? 'bg-blue-50/70 dark:bg-blue-900/20 border-blue-500 ring-2 ring-blue-500/20 shadow-md' 
                           : 'bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-700'
                       }`}
                     >
-                      <div className="flex items-center justify-between mb-3">
-                        <div className={`p-2.5 rounded-xl ${isSelected ? 'bg-blue-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300'}`}>
-                          <IconCmp className="w-5 h-5" />
+                      <div>
+                        <div className="flex items-center justify-between mb-3">
+                          <div className={`p-2.5 rounded-xl ${isSelected ? 'bg-blue-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300'}`}>
+                            <IconCmp className="w-5 h-5" />
+                          </div>
+                          {isSelected && <CheckCircle className="w-5 h-5 text-blue-600 dark:text-blue-400" />}
                         </div>
-                        {isSelected && <CheckCircle className="w-5 h-5 text-blue-600 dark:text-blue-400" />}
+                        <h4 className="font-bold text-gray-900 dark:text-white text-base">{type.name}</h4>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-2 leading-relaxed">{type.desc}</p>
                       </div>
-                      <h4 className="font-bold text-gray-900 dark:text-white text-base">{type.name}</h4>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">{type.desc}</p>
+                      <div className="mt-4 pt-3 border-t border-gray-100 dark:border-gray-800/80 flex items-center justify-between text-xs">
+                        <span className="font-mono font-bold text-accent">
+                          {currency === 'USD' ? `$${type.baseCostUSD.toLocaleString()}` : `₦${type.baseCostNGN.toLocaleString()}`}
+                        </span>
+                        <span className="text-gray-400 font-medium">~{type.baseWeeks} wks</span>
+                      </div>
                     </button>
                   );
                 })}
@@ -387,9 +398,12 @@ const SoftwareHomePage = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-extrabold uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-4">
-                2. Select Custom Features & Add-ons
-              </label>
+              <div className="flex items-center justify-between mb-4">
+                <label className="block text-xs font-mono font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400">
+                  02 — Modular Infrastructure & Custom Modules
+                </label>
+                <span className="text-[11px] text-gray-400 font-medium">Optional capabilities</span>
+              </div>
               <div className="space-y-3">
                 {ADDON_OPTIONS.map(addon => {
                   const isChecked = selectedAddons.includes(addon.id);
@@ -397,24 +411,24 @@ const SoftwareHomePage = () => {
                     <div 
                       key={addon.id}
                       onClick={() => toggleAddon(addon.id)}
-                      className={`p-4 rounded-xl border cursor-pointer flex items-center justify-between transition-all ${
+                      className={`p-4 rounded-2xl border cursor-pointer flex items-center justify-between transition-all ${
                         isChecked 
-                          ? 'bg-accent/5 dark:bg-accent/10 border-accent/40' 
+                          ? 'bg-blue-50/50 dark:bg-blue-950/30 border-blue-500 ring-1 ring-blue-500/20' 
                           : 'bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 hover:border-gray-300'
                       }`}
                     >
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-3.5">
                         <div className={`w-5 h-5 rounded-md flex items-center justify-center border transition-colors ${
-                          isChecked ? 'bg-accent border-accent text-white' : 'border-gray-300 dark:border-gray-700'
+                          isChecked ? 'bg-blue-600 border-blue-600 text-white' : 'border-gray-300 dark:border-gray-700 bg-white dark:bg-black'
                         }`}>
                           {isChecked && <Check className="w-3.5 h-3.5 stroke-[3]" />}
                         </div>
                         <div>
                           <p className="font-bold text-sm text-gray-900 dark:text-white">{addon.name}</p>
-                          <p className="text-xs text-gray-500 dark:text-gray-400">+{addon.weeks} week timeline</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">+{addon.weeks} week sprint addition</p>
                         </div>
                       </div>
-                      <div className="font-mono text-sm font-bold text-gray-900 dark:text-white">
+                      <div className="font-mono text-sm font-bold text-accent">
                         +{currency === 'USD' ? `$${addon.costUSD}` : `₦${addon.costNGN.toLocaleString()}`}
                       </div>
                     </div>
@@ -424,58 +438,60 @@ const SoftwareHomePage = () => {
             </div>
           </div>
 
-          {/* Right: Summary Card (4 cols) */}
+          {/* Right: Architectural Scope Summary (4 cols) */}
           <div className="lg:col-span-4 sticky top-24">
-            <div className="p-6 rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-xl space-y-6">
+            <div className="p-6 sm:p-8 rounded-3xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-xl space-y-6">
               <div className="border-b border-gray-100 dark:border-gray-800 pb-4">
-                <span className="text-[11px] font-extrabold uppercase tracking-widest text-accent">Summary Estimate</span>
-                <div className="text-3xl font-extrabold font-mono text-gray-900 dark:text-white mt-1">
+                <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-accent block mb-1">
+                  Architectural Scope Summary
+                </span>
+                <div className="text-3xl sm:text-4xl font-extrabold font-heading text-gray-900 dark:text-white mt-1 tracking-tight">
                   {calculatedEstimate.cost}
                 </div>
                 <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mt-2">
-                  <Clock className="w-4 h-4 text-blue-500" />
-                  <span>Estimated Delivery: <strong>~{calculatedEstimate.weeks} Weeks</strong></span>
+                  <Clock className="w-4 h-4 text-blue-500 shrink-0" />
+                  <span>Target Delivery: <strong className="text-gray-900 dark:text-white font-semibold">~{calculatedEstimate.weeks} Weeks Sprint</strong></span>
                 </div>
               </div>
 
               {/* 50/50 Milestone Payment Structure Box */}
-              <div className="p-3.5 rounded-xl bg-blue-50/70 dark:bg-blue-950/30 border border-blue-200/70 dark:border-blue-800/60 space-y-2">
-                <div className="flex items-center justify-between text-[11px] font-extrabold uppercase tracking-wider text-blue-800 dark:text-blue-300">
-                  <span>Payment Structure</span>
-                  <span className="bg-blue-600 text-white dark:bg-blue-500 text-[9px] px-2 py-0.5 rounded-full font-mono">50 / 50</span>
+              <div className="p-4 rounded-2xl bg-blue-50/70 dark:bg-blue-950/30 border border-blue-200/70 dark:border-blue-800/60 space-y-2.5">
+                <div className="flex items-center justify-between text-[10px] font-extrabold uppercase tracking-wider text-blue-800 dark:text-blue-300">
+                  <span>Milestone Terms</span>
+                  <span className="bg-blue-600 text-white text-[9px] px-2 py-0.5 rounded-full font-mono font-bold">50 / 50</span>
                 </div>
-                <div className="grid grid-cols-2 gap-2 pt-1 border-t border-blue-200/50 dark:border-blue-800/40">
+                <div className="grid grid-cols-2 gap-3 pt-1 border-t border-blue-200/50 dark:border-blue-800/40">
                   <div>
-                    <span className="text-[10px] text-gray-600 dark:text-gray-400 block font-medium">50% Upfront (Kickoff)</span>
+                    <span className="text-[10px] text-gray-600 dark:text-gray-400 block font-medium">1. 50% Kickoff Deposit</span>
                     <span className="text-xs font-bold font-mono text-gray-900 dark:text-white">{calculatedEstimate.upfront}</span>
                   </div>
                   <div className="text-right">
-                    <span className="text-[10px] text-gray-600 dark:text-gray-400 block font-medium">50% Final Delivery</span>
+                    <span className="text-[10px] text-gray-600 dark:text-gray-400 block font-medium">2. 50% Final Delivery</span>
                     <span className="text-xs font-bold font-mono text-gray-900 dark:text-white">{calculatedEstimate.delivery}</span>
                   </div>
                 </div>
               </div>
 
-              <div className="space-y-3 text-xs">
+              <div className="space-y-2.5 text-xs">
                 <div className="flex justify-between text-gray-600 dark:text-gray-300">
                   <span>Architecture:</span>
                   <span className="font-bold text-gray-900 dark:text-white">{selectedType.name}</span>
                 </div>
                 <div className="flex justify-between text-gray-600 dark:text-gray-300">
-                  <span>Selected Add-ons:</span>
-                  <span className="font-bold text-gray-900 dark:text-white">{selectedAddons.length} features</span>
+                  <span>Custom Modules:</span>
+                  <span className="font-bold text-gray-900 dark:text-white">{selectedAddons.length} features selected</span>
                 </div>
                 <div className="flex justify-between text-gray-600 dark:text-gray-300">
                   <span>Milestone Terms:</span>
-                  <span className="font-bold text-blue-600 dark:text-blue-400">50% Upfront / 50% Delivery</span>
+                  <span className="font-bold text-blue-600 dark:text-blue-400">50% Kickoff / 50% Delivery</span>
                 </div>
                 <div className="flex justify-between text-gray-600 dark:text-gray-300">
-                  <span>Support Included:</span>
-                  <span className="font-bold text-emerald-600 dark:text-emerald-400">4 Months Warranty</span>
+                  <span>Post-Launch SLA:</span>
+                  <span className="font-bold text-emerald-600 dark:text-emerald-400">4 Months Included</span>
                 </div>
                 <div className="flex justify-between text-gray-600 dark:text-gray-300">
-                  <span>Source Code:</span>
-                  <span className="font-bold text-gray-900 dark:text-white">100% IP Transfer</span>
+                  <span>IP Ownership:</span>
+                  <span className="font-bold text-gray-900 dark:text-white">100% Code & GitHub Transfer</span>
                 </div>
               </div>
 
@@ -489,13 +505,13 @@ const SoftwareHomePage = () => {
                     timeline: `${calculatedEstimate.weeks} weeks`
                   }));
                 }}
-                className="w-full bg-accent hover:bg-orange-600 text-white font-bold py-3.5 px-4 rounded-xl text-center block transition-all shadow-md uppercase tracking-wider text-xs"
+                className="w-full bg-accent hover:bg-orange-600 text-white font-extrabold py-3.5 px-4 rounded-xl text-center block transition-all shadow-md uppercase tracking-wider text-xs"
               >
-                Apply Estimate to Inquiry →
+                Lock Scope & Submit Technical Brief →
               </a>
 
               <p className="text-[10px] text-gray-400 text-center leading-normal">
-                Final quotation verified during initial technical discovery session.
+                Technical roadmap and fixed quote verified upon initial brief review.
               </p>
             </div>
           </div>
@@ -715,35 +731,35 @@ const SoftwareHomePage = () => {
         </div>
       </section>
 
-      {/* ── CONSULTATION & DISCOVERY INTAKE FORM ── */}
+      {/* ── ENGINEERING BRIEF & TECHNICAL KICKOFF ── */}
       <section id="contact-form" className="py-20 px-6 md:px-12 max-w-4xl mx-auto border-t border-gray-200 dark:border-gray-800">
         <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-3xl p-8 md:p-12 shadow-2xl">
           <div className="text-center max-w-2xl mx-auto mb-10">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-xs font-extrabold uppercase tracking-wider mb-3">
-              <Terminal className="w-3.5 h-3.5" /> Technical Discovery
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-50 dark:bg-blue-950/50 border border-blue-200 dark:border-blue-800/60 text-blue-700 dark:text-blue-300 text-xs font-bold uppercase tracking-wider mb-3">
+              <Terminal className="w-3.5 h-3.5" /> Engineering Brief
             </div>
             <h2 className="text-3xl md:text-4xl font-extrabold font-heading text-gray-900 dark:text-white tracking-tight">
-              Start Your Software Discovery Call
+              Submit Your Project Specification
             </h2>
             <p className="text-gray-600 dark:text-gray-400 mt-2 text-sm leading-relaxed">
-              Tell me about your project, timeline, and goals. I'll review the requirements and get back to you within 24 business hours.
+              Direct founder-to-engineer communication. Share your scope, user workflows, or deadlines below. I will personally review the architecture and return a concrete technical roadmap within 24 hours.
             </p>
           </div>
 
           {formSuccess ? (
             <div className="p-8 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 text-center space-y-4">
-              <div className="w-12 h-12 rounded-full bg-emerald-500 text-white flex items-center justify-center mx-auto">
+              <div className="w-12 h-12 rounded-full bg-emerald-500 text-white flex items-center justify-center mx-auto shadow-md">
                 <Check className="w-6 h-6 stroke-[3]" />
               </div>
-              <h3 className="text-xl font-bold text-emerald-900 dark:text-emerald-200">Technical Inquiry Received!</h3>
+              <h3 className="text-xl font-bold text-emerald-900 dark:text-emerald-200">Technical Brief Received</h3>
               <p className="text-sm text-emerald-700 dark:text-emerald-400 max-w-md mx-auto">
-                Thank you for reaching out. I will review your requirements and get back to you within 24 hours.
+                Thank you for reaching out. Eugene will review your architecture requirements and return a detailed response within 24 hours.
               </p>
               <button 
                 onClick={() => setFormSuccess(false)}
                 className="text-xs font-bold uppercase tracking-wider text-emerald-800 dark:text-emerald-300 underline pt-2"
               >
-                Send another message
+                Submit another technical brief
               </button>
             </div>
           ) : (
@@ -761,7 +777,7 @@ const SoftwareHomePage = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-[11px] font-extrabold uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-2">
+                  <label className="block text-[11px] font-mono font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-2">
                     Full Name *
                   </label>
                   <input 
@@ -774,7 +790,7 @@ const SoftwareHomePage = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-[11px] font-extrabold uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-2">
+                  <label className="block text-[11px] font-mono font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-2">
                     Email Address *
                   </label>
                   <input 
@@ -790,15 +806,15 @@ const SoftwareHomePage = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-[11px] font-extrabold uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-2">
-                    Project Type
+                  <label className="block text-[11px] font-mono font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-2">
+                    Architecture Type
                   </label>
                   <Select
                     value={form.project_type}
                     onValueChange={val => setForm({ ...form, project_type: val })}
                   >
                     <SelectTrigger className="w-full h-12 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-accent">
-                      <SelectValue placeholder="Select project type" />
+                      <SelectValue placeholder="Select architecture type" />
                     </SelectTrigger>
                     <SelectContent className="bg-white dark:bg-[#1f1f1f] border-gray-200 dark:border-gray-700 shadow-xl">
                       <SelectGroup>
@@ -812,12 +828,12 @@ const SoftwareHomePage = () => {
                   </Select>
                 </div>
                 <div>
-                  <label className="block text-[11px] font-extrabold uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-2">
-                    Target Budget Range
+                  <label className="block text-[11px] font-mono font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-2">
+                    Estimated Budget Allocation
                   </label>
                   <input 
                     type="text" 
-                    placeholder="e.g. ₦850,000 / $2,500"
+                    placeholder="e.g. ₦1,200,000 / $3,200"
                     value={form.budget}
                     onChange={e => setForm({ ...form, budget: e.target.value })}
                     className="w-full p-3.5 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-accent"
@@ -826,25 +842,25 @@ const SoftwareHomePage = () => {
               </div>
 
               <div>
-                <label className="block text-[11px] font-extrabold uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-2">
-                  Project Description & Requirements *
+                <label className="block text-[11px] font-mono font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-2">
+                  System Requirements & Technical Brief *
                 </label>
                 <textarea 
                   required
                   rows={5}
-                  placeholder="Describe your product requirements, user workflows, integrations, or specific deadlines..."
+                  placeholder="Describe your core product requirements, user workflows, integrations, target audience, or specific launch deadlines..."
                   value={form.message}
                   onChange={e => setForm({ ...form, message: e.target.value })}
-                  className="w-full p-3.5 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-accent"
+                  className="w-full p-3.5 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-accent leading-relaxed"
                 />
               </div>
 
               <button 
                 type="submit"
                 disabled={submitting}
-                className="w-full bg-accent hover:bg-orange-600 text-white font-bold py-4 px-8 rounded-xl transition-all shadow-lg hover:shadow-accent/30 text-sm uppercase tracking-widest disabled:opacity-50"
+                className="w-full bg-accent hover:bg-orange-600 text-white font-extrabold py-4 px-8 rounded-xl transition-all shadow-lg hover:shadow-accent/30 text-xs uppercase tracking-widest disabled:opacity-50 flex items-center justify-center gap-2"
               >
-                {submitting ? 'Transmitting Specifications...' : 'Send Software Project Inquiry →'}
+                {submitting ? 'Submitting Technical Brief...' : 'Submit Technical Brief & Roadmap Inquiry →'}
               </button>
             </form>
           )}

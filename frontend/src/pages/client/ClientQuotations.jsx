@@ -3,10 +3,13 @@ import { api } from '../../services/api';
 import { FileText, Calendar, CheckCircle2, Clock } from 'lucide-react';
 import Skeleton from '../../components/Skeleton';
 import { notify } from '../../services/notify';
+import { useAutomatedCurrency } from '../../utils/currency';
 
 export default function ClientQuotations() {
     const [quotations, setQuotations] = useState([]);
     const [loading, setLoading] = useState(true);
+    const currency = useAutomatedCurrency();
+    const symbol = currency === 'USD' ? '$' : '₦';
 
     const fetchQuotations = async () => {
         try {
@@ -59,37 +62,47 @@ export default function ClientQuotations() {
                                     <th className="p-4 font-semibold">Title / Description</th>
                                     <th className="p-4 font-semibold">Date Sent</th>
                                     <th className="p-4 font-semibold">Valid Until</th>
-                                    <th className="p-4 font-semibold text-right">Amount</th>
+                                    <th className="p-4 font-semibold text-right">Total Amount</th>
+                                    <th className="p-4 font-semibold text-right">Milestone (50/50)</th>
                                     <th className="p-4 font-semibold text-center">Status</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-100 dark:divide-white/10">
-                                {quotations.map(q => (
-                                    <tr key={q.id} className="hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
-                                        <td className="p-4">
-                                            <p className="font-medium text-gray-900 dark:text-white">{q.title}</p>
-                                            {q.notes && <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-1">{q.notes}</p>}
-                                        </td>
-                                        <td className="p-4 text-sm text-gray-500 dark:text-gray-400">
-                                            {new Date(q.created_at).toLocaleDateString()}
-                                        </td>
-                                        <td className="p-4 text-sm text-gray-500 dark:text-gray-400">
-                                            {q.valid_until ? new Date(q.valid_until).toLocaleDateString() : 'No expiry'}
-                                        </td>
-                                        <td className="p-4 text-sm font-semibold text-gray-900 dark:text-white text-right">
-                                            ${Number(q.amount).toLocaleString()}
-                                        </td>
-                                        <td className="p-4 text-center">
-                                            <span className={`text-xs px-2.5 py-1 rounded-full font-medium inline-block ${
-                                                q.status === 'ACCEPTED' || q.status === 'CONVERTED' ? 'bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400' :
-                                                q.status === 'SENT' ? 'bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400' :
-                                                'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400'
-                                            }`}>
-                                                {q.status}
-                                            </span>
-                                        </td>
-                                    </tr>
-                                ))}
+                                {quotations.map(q => {
+                                    const amount = Number(q.amount || 0);
+                                    const deposit = Math.round(amount * 0.5);
+
+                                    return (
+                                        <tr key={q.id} className="hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                                            <td className="p-4">
+                                                <p className="font-medium text-gray-900 dark:text-white">{q.title}</p>
+                                                {q.notes && <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">{q.notes}</p>}
+                                            </td>
+                                            <td className="p-4 text-sm text-gray-500 dark:text-gray-400">
+                                                {new Date(q.created_at).toLocaleDateString()}
+                                            </td>
+                                            <td className="p-4 text-sm text-gray-500 dark:text-gray-400">
+                                                {q.valid_until ? new Date(q.valid_until).toLocaleDateString() : 'No expiry'}
+                                            </td>
+                                            <td className="p-4 text-sm font-semibold text-gray-900 dark:text-white text-right">
+                                                {symbol}{amount.toLocaleString()}
+                                            </td>
+                                            <td className="p-4 text-xs font-mono text-right">
+                                                <span className="text-emerald-600 dark:text-emerald-400 font-bold block">50%: {symbol}{deposit.toLocaleString()}</span>
+                                                <span className="text-gray-400 text-[10px]">upon delivery</span>
+                                            </td>
+                                            <td className="p-4 text-center">
+                                                <span className={`text-xs px-2.5 py-1 rounded-full font-medium inline-block ${
+                                                    q.status === 'ACCEPTED' || q.status === 'CONVERTED' ? 'bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400' :
+                                                    q.status === 'SENT' ? 'bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400' :
+                                                    'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400'
+                                                }`}>
+                                                    {q.status}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
                             </tbody>
                         </table>
                     </div>
