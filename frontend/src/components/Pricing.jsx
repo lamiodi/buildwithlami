@@ -2,70 +2,16 @@ import React, { useState } from 'react';
 import { motion, useReducedMotion, AnimatePresence } from 'framer-motion';
 import CheckIcon from './CheckIcon';
 import { staggerContainer, fadeUpItem, cardHover, cardHoverTransition, buttonHover, buttonTap, sectionViewport, reducedMotionVariants } from '../utils/motion';
+import { useAutomatedCurrency } from '../utils/currency';
 
 const Pricing = () => {
   const shouldReduce = useReducedMotion();
   const container = shouldReduce ? reducedMotionVariants : staggerContainer;
   const item = shouldReduce ? reducedMotionVariants : fadeUpItem;
 
-  // Automatic location detection (USD for countries outside Africa, NGN for Africa/Nigeria)
-  const getInitialCurrency = () => {
-    try {
-      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-      if (tz) {
-        if (!tz.startsWith('Africa/')) {
-          return 'USD';
-        }
-        return 'NGN';
-      }
-    } catch (e) {
-      console.warn("Timezone detection fallback hit", e);
-    }
-    return 'USD'; // Default to USD for international users outside Africa
-  };
-
-  const [currency, setCurrency] = useState(getInitialCurrency());
+  // Fully automated location-based currency (NGN for Nigeria/Africa, USD for International)
+  const currency = useAutomatedCurrency();
   const [activeCategory, setActiveCategory] = useState('all'); // 'all' | 'websites' | 'ecommerce' | 'software'
-
-  // Refine location detection via background IP verification
-  React.useEffect(() => {
-    let isMounted = true;
-
-    const detectLocation = async () => {
-      try {
-        const res = await fetch('https://ipapi.co/json/');
-        if (!res.ok) throw new Error('ipapi failed');
-        const data = await res.json();
-        if (isMounted) {
-          const isOutsideAfrica = data.continent_code ? data.continent_code !== 'AF' : data.country_code !== 'NG';
-          const detected = isOutsideAfrica ? 'USD' : 'NGN';
-          setCurrency(detected);
-          return;
-        }
-      } catch {
-        try {
-          const res2 = await fetch('https://ipwho.is/');
-          if (res2.ok) {
-            const data2 = await res2.json();
-            if (isMounted) {
-              const isOutsideAfrica = data2.continent_code ? data2.continent_code !== 'AF' : data2.country_code !== 'NG';
-              const detected = isOutsideAfrica ? 'USD' : 'NGN';
-              setCurrency(detected);
-              return;
-            }
-          }
-        } catch {
-          // Fallback retained
-        }
-      }
-    };
-
-    detectLocation();
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
 
   const pricingData = {
     NGN: {
@@ -337,7 +283,7 @@ const Pricing = () => {
             Every project is structured around clear business outcomes, timeline predictability, and commercial ROI. Compare options below to find the exact match for your goals.
           </motion.p>
 
-          {/* Currency Toggle & 50/50 Split Controls */}
+          {/* 50/50 Payment Split Controls */}
           <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
             <motion.div variants={item} className="border border-gray-200 dark:border-white/10 bg-white dark:bg-[#1c1c1c] px-5 py-2.5 shadow-sm rounded-full">
               <p className="text-[11px] font-bold uppercase tracking-widest text-gray-800 dark:text-gray-200">
@@ -345,32 +291,6 @@ const Pricing = () => {
                 Flexible Payments: <span className="font-semibold text-blue-600 dark:text-blue-400">50% upfront, 50% upon delivery</span>
               </p>
             </motion.div>
-
-            {/* Currency Selector */}
-            <div className="inline-flex p-1 bg-gray-200 dark:bg-gray-800 rounded-full border border-gray-300 dark:border-gray-700">
-              <button 
-                type="button"
-                onClick={() => setCurrency('NGN')}
-                className={`px-4 py-1.5 text-xs font-extrabold rounded-full transition-all ${
-                  currency === 'NGN' 
-                    ? 'bg-white dark:bg-[#121212] text-black dark:text-white shadow-sm' 
-                    : 'text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white'
-                }`}
-              >
-                ₦ NGN (Nigeria)
-              </button>
-              <button 
-                type="button"
-                onClick={() => setCurrency('USD')}
-                className={`px-4 py-1.5 text-xs font-extrabold rounded-full transition-all ${
-                  currency === 'USD' 
-                    ? 'bg-white dark:bg-[#121212] text-black dark:text-white shadow-sm' 
-                    : 'text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white'
-                }`}
-              >
-                $ USD (International)
-              </button>
-            </div>
           </div>
         </motion.div>
 

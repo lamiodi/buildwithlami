@@ -23,6 +23,7 @@ import {
 import { api } from '../../services/api';
 import { notify } from '../../services/notify';
 import fallbackProjects from '../../data/fallbackProjects';
+import { useAutomatedCurrency } from '../../utils/currency';
 import {
   Select,
   SelectContent,
@@ -124,8 +125,8 @@ const FAQS = [
 const SoftwareHomePage = () => {
   const shouldReduce = useReducedMotion();
 
-  // Currency selection
-  const [currency, setCurrency] = useState('NGN');
+  // Fully automated location-based currency detection (NGN in Nigeria/Africa, USD International)
+  const currency = useAutomatedCurrency();
   
   // Interactive Estimator State
   const [selectedType, setSelectedType] = useState(PROJECT_TYPES[1]);
@@ -348,22 +349,6 @@ const SoftwareHomePage = () => {
           <p className="text-gray-600 dark:text-gray-400 mt-3 text-base">
             Get a preliminary estimate based on your project requirements. Final pricing is confirmed after technical discovery.
           </p>
-
-          {/* Currency Toggle */}
-          <div className="inline-flex p-1 bg-gray-200 dark:bg-gray-800 rounded-xl mt-6">
-            <button 
-              onClick={() => setCurrency('NGN')}
-              className={`px-4 py-1.5 text-xs font-extrabold rounded-lg transition-all ${currency === 'NGN' ? 'bg-white dark:bg-gray-900 text-gray-900 dark:text-white shadow-sm' : 'text-gray-500'}`}
-            >
-              ₦ NGN (Nigeria)
-            </button>
-            <button 
-              onClick={() => setCurrency('USD')}
-              className={`px-4 py-1.5 text-xs font-extrabold rounded-lg transition-all ${currency === 'USD' ? 'bg-white dark:bg-gray-900 text-gray-900 dark:text-white shadow-sm' : 'text-gray-500'}`}
-            >
-              $ USD (International)
-            </button>
-          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
