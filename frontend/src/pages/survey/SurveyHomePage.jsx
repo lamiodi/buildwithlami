@@ -742,22 +742,22 @@ const SurveyHomePage = () => {
         </div>
       </section>
 
-      {/* ==== DRONE DIVISION CROSS-LINK ==== */}
+      {/* ==== LAMI AERIAL CROSS-LINK ==== */}
       <section className="py-24 px-6 md:px-12 max-w-[1400px] mx-auto border-t border-gray-300">
         <div className="bg-black text-white p-8 md:p-16 grid grid-cols-1 md:grid-cols-[1.4fr_1fr] gap-12 items-start">
           <div>
-            <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-400 mb-4">— Sister Division</p>
+            <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-400 mb-4">— Sister Studio</p>
             <h2 className="survey-heading text-5xl md:text-7xl font-black uppercase tracking-tighter leading-[0.85] mb-8">
               Need<br />Aerial<br />Visuals?
             </h2>
             <p className="text-xs font-bold uppercase tracking-widest leading-loose text-gray-300 max-w-md mb-10">
-              Our Drone Division complements every survey we deliver — flying DJI Mini 4 Pro and Mini 4K aircraft for the photography, mapping, and progress content our clients need.
+              Our sister studio Lami Aerial complements every survey we deliver — flying DJI Mini 4 Pro and Mini 4K aircraft for the photography, mapping, and progress content our clients need.
             </p>
             <Link
               to="/drone"
               className="inline-flex items-center gap-3 border border-white px-6 py-3 text-[11px] font-black uppercase tracking-[0.3em] hover:bg-white hover:text-black transition-colors group"
             >
-              Explore Drone Services
+              Explore Lami Aerial
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>

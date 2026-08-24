@@ -28,7 +28,7 @@ const DroneFooter = () => {
             <div className="lg:col-span-6 space-y-6">
               <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-xs font-semibold text-white/90">
                 <span className="w-2 h-2 rounded-full bg-[#F44A22] animate-pulse" />
-                <span className="tracking-wide">Lami Aerial Cinematography</span>
+                <span className="tracking-wide">Lami Aerial</span>
               </div>
 
               <div>
@@ -231,9 +231,9 @@ const DroneFooter = () => {
         <div className="py-4 text-center select-none">
           <h2
             className="drone-heading font-black text-white/90 uppercase tracking-tighter leading-none"
-            style={{ fontSize: 'clamp(26px, 7.5vw, 110px)' }}
+            style={{ fontSize: 'clamp(28px, 9vw, 130px)' }}
           >
-            LAMI AERIAL OPS
+            LAMI AERIAL
           </h2>
           <p className="text-[10px] md:text-xs uppercase tracking-[0.3em] text-gray-500 font-bold mt-2">
             Aerial Cinematography · Construction Progress · Orthomosaic Mapping
@@ -243,7 +243,7 @@ const DroneFooter = () => {
         {/* Bottom Bar: Copyright & Compliance */}
         <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-6 border-t border-white/10 text-[11px] text-gray-500">
           <p className="font-medium text-center sm:text-left">
-            © {displayYear} Lami Drone Operations. Piloted by Eugene Odibenuah. All rights reserved.
+            © {displayYear} Lami Aerial. Piloted by Eugene Odibenuah. All rights reserved.
           </p>
           <div className="flex items-center gap-6 font-semibold uppercase tracking-widest text-[10px]">
             <a

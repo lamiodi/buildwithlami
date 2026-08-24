@@ -160,7 +160,7 @@ const SurveyFooter = () => {
                 </li>
                 <li>
                   <Link to="/drone" className="hover:text-white transition-colors flex items-center justify-between">
-                    <span>Aerial Drone Division</span>
+                    <span>Lami Aerial</span>
                     <ArrowUpRight className="w-3.5 h-3.5 opacity-60" />
                   </Link>
                 </li>

@@ -60,6 +60,10 @@ const useFontsEffect = () => {
 
 const DroneHomePage = () => {
   useFontsEffect();
+
+  useEffect(() => {
+    document.title = 'Lami Aerial — Drone Photography, Videography & Aerial Mapping';
+  }, []);
   
   // -- Interactive Modal States --
   const [selectedServiceModal, setSelectedServiceModal] = useState(null);
@@ -383,8 +387,8 @@ const DroneHomePage = () => {
         {/* ==== NAVBAR ==== */}
         <header className="flex justify-between items-center px-6 md:px-12 py-8 z-40 relative sticky top-0 bg-[#f4f4f4]/90 backdrop-blur-md">
           <div className="flex items-center gap-12 w-full md:w-1/2">
-            <div className="flex items-center gap-2 font-black text-2xl tracking-tighter">
-              <Crosshair className="w-6 h-6" /> Dronea<sup className="text-xs -ml-1">&reg;</sup>
+            <div className="flex items-center gap-2 font-black text-2xl tracking-tighter text-gray-900">
+              <Crosshair className="w-6 h-6 text-accent" /> Lami Aerial
             </div>
             <nav className="hidden lg:flex gap-8 text-sm text-gray-500 font-medium">
               <button onClick={() => scrollTo('services')}  className="hover:text-black transition-colors">Services</button>
