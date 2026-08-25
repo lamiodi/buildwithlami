@@ -397,7 +397,7 @@ const ProjectsPage = () => {
             >
               <Link
                 to="/contact"
-                className="inline-flex items-center justify-center bg-accent text-white font-bold px-8 py-4 text-xs uppercase tracking-widest hover:bg-black dark:hover:bg-white dark:hover:text-black transition-colors rounded-xl shadow-lg"
+                className="inline-flex items-center justify-center bg-accent text-white font-heading font-bold px-10 py-4 text-[11px] uppercase tracking-[0.15em] hover:bg-black dark:hover:bg-white dark:hover:text-black transition-all duration-300 shadow-lg hover:shadow-accent/30 active:scale-[0.98]"
               >
                 Start a Project →
               </Link>
@@ -410,7 +410,7 @@ const ProjectsPage = () => {
                 href={`https://wa.me/${CONTACT.phoneE164 || '2348085186714'}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center border border-gray-300 dark:border-white/20 text-black dark:text-white font-bold px-8 py-4 text-xs uppercase tracking-widest hover:border-accent hover:text-accent transition-colors rounded-xl"
+                className="inline-flex items-center justify-center border border-gray-300 dark:border-white/15 text-gray-900 dark:text-gray-100 font-heading font-bold px-10 py-4 text-[11px] uppercase tracking-[0.15em] hover:border-accent hover:text-accent transition-all duration-300 active:scale-[0.98] bg-transparent"
               >
                 WhatsApp Me ↗
               </a>

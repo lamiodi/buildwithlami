@@ -181,7 +181,7 @@ const Projects = () => {
                 <button
                   type="button"
                   onClick={() => navigate(`/projects/${featuredProject.slug || featuredProject.id}`)}
-                  className="cursor-pointer bg-accent hover:bg-black dark:hover:bg-white dark:hover:text-black text-white text-xs font-bold uppercase tracking-wider px-6 py-3 rounded-lg transition-all shadow-md"
+                  className="bg-accent hover:bg-black dark:hover:bg-white dark:hover:text-black text-white text-[11px] font-heading font-bold uppercase tracking-[0.15em] px-8 py-3.5 transition-all shadow-lg hover:shadow-accent/30 active:scale-[0.98] cursor-pointer"
                 >
                   View Case Study →
                 </button>
@@ -190,7 +190,7 @@ const Projects = () => {
                     href={featuredProject.live_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300 hover:text-accent px-4 py-3 border border-gray-200 dark:border-white/10 rounded-lg transition-colors"
+                    className="inline-flex items-center text-[11px] font-heading font-bold uppercase tracking-[0.15em] text-gray-800 dark:text-gray-200 hover:text-accent hover:border-accent px-6 py-3.5 border border-gray-300 dark:border-white/15 transition-all bg-transparent active:scale-[0.98]"
                   >
                     Live Demo ↗
                   </a>
@@ -214,7 +214,7 @@ const Projects = () => {
               variants={item}
               whileHover={shouldReduce ? {} : cardHover}
               transition={cardHoverTransition}
-              className="bg-white dark:bg-[#141414] border border-gray-200 dark:border-white/10 rounded-2xl overflow-hidden flex flex-col justify-between shadow-sm hover:shadow-xl transition-all group cursor-pointer"
+              className="bg-white dark:bg-[#141414] border border-gray-200 dark:border-white/10 rounded-2xl overflow-hidden flex flex-col justify-between shadow-sm hover:shadow-xl hover:border-accent/40 transition-all group cursor-pointer"
               onClick={() => navigate(`/projects/${p.slug || p.id}`)}
             >
               <div>
@@ -227,7 +227,7 @@ const Projects = () => {
                     height="350"
                     loading="lazy"
                   />
-                  <div className="absolute top-3 right-3 bg-black/80 backdrop-blur-md text-white text-[9px] uppercase tracking-widest font-bold px-2.5 py-1 rounded-full">
+                  <div className="absolute top-3 right-3 bg-black/80 backdrop-blur-md text-white text-[9px] font-mono uppercase tracking-widest font-bold px-2.5 py-1 rounded-full border border-white/10">
                     {p.year || '2024'}
                   </div>
                 </div>
@@ -237,7 +237,7 @@ const Projects = () => {
                     {(p.tech_stack || ['React', 'Node.js', 'PostgreSQL']).slice(0, 3).map((t, tIdx) => (
                       <span
                         key={tIdx}
-                        className="text-[9px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-gray-100 dark:bg-white/5 text-gray-700 dark:text-gray-300"
+                        className="text-[9px] font-mono uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-gray-100 dark:bg-white/5 border border-gray-200/50 dark:border-white/5 text-gray-700 dark:text-gray-300"
                       >
                         {t}
                       </span>
@@ -252,7 +252,7 @@ const Projects = () => {
                 </div>
               </div>
 
-              <div className="px-6 pb-6 pt-2 flex items-center justify-between border-t border-gray-100 dark:border-white/5 text-xs font-bold text-accent uppercase tracking-wider">
+              <div className="px-6 pb-6 pt-2 flex items-center justify-between border-t border-gray-100 dark:border-white/5 text-[11px] font-heading font-bold text-accent uppercase tracking-[0.15em]">
                 <span>View Case Study</span>
                 <span className="group-hover:translate-x-1 transition-transform">→</span>
               </div>
@@ -270,7 +270,7 @@ const Projects = () => {
         >
           <Link
             to="/projects"
-            className="inline-flex items-center gap-2 text-xs md:text-sm font-bold uppercase tracking-[0.2em] text-gray-800 dark:text-gray-200 hover:text-accent dark:hover:text-accent transition-colors py-3 px-8 border border-gray-300 dark:border-white/10 rounded-full hover:border-accent shadow-sm"
+            className="border border-gray-300 dark:border-white/15 text-gray-900 dark:text-gray-100 font-heading font-bold text-[11px] uppercase tracking-[0.15em] hover:border-accent hover:text-accent transition-all duration-300 inline-flex items-center justify-center text-center py-4 px-10 active:scale-[0.98] bg-transparent"
           >
             Explore All Case Studies & Projects →
           </Link>

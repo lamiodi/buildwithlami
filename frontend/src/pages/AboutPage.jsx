@@ -686,7 +686,7 @@ const AboutPage = () => {
             <motion.div whileHover={shouldReduce ? {} : buttonHover} whileTap={shouldReduce ? {} : buttonTap}>
               <Link
                 to="/contact"
-                className="inline-flex items-center justify-center bg-accent text-white font-bold uppercase tracking-[0.2em] text-xs px-8 py-4 rounded-xl shadow-lg hover:bg-black dark:hover:bg-white dark:hover:text-black transition-colors"
+                className="inline-flex items-center justify-center bg-accent text-white font-heading font-bold uppercase tracking-[0.15em] text-[11px] px-10 py-4 shadow-lg hover:shadow-accent/30 hover:bg-black dark:hover:bg-white dark:hover:text-black transition-all duration-300 active:scale-[0.98]"
               >
                 Start a Project
                 <ArrowIcon className="w-4 h-4 ml-2" />
@@ -697,7 +697,7 @@ const AboutPage = () => {
                 href={`https://wa.me/${CONTACT.phoneE164 || '2348085186714'}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center border border-gray-300 dark:border-white/20 text-black dark:text-white font-bold uppercase tracking-[0.2em] text-xs px-8 py-4 rounded-xl hover:border-accent hover:text-accent transition-colors"
+                className="inline-flex items-center justify-center border border-gray-300 dark:border-white/15 text-gray-900 dark:text-gray-100 font-heading font-bold uppercase tracking-[0.15em] text-[11px] px-10 py-4 hover:border-accent hover:text-accent transition-all duration-300 active:scale-[0.98] bg-transparent"
               >
                 WhatsApp Direct ↗
               </a>

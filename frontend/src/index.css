@@ -27,7 +27,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Scope theme transitions to meaningful elements only — not every DOM node */
+/* Scope theme transitions to meaningful elements only */
 body,
 main,
 section,
@@ -35,14 +35,14 @@ nav,
 footer,
 header,
 .theme-transition {
-  transition: background-color 0.4s ease-in-out, color 0.4s ease-in-out, border-color 0.4s ease-in-out;
+  transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out, border-color 0.3s ease-in-out;
 }
 
 @layer base {
   :root {
     --background: 0 0% 100%;
     --foreground: 0 0% 9%;
-    --card: 0 0% 100%;
+    --card: 0 0% 98%;
     --card-foreground: 0 0% 9%;
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 9%;
@@ -59,15 +59,15 @@ header,
     --border: 0 0% 90%;
     --input: 0 0% 90%;
     --ring: 12 90% 55%;
-    --radius: 0.75rem;
+    --radius: 1rem;
   }
 
   .dark {
-    --background: 0 0% 8.6%;
+    --background: 0 0% 8.6%; /* #161616 */
     --foreground: 0 0% 98%;
-    --card: 0 0% 11.5%;
+    --card: 0 0% 8%;       /* #141414 */
     --card-foreground: 0 0% 98%;
-    --popover: 0 0% 11.5%;
+    --popover: 0 0% 10%;
     --popover-foreground: 0 0% 98%;
     --primary: 12 90% 55%;
     --primary-foreground: 0 0% 98%;
@@ -79,8 +79,8 @@ header,
     --accent-foreground: 0 0% 98%;
     --destructive: 0 63% 31%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 18%;
-    --input: 0 0% 18%;
+    --border: 0 0% 100% / 0.10;
+    --input: 0 0% 100% / 0.15;
     --ring: 12 90% 55%;
   }
 
@@ -91,11 +91,12 @@ header,
   body {
     @apply bg-background text-foreground font-body;
   }
+  
   h1, h2, h3, h4, h5, h6 {
     @apply font-heading;
   }
 
-  /* Custom styled select elements across the whole app to remove generic OS styling */
+  /* Custom styled select elements */
   select {
     appearance: none;
     -webkit-appearance: none;
@@ -123,12 +124,47 @@ header,
   }
 
   .dark select option {
-    background-color: #1a1a1a;
+    background-color: #141414;
     color: #f3f3f3;
   }
 }
 
-/* Hide scrollbar for Chrome, Safari, Opera and Firefox/Edge */
+/* ─────────────────────────────────────────────────────────────────────────────
+   BUILDWITHLAMI UNIFIED BUTTON PRIMITIVES (Matching Hero Standard)
+   ───────────────────────────────────────────────────────────────────────────── */
+@layer components {
+  /* 1. Primary Action Button */
+  .btn-primary {
+    @apply bg-accent text-white font-heading font-bold uppercase text-[11px] px-8 sm:px-10 py-4 tracking-[0.15em] hover:bg-black dark:hover:bg-white dark:hover:text-black transition-all duration-300 inline-flex items-center justify-center text-center shadow-lg hover:shadow-accent/30 active:scale-[0.98] cursor-pointer;
+  }
+
+  /* 2. Secondary Outline Button */
+  .btn-secondary {
+    @apply border border-gray-300 dark:border-white/15 text-gray-900 dark:text-gray-100 font-heading font-bold text-[11px] uppercase tracking-[0.15em] hover:border-accent hover:text-accent transition-all duration-300 inline-flex items-center justify-center text-center py-4 px-8 sm:px-10 active:scale-[0.98] cursor-pointer bg-transparent;
+  }
+
+  /* 3. Dark / Invert Card Action Button */
+  .btn-dark {
+    @apply bg-black dark:bg-white text-white dark:text-black hover:bg-accent dark:hover:bg-accent dark:hover:text-white font-heading text-[11px] font-bold uppercase tracking-[0.15em] px-6 py-3.5 transition-all duration-300 inline-flex items-center justify-center text-center shadow-md active:scale-[0.98] cursor-pointer;
+  }
+
+  /* 4. Ghost / Text Action Link */
+  .btn-ghost {
+    @apply text-accent hover:text-black dark:hover:text-white font-heading text-[11px] font-bold uppercase tracking-[0.15em] transition-colors inline-flex items-center gap-1.5 cursor-pointer;
+  }
+
+  /* Standard Card Surface */
+  .bwl-card {
+    @apply bg-white dark:bg-[#141414] border border-gray-200 dark:border-white/10 rounded-2xl transition-all duration-300;
+  }
+
+  /* Standard Badge Chip */
+  .bwl-badge {
+    @apply inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-accent/10 border border-accent/20 text-accent text-[10px] font-mono font-bold uppercase tracking-widest;
+  }
+}
+
+/* Hide scrollbars */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
@@ -141,5 +177,3 @@ header,
 .font-signature {
   font-family: 'Caveat', 'Dancing Script', cursive, sans-serif;
 }
-
-

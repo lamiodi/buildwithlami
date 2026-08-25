@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useReducedMotion } from 'framer-motion';
+import { MapPin, ArrowRight } from 'lucide-react';
 import { staggerContainer, fadeUpItem, sectionViewport, reducedMotionVariants } from '../utils/motion';
 
 const About = () => {
@@ -16,20 +17,23 @@ const About = () => {
         whileInView="visible"
         viewport={sectionViewport}
       >
-        <motion.p variants={item} className="uppercase tracking-widest text-sm text-gray-500 dark:text-gray-400 mb-2 font-bold">About Me</motion.p>
+        <motion.p variants={item} className="uppercase tracking-[0.3em] text-[11px] text-accent mb-3 font-mono font-bold">
+          About The Studio
+        </motion.p>
         <motion.h2 variants={item} className="text-4xl md:text-6xl lg:text-7xl font-heading font-bold mb-12 tracking-tight text-black dark:text-white">
           ODIBENUAH EUGE<span className="text-accent">NE</span>
         </motion.h2>
 
         {/* Main Image */}
-        <motion.div variants={item} className="w-full h-64 md:h-[500px] lg:h-[600px] bg-gray-200 dark:bg-gray-800 mb-16 relative overflow-hidden shadow-2xl rounded-2xl">
+        <motion.div variants={item} className="w-full h-64 md:h-[500px] lg:h-[600px] bg-gray-200 dark:bg-[#141414] mb-16 relative overflow-hidden shadow-2xl rounded-2xl border border-gray-200 dark:border-white/10">
           <img 
             src="/Rectangle 50 (1).png" 
             alt="My Desk Setup" 
             className="w-full h-full object-cover opacity-90 dark:opacity-80"
           />
-          <div className="absolute bottom-6 right-6 bg-white/90 dark:bg-[#1a1a1a]/80 backdrop-blur-md border border-gray-200 dark:border-white/10 text-black dark:text-white font-bold px-6 py-3 rounded-full text-xs md:text-sm tracking-widest uppercase flex items-center shadow-lg">
-            <span className="text-accent mr-2 text-lg">📍</span> LAGOS, NIGERIA
+          <div className="absolute bottom-6 right-6 bg-white/90 dark:bg-[#141414]/90 backdrop-blur-md border border-gray-200 dark:border-white/10 text-black dark:text-white font-mono font-bold px-5 py-2.5 rounded-full text-xs tracking-widest uppercase flex items-center shadow-lg">
+            <MapPin className="w-3.5 h-3.5 text-accent mr-2" />
+            <span>LAGOS, NIGERIA</span>
           </div>
           <div className="absolute top-6 left-6 font-handwritten text-3xl md:text-4xl text-white transform -rotate-3 opacity-90 drop-shadow-md">
             My Setup
@@ -45,7 +49,7 @@ const About = () => {
             viewport={sectionViewport}
           >
             <p className="text-xl md:text-2xl leading-relaxed text-black dark:text-white font-heading font-bold">
-              Hi, I'm Eugene, a Nigerian full-stack software engineer.
+              Hi, I'm Eugene, a full-stack engineer and digital product designer.
             </p>
           </motion.div>
           <div className="md:w-1/2 flex flex-col items-start md:items-end text-left md:text-right">
@@ -56,13 +60,14 @@ const About = () => {
               transition={{ duration: shouldReduce ? 0 : 0.8, delay: shouldReduce ? 0 : 0.2 }}
               className="text-gray-700 dark:text-gray-300 leading-relaxed text-base md:text-lg font-light mb-6 opacity-90"
             >
-              I specialize in building modern, scalable web applications that are fast, reliable, and easy to use. From idea to deployment, I focus on creating systems that not only work but grow with your business.
+              I build modern web platforms, e-commerce engines, and high-performance software for businesses and founders worldwide. Fixed milestones, transparent communication, and 100% code ownership.
             </motion.p>
             <Link
               to="/about"
-              className="inline-flex items-center text-xs font-bold uppercase tracking-widest text-accent hover:text-black dark:hover:text-white transition-colors"
+              className="inline-flex items-center text-[11px] font-heading font-bold uppercase tracking-[0.15em] text-accent hover:text-black dark:hover:text-white transition-colors gap-1.5"
             >
-              Learn More About My Story & Stack →
+              <span>Learn More About My Story & Stack</span>
+              <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
         </div>

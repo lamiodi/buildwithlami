@@ -1,31 +1,33 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { useLocation } from 'react-router-dom';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import SecurityPopup from '../components/SecurityPopup';
 import { api } from '../services/api';
 import { buttonHover, buttonTap, cardHover, cardHoverTransition, reducedMotionVariants, fadeUpItem, staggerContainer } from '../utils/motion';
 import { CONTACT } from '../config/contact';
+import { Clock, PhoneCall, ShieldCheck, CheckCircle2, ArrowRight } from 'lucide-react';
 
 const PROJECT_TYPES = [
   'Business Website',
-  'E-commerce',
+  'E-Commerce',
   'Web Application',
   'SaaS Platform',
-  'Backend / API',
-  'Redesign / Rebuild',
-  'Technical Audit',
+  'UI/UX Design',
+  'SEO & Growth',
+  'AI & Automations',
   'Not sure yet',
 ];
 
 const BUDGET_RANGES = [
-  'Under ₦250k',
-  '₦250k – ₦600k',
-  '₦600k – ₦1.5M',
-  '₦1.5M+',
-  'Not sure yet',
+  'Under ₦350k / $900',
+  '₦350k – ₦850k / $2.5k',
+  '₦850k – ₦2M / $5k',
+  '₦2M+ / $5k+',
+  'Flexible / Quote Me',
 ];
 
 const TIMELINE_OPTIONS = [
-  'ASAP',
+  'ASAP (1–2 weeks)',
   '2–4 weeks',
   '1–2 months',
   'Flexible',
@@ -62,20 +64,12 @@ const SOCIAL_LINKS = [
       </svg>
     ),
   },
-  {
-    name: 'TikTok',
-    desc: 'Development & tech content',
-    url: 'https://tiktok.com/@buildwithlami',
-    icon: (
-      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-        <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.24 1.07-.14 1.61.24 1.64 1.82 2.89 3.5 2.77 1.81-.03 3.32-1.5 3.37-3.31.04-3.89.02-7.78.02-11.68V.02z" />
-      </svg>
-    ),
-  },
 ];
 
 const ContactPage = () => {
   const shouldReduce = useReducedMotion();
+  const location = useLocation();
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -107,17 +101,39 @@ const ContactPage = () => {
     setEmailError(!validateEmail(formData.email));
   };
 
+  // Detect URL parameters from Pricing Page selection (e.g. ?service=ecommerce&tier=Growth)
   useEffect(() => {
     window.scrollTo(0, 0);
-    document.title = "Contact | BuildWithLami — Let's Build Something That Matters";
+    document.title = "Start a Project | BuildWithLami — Direct Engineering Inquiry";
     const metaDesc = document.querySelector('meta[name="description"]');
     if (metaDesc) {
       metaDesc.setAttribute(
         'content',
-        "Start a project inquiry with BuildWithLami (Eugene Odibenuah). Custom software engineering, enterprise web applications, and technical consulting."
+        "Start a project inquiry with BuildWithLami (Eugene Odibenuah). Custom software engineering, high-converting websites, e-commerce, and technical consulting."
       );
     }
-  }, []);
+
+    const params = new URLSearchParams(location.search);
+    const serviceParam = params.get('service');
+    const tierParam = params.get('tier');
+    const currencyParam = params.get('currency');
+
+    if (serviceParam || tierParam) {
+      let matchedType = '';
+      if (serviceParam === 'websites') matchedType = 'Business Website';
+      else if (serviceParam === 'ecommerce') matchedType = 'E-Commerce';
+      else if (serviceParam === 'software') matchedType = 'Custom Software';
+      else if (serviceParam === 'ui_ux') matchedType = 'UI/UX Design';
+      else if (serviceParam === 'seo') matchedType = 'SEO & Growth';
+      else if (serviceParam === 'ai_automation') matchedType = 'AI & Automations';
+
+      setFormData(prev => ({
+        ...prev,
+        project_type: matchedType || prev.project_type,
+        message: prev.message || (tierParam ? `Hi Eugene, I'm interested in discussing the ${tierParam} package for ${matchedType || serviceParam} (${currencyParam || 'NGN'}).` : '')
+      }));
+    }
+  }, [location.search]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -149,15 +165,15 @@ const ContactPage = () => {
         message: '',
       });
       setIsEmailDirty(false);
-      setTimeout(() => setStatus('idle'), 4000);
+      setTimeout(() => setStatus('idle'), 5000);
     } else {
       setStatus('error');
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-background text-black dark:text-white pt-28 sm:pt-36 pb-20 px-4 sm:px-6 md:px-12 font-body selection:bg-accent selection:text-white transition-colors duration-300 overflow-x-hidden">
-      <div className="max-w-6xl mx-auto space-y-16 sm:space-y-24">
+    <div className="min-h-screen bg-gray-50 dark:bg-background text-black dark:text-white pt-24 sm:pt-32 pb-20 px-4 sm:px-6 md:px-12 font-body selection:bg-accent selection:text-white transition-colors duration-300 overflow-x-hidden">
+      <div className="max-w-6xl mx-auto space-y-12 sm:space-y-16">
         
         {/* ═══════════════════════════════════════════════════════════════════
             1. HERO
@@ -170,13 +186,14 @@ const ContactPage = () => {
         >
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-accent/10 border border-accent/20 text-accent text-xs font-bold uppercase tracking-wider mb-4">
             <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
-            Direct Engineering & Project Inquiries
+            Direct Project Discovery
           </div>
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-heading font-bold tracking-tight text-black dark:text-white leading-[1.08]">
-            Let&apos;s Build Something That <span className="text-accent">Lasts.</span>
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-heading font-extrabold tracking-tight text-black dark:text-white leading-[1.08]">
+            Let&apos;s build something <br className="hidden sm:block" />
+            that <span className="text-accent">moves your business.</span>
           </h1>
-          <p className="mt-6 text-base sm:text-lg md:text-xl text-gray-700 dark:text-gray-300 font-light leading-relaxed">
-            Direct founder-to-engineer communication. Share what you&apos;re building, key technical requirements, or where you need architectural clarity. I will personally review your brief and return a concrete next step within 24 hours.
+          <p className="mt-4 text-base sm:text-lg text-gray-700 dark:text-gray-300 font-light leading-relaxed">
+            Direct founder-to-engineer communication. Share your goals, timeline, or required features. I personally review every inquiry and reply within 24 hours with a concrete proposal and roadmap.
           </p>
         </motion.header>
 
@@ -185,7 +202,7 @@ const ContactPage = () => {
             ═══════════════════════════════════════════════════════════════════ */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
           
-          {/* Left Column (8 cols on lg): Intake Form */}
+          {/* Left Column: Intake Form */}
           <motion.div
             variants={container}
             initial="hidden"
@@ -193,9 +210,9 @@ const ContactPage = () => {
             className="lg:col-span-7 bg-white dark:bg-[#141414] border border-gray-200 dark:border-white/10 rounded-3xl p-6 sm:p-10 shadow-2xl space-y-8"
           >
             <div>
-              <span className="text-xs uppercase tracking-[0.25em] font-bold text-accent">Technical Project Brief</span>
+              <span className="text-xs uppercase tracking-[0.25em] font-bold text-accent">Project Scope Intake</span>
               <h2 className="text-2xl sm:text-3xl font-heading font-bold text-black dark:text-white mt-1">
-                Tell Me About Your Project
+                Tell me about your project
               </h2>
             </div>
 
@@ -204,13 +221,13 @@ const ContactPage = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label htmlFor="name" className="block text-xs uppercase tracking-wider font-bold text-gray-700 dark:text-gray-300 mb-1.5">
-                    Name <span className="text-accent">*</span>
+                    Your Name <span className="text-accent">*</span>
                   </label>
                   <input
                     type="text"
                     id="name"
                     required
-                    placeholder="Your name"
+                    placeholder="e.g. Alex Johnson"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     className="w-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm text-black dark:text-white placeholder-gray-400 focus:outline-none focus:border-accent dark:focus:border-accent transition-colors"
@@ -218,7 +235,7 @@ const ContactPage = () => {
                 </div>
                 <div>
                   <label htmlFor="email" className="block text-xs uppercase tracking-wider font-bold text-gray-700 dark:text-gray-300 mb-1.5">
-                    Email <span className="text-accent">*</span>
+                    Email Address <span className="text-accent">*</span>
                   </label>
                   <input
                     type="email"
@@ -253,7 +270,7 @@ const ContactPage = () => {
                       key={type}
                       type="button"
                       onClick={() => setFormData({ ...formData, project_type: formData.project_type === type ? '' : type })}
-                      className={`px-3 py-2 rounded-xl text-xs font-semibold border transition-all text-center ${
+                      className={`px-3 py-2 rounded-xl text-xs font-semibold border transition-all text-center truncate ${
                         formData.project_type === type
                           ? 'bg-accent text-white border-accent shadow-sm'
                           : 'bg-gray-50 dark:bg-white/5 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-white/10 hover:border-accent/50'
@@ -268,15 +285,15 @@ const ContactPage = () => {
               {/* Estimated Budget */}
               <div>
                 <label className="block text-xs uppercase tracking-wider font-bold text-gray-700 dark:text-gray-300 mb-2">
-                  Estimated Budget
+                  Estimated Budget Range
                 </label>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                   {BUDGET_RANGES.map((budget) => (
                     <button
                       key={budget}
                       type="button"
                       onClick={() => setFormData({ ...formData, budget: formData.budget === budget ? '' : budget })}
-                      className={`px-3 py-2 rounded-xl text-xs font-semibold border transition-all text-center ${
+                      className={`px-3 py-2 rounded-xl text-xs font-semibold border transition-all text-center truncate ${
                         formData.budget === budget
                           ? 'bg-accent text-white border-accent shadow-sm'
                           : 'bg-gray-50 dark:bg-white/5 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-white/10 hover:border-accent/50'
@@ -291,7 +308,7 @@ const ContactPage = () => {
               {/* Preferred Timeline */}
               <div>
                 <label className="block text-xs uppercase tracking-wider font-bold text-gray-700 dark:text-gray-300 mb-2">
-                  Preferred Timeline
+                  Target Timeline
                 </label>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                   {TIMELINE_OPTIONS.map((time) => (
@@ -299,7 +316,7 @@ const ContactPage = () => {
                       key={time}
                       type="button"
                       onClick={() => setFormData({ ...formData, timeline: formData.timeline === time ? '' : time })}
-                      className={`px-3 py-2 rounded-xl text-xs font-semibold border transition-all text-center ${
+                      className={`px-3 py-2 rounded-xl text-xs font-semibold border transition-all text-center truncate ${
                         formData.timeline === time
                           ? 'bg-accent text-white border-accent shadow-sm'
                           : 'bg-gray-50 dark:bg-white/5 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-white/10 hover:border-accent/50'
@@ -314,48 +331,73 @@ const ContactPage = () => {
               {/* Message */}
               <div>
                 <label htmlFor="message" className="block text-xs uppercase tracking-wider font-bold text-gray-700 dark:text-gray-300 mb-1.5">
-                  Tell me about the project <span className="text-accent">*</span>
+                  Project Details & Key Goals <span className="text-accent">*</span>
                 </label>
                 <textarea
                   id="message"
                   required
                   rows="4"
-                  placeholder="What are you trying to build or improve? Goals, current challenges, or required features."
+                  placeholder="Describe what you want to achieve, key features, reference websites, or current business bottlenecks."
                   value={formData.message}
                   onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                   className="w-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl p-4 text-sm text-black dark:text-white placeholder-gray-400 focus:outline-none focus:border-accent dark:focus:border-accent transition-colors resize-y min-h-[110px]"
                 ></textarea>
               </div>
 
-              {/* Submit Button & Status Alerts */}
+              {/* 3-Step What Happens Next Clarity Box */}
+              <div className="p-4 rounded-2xl bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 space-y-2.5">
+                <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-accent block">
+                  ✦ What happens after you submit
+                </span>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[11px] text-gray-600 dark:text-gray-300">
+                  <div className="flex items-start gap-1.5">
+                    <span className="font-bold text-accent">1.</span>
+                    <span>Direct review of your brief within 24h</span>
+                  </div>
+                  <div className="flex items-start gap-1.5">
+                    <span className="font-bold text-accent">2.</span>
+                    <span>15-min discovery call or video scope</span>
+                  </div>
+                  <div className="flex items-start gap-1.5">
+                    <span className="font-bold text-accent">3.</span>
+                    <span>Fixed milestone proposal & SOW</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Submit Button */}
               <div>
                 <motion.button
                   type="submit"
                   disabled={status === 'submitting' || status === 'success'}
                   whileHover={shouldReduce || status === 'submitting' ? {} : buttonHover}
                   whileTap={shouldReduce || status === 'submitting' ? {} : buttonTap}
-                  className={`w-full py-4 rounded-xl text-xs font-bold uppercase tracking-[0.2em] transition-all flex items-center justify-center shadow-lg ${
+                  className={`w-full py-4 text-[11px] font-heading font-bold uppercase tracking-[0.15em] transition-all duration-300 flex items-center justify-center gap-2 shadow-lg active:scale-[0.98] ${
                     status === 'success'
-                      ? 'bg-green-600 text-white'
+                      ? 'bg-emerald-600 text-white'
                       : status === 'submitting'
                       ? 'bg-gray-400 text-white cursor-wait'
-                      : 'bg-accent text-white hover:bg-black dark:hover:bg-white dark:hover:text-black'
+                      : 'bg-accent text-white hover:bg-black dark:hover:bg-white dark:hover:text-black hover:shadow-accent/30'
                   }`}
                 >
                   <AnimatePresence mode="wait">
                     {status === 'idle' || status === 'error' ? (
-                      <span key="idle">Send Project Inquiry →</span>
+                      <span key="idle" className="flex items-center gap-2">
+                        <span>Send Project Inquiry</span>
+                        <ArrowRight className="w-4 h-4" />
+                      </span>
                     ) : status === 'submitting' ? (
                       <span key="submitting" className="flex items-center gap-2">
                         <svg className="animate-spin h-4 w-4 text-white" viewBox="0 0 24 24" fill="none">
                           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                         </svg>
-                        Reviewing Details...
+                        Transmitting Brief...
                       </span>
                     ) : (
                       <span key="success" className="flex items-center gap-2">
-                        ✓ Inquiry Received! I'll Be in Touch Shortly
+                        <CheckCircle2 className="w-4 h-4" />
+                        Inquiry Received! I Will Reply Within 24h
                       </span>
                     )}
                   </AnimatePresence>
@@ -363,188 +405,93 @@ const ContactPage = () => {
 
                 {status === 'error' && (
                   <p className="text-red-500 text-xs mt-3 text-center">
-                    There was an issue sending your inquiry. Please try again or reach me via WhatsApp below.
+                    There was an issue sending your inquiry. Please reach me directly via WhatsApp below.
                   </p>
                 )}
               </div>
             </form>
           </motion.div>
 
-          {/* Right Column (5 cols on lg): Unified Direct Connect & Verification Card */}
+          {/* Right Column: Direct Reach & Direct Channels */}
           <div className="lg:col-span-5 space-y-6">
+            {/* WhatsApp Card */}
+            <div className="bg-gradient-to-br from-emerald-950/40 via-emerald-900/20 to-black border border-emerald-500/30 rounded-3xl p-6 sm:p-8 shadow-xl space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-mono uppercase tracking-widest font-bold text-emerald-400">Fast Response</span>
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+              </div>
+              <h3 className="text-2xl font-heading font-bold text-white">
+                Prefer direct chat?
+              </h3>
+              <p className="text-xs text-gray-300 leading-relaxed font-light">
+                For quick scope questions, budget checks, or rapid consultation, message me directly on WhatsApp.
+              </p>
+              <a
+                href={`https://wa.me/${CONTACT.phoneE164 || '2348085186714'}?text=${encodeURIComponent("Hi Eugene, I'm reaching out from BuildWithLami to discuss a project.")}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full py-4 px-4 bg-emerald-600 text-white font-heading font-bold text-[11px] uppercase tracking-[0.15em] flex items-center justify-center gap-2 hover:bg-emerald-500 transition-all shadow-lg active:scale-[0.98]"
+              >
+                <span>Chat on WhatsApp</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </a>
+            </div>
+
+            {/* Direct Information Card */}
             <div className="bg-white dark:bg-[#141414] border border-gray-200 dark:border-white/10 rounded-3xl p-6 sm:p-8 shadow-xl space-y-6">
               <div>
                 <span className="text-xs uppercase tracking-[0.25em] font-bold text-accent">Direct Contact</span>
-                <h3 className="text-2xl font-heading font-bold text-black dark:text-white mt-1">
-                  Direct Reach & Verification
+                <h3 className="text-xl font-heading font-bold text-black dark:text-white mt-1">
+                  Founder Reach
                 </h3>
-                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 font-light mt-2 leading-relaxed">
-                  Work directly with the engineer building your platform. No agency middlemen or junior handoffs.
-                </p>
               </div>
 
-              {/* Direct Channels */}
-              <div className="space-y-3 pt-2">
-                <a 
-                  href={`mailto:${CONTACT.email}`}
-                  className="flex items-center justify-between p-3.5 rounded-2xl bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/5 hover:border-accent/40 transition-colors group"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-xl bg-accent/10 text-accent flex items-center justify-center font-bold text-xs">
-                      @
-                    </div>
-                    <div>
-                      <span className="block text-[10px] uppercase tracking-wider font-bold text-gray-500">Email Directly</span>
-                      <span className="text-xs sm:text-sm font-semibold text-black dark:text-white group-hover:text-accent transition-colors">
-                        {CONTACT.email}
-                      </span>
-                    </div>
-                  </div>
-                  <span className="text-xs text-gray-400">↗</span>
-                </a>
-
-                <a 
-                  href={`https://wa.me/${CONTACT.phoneE164 || '2348085186714'}?text=${encodeURIComponent("Hi Eugene, I would like to discuss my project scope and architecture requirements.")}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-between p-3.5 rounded-2xl bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-200/60 dark:border-emerald-800/40 hover:border-emerald-500 transition-colors group"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold text-xs">
-                      💬
-                    </div>
-                    <div>
-                      <span className="block text-[10px] uppercase tracking-wider font-bold text-emerald-700 dark:text-emerald-400">WhatsApp Instant Chat</span>
-                      <span className="text-xs sm:text-sm font-semibold text-emerald-950 dark:text-emerald-200">
-                        {CONTACT.phoneDisplay || '+234 906 418 5442'}
-                      </span>
-                    </div>
-                  </div>
-                  <span className="text-xs text-emerald-600">↗</span>
-                </a>
-              </div>
-
-              {/* Social Verification Links */}
-              <div className="pt-4 border-t border-gray-100 dark:border-white/5">
-                <span className="block text-[11px] uppercase tracking-wider font-bold text-gray-500 mb-3">
-                  Code & Network Profiles
-                </span>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setShowSecurityPopup(true)}
-                    className="flex items-center gap-2 p-2.5 rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/5 hover:border-accent/40 text-xs font-bold text-gray-700 dark:text-gray-300 transition-colors"
-                  >
-                    <span>🔒</span>
-                    <span>GitHub Codebase</span>
-                  </button>
-                  <a
-                    href="https://linkedin.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 p-2.5 rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/5 hover:border-accent/40 text-xs font-bold text-gray-700 dark:text-gray-300 transition-colors"
-                  >
-                    <span>💼</span>
-                    <span>LinkedIn Profile</span>
+              <div className="space-y-4 text-xs">
+                <div>
+                  <span className="font-semibold text-gray-400 block mb-1">Direct Email</span>
+                  <a href={`mailto:${CONTACT.email}`} className="font-mono text-sm font-bold text-black dark:text-white hover:text-accent transition-colors">
+                    {CONTACT.email}
                   </a>
                 </div>
+                <div>
+                  <span className="font-semibold text-gray-400 block mb-1">Location & Availability</span>
+                  <p className="text-gray-700 dark:text-gray-300">
+                    Lagos, Nigeria · Available for clients locally & worldwide (Remote)
+                  </p>
+                </div>
+                <div>
+                  <span className="font-semibold text-gray-400 block mb-1">Payment & Contracting</span>
+                  <p className="text-gray-700 dark:text-gray-300">
+                    50/50 Milestone Invoicing via Paystack (NGN) or International Wire / Cards (USD / GBP).
+                  </p>
+                </div>
               </div>
 
-              {/* Response Promise Footer */}
-              <div className="p-4 rounded-2xl bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/5 space-y-2 text-xs">
-                <div className="flex items-center gap-2 font-mono text-gray-700 dark:text-gray-300">
-                  <span className="w-2 h-2 rounded-full bg-green-500 shrink-0 animate-pulse" />
-                  <span className="font-bold">Average Response: &lt; 4 Hours</span>
+              {/* Social Channels */}
+              <div className="pt-4 border-t border-gray-100 dark:border-white/10">
+                <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-gray-400 block mb-3">
+                  Engineering Profiles
+                </span>
+                <div className="flex flex-wrap gap-2">
+                  {SOCIAL_LINKS.map(s => (
+                    <a
+                      key={s.name}
+                      href={s.url || 'https://github.com/lamiodi'}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-3 py-1.5 rounded-lg border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 hover:border-accent text-xs font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-1.5 transition-all"
+                    >
+                      {s.icon}
+                      <span>{s.name}</span>
+                    </a>
+                  ))}
                 </div>
-                <p className="text-[11px] text-gray-500 font-light leading-relaxed">
-                  Every inquiry is personally reviewed by Eugene Odibenuah with architectural notes and milestone timeline estimates.
-                </p>
               </div>
             </div>
           </div>
         </div>
 
-        {/* ═══════════════════════════════════════════════════════════════════
-            3. WHAT HAPPENS NEXT? — Expectation Setting
-            ═══════════════════════════════════════════════════════════════════ */}
-        <section className="bg-white dark:bg-[#141414] border border-gray-200 dark:border-white/10 rounded-3xl p-8 sm:p-12 shadow-xl space-y-8">
-          <div>
-            <span className="text-xs uppercase tracking-[0.25em] font-bold text-accent">Process Clarity</span>
-            <h2 className="text-2xl sm:text-3xl font-heading font-bold text-black dark:text-white mt-1">
-              What happens next?
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="p-6 rounded-2xl bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/5 space-y-3">
-              <span className="font-mono text-2xl font-bold text-accent">01</span>
-              <h3 className="text-base font-heading font-bold text-black dark:text-white">
-                Inquiry Review
-              </h3>
-              <p className="text-xs sm:text-sm text-gray-700 dark:text-gray-300 font-light leading-relaxed">
-                I&apos;ll review your requirements, technical goals, budget range, and preferred timeline within a few hours.
-              </p>
-            </div>
-
-            <div className="p-6 rounded-2xl bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/5 space-y-3">
-              <span className="font-mono text-2xl font-bold text-accent">02</span>
-              <h3 className="text-base font-heading font-bold text-black dark:text-white">
-                Scope & Discovery
-              </h3>
-              <p className="text-xs sm:text-sm text-gray-700 dark:text-gray-300 font-light leading-relaxed">
-                If the project is a good fit, we&apos;ll discuss requirements, technical tradeoffs, and architectural direction.
-              </p>
-            </div>
-
-            <div className="p-6 rounded-2xl bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/5 space-y-3">
-              <span className="font-mono text-2xl font-bold text-accent">03</span>
-              <h3 className="text-base font-heading font-bold text-black dark:text-white">
-                Proposal & Next Step
-              </h3>
-              <p className="text-xs sm:text-sm text-gray-700 dark:text-gray-300 font-light leading-relaxed">
-                Depending on project scope, you&apos;ll receive a detailed roadmap, transparent estimate, and contract ready for execution.
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* ═══════════════════════════════════════════════════════════════════
-            4. CURRENT AVAILABILITY & AUTHENTIC SIGNATURE
-            ═══════════════════════════════════════════════════════════════════ */}
-        <section className="pt-8 border-t border-gray-200 dark:border-gray-800 space-y-8">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs font-mono text-gray-600 dark:text-gray-400">
-            <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-              <span className="font-bold text-black dark:text-white uppercase tracking-wider">Currently accepting projects</span>
-            </div>
-            <div>
-              Project Types: Websites · E-commerce · Web Apps · SaaS · APIs · Business Systems
-            </div>
-          </div>
-
-          {/* Stylized Handwritten Signature */}
-          <div className="pt-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div>
-              <div className="font-handwritten text-4xl sm:text-6xl text-accent dark:text-accent font-normal italic tracking-wide select-none">
-                Eugene Odibenuah
-              </div>
-              <p className="text-xs uppercase tracking-[0.25em] text-gray-500 dark:text-gray-400 font-bold mt-1 font-heading">
-                Founder & Lead Engineer · BuildWithLami
-              </p>
-            </div>
-            <div className="text-xs font-mono text-gray-400">
-              Lagos, Nigeria · Available Globally
-            </div>
-          </div>
-        </section>
-
       </div>
-
-      {/* Security Popup Modal */}
-      <SecurityPopup
-        isOpen={showSecurityPopup}
-        onClose={() => setShowSecurityPopup(false)}
-      />
     </div>
   );
 };

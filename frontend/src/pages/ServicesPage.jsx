@@ -351,7 +351,7 @@ const ServicesPage = () => {
             <div className="lg:col-span-5 flex flex-col items-center lg:items-end justify-center space-y-4">
               <Link
                 to="/pricing"
-                className="w-full sm:w-auto inline-flex items-center justify-center bg-accent text-white font-bold text-xs uppercase tracking-[0.2em] px-8 py-4 rounded-xl shadow-lg hover:bg-white hover:text-black transition-all text-center"
+                className="w-full sm:w-auto inline-flex items-center justify-center bg-accent text-white font-heading font-bold text-[11px] uppercase tracking-[0.15em] px-10 py-4 hover:bg-black dark:hover:bg-white dark:hover:text-black transition-all duration-300 shadow-lg hover:shadow-accent/30 text-center active:scale-[0.98]"
               >
                 Open Pricing & Quote Calculator →
               </Link>
@@ -373,7 +373,7 @@ const ServicesPage = () => {
           <div className="pt-2">
             <Link 
               to="/contact" 
-              className="inline-flex items-center justify-center bg-accent text-white font-bold px-10 py-4 text-xs uppercase tracking-widest hover:bg-black dark:hover:bg-white dark:hover:text-black transition-colors rounded-xl shadow-lg"
+              className="inline-flex items-center justify-center bg-accent text-white font-heading font-bold px-10 py-4 text-[11px] uppercase tracking-[0.15em] hover:bg-black dark:hover:bg-white dark:hover:text-black transition-all duration-300 shadow-lg hover:shadow-accent/30 active:scale-[0.98]"
             >
               Start a Project →
             </Link>

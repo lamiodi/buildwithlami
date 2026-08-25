@@ -230,8 +230,8 @@ const Services = () => {
             </div>
 
             <div className="relative z-10 flex items-center justify-between pt-4 border-t border-gray-100 dark:border-white/10 mt-auto">
-              <span className="text-xs font-bold uppercase tracking-wider text-accent flex items-center gap-1 group-hover:translate-x-1 transition-transform">
-                Explore Full Scope
+              <span className="text-[11px] font-heading font-bold uppercase tracking-[0.15em] text-accent flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+                Explore Scope
                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" />
                 </svg>
@@ -243,7 +243,7 @@ const Services = () => {
                   e.stopPropagation();
                   handleOpenModal(service);
                 }}
-                className="bg-black text-white dark:bg-white dark:text-black text-[11px] font-bold px-3.5 py-1.5 uppercase rounded-lg hover:bg-accent dark:hover:bg-accent dark:hover:text-white transition-colors"
+                className="bg-black text-white dark:bg-white dark:text-black text-[11px] font-heading font-bold px-4 py-2 uppercase tracking-[0.15em] hover:bg-accent dark:hover:bg-accent dark:hover:text-white transition-all cursor-pointer active:scale-[0.98]"
               >
                 Scope & Specs
               </button>
@@ -254,12 +254,12 @@ const Services = () => {
 
       {/* ── Interactive Service Scope Modal ── */}
       <Dialog open={!!selectedService} onOpenChange={(open) => { if (!open) handleCloseModal(); }}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-white dark:bg-[#151515] border-gray-200 dark:border-gray-800 text-black dark:text-white p-6 sm:p-8">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-white dark:bg-[#141414] border-gray-200 dark:border-white/10 text-black dark:text-white p-6 sm:p-8 rounded-2xl">
           {selectedService && (
             <div>
-              <DialogHeader className="text-left space-y-3 pb-4 border-b border-gray-200 dark:border-gray-800">
+              <DialogHeader className="text-left space-y-3 pb-4 border-b border-gray-200 dark:border-white/10">
                 <div className="flex items-center gap-3">
-                  <span className="text-xs font-bold uppercase tracking-widest text-accent bg-accent/10 px-3 py-1 border border-accent/20">
+                  <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-accent bg-accent/10 px-3 py-1 border border-accent/20 rounded-full">
                     {selectedService.badge}
                   </span>
                   <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">
@@ -269,14 +269,14 @@ const Services = () => {
                 <DialogTitle className="text-2xl sm:text-3xl font-heading font-bold text-black dark:text-white">
                   {selectedService.title}
                 </DialogTitle>
-                <DialogDescription className="text-gray-600 dark:text-gray-300 text-sm sm:text-base leading-relaxed">
+                <DialogDescription className="text-gray-600 dark:text-gray-300 text-sm sm:text-base leading-relaxed font-light">
                   {selectedService.detailedScope}
                 </DialogDescription>
               </DialogHeader>
 
               {/* Key Outcome Highlight */}
               <div className="my-5 p-4 bg-accent/5 dark:bg-accent/10 border-l-4 border-accent">
-                <p className="text-xs font-bold uppercase tracking-widest text-accent mb-1">Target Result</p>
+                <p className="text-[11px] font-heading font-bold uppercase tracking-wider text-accent mb-1">Target Result</p>
                 <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
                   {selectedService.outcome}
                 </p>
@@ -284,7 +284,7 @@ const Services = () => {
 
               {/* Key Deliverables */}
               <div className="space-y-3 mb-6">
-                <h5 className="text-xs font-bold uppercase tracking-widest text-gray-800 dark:text-gray-200">
+                <h5 className="text-[11px] font-heading font-bold uppercase tracking-wider text-gray-800 dark:text-gray-200">
                   What's Included & Deliverables
                 </h5>
                 <ul className="grid grid-cols-1 gap-2.5">
@@ -298,16 +298,16 @@ const Services = () => {
               </div>
 
               {/* Ideal For & Tech Stack */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 bg-gray-50 dark:bg-[#1a1a1a] border border-gray-200 dark:border-gray-800 mb-6 text-xs">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 mb-6 text-xs rounded-xl">
                 <div>
-                  <p className="font-bold uppercase tracking-wider text-gray-900 dark:text-white mb-1">Ideal For</p>
-                  <p className="text-gray-600 dark:text-gray-300 leading-relaxed">{selectedService.idealFor}</p>
+                  <p className="font-heading font-bold uppercase tracking-wider text-gray-900 dark:text-white mb-1">Ideal For</p>
+                  <p className="text-gray-600 dark:text-gray-300 leading-relaxed font-light">{selectedService.idealFor}</p>
                 </div>
                 <div>
-                  <p className="font-bold uppercase tracking-wider text-gray-900 dark:text-white mb-2">Technologies Used</p>
+                  <p className="font-heading font-bold uppercase tracking-wider text-gray-900 dark:text-white mb-2">Technologies Used</p>
                   <div className="flex flex-wrap gap-1.5">
                     {selectedService.stack.map((t, idx) => (
-                      <span key={idx} className="bg-white dark:bg-[#242424] border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-200 px-2 py-0.5 rounded-xs text-[11px] font-medium">
+                      <span key={idx} className="bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-800 dark:text-gray-200 px-2 py-0.5 rounded text-[10px] font-mono font-medium">
                         {t}
                       </span>
                     ))}
@@ -320,7 +320,7 @@ const Services = () => {
                 <motion.button
                   type="button"
                   onClick={() => handleServiceSelect(selectedService.title)}
-                  className="flex-1 bg-accent text-white py-3.5 px-6 text-xs font-bold uppercase tracking-widest hover:bg-accent/90 transition-colors text-center"
+                  className="flex-1 bg-accent text-white font-heading font-bold uppercase text-[11px] px-8 py-4 tracking-[0.15em] hover:bg-black dark:hover:bg-white dark:hover:text-black transition-all duration-300 shadow-lg hover:shadow-accent/30 text-center active:scale-[0.98] cursor-pointer"
                   whileHover={shouldReduce ? {} : buttonHover}
                   whileTap={shouldReduce ? {} : buttonTap}
                 >
@@ -330,7 +330,7 @@ const Services = () => {
                 <button
                   type="button"
                   onClick={handleCloseModal}
-                  className="py-3 px-5 border border-gray-300 dark:border-gray-700 text-xs font-bold uppercase tracking-widest text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                  className="border border-gray-300 dark:border-white/15 text-gray-900 dark:text-gray-100 font-heading font-bold text-[11px] uppercase tracking-[0.15em] hover:border-accent hover:text-accent transition-all duration-300 py-4 px-8 bg-transparent active:scale-[0.98] cursor-pointer"
                 >
                   Close
                 </button>
