@@ -93,7 +93,7 @@ const HowItWorks = () => {
   const item = shouldReduce ? reducedMotionVariants : fadeUpItem;
 
   return (
-    <section id="how-it-works" className="py-24 px-6 md:px-12 bg-white dark:bg-[#0a0a0a] transition-colors duration-300">
+    <section id="how-it-works" className="py-24 px-6 md:px-12 bg-white dark:bg-background transition-colors duration-300">
       <div className="max-w-7xl mx-auto">
         
         {/* Section Header */}
@@ -104,9 +104,9 @@ const HowItWorks = () => {
           whileInView="visible"
           viewport={sectionViewport}
         >
-          <motion.p variants={item} className="uppercase tracking-[0.3em] text-[10px] font-bold text-accent mb-4">Process</motion.p>
+          <div className="bwl-badge mb-4 inline-flex">Process</div>
           <motion.h2 variants={item} className="text-4xl md:text-5xl font-heading font-bold text-black dark:text-white mb-4">
-            How It <span className="italic">Works</span>
+            How It <span className="italic font-normal text-accent">Works</span>
           </motion.h2>
           <motion.p variants={item} className="text-gray-600 dark:text-gray-300 max-w-xl mx-auto font-light leading-relaxed opacity-90">
             A transparent, four-step process from first call to live site. No guesswork, no scope creep.
@@ -127,10 +127,10 @@ const HowItWorks = () => {
               variants={item}
               whileHover={shouldReduce ? {} : cardHover}
               transition={cardHoverTransition}
-              className="shrink-0 md:shrink w-[80vw] max-w-[320px] sm:w-[300px] md:w-auto min-w-0 snap-center relative group p-6 sm:p-7 border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-[#141414] rounded-2xl hover:border-accent/40 transition-all duration-300 flex flex-col justify-between"
+              className="shrink-0 md:shrink w-[80vw] max-w-[320px] sm:w-[300px] md:w-auto min-w-0 snap-center relative group p-6 sm:p-7 bwl-card hover:border-accent/40 flex flex-col justify-between"
             >
               {/* Step Number */}
-              <span className="absolute top-4 right-4 text-[10px] font-mono font-bold tracking-widest text-accent bg-accent/10 px-2 py-0.5 rounded-full border border-accent/20">
+              <span className="absolute top-4 right-4 text-[10px] font-mono font-bold tracking-widest text-accent bg-accent/10 px-2.5 py-0.5 rounded-full border border-accent/20">
                 Step {step.number}
               </span>
               
@@ -162,7 +162,7 @@ const HowItWorks = () => {
 
         {/* Trust Stats Banner */}
         <motion.div
-          className="bg-black dark:bg-[#141414] border border-gray-200 dark:border-white/10 rounded-2xl p-6 sm:p-8 md:p-10 shadow-xl"
+          className="bwl-feature-card shadow-xl"
           initial={shouldReduce ? {} : { opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={sectionViewport}
@@ -174,14 +174,12 @@ const HowItWorks = () => {
                 <AnimatedStat key={stat.label} stat={stat} />
               ))}
             </div>
-            <motion.a 
+            <a 
               href="#contact"
-              className="shrink-0 bg-accent hover:bg-white hover:text-accent text-white font-bold text-[11px] uppercase tracking-[0.2em] px-8 py-4 transition-all shadow-lg"
-              whileHover={shouldReduce ? {} : buttonHover}
-              whileTap={shouldReduce ? {} : buttonTap}
+              className="btn-primary shrink-0"
             >
               Start a Project
-            </motion.a>
+            </a>
           </div>
         </motion.div>
 

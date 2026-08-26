@@ -250,17 +250,12 @@ const ServicesPage = () => {
                   </div>
 
                   <div className="pt-4 border-t border-gray-200 dark:border-white/10">
-                    <motion.div
-                      whileHover={shouldReduce ? {} : buttonHover}
-                      whileTap={shouldReduce ? {} : buttonTap}
+                    <Link
+                      to={`/contact?service=${encodeURIComponent(service.title)}`}
+                      className="btn-primary w-full"
                     >
-                      <Link
-                        to={`/contact?service=${encodeURIComponent(service.title)}`}
-                        className="w-full inline-flex items-center justify-center bg-accent text-white font-bold px-6 py-3.5 text-xs uppercase tracking-widest hover:bg-black dark:hover:bg-white dark:hover:text-black transition-colors rounded-xl shadow-md"
-                      >
-                        Start a Project with this Service →
-                      </Link>
-                    </motion.div>
+                      Start a Project with this Service →
+                    </Link>
                   </div>
                 </div>
 
@@ -272,7 +267,7 @@ const ServicesPage = () => {
         {/* Process: 4-Step Structured Workflow */}
         <div className="space-y-12">
           <div className="text-center max-w-2xl mx-auto space-y-3">
-            <span className="text-xs uppercase tracking-[0.25em] font-bold text-accent">Process Framework</span>
+            <div className="bwl-badge inline-flex">Process Framework</div>
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-heading font-bold text-black dark:text-white">
               How a project <span className="text-accent">moves forward</span>
             </h2>
@@ -285,7 +280,7 @@ const ServicesPage = () => {
             {workflowSteps.map((step) => (
               <div
                 key={step.num}
-                className="bg-white dark:bg-[#141414] border border-gray-200 dark:border-white/10 rounded-2xl p-6 sm:p-7 shadow-xs hover:border-accent/40 transition-all flex flex-col justify-between"
+                className="bwl-card p-6 sm:p-7 shadow-xs hover:border-accent/40 flex flex-col justify-between"
               >
                 <div>
                   <div className="w-10 h-10 bg-accent/10 border border-accent/20 text-accent font-mono font-bold text-sm flex items-center justify-center rounded-xl mb-4">
@@ -311,12 +306,12 @@ const ServicesPage = () => {
         </div>
 
         {/* ── High-Converting Pricing & Estimator Anchor Card ── */}
-        <div className="bg-gradient-to-br from-gray-900 to-black text-white rounded-3xl p-8 sm:p-12 md:p-16 border border-white/10 shadow-2xl relative overflow-hidden">
+        <div className="bwl-feature-card bg-gradient-to-br from-[#161616] via-[#141414] to-black text-white shadow-2xl relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-accent via-amber-400 to-accent" />
           
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
             <div className="lg:col-span-7 space-y-4">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/20 border border-accent/30 text-accent text-xs font-bold uppercase tracking-wider">
+              <div className="bwl-badge inline-flex">
                 Transparent Studio Rates
               </div>
               <h2 className="text-3xl sm:text-4xl md:text-5xl font-heading font-bold tracking-tight text-white leading-tight">
@@ -351,7 +346,7 @@ const ServicesPage = () => {
             <div className="lg:col-span-5 flex flex-col items-center lg:items-end justify-center space-y-4">
               <Link
                 to="/pricing"
-                className="w-full sm:w-auto inline-flex items-center justify-center bg-accent text-white font-heading font-bold text-[11px] uppercase tracking-[0.15em] px-10 py-4 hover:bg-black dark:hover:bg-white dark:hover:text-black transition-all duration-300 shadow-lg hover:shadow-accent/30 text-center active:scale-[0.98]"
+                className="btn-primary w-full sm:w-auto"
               >
                 Open Pricing & Quote Calculator →
               </Link>
@@ -363,7 +358,7 @@ const ServicesPage = () => {
         </div>
 
         {/* Final CTA Section */}
-        <div className="text-center bg-white dark:bg-[#141414] border border-gray-200 dark:border-white/10 rounded-3xl p-8 sm:p-12 md:p-16 shadow-xl relative overflow-hidden space-y-6">
+        <div className="bwl-feature-card text-center shadow-xl space-y-6">
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-heading font-bold text-black dark:text-white">
             Have a project in mind?
           </h2>
@@ -373,7 +368,7 @@ const ServicesPage = () => {
           <div className="pt-2">
             <Link 
               to="/contact" 
-              className="inline-flex items-center justify-center bg-accent text-white font-heading font-bold px-10 py-4 text-[11px] uppercase tracking-[0.15em] hover:bg-black dark:hover:bg-white dark:hover:text-black transition-all duration-300 shadow-lg hover:shadow-accent/30 active:scale-[0.98]"
+              className="btn-primary"
             >
               Start a Project →
             </Link>

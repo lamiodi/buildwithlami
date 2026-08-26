@@ -153,9 +153,29 @@ header,
     @apply text-accent hover:text-black dark:hover:text-white font-heading text-[11px] font-bold uppercase tracking-[0.15em] transition-colors inline-flex items-center gap-1.5 cursor-pointer;
   }
 
-  /* Standard Card Surface */
+  /* Standard Card Surface (rounded-2xl) */
   .bwl-card {
     @apply bg-white dark:bg-[#141414] border border-gray-200 dark:border-white/10 rounded-2xl transition-all duration-300;
+  }
+
+  /* Large Feature & Bento Card Container (rounded-3xl) */
+  .bwl-feature-card {
+    @apply bg-white dark:bg-[#141414] border border-gray-200 dark:border-white/10 rounded-3xl p-6 sm:p-10 md:p-12 transition-all duration-300;
+  }
+
+  /* Elevated Card Surface (Layered Depth) */
+  .bwl-card-elevated {
+    @apply bg-white dark:bg-[#1A1A1A] border border-gray-200 dark:border-white/10 rounded-2xl transition-all duration-300 shadow-md;
+  }
+
+  /* Standard Form Control Input (rounded-xl) */
+  .bwl-input {
+    @apply w-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm text-black dark:text-white placeholder-gray-400 focus:outline-none focus:border-accent dark:focus:border-accent transition-colors;
+  }
+
+  /* Interactive Filter & Category Pill Tab (rounded-full) */
+  .bwl-pill-tab {
+    @apply px-4 md:px-5 py-2.5 text-xs font-bold uppercase tracking-widest rounded-full transition-all duration-300 flex items-center gap-2 border cursor-pointer;
   }
 
   /* Standard Badge Chip */

@@ -75,29 +75,19 @@ const NotFoundPage = () => {
 
             {/* Action Buttons */}
             <div className="flex flex-wrap gap-4 mt-10">
-              <motion.div
-                whileHover={shouldReduce ? {} : buttonHover}
-                whileTap={shouldReduce ? {} : buttonTap}
+              <Link
+                to="/"
+                className="btn-dark"
               >
-                <Link
-                  to="/"
-                  className="inline-flex items-center justify-center bg-black text-white dark:bg-white dark:text-black font-bold px-7 py-3.5 text-xs uppercase tracking-widest hover:bg-accent hover:text-white dark:hover:bg-accent dark:hover:text-white transition-colors rounded-sm"
-                >
-                  Back to Home
-                  <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-                </Link>
-              </motion.div>
-              <motion.div
-                whileHover={shouldReduce ? {} : buttonHover}
-                whileTap={shouldReduce ? {} : buttonTap}
+                Back to Home
+                <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+              </Link>
+              <Link
+                to="/projects"
+                className="btn-secondary"
               >
-                <Link
-                  to="/projects"
-                  className="inline-flex items-center justify-center border border-gray-300 dark:border-white/10 bg-white dark:bg-transparent text-black dark:text-white font-bold px-7 py-3.5 text-xs uppercase tracking-widest hover:border-accent hover:text-accent transition-colors rounded-sm"
-                >
-                  View Projects
-                </Link>
-              </motion.div>
+                View Projects
+              </Link>
             </div>
           </motion.div>
 

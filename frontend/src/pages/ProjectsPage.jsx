@@ -237,7 +237,7 @@ const ProjectsPage = () => {
                       <div className="pt-4 border-t border-gray-200 dark:border-white/10 flex flex-wrap items-center gap-3">
                         <Link
                           to={`/projects/${featuredProject.slug || featuredProject.id}`}
-                          className="flex-1 inline-flex items-center justify-center bg-black text-white dark:bg-white dark:text-black font-bold px-6 py-3.5 text-xs uppercase tracking-widest hover:bg-accent dark:hover:bg-accent dark:hover:text-white transition-colors rounded-lg shadow-sm"
+                          className="btn-dark flex-1"
                         >
                           View Case Study →
                         </Link>
@@ -246,7 +246,7 @@ const ProjectsPage = () => {
                             href={featuredProject.live_url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center justify-center border border-gray-300 dark:border-white/20 text-black dark:text-white font-bold px-5 py-3.5 text-xs uppercase tracking-widest hover:border-accent hover:text-accent transition-colors rounded-lg"
+                            className="btn-secondary !px-5 !py-3.5"
                           >
                             Live Demo ↗
                           </a>
@@ -263,7 +263,7 @@ const ProjectsPage = () => {
                 <div>
                   <div className="flex items-center justify-between mb-8">
                     <div>
-                      <p className="text-xs font-bold uppercase tracking-widest text-accent mb-1">Portfolio Grid</p>
+                      <p className="text-xs font-bold uppercase tracking-widest text-accent mb-1 font-mono">Portfolio Grid</p>
                       <h3 className="text-2xl md:text-3xl font-heading font-bold text-black dark:text-white">
                         {featuredProject ? 'More Selected Works' : 'Selected Works'}
                       </h3>
@@ -291,7 +291,7 @@ const ProjectsPage = () => {
                           variants={item}
                           whileHover={shouldReduce ? {} : cardHover}
                           transition={cardHoverTransition}
-                          className="bg-white dark:bg-[#141414] border border-gray-200 dark:border-white/10 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl hover:border-accent/40 transition-all group flex flex-col justify-between"
+                          className="bwl-card overflow-hidden shadow-sm hover:shadow-xl hover:border-accent/40 group flex flex-col justify-between"
                         >
                           {/* Image Header */}
                           <div 
@@ -306,10 +306,10 @@ const ProjectsPage = () => {
                             />
                             {/* Badges Overlay */}
                             <div className="absolute top-4 left-4 right-4 flex items-center justify-between pointer-events-none">
-                              <span className="bg-white/90 dark:bg-black/80 backdrop-blur-sm text-black dark:text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full border border-gray-200 dark:border-white/10 shadow-sm">
+                              <span className="bg-white/90 dark:bg-black/80 backdrop-blur-sm text-black dark:text-white text-[10px] font-mono font-bold uppercase tracking-wider px-3 py-1 rounded-full border border-gray-200 dark:border-white/10 shadow-sm">
                                 {project.category || 'Web Apps'}
                               </span>
-                              <span className="bg-white/90 dark:bg-black/80 backdrop-blur-sm text-gray-700 dark:text-gray-300 text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full border border-gray-200 dark:border-white/10 shadow-sm">
+                              <span className="bg-white/90 dark:bg-black/80 backdrop-blur-sm text-gray-700 dark:text-gray-300 text-[10px] font-mono font-bold uppercase tracking-wider px-3 py-1 rounded-full border border-gray-200 dark:border-white/10 shadow-sm">
                                 {project.year || '2024'} · {project.project_status || 'Client Project'}
                               </span>
                             </div>
@@ -343,7 +343,7 @@ const ProjectsPage = () => {
                               <div className="flex items-center gap-3 pt-2">
                                 <Link
                                   to={`/projects/${projKey}`}
-                                  className="flex-1 inline-flex items-center justify-center bg-black text-white dark:bg-white dark:text-black font-bold px-4 py-2.5 text-xs uppercase tracking-widest hover:bg-accent dark:hover:bg-accent dark:hover:text-white transition-colors rounded-lg text-center"
+                                  className="btn-dark flex-1 !py-3"
                                 >
                                   View Case Study →
                                 </Link>
@@ -352,7 +352,7 @@ const ProjectsPage = () => {
                                     href={project.live_url}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="inline-flex items-center justify-center border border-gray-200 dark:border-white/20 text-black dark:text-white font-bold px-4 py-2.5 text-xs uppercase tracking-widest hover:border-accent hover:text-accent transition-colors rounded-lg"
+                                    className="btn-secondary !px-4 !py-3"
                                   >
                                     Live Demo ↗
                                   </a>
@@ -380,10 +380,10 @@ const ProjectsPage = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={sectionViewport}
           transition={{ duration: shouldReduce ? 0 : 0.6 }}
-          className="text-center bg-white dark:bg-[#141414] border border-gray-200 dark:border-white/10 rounded-3xl p-12 md:p-20 shadow-xl relative overflow-hidden"
+          className="bwl-feature-card text-center relative overflow-hidden shadow-xl"
         >
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-accent to-transparent"></div>
-          <p className="text-xs uppercase tracking-widest text-accent font-bold mb-3">Have a project in mind?</p>
+          <div className="bwl-badge mb-3 inline-flex">Have a project in mind?</div>
           <h2 className="text-4xl md:text-6xl font-heading font-bold text-black dark:text-white mb-6">
             Let's work <span className="text-accent">together</span>
           </h2>
@@ -391,30 +391,20 @@ const ProjectsPage = () => {
             Tell me what you're building, what you're trying to achieve, and where you're stuck. I'll help you determine the right technical approach.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <motion.div
-              whileHover={shouldReduce ? {} : buttonHover}
-              whileTap={shouldReduce ? {} : buttonTap}
+            <Link
+              to="/contact"
+              className="btn-primary w-full sm:w-auto"
             >
-              <Link
-                to="/contact"
-                className="inline-flex items-center justify-center bg-accent text-white font-heading font-bold px-10 py-4 text-[11px] uppercase tracking-[0.15em] hover:bg-black dark:hover:bg-white dark:hover:text-black transition-all duration-300 shadow-lg hover:shadow-accent/30 active:scale-[0.98]"
-              >
-                Start a Project →
-              </Link>
-            </motion.div>
-            <motion.div
-              whileHover={shouldReduce ? {} : buttonHover}
-              whileTap={shouldReduce ? {} : buttonTap}
+              Start a Project →
+            </Link>
+            <a
+              href={`https://wa.me/${CONTACT.phoneE164 || '2348085186714'}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-secondary w-full sm:w-auto"
             >
-              <a
-                href={`https://wa.me/${CONTACT.phoneE164 || '2348085186714'}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center border border-gray-300 dark:border-white/15 text-gray-900 dark:text-gray-100 font-heading font-bold px-10 py-4 text-[11px] uppercase tracking-[0.15em] hover:border-accent hover:text-accent transition-all duration-300 active:scale-[0.98] bg-transparent"
-              >
-                WhatsApp Me ↗
-              </a>
-            </motion.div>
+              WhatsApp Me ↗
+            </a>
           </div>
         </motion.div>
       </section>

@@ -39,7 +39,7 @@ const SaaSProducts = () => {
   const item = shouldReduce ? reducedMotionVariants : fadeUpItem;
 
   return (
-    <section id="saas" className="px-6 md:px-12 max-w-7xl mx-auto py-24 bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800">
+    <section id="saas" className="px-6 md:px-12 max-w-7xl mx-auto py-24 border-t border-gray-200 dark:border-white/10">
       <motion.div
         className="text-center mb-16"
         initial={shouldReduce ? {} : { opacity: 0, y: 40 }}
@@ -47,10 +47,10 @@ const SaaSProducts = () => {
         viewport={sectionViewport}
         transition={{ duration: shouldReduce ? 0 : 0.5, ease: 'easeOut' }}
       >
-        <span className="text-accent font-bold tracking-widest uppercase text-sm mb-2 block">Products I'm Building</span>
-        <h3 className="text-3xl md:text-4xl font-heading font-bold mb-4 text-black dark:text-white">SaaS Products & Ventures</h3>
-        <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto text-lg">
-          Beyond client services, I build and maintain specialized SaaS products solving real-world problems in niche markets.
+        <div className="bwl-badge mb-3 inline-flex">Independent Ventures</div>
+        <h3 className="text-3xl md:text-5xl font-heading font-bold mb-4 text-black dark:text-white">SaaS Products & Ventures</h3>
+        <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto text-base md:text-lg font-light leading-relaxed">
+          Beyond bespoke client builds, I architect and maintain specialized software products solving operational challenges.
         </p>
       </motion.div>
 
@@ -65,29 +65,31 @@ const SaaSProducts = () => {
           <motion.div
             key={idx}
             variants={item}
-            className="group p-8 bg-white dark:bg-gray-800 rounded-sm shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-xl hover:border-accent/40 transition-all duration-300 flex flex-col"
+            className="bwl-card group p-8 shadow-sm hover:shadow-xl hover:border-accent/40 flex flex-col justify-between"
           >
-            <div className="flex justify-between items-start mb-6">
-              <div className="p-3 bg-accent/10 text-accent rounded-lg">
-                {product.icon}
+            <div>
+              <div className="flex justify-between items-start mb-6">
+                <div className="p-3 bg-accent/10 text-accent rounded-xl">
+                  {product.icon}
+                </div>
+                <span className={`px-3 py-1 text-[10px] uppercase font-mono font-bold rounded-full ${
+                  product.status === 'Live' ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20' :
+                  product.status === 'Beta' ? 'bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/20' :
+                  'bg-accent/10 text-accent border border-accent/20'
+                }`}>
+                  {product.status}
+                </span>
               </div>
-              <span className={`px-3 py-1 text-[10px] uppercase tracking-widest font-bold rounded-full ${
-                product.status === 'Live' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' :
-                product.status === 'Beta' ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' :
-                'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
-              }`}>
-                {product.status}
-              </span>
+              
+              <h4 className="text-xl font-bold mb-3 text-gray-900 dark:text-white font-heading">{product.name}</h4>
+              <p className="text-gray-600 dark:text-gray-400 font-body text-sm mb-8 leading-relaxed font-light">
+                {product.description}
+              </p>
             </div>
-            
-            <h4 className="text-xl font-bold mb-3 text-gray-900 dark:text-white font-heading">{product.name}</h4>
-            <p className="text-gray-600 dark:text-gray-400 font-body text-sm mb-8 flex-1">
-              {product.description}
-            </p>
             
             <Link 
               to={product.link}
-              className="mt-auto flex items-center gap-2 text-sm font-bold text-accent group-hover:text-orange-600 transition-colors"
+              className="btn-ghost text-xs"
             >
               Learn more
               <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>

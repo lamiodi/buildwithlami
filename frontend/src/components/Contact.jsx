@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { api } from '../services/api';
-import { staggerContainer, fadeUpItem, buttonHover, buttonTap, sectionViewport, reducedMotionVariants } from '../utils/motion';
+import { staggerContainer, fadeUpItem, sectionViewport, reducedMotionVariants } from '../utils/motion';
 import { CONTACT } from '../config/contact';
 import {
   Select,
@@ -11,6 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from './ui/select';
+import { Mail, Send, CheckCircle2, Sparkles, ShieldCheck, Code } from 'lucide-react';
 
 const projectTypes = [
   'Landing Page / Portfolio',
@@ -62,174 +63,222 @@ const Contact = () => {
     if (res.ok) {
       setStatus('success');
       setFormData({ name: '', email: '', message: '', project_type: '', budget: '', timeline: '' });
-      setTimeout(() => setStatus('idle'), 3000);
+      setTimeout(() => setStatus('idle'), 4000);
     } else {
       setStatus('error');
     }
   };
 
-  const inputClass = "w-full bg-transparent border-b-2 border-white/60 py-3 text-white placeholder-white/80 focus:outline-none focus:border-white transition-colors text-lg";
-
   return (
-    <section id="contact" className="bg-accent py-24">
-      <motion.div
-        className="px-6 md:px-12 max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-stretch gap-16"
-        variants={container}
-        initial="hidden"
-        whileInView="visible"
-        viewport={sectionViewport}
-      >
-        <div className="w-full md:w-1/2 flex flex-col justify-between">
-          <motion.div variants={item}>
-            <h2 className="text-4xl md:text-5xl font-heading font-bold mb-8 text-white">
-              Have a business problem to solve?
-            </h2>
-            <p className="text-xl md:text-2xl text-white font-light mb-12 opacity-95">
-              Tell me what you're trying to achieve. I'll help you determine what should be built, what can wait, and the fastest path to launch.
-            </p>
-          </motion.div>
-          
-          <motion.div variants={item} className="space-y-4">
-            <motion.a
-              href={`mailto:${CONTACT.email}`}
-              className="flex items-center justify-center w-full bg-white dark:bg-white text-black text-lg font-bold uppercase px-8 py-4 hover:bg-gray-100 dark:hover:bg-gray-100 transition-colors rounded-sm shadow-md"
-              whileHover={shouldReduce ? {} : buttonHover}
-              whileTap={shouldReduce ? {} : buttonTap}
-            >
-              <svg className="w-5 h-5 mr-3 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
-              Send an Email
-            </motion.a>
-          </motion.div>
-        </div>
+    <section id="contact" className="py-24 px-6 md:px-12 max-w-7xl mx-auto">
+      <div className="bg-gradient-to-br from-[#161616] via-[#141414] to-black border border-white/10 rounded-3xl p-8 sm:p-12 md:p-16 shadow-2xl relative overflow-hidden">
+        {/* Top Accent Glow Bar */}
+        <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-transparent via-accent to-transparent" />
 
-        <motion.div className="w-full md:w-1/2 mt-12 md:mt-0" variants={item}>
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <input 
-                type="text" 
-                placeholder="Your name" 
-                required
-                value={formData.name}
-                onChange={(e) => setFormData({...formData, name: e.target.value})}
-                className={inputClass}
-              />
-            </div>
-            <div>
-              <input 
-                type="email" 
-                placeholder="Email address" 
-                required
-                value={formData.email}
-                onChange={(e) => setFormData({...formData, email: e.target.value})}
-                className={inputClass}
-              />
-            </div>
-
-            {/* Pre-qualification Fields */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
-              <div>
-                <Select
-                  value={formData.project_type}
-                  onValueChange={(val) => setFormData({...formData, project_type: val})}
-                >
-                  <SelectTrigger className="w-full bg-white/10 hover:bg-white/15 border-white/40 text-white rounded-xl h-12 text-sm focus:ring-white">
-                    <SelectValue placeholder="Project type" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-zinc-900 border-zinc-700 text-white shadow-2xl">
-                    <SelectGroup>
-                      {projectTypes.map(pt => (
-                        <SelectItem key={pt} value={pt} className="focus:bg-accent focus:text-white cursor-pointer">
-                          {pt}
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
+        <motion.div
+          className="flex flex-col lg:flex-row justify-between items-start gap-12 lg:gap-16 relative z-10"
+          variants={container}
+          initial="hidden"
+          whileInView="visible"
+          viewport={sectionViewport}
+        >
+          {/* Left Column: Value Prop & Direct Communication */}
+          <div className="w-full lg:w-5/12 flex flex-col justify-between space-y-8">
+            <motion.div variants={item} className="space-y-4">
+              <div className="bwl-badge inline-flex">
+                <Sparkles className="w-3.5 h-3.5" /> Project Inquiries · 24hr Turnaround
               </div>
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-heading font-extrabold text-white tracking-tight leading-tight">
+                Have a business problem to <span className="text-accent">solve?</span>
+              </h2>
+              <p className="text-gray-300 text-base md:text-lg font-light leading-relaxed">
+                Tell me what you're trying to achieve. I'll help you determine what should be built, what can wait, and the fastest path to production.
+              </p>
+            </motion.div>
 
-              <div>
-                <Select
-                  value={formData.budget}
-                  onValueChange={(val) => setFormData({...formData, budget: val})}
-                >
-                  <SelectTrigger className="w-full bg-white/10 hover:bg-white/15 border-white/40 text-white rounded-xl h-12 text-sm focus:ring-white">
-                    <SelectValue placeholder="Budget range" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-zinc-900 border-zinc-700 text-white shadow-2xl">
-                    <SelectGroup>
-                      {budgetRanges.map(b => (
-                        <SelectItem key={b} value={b} className="focus:bg-accent focus:text-white cursor-pointer">
-                          {b}
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
+            {/* Reassurance Metrics */}
+            <motion.div variants={item} className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+              <div className="flex items-start gap-3 p-3.5 rounded-xl bg-white/5 border border-white/10">
+                <ShieldCheck className="w-5 h-5 text-accent shrink-0 mt-0.5" />
+                <div>
+                  <span className="text-xs font-heading font-bold text-white uppercase tracking-wider block">50/50 Billing</span>
+                  <span className="text-[11px] text-gray-400">Milestone protected</span>
+                </div>
               </div>
-
-              <div>
-                <Select
-                  value={formData.timeline}
-                  onValueChange={(val) => setFormData({...formData, timeline: val})}
-                >
-                  <SelectTrigger className="w-full bg-white/10 hover:bg-white/15 border-white/40 text-white rounded-xl h-12 text-sm focus:ring-white">
-                    <SelectValue placeholder="Timeline" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-zinc-900 border-zinc-700 text-white shadow-2xl">
-                    <SelectGroup>
-                      {timelines.map(t => (
-                        <SelectItem key={t} value={t} className="focus:bg-accent focus:text-white cursor-pointer">
-                          {t}
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
+              <div className="flex items-start gap-3 p-3.5 rounded-xl bg-white/5 border border-white/10">
+                <Code className="w-5 h-5 text-accent shrink-0 mt-0.5" />
+                <div>
+                  <span className="text-xs font-heading font-bold text-white uppercase tracking-wider block">100% IP Transfer</span>
+                  <span className="text-[11px] text-gray-400">Full repository handover</span>
+                </div>
               </div>
-            </div>
-
-            <div>
-              <textarea 
-                placeholder="Tell me about your project..."
-                rows="3"
-                required
-                value={formData.message}
-                onChange={(e) => setFormData({...formData, message: e.target.value})}
-                className={`${inputClass} resize-y min-h-[60px]`}
-              ></textarea>
-            </div>
+            </motion.div>
             
-            <motion.button 
-              type="submit" 
-              disabled={status === 'submitting' || status === 'success'}
-              className={`w-full py-4 text-center text-lg font-bold uppercase transition-colors rounded-sm ${
-                status === 'success' ? 'bg-green-600 text-white' : 
-                status === 'submitting' ? 'bg-white/20 text-white/50 cursor-not-allowed' : 
-                'bg-white text-black hover:bg-gray-100'
-              }`}
-              whileHover={status === 'idle' && !shouldReduce ? buttonHover : {}}
-              whileTap={status === 'idle' && !shouldReduce ? buttonTap : {}}
-            >
-              {status === 'success' ? 'Message Sent!' : status === 'submitting' ? 'Sending...' : 'Start a Project'}
-            </motion.button>
-            
-            {status === 'error' && (
-              <p className="text-red-200 text-sm text-center">There was an error sending your message. Please try again.</p>
-            )}
-          </form>
+            <motion.div variants={item} className="space-y-3 pt-4 border-t border-white/10">
+              <span className="text-[11px] font-mono font-bold uppercase tracking-widest text-gray-400 block">
+                Prefer Direct Email?
+              </span>
+              <a
+                href={`mailto:${CONTACT.email}`}
+                className="btn-secondary w-full"
+              >
+                <Mail className="w-4 h-4 mr-2" />
+                {CONTACT.email}
+              </a>
+            </motion.div>
+          </div>
+
+          {/* Right Column: Interactive Intake Form */}
+          <motion.div className="w-full lg:w-7/12" variants={item}>
+            <form onSubmit={handleSubmit} className="space-y-5 bg-white/5 border border-white/10 p-6 sm:p-8 rounded-2xl backdrop-blur-sm">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-[10px] font-mono font-bold text-gray-400 uppercase tracking-widest mb-1.5">
+                    Your Name *
+                  </label>
+                  <input 
+                    type="text" 
+                    placeholder="e.g. Alex Morgan" 
+                    required
+                    value={formData.name}
+                    onChange={(e) => setFormData({...formData, name: e.target.value})}
+                    className="bwl-input text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-mono font-bold text-gray-400 uppercase tracking-widest mb-1.5">
+                    Email Address *
+                  </label>
+                  <input 
+                    type="email" 
+                    placeholder="alex@company.com" 
+                    required
+                    value={formData.email}
+                    onChange={(e) => setFormData({...formData, email: e.target.value})}
+                    className="bwl-input text-white"
+                  />
+                </div>
+              </div>
+
+              {/* Pre-qualification Selects */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-[10px] font-mono font-bold text-gray-400 uppercase tracking-widest mb-1.5">
+                    Project Type
+                  </label>
+                  <Select
+                    value={formData.project_type}
+                    onValueChange={(val) => setFormData({...formData, project_type: val})}
+                  >
+                    <SelectTrigger className="w-full bg-white/5 hover:bg-white/10 border-white/15 text-white rounded-xl h-11 text-xs focus:ring-accent">
+                      <SelectValue placeholder="Select type" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-zinc-900 border-zinc-700 text-white shadow-2xl">
+                      <SelectGroup>
+                        {projectTypes.map(pt => (
+                          <SelectItem key={pt} value={pt} className="focus:bg-accent focus:text-white cursor-pointer text-xs">
+                            {pt}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-mono font-bold text-gray-400 uppercase tracking-widest mb-1.5">
+                    Budget Range
+                  </label>
+                  <Select
+                    value={formData.budget}
+                    onValueChange={(val) => setFormData({...formData, budget: val})}
+                  >
+                    <SelectTrigger className="w-full bg-white/5 hover:bg-white/10 border-white/15 text-white rounded-xl h-11 text-xs focus:ring-accent">
+                      <SelectValue placeholder="Select budget" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-zinc-900 border-zinc-700 text-white shadow-2xl">
+                      <SelectGroup>
+                        {budgetRanges.map(b => (
+                          <SelectItem key={b} value={b} className="focus:bg-accent focus:text-white cursor-pointer text-xs">
+                            {b}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-mono font-bold text-gray-400 uppercase tracking-widest mb-1.5">
+                    Target Timeline
+                  </label>
+                  <Select
+                    value={formData.timeline}
+                    onValueChange={(val) => setFormData({...formData, timeline: val})}
+                  >
+                    <SelectTrigger className="w-full bg-white/5 hover:bg-white/10 border-white/15 text-white rounded-xl h-11 text-xs focus:ring-accent">
+                      <SelectValue placeholder="Select timeline" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-zinc-900 border-zinc-700 text-white shadow-2xl">
+                      <SelectGroup>
+                        {timelines.map(t => (
+                          <SelectItem key={t} value={t} className="focus:bg-accent focus:text-white cursor-pointer text-xs">
+                            {t}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-mono font-bold text-gray-400 uppercase tracking-widest mb-1.5">
+                  Project Details / Problem to Solve *
+                </label>
+                <textarea 
+                  placeholder="Tell me about what you're building, key features needed, or current bottlenecks..."
+                  rows="4"
+                  required
+                  value={formData.message}
+                  onChange={(e) => setFormData({...formData, message: e.target.value})}
+                  className="bwl-input text-white min-h-[100px] resize-y"
+                ></textarea>
+              </div>
+              
+              <button 
+                type="submit" 
+                disabled={status === 'submitting' || status === 'success'}
+                className="btn-primary w-full"
+              >
+                {status === 'success' ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-white" />
+                    Message Sent Successfully
+                  </span>
+                ) : status === 'submitting' ? (
+                  'Transmitting Brief...'
+                ) : (
+                  <span className="flex items-center justify-center gap-2">
+                    <Send className="w-3.5 h-3.5" />
+                    Send Project Brief →
+                  </span>
+                )}
+              </button>
+              
+              {status === 'error' && (
+                <p className="text-red-400 text-xs text-center font-mono">
+                  There was an error sending your message. Please reach out directly to {CONTACT.email}.
+                </p>
+              )}
+
+              <p className="text-[11px] text-gray-400 text-center font-body pt-1">
+                * Direct founder-to-engineer review. Typical response within 24 hours.
+              </p>
+            </form>
+          </motion.div>
         </motion.div>
-      </motion.div>
-
-      <motion.div 
-        className="mt-16 text-center w-full"
-        initial={shouldReduce ? {} : { opacity: 0 }}
-        whileInView={{ opacity: 0.95 }}
-        viewport={sectionViewport}
-      >
-        <p className="text-white text-sm md:text-base italic font-body">
-          * I usually respond within a few hours
-        </p>
-      </motion.div>
+      </div>
     </section>
   );
 };

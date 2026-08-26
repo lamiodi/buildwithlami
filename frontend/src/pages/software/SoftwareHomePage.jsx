@@ -212,16 +212,16 @@ const SoftwareHomePage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-[#0A0A0A] text-gray-900 dark:text-white font-body selection:bg-accent selection:text-white transition-colors duration-300">
+    <div className="min-h-screen bg-gray-50 dark:bg-background text-gray-900 dark:text-white font-body selection:bg-accent selection:text-white transition-colors duration-300">
       
       {/* ── TOP DIVISION BADGE ── */}
-      <div className="bg-blue-600/10 border-b border-blue-500/20 py-2.5 px-4 text-center">
+      <div className="bg-accent/10 border-b border-accent/20 py-2.5 px-4 text-center">
         <div className="max-w-7xl mx-auto flex items-center justify-between text-xs font-bold uppercase tracking-widest">
-          <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400">
-            <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
-            <span>Division: Software & SaaS Engineering</span>
+          <div className="flex items-center gap-2 text-accent">
+            <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />
+            <span className="font-heading">Division: Software & SaaS Engineering</span>
           </div>
-          <div className="hidden sm:block text-[11px] text-gray-500 dark:text-gray-400 font-medium">
+          <div className="hidden sm:block text-[11px] text-gray-500 dark:text-gray-400 font-mono font-medium">
             Bespoke Web Platforms · SaaS Architecture · APIs
           </div>
         </div>
@@ -229,7 +229,7 @@ const SoftwareHomePage = () => {
 
       {/* ── HERO SECTION ── */}
       <section className="relative pt-20 pb-24 px-6 md:px-12 max-w-7xl mx-auto overflow-hidden">
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-accent/5 rounded-full blur-3xl pointer-events-none" />
         
         <motion.div 
           initial={shouldReduce ? {} : { opacity: 0, y: 20 }}
@@ -237,12 +237,12 @@ const SoftwareHomePage = () => {
           transition={{ duration: 0.6 }}
           className="text-center max-w-4xl mx-auto"
         >
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300 text-xs font-extrabold uppercase tracking-wider mb-6">
+          <div className="bwl-badge mb-6 inline-flex">
             <Sparkles className="w-3.5 h-3.5" /> High-Performance Web & SaaS Engineering
           </div>
 
           <h1 className="text-4xl sm:text-6xl md:text-7xl font-extrabold font-heading tracking-tight leading-[1.05] text-gray-900 dark:text-white mb-6">
-            Engineering <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-accent bg-clip-text text-transparent">Software</span> Built for Real Business Scale.
+            Engineering <span className="italic font-normal text-accent">Software</span> Built for Real Business Scale.
           </h1>
 
           <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto mb-10 leading-relaxed font-light">
@@ -250,21 +250,21 @@ const SoftwareHomePage = () => {
           </p>
 
           {/* Quick Realistic Metrics Bar */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4 p-4 rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm max-w-3xl mx-auto mb-10">
-            <div className="p-3 text-center border-r border-b md:border-b-0 border-gray-100 dark:border-gray-800">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4 p-4 rounded-2xl bg-white dark:bg-[#141414] border border-gray-200 dark:border-white/10 shadow-sm max-w-3xl mx-auto mb-10">
+            <div className="p-3 text-center border-r border-b md:border-b-0 border-gray-100 dark:border-white/5">
               <div className="text-xl sm:text-2xl font-extrabold font-mono text-accent">4+</div>
               <div className="text-[10px] sm:text-[11px] text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider mt-0.5">Software Projects</div>
             </div>
-            <div className="p-3 text-center border-b md:border-b-0 md:border-r border-gray-100 dark:border-gray-800">
-              <div className="text-xl sm:text-2xl font-extrabold font-mono text-emerald-600 dark:text-emerald-400">4 Months</div>
+            <div className="p-3 text-center border-b md:border-b-0 md:border-r border-gray-100 dark:border-white/5">
+              <div className="text-xl sm:text-2xl font-extrabold font-mono text-gray-900 dark:text-white">4 Months</div>
               <div className="text-[10px] sm:text-[11px] text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider mt-0.5">Included Support</div>
             </div>
-            <div className="p-3 text-center border-r border-gray-100 dark:border-gray-800">
-              <div className="text-xl sm:text-2xl font-extrabold font-mono text-blue-600 dark:text-blue-400">100%</div>
+            <div className="p-3 text-center border-r border-gray-100 dark:border-white/5">
+              <div className="text-xl sm:text-2xl font-extrabold font-mono text-accent">100%</div>
               <div className="text-[10px] sm:text-[11px] text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider mt-0.5">Code Ownership</div>
             </div>
             <div className="p-3 text-center">
-              <div className="text-xl sm:text-2xl font-extrabold font-mono text-purple-600 dark:text-purple-400">24hr</div>
+              <div className="text-xl sm:text-2xl font-extrabold font-mono text-gray-900 dark:text-white">&lt; 24hr</div>
               <div className="text-[10px] sm:text-[11px] text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider mt-0.5">Typical Response</div>
             </div>
           </div>
@@ -272,13 +272,13 @@ const SoftwareHomePage = () => {
           <div className="flex flex-wrap items-center justify-center gap-4">
             <a 
               href="#estimator" 
-              className="bg-accent hover:bg-orange-600 text-white font-extrabold px-8 py-4 rounded-xl transition-all shadow-lg hover:shadow-accent/30 inline-flex items-center gap-2 text-xs uppercase tracking-wider"
+              className="btn-primary"
             >
-              <Calculator className="w-4 h-4" /> Model Scope & Milestones
+              <Calculator className="w-4 h-4 mr-2" /> Model Scope & Milestones
             </a>
             <a 
-              href="#contact-form" 
-              className="bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-900 dark:text-white font-extrabold px-8 py-4 rounded-xl border border-gray-200 dark:border-gray-700 transition-all inline-flex items-center gap-2 text-xs uppercase tracking-wider"
+              href="#contact-action" 
+              className="btn-secondary"
             >
               Submit Technical Brief
             </a>
@@ -292,9 +292,9 @@ const SoftwareHomePage = () => {
       </section>
 
       {/* ── INTERACTIVE ARCHITECTURE & SCOPING ESTIMATOR ── */}
-      <section id="estimator" className="py-20 px-6 md:px-12 max-w-7xl mx-auto border-t border-gray-200 dark:border-gray-800">
+      <section id="estimator" className="py-20 px-6 md:px-12 max-w-7xl mx-auto border-t border-gray-200 dark:border-white/10">
         <div className="text-center max-w-3xl mx-auto mb-14">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-50 dark:bg-blue-950/50 border border-blue-200 dark:border-blue-800/60 text-blue-700 dark:text-blue-300 text-xs font-bold uppercase tracking-wider mb-3">
+          <div className="bwl-badge mb-3 inline-flex">
             <Calculator className="w-3.5 h-3.5" /> Technical Scoping & Architecture Planner
           </div>
           <h2 className="text-3xl md:text-5xl font-extrabold font-heading text-gray-900 dark:text-white tracking-tight">
@@ -323,23 +323,23 @@ const SoftwareHomePage = () => {
                     <button
                       key={type.id}
                       onClick={() => setSelectedType(type)}
-                      className={`text-left p-5 rounded-2xl border transition-all duration-200 flex flex-col justify-between ${
+                      className={`text-left p-5 rounded-2xl border transition-all duration-200 flex flex-col justify-between cursor-pointer ${
                         isSelected 
-                          ? 'bg-blue-50/70 dark:bg-blue-900/20 border-blue-500 ring-2 ring-blue-500/20 shadow-md' 
-                          : 'bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-700'
+                          ? 'bg-accent/5 dark:bg-accent/10 border-accent ring-1 ring-accent/30 shadow-md' 
+                          : 'bg-white dark:bg-[#141414] border-gray-200 dark:border-white/10 hover:border-gray-300 dark:hover:border-white/20'
                       }`}
                     >
                       <div>
                         <div className="flex items-center justify-between mb-3">
-                          <div className={`p-2.5 rounded-xl ${isSelected ? 'bg-blue-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300'}`}>
+                          <div className={`p-2.5 rounded-xl ${isSelected ? 'bg-accent text-white' : 'bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-300'}`}>
                             <IconCmp className="w-5 h-5" />
                           </div>
-                          {isSelected && <CheckCircle className="w-5 h-5 text-blue-600 dark:text-blue-400" />}
+                          {isSelected && <CheckCircle className="w-5 h-5 text-accent" />}
                         </div>
-                        <h4 className="font-bold text-gray-900 dark:text-white text-base">{type.name}</h4>
+                        <h4 className="font-bold text-gray-900 dark:text-white text-base font-heading">{type.name}</h4>
                         <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-2 leading-relaxed">{type.desc}</p>
                       </div>
-                      <div className="mt-4 pt-3 border-t border-gray-100 dark:border-gray-800/80 flex items-center justify-between text-xs">
+                      <div className="mt-4 pt-3 border-t border-gray-100 dark:border-white/5 flex items-center justify-between text-xs">
                         <span className="font-mono font-bold text-accent">
                           {currency === 'USD' ? `$${type.baseCostUSD.toLocaleString()}` : `₦${type.baseCostNGN.toLocaleString()}`}
                         </span>
@@ -367,18 +367,18 @@ const SoftwareHomePage = () => {
                       onClick={() => toggleAddon(addon.id)}
                       className={`p-4 rounded-2xl border cursor-pointer flex items-center justify-between transition-all ${
                         isChecked 
-                          ? 'bg-blue-50/50 dark:bg-blue-950/30 border-blue-500 ring-1 ring-blue-500/20' 
-                          : 'bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 hover:border-gray-300'
+                          ? 'bg-accent/5 dark:bg-accent/10 border-accent ring-1 ring-accent/20' 
+                          : 'bg-white dark:bg-[#141414] border-gray-200 dark:border-white/10 hover:border-gray-300 dark:hover:border-white/20'
                       }`}
                     >
                       <div className="flex items-center gap-3.5">
                         <div className={`w-5 h-5 rounded-md flex items-center justify-center border transition-colors ${
-                          isChecked ? 'bg-blue-600 border-blue-600 text-white' : 'border-gray-300 dark:border-gray-700 bg-white dark:bg-black'
+                          isChecked ? 'bg-accent border-accent text-white' : 'border-gray-300 dark:border-white/20 bg-white dark:bg-black'
                         }`}>
                           {isChecked && <Check className="w-3.5 h-3.5 stroke-[3]" />}
                         </div>
                         <div>
-                          <p className="font-bold text-sm text-gray-900 dark:text-white">{addon.name}</p>
+                          <p className="font-bold text-sm text-gray-900 dark:text-white font-heading">{addon.name}</p>
                           <p className="text-xs text-gray-500 dark:text-gray-400">+{addon.weeks} week sprint addition</p>
                         </div>
                       </div>
@@ -394,8 +394,8 @@ const SoftwareHomePage = () => {
 
           {/* Right: Architectural Scope Summary (4 cols) */}
           <div className="lg:col-span-4 sticky top-24">
-            <div className="p-6 sm:p-8 rounded-3xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-xl space-y-6">
-              <div className="border-b border-gray-100 dark:border-gray-800 pb-4">
+            <div className="p-6 sm:p-8 rounded-3xl bg-white dark:bg-[#141414] border border-gray-200 dark:border-white/10 shadow-xl space-y-6">
+              <div className="border-b border-gray-100 dark:border-white/5 pb-4">
                 <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-accent block mb-1">
                   Architectural Scope Summary
                 </span>
@@ -403,18 +403,18 @@ const SoftwareHomePage = () => {
                   {calculatedEstimate.cost}
                 </div>
                 <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mt-2">
-                  <Clock className="w-4 h-4 text-blue-500 shrink-0" />
+                  <Clock className="w-4 h-4 text-accent shrink-0" />
                   <span>Target Delivery: <strong className="text-gray-900 dark:text-white font-semibold">~{calculatedEstimate.weeks} Weeks Sprint</strong></span>
                 </div>
               </div>
 
               {/* 50/50 Milestone Payment Structure Box */}
-              <div className="p-4 rounded-2xl bg-blue-50/70 dark:bg-blue-950/30 border border-blue-200/70 dark:border-blue-800/60 space-y-2.5">
-                <div className="flex items-center justify-between text-[10px] font-extrabold uppercase tracking-wider text-blue-800 dark:text-blue-300">
+              <div className="p-4 rounded-2xl bg-accent/5 dark:bg-accent/10 border border-accent/20 space-y-2.5">
+                <div className="flex items-center justify-between text-[10px] font-extrabold uppercase tracking-wider text-accent">
                   <span>Milestone Terms</span>
-                  <span className="bg-blue-600 text-white text-[9px] px-2 py-0.5 rounded-full font-mono font-bold">50 / 50</span>
+                  <span className="bg-accent text-white text-[9px] px-2 py-0.5 rounded-full font-mono font-bold">50 / 50</span>
                 </div>
-                <div className="grid grid-cols-2 gap-3 pt-1 border-t border-blue-200/50 dark:border-blue-800/40">
+                <div className="grid grid-cols-2 gap-3 pt-1 border-t border-accent/20">
                   <div>
                     <span className="text-[10px] text-gray-600 dark:text-gray-400 block font-medium">1. 50% Kickoff Deposit</span>
                     <span className="text-xs font-bold font-mono text-gray-900 dark:text-white">{calculatedEstimate.upfront}</span>
@@ -437,7 +437,7 @@ const SoftwareHomePage = () => {
                 </div>
                 <div className="flex justify-between text-gray-600 dark:text-gray-300">
                   <span>Milestone Terms:</span>
-                  <span className="font-bold text-blue-600 dark:text-blue-400">50% Kickoff / 50% Delivery</span>
+                  <span className="font-bold text-accent">50% Kickoff / 50% Delivery</span>
                 </div>
                 <div className="flex justify-between text-gray-600 dark:text-gray-300">
                   <span>Post-Launch SLA:</span>
@@ -449,20 +449,12 @@ const SoftwareHomePage = () => {
                 </div>
               </div>
 
-              <a 
-                href="#contact-form"
-                onClick={() => {
-                  setForm(prev => ({
-                    ...prev,
-                    project_type: selectedType.name,
-                    budget: `${calculatedEstimate.cost} (50% Upfront: ${calculatedEstimate.upfront}, 50% Delivery: ${calculatedEstimate.delivery})`,
-                    timeline: `${calculatedEstimate.weeks} weeks`
-                  }));
-                }}
-                className="w-full bg-accent hover:bg-orange-600 text-white font-extrabold py-3.5 px-4 rounded-xl text-center block transition-all shadow-md uppercase tracking-wider text-xs"
+              <Link 
+                to={`/contact?service=${encodeURIComponent(selectedType.name)}&budget=${encodeURIComponent(calculatedEstimate.cost)}`}
+                className="btn-primary w-full"
               >
                 Lock Scope & Submit Technical Brief →
-              </a>
+              </Link>
 
               <p className="text-[10px] text-gray-400 text-center leading-normal">
                 Technical roadmap and fixed quote verified upon initial brief review.
@@ -473,9 +465,9 @@ const SoftwareHomePage = () => {
       </section>
 
       {/* ── MODERN ENGINEERING STACK ── */}
-      <section className="py-20 px-6 md:px-12 max-w-7xl mx-auto border-t border-gray-200 dark:border-gray-800">
+      <section className="py-20 px-6 md:px-12 max-w-7xl mx-auto border-t border-gray-200 dark:border-white/10">
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-xs font-extrabold uppercase tracking-wider mb-3">
+          <div className="bwl-badge mb-3 inline-flex">
             <Code className="w-3.5 h-3.5" /> Modern Engineering Stack
           </div>
           <h2 className="text-3xl md:text-5xl font-extrabold font-heading text-gray-900 dark:text-white tracking-tight">
@@ -492,10 +484,10 @@ const SoftwareHomePage = () => {
             return (
               <div 
                 key={idx}
-                className="p-8 rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm hover:border-accent/40 transition-all space-y-5"
+                className="p-8 rounded-2xl bg-white dark:bg-[#141414] border border-gray-200 dark:border-white/10 shadow-sm hover:border-accent/40 transition-all space-y-5"
               >
                 <div className="flex items-center gap-4">
-                  <div className="p-3 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-xl">
+                  <div className="p-3 bg-accent/10 text-accent rounded-xl">
                     <IconComponent className="w-6 h-6" />
                   </div>
                   <div>
@@ -508,7 +500,7 @@ const SoftwareHomePage = () => {
                   {cat.items.map((tech, tIdx) => (
                     <span 
                       key={tIdx}
-                      className="px-3 py-1.5 rounded-lg bg-gray-100 dark:bg-gray-800 text-xs font-bold font-mono text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700"
+                      className="px-3 py-1.5 rounded-lg bg-gray-100 dark:bg-white/5 text-xs font-bold font-mono text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-white/10"
                     >
                       {tech}
                     </span>
@@ -527,10 +519,10 @@ const SoftwareHomePage = () => {
       </section>
 
       {/* ── SELECTED SOFTWARE CASE STUDIES ── */}
-      <section className="py-20 px-6 md:px-12 max-w-7xl mx-auto border-t border-gray-200 dark:border-gray-800">
+      <section className="py-20 px-6 md:px-12 max-w-7xl mx-auto border-t border-gray-200 dark:border-white/10">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/10 text-accent text-xs font-extrabold uppercase tracking-wider mb-3">
+            <div className="bwl-badge mb-3 inline-flex">
               <FolderGit2 className="w-3.5 h-3.5" /> Technical Case Studies
             </div>
             <h2 className="text-3xl md:text-5xl font-extrabold font-heading text-gray-900 dark:text-white tracking-tight">
@@ -539,7 +531,7 @@ const SoftwareHomePage = () => {
           </div>
           <Link 
             to="/projects" 
-            className="inline-flex items-center gap-2 text-sm font-extrabold text-accent hover:underline uppercase tracking-wider"
+            className="btn-ghost"
           >
             View Complete Portfolio ({projects.length}+ projects) →
           </Link>
@@ -549,7 +541,7 @@ const SoftwareHomePage = () => {
           {projects.map((p, idx) => (
             <div 
               key={p.id || idx}
-              className="group rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 overflow-hidden shadow-sm hover:shadow-xl hover:border-accent/40 transition-all flex flex-col"
+              className="group rounded-2xl bg-white dark:bg-[#141414] border border-gray-200 dark:border-white/10 overflow-hidden shadow-sm hover:shadow-xl hover:border-accent/40 transition-all flex flex-col"
             >
               {(p.image_url || p.image) && (
                 <div className="h-56 overflow-hidden relative">
@@ -575,17 +567,17 @@ const SoftwareHomePage = () => {
                   </p>
                 </div>
 
-                <div className="pt-6 mt-6 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between">
+                <div className="pt-6 mt-6 border-t border-gray-100 dark:border-white/5 flex items-center justify-between">
                   <div className="flex flex-wrap gap-1">
                     {(p.tech_stack || []).slice(0, 3).map((t, tid) => (
-                      <span key={tid} className="text-[10px] font-mono px-2 py-0.5 rounded bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300">
+                      <span key={tid} className="text-[10px] font-mono px-2 py-0.5 rounded bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-300">
                         {t}
                       </span>
                     ))}
                   </div>
                   <Link 
                     to={`/projects/${p.slug || p.id}`}
-                    className="text-xs font-bold text-accent inline-flex items-center gap-1 hover:translate-x-1 transition-transform"
+                    className="text-xs font-bold text-accent inline-flex items-center gap-1 hover:translate-x-1 transition-transform font-heading uppercase tracking-wider"
                   >
                     Deep Dive →
                   </Link>
@@ -597,10 +589,10 @@ const SoftwareHomePage = () => {
       </section>
 
       {/* ── TECHNICAL FAQS SECTION ── */}
-      <section className="py-20 px-6 md:px-12 max-w-4xl mx-auto border-t border-gray-200 dark:border-gray-800">
+      <section className="py-20 px-6 md:px-12 max-w-4xl mx-auto border-t border-gray-200 dark:border-white/10">
         <div className="text-center mb-12">
-          <span className="text-accent font-bold tracking-widest uppercase text-xs mb-2 block">Clear Answers</span>
-          <h2 className="text-3xl font-extrabold font-heading text-gray-900 dark:text-white">
+          <div className="bwl-badge mb-3 inline-flex">Clear Answers</div>
+          <h2 className="text-3xl md:text-4xl font-extrabold font-heading text-gray-900 dark:text-white">
             Frequently Asked Technical Questions
           </h2>
         </div>
@@ -611,17 +603,17 @@ const SoftwareHomePage = () => {
             return (
               <div 
                 key={idx}
-                className="border border-gray-200 dark:border-gray-800 rounded-2xl bg-white dark:bg-gray-900 overflow-hidden"
+                className="border border-gray-200 dark:border-white/10 rounded-2xl bg-white dark:bg-[#141414] overflow-hidden"
               >
                 <button
                   onClick={() => setActiveFaq(isOpen ? null : idx)}
-                  className="w-full p-6 text-left font-bold text-gray-900 dark:text-white flex items-center justify-between text-base"
+                  className="w-full p-6 text-left font-bold text-gray-900 dark:text-white flex items-center justify-between text-base font-heading cursor-pointer"
                 >
                   <span>{faq.q}</span>
                   <ChevronDown className={`w-5 h-5 text-gray-500 transition-transform duration-200 ${isOpen ? 'rotate-180 text-accent' : ''}`} />
                 </button>
                 {isOpen && (
-                  <div className="px-6 pb-6 text-sm text-gray-600 dark:text-gray-400 border-t border-gray-100 dark:border-gray-800/60 pt-4 leading-relaxed font-light">
+                  <div className="px-6 pb-6 text-sm text-gray-600 dark:text-gray-300 border-t border-gray-100 dark:border-white/5 pt-4 leading-relaxed font-light whitespace-pre-line">
                     {faq.a}
                   </div>
                 )}
@@ -632,12 +624,12 @@ const SoftwareHomePage = () => {
       </section>
 
       {/* ── ENGINEERING BRIEF & DIRECT INTAKE ACTION BANNER ── */}
-      <section id="contact-action" className="py-20 px-6 md:px-12 max-w-5xl mx-auto border-t border-gray-200 dark:border-gray-800">
-        <div className="bg-gradient-to-br from-gray-900 via-[#141414] to-black border border-white/10 rounded-3xl p-8 sm:p-12 md:p-16 shadow-2xl text-center space-y-8 relative overflow-hidden">
+      <section id="contact-action" className="py-20 px-6 md:px-12 max-w-5xl mx-auto border-t border-gray-200 dark:border-white/10">
+        <div className="bg-gradient-to-br from-[#161616] via-[#141414] to-black border border-white/10 rounded-3xl p-8 sm:p-12 md:p-16 shadow-2xl text-center space-y-8 relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-transparent via-accent to-transparent" />
           
           <div className="max-w-2xl mx-auto space-y-4">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-accent/20 border border-accent/30 text-accent text-xs font-bold uppercase tracking-wider">
+            <div className="bwl-badge inline-flex">
               <Terminal className="w-3.5 h-3.5" /> Direct Engineering Intake
             </div>
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold font-heading text-white tracking-tight leading-tight">
@@ -651,13 +643,13 @@ const SoftwareHomePage = () => {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
             <Link
               to={`/contact?service=${encodeURIComponent(selectedType.name)}&budget=${encodeURIComponent(calculatedEstimate.cost)}`}
-              className="w-full sm:w-auto inline-flex items-center justify-center bg-accent text-white font-bold text-xs uppercase tracking-[0.2em] px-8 py-4 rounded-xl shadow-lg hover:bg-white hover:text-black transition-all"
+              className="btn-primary w-full sm:w-auto"
             >
               Submit Project Brief with Selected Scope ({calculatedEstimate.cost}) →
             </Link>
             <Link
               to="/pricing"
-              className="w-full sm:w-auto inline-flex items-center justify-center border border-white/20 text-white font-bold text-xs uppercase tracking-[0.2em] px-8 py-4 rounded-xl hover:bg-white/10 transition-all"
+              className="btn-secondary w-full sm:w-auto"
             >
               Open Full Pricing Matrix ↗
             </Link>

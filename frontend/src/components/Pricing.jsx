@@ -2054,7 +2054,7 @@ const Pricing = ({ isHomepage = false }) => {
                     >
                       <div>
                         {tier.popular && (
-                          <span className="absolute -top-3.5 right-6 bg-blue-600 text-white text-[10px] font-extrabold uppercase tracking-widest px-3.5 py-1 rounded-full shadow-md">
+                          <span className="absolute -top-3.5 right-6 bg-accent text-white text-[10px] font-mono font-bold uppercase tracking-widest px-3.5 py-1 rounded-full shadow-md">
                             {tier.popularBadge || "⭐ Best Value"}
                           </span>
                         )}
@@ -2108,13 +2108,13 @@ const Pricing = ({ isHomepage = false }) => {
 
                         {/* Deliverables List (Included) */}
                         <div className="space-y-3 mb-6">
-                          <span className="text-[10px] font-extrabold uppercase tracking-widest text-gray-400 dark:text-gray-500 block">
+                          <span className="text-[10px] font-extrabold uppercase tracking-widest text-gray-400 dark:text-gray-500 block font-mono">
                             Included in this scope
                           </span>
                           <ul className="space-y-2 text-xs text-gray-700 dark:text-gray-300">
                             {tier.features.map((feat, fIdx) => (
                               <li key={fIdx} className="flex items-start gap-2.5 leading-snug">
-                                <CheckIcon className={`w-4 h-4 shrink-0 mt-0.5 ${tier.popular ? 'text-blue-500' : 'text-accent'}`} />
+                                <CheckIcon className="w-4 h-4 shrink-0 mt-0.5 text-accent" />
                                 <span>{feat}</span>
                               </li>
                             ))}
@@ -2124,7 +2124,7 @@ const Pricing = ({ isHomepage = false }) => {
                         {/* Explicit NOT INCLUDED List (GoodFound Pattern) */}
                         {tier.notIncluded && tier.notIncluded.length > 0 && (
                           <div className="space-y-2 mb-8 pt-4 border-t border-gray-100 dark:border-white/5">
-                            <span className="text-[10px] font-extrabold uppercase tracking-widest text-rose-600 dark:text-rose-400 block">
+                            <span className="text-[10px] font-extrabold uppercase tracking-widest text-rose-600 dark:text-rose-400 block font-mono">
                               Not included
                             </span>
                             <ul className="space-y-1.5 text-xs text-gray-500 dark:text-gray-400 font-light">
@@ -2142,15 +2142,11 @@ const Pricing = ({ isHomepage = false }) => {
                       <div>
                         <Link
                           to={`/contact?service=${encodeURIComponent(activeCategory)}&tier=${encodeURIComponent(tier.id)}&currency=${encodeURIComponent(currency)}`}
-                          className={`w-full py-3.5 px-4 text-xs font-extrabold uppercase tracking-wider rounded-xl transition-all flex items-center justify-center gap-2 ${
-                            tier.popular
-                              ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-md'
-                              : 'bg-black text-white dark:bg-white dark:text-black hover:opacity-90'
-                          }`}
+                          className={tier.popular ? 'btn-primary w-full' : 'btn-dark w-full'}
                         >
-                          Start with {tier.name} <ArrowRight className="w-3.5 h-3.5" />
+                          Start with {tier.name} <ArrowRight className="w-3.5 h-3.5 ml-2" />
                         </Link>
-                        <p className="text-[10px] text-center text-gray-400 mt-2">
+                        <p className="text-[10px] text-center text-gray-400 mt-2 font-mono">
                           50% upfront, 50% upon delivery
                         </p>
                       </div>
@@ -2354,9 +2350,9 @@ const Pricing = ({ isHomepage = false }) => {
                           key={t.id}
                           type="button"
                           onClick={() => setQuoteTierId(t.id)}
-                          className={`p-3.5 rounded-xl text-left border transition-all ${
+                          className={`p-3.5 rounded-xl text-left border transition-all cursor-pointer ${
                             quoteTierId === t.id
-                              ? 'bg-blue-600/30 border-blue-400 text-white ring-2 ring-blue-500/30'
+                              ? 'bg-accent/15 border-accent text-white ring-2 ring-accent/30'
                               : 'bg-white/5 border-white/10 text-gray-300 hover:border-white/30'
                           }`}
                         >
@@ -2384,9 +2380,9 @@ const Pricing = ({ isHomepage = false }) => {
                             key={add.id}
                             type="button"
                             onClick={() => toggleAddon(add.id)}
-                            className={`px-3 py-1.5 rounded-lg text-[11px] font-heading font-bold uppercase tracking-wider border transition-all flex items-center gap-1.5 ${
+                            className={`px-3 py-1.5 rounded-lg text-[11px] font-heading font-bold uppercase tracking-wider border transition-all flex items-center gap-1.5 cursor-pointer ${
                               isChecked
-                                ? 'bg-blue-600 text-white border-blue-400 shadow-sm'
+                                ? 'bg-accent text-white border-accent shadow-sm'
                                 : 'bg-white/5 border-white/10 text-gray-300 hover:border-white/30'
                             }`}
                           >
@@ -2424,13 +2420,13 @@ const Pricing = ({ isHomepage = false }) => {
                     {/* 50/50 Milestone Terms Breakdown Box */}
                     {totalEstimate && (
                       <div className="bg-white/5 p-3.5 rounded-xl border border-white/10 space-y-2 mb-6">
-                        <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider block">50/50 Milestone Terms</span>
+                        <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider block font-mono">50/50 Milestone Terms</span>
                         <div className="flex justify-between items-center text-xs">
                           <span className="text-emerald-400 font-semibold">1. 50% Kickoff Milestone:</span>
                           <span className="font-mono font-bold">{symbol}{formatNumber(upfrontFifty)}</span>
                         </div>
                         <div className="flex justify-between items-center text-xs">
-                          <span className="text-blue-400 font-semibold">2. 50% Final Delivery:</span>
+                          <span className="text-accent font-semibold">2. 50% Final Delivery:</span>
                           <span className="font-mono font-bold">{symbol}{formatNumber(deliveryFifty)}</span>
                         </div>
                       </div>
@@ -2440,9 +2436,9 @@ const Pricing = ({ isHomepage = false }) => {
                   <div>
                     <Link
                       to={`/contact?service=${encodeURIComponent(quoteCategory)}&tier=${encodeURIComponent(selectedTier.name || '')}&addons=${encodeURIComponent(selectedAddons.join(','))}&currency=${encodeURIComponent(currency)}`}
-                      className="w-full py-4 text-center text-[11px] font-heading font-bold uppercase tracking-[0.15em] rounded-xl bg-accent text-white hover:bg-accent/90 transition-all flex items-center justify-center gap-2 shadow-lg"
+                      className="btn-primary w-full"
                     >
-                      Request Proposal with This Scope <ArrowRight className="w-3.5 h-3.5" />
+                      Request Proposal with This Scope <ArrowRight className="w-3.5 h-3.5 ml-2" />
                     </Link>
                     <p className="text-[10px] text-center text-gray-400 mt-2 font-mono">
                       Includes warranty support & 100% source code ownership
@@ -2463,14 +2459,14 @@ const Pricing = ({ isHomepage = false }) => {
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
-                className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-3xl p-6 sm:p-8 max-w-2xl w-full shadow-2xl space-y-6 my-8"
+                className="bg-white dark:bg-[#141414] border border-gray-200 dark:border-white/10 rounded-3xl p-6 sm:p-8 max-w-2xl w-full shadow-2xl space-y-6 my-8"
               >
-                <div className="flex items-center justify-between border-b border-gray-100 dark:border-gray-800 pb-4">
+                <div className="flex items-center justify-between border-b border-gray-100 dark:border-white/5 pb-4">
                   <div>
                     <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-accent block">Modular Customization</span>
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-white">Optional Add-ons Catalog</h3>
+                    <h3 className="text-xl font-bold font-heading text-gray-900 dark:text-white">Optional Add-ons Catalog</h3>
                   </div>
-                  <button onClick={() => setShowAddonsModal(false)} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-1">
+                  <button onClick={() => setShowAddonsModal(false)} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-1 cursor-pointer">
                     <X className="w-5 h-5" />
                   </button>
                 </div>
@@ -2486,28 +2482,28 @@ const Pricing = ({ isHomepage = false }) => {
                         onClick={() => toggleAddon(addon.id)}
                         className={`p-4 rounded-2xl border cursor-pointer transition-all flex items-start gap-3 ${
                           isChecked
-                            ? 'border-blue-500 bg-blue-50/50 dark:bg-blue-950/40'
-                            : 'border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/40 hover:border-gray-300'
+                            ? 'border-accent bg-accent/5 dark:bg-accent/10'
+                            : 'border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 hover:border-gray-300 dark:hover:border-white/20'
                         }`}
                       >
                         <div className={`w-5 h-5 rounded-md border flex items-center justify-center mt-0.5 shrink-0 transition-all ${
-                          isChecked ? 'bg-blue-600 border-blue-600 text-white' : 'border-gray-400 dark:border-gray-600 bg-white dark:bg-black'
+                          isChecked ? 'bg-accent border-accent text-white' : 'border-gray-400 dark:border-white/20 bg-white dark:bg-black'
                         }`}>
                           {isChecked && <Check className="w-3.5 h-3.5" />}
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-baseline justify-between gap-2">
-                            <h4 className="text-sm font-bold text-gray-900 dark:text-white">{addon.name}</h4>
+                            <h4 className="text-sm font-bold font-heading text-gray-900 dark:text-white">{addon.name}</h4>
                             <span className="text-xs font-mono font-bold text-accent">+{symbol}{formatNumber(cost)}</span>
                           </div>
-                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{addon.desc}</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 font-light leading-relaxed">{addon.desc}</p>
                         </div>
                       </div>
                     );
                   })}
                 </div>
 
-                <div className="flex justify-between items-center pt-4 border-t border-gray-100 dark:border-gray-800">
+                <div className="flex justify-between items-center pt-4 border-t border-gray-100 dark:border-white/5">
                   <span className="text-xs font-semibold text-gray-500">
                     {selectedAddons.length} add-ons selected (+{symbol}{formatNumber(addonsCost)})
                   </span>
@@ -2517,7 +2513,7 @@ const Pricing = ({ isHomepage = false }) => {
                       const el = document.getElementById('quote-builder');
                       if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     }}
-                    className="px-5 py-2.5 rounded-xl bg-accent text-white text-xs font-bold uppercase tracking-wider hover:bg-orange-600 transition-all"
+                    className="btn-primary !px-6 !py-3"
                   >
                     Done / Update Quote
                   </button>

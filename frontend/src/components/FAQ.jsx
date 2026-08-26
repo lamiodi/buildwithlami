@@ -48,9 +48,10 @@ const FAQ = () => {
         viewport={sectionViewport}
         transition={{ duration: shouldReduce ? 0 : 0.5, ease: 'easeOut' }}
       >
-        <h3 className="text-3xl md:text-4xl font-heading font-bold mb-4 text-black dark:text-white">Frequently Asked Questions</h3>
-        <p className="text-gray-600 dark:text-gray-400 text-lg">
-          Everything you need to know about my services, process, and billing.
+        <div className="bwl-badge mb-3 inline-flex">Clear Answers</div>
+        <h3 className="text-3xl md:text-5xl font-heading font-bold mb-4 text-black dark:text-white">Frequently Asked Questions</h3>
+        <p className="text-gray-600 dark:text-gray-400 text-base md:text-lg font-light leading-relaxed">
+          Everything you need to know about my engineering services, process, and milestone billing.
         </p>
       </motion.div>
 
@@ -65,15 +66,15 @@ const FAQ = () => {
           <motion.div
             key={idx}
             variants={item}
-            className="border border-gray-200 dark:border-gray-700 rounded-sm overflow-hidden"
+            className="bwl-card overflow-hidden"
           >
             <button
               onClick={() => toggleOpen(idx)}
-              className="w-full px-6 py-4 text-left flex justify-between items-center focus:outline-none bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              className="w-full px-6 py-5 text-left flex justify-between items-center focus:outline-none bg-white dark:bg-[#141414] hover:bg-gray-50/50 dark:hover:bg-white/5 transition-colors cursor-pointer"
             >
-              <span className="font-bold text-gray-900 dark:text-white">{faq.question}</span>
+              <span className="font-heading font-bold text-gray-900 dark:text-white text-base md:text-lg">{faq.question}</span>
               <svg
-                className={`w-5 h-5 text-gray-500 transform transition-transform duration-300 ${openIndex === idx ? 'rotate-180' : ''}`}
+                className={`w-5 h-5 text-gray-400 transform transition-transform duration-300 ${openIndex === idx ? 'rotate-180 text-accent' : ''}`}
                 fill="none" viewBox="0 0 24 24" stroke="currentColor"
               >
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
@@ -86,9 +87,9 @@ const FAQ = () => {
                   animate={{ height: 'auto', opacity: 1 }}
                   exit={{ height: 0, opacity: 0 }}
                   transition={{ duration: 0.3, ease: 'easeInOut' }}
-                  className="bg-white dark:bg-gray-800"
+                  className="bg-white dark:bg-[#141414]"
                 >
-                  <div className="px-6 pb-4 pt-0 text-gray-600 dark:text-gray-400">
+                  <div className="px-6 pb-6 pt-2 text-gray-600 dark:text-gray-300 text-sm md:text-base leading-relaxed font-light whitespace-pre-line border-t border-gray-100 dark:border-white/5">
                     {faq.answer}
                   </div>
                 </motion.div>

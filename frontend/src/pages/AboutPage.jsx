@@ -683,25 +683,21 @@ const AboutPage = () => {
           </div>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
-            <motion.div whileHover={shouldReduce ? {} : buttonHover} whileTap={shouldReduce ? {} : buttonTap}>
-              <Link
-                to="/contact"
-                className="inline-flex items-center justify-center bg-accent text-white font-heading font-bold uppercase tracking-[0.15em] text-[11px] px-10 py-4 shadow-lg hover:shadow-accent/30 hover:bg-black dark:hover:bg-white dark:hover:text-black transition-all duration-300 active:scale-[0.98]"
-              >
-                Start a Project
-                <ArrowIcon className="w-4 h-4 ml-2" />
-              </Link>
-            </motion.div>
-            <motion.div whileHover={shouldReduce ? {} : buttonHover} whileTap={shouldReduce ? {} : buttonTap}>
-              <a
-                href={`https://wa.me/${CONTACT.phoneE164 || '2348085186714'}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center border border-gray-300 dark:border-white/15 text-gray-900 dark:text-gray-100 font-heading font-bold uppercase tracking-[0.15em] text-[11px] px-10 py-4 hover:border-accent hover:text-accent transition-all duration-300 active:scale-[0.98] bg-transparent"
-              >
-                WhatsApp Direct ↗
-              </a>
-            </motion.div>
+            <Link
+              to="/contact"
+              className="btn-primary w-full sm:w-auto"
+            >
+              Start a Project
+              <ArrowIcon className="w-4 h-4 ml-2" />
+            </Link>
+            <a
+              href={`https://wa.me/${CONTACT.phoneE164 || '2348085186714'}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-secondary w-full sm:w-auto"
+            >
+              WhatsApp Direct ↗
+            </a>
           </div>
 
           <div className="pt-8 border-t border-gray-100 dark:border-white/5 grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-lg mx-auto text-xs text-gray-600 dark:text-gray-400">
