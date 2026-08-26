@@ -3,6 +3,7 @@ import { motion, useReducedMotion } from 'framer-motion';
 import { api } from '../services/api';
 import { staggerContainer, fadeUpItem, sectionViewport, reducedMotionVariants } from '../utils/motion';
 import { CONTACT } from '../config/contact';
+import { BUDGET_RANGES } from '../config/pricing';
 import {
   Select,
   SelectContent,
@@ -14,21 +15,17 @@ import {
 import { Mail, Send, CheckCircle2, Sparkles, ShieldCheck, Code } from 'lucide-react';
 
 const projectTypes = [
-  'Landing Page / Portfolio',
   'Business / Corporate Website',
   'E-commerce Store',
-  'Web Application / Dashboard',
+  'Business Portal / ERP (School, Estate, Warehouse, POS)',
+  'Web Application / SaaS',
+  'Landing Page / Portfolio',
+  'UI/UX Design',
   'Redesign / Rebuild',
   'Other'
 ];
 
-const budgetRanges = [
-  'Under ₦290k / $900',
-  '₦290k – ₦600k / $900 – $1.5k',
-  '₦600k – ₦1.5M / $1.5k – $4k',
-  '₦1.5M+ / $4k+',
-  'Not sure yet'
-];
+const budgetRanges = BUDGET_RANGES;
 
 const timelines = [
   'ASAP (under 2 weeks)',
@@ -85,8 +82,9 @@ const Contact = () => {
           {/* Left Column: Value Prop & Direct Communication */}
           <div className="w-full lg:w-5/12 flex flex-col justify-between space-y-8">
             <motion.div variants={item} className="space-y-4">
-              <div className="bwl-badge inline-flex">
-                <Sparkles className="w-3.5 h-3.5" /> Project Inquiries · 24hr Turnaround
+              <div className="bwl-eyebrow">
+                <span className="w-2 h-2 bg-accent inline-block" />
+                <span>Project Inquiries · 24hr Turnaround</span>
               </div>
               <h2 className="text-3xl sm:text-4xl md:text-5xl font-heading font-extrabold text-white tracking-tight leading-tight">
                 Have a business problem to <span className="text-accent">solve?</span>
@@ -115,14 +113,14 @@ const Contact = () => {
             </motion.div>
             
             <motion.div variants={item} className="space-y-3 pt-4 border-t border-white/10">
-              <span className="text-[11px] font-mono font-bold uppercase tracking-widest text-gray-400 block">
+              <span className="text-[11px] font-mono font-bold uppercase tracking-widest text-gray-300 block">
                 Prefer Direct Email?
               </span>
               <a
                 href={`mailto:${CONTACT.email}`}
-                className="btn-secondary w-full"
+                className="w-full py-4 px-6 border border-white/20 hover:border-accent text-white hover:text-accent font-heading font-bold text-[11px] uppercase tracking-[0.15em] transition-all duration-300 inline-flex items-center justify-center text-center bg-white/5 hover:bg-white/10 active:scale-[0.98] cursor-pointer"
               >
-                <Mail className="w-4 h-4 mr-2" />
+                <Mail className="w-4 h-4 mr-2 text-accent" />
                 {CONTACT.email}
               </a>
             </motion.div>

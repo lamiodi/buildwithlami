@@ -38,7 +38,7 @@ const Services = () => {
         "Payment processing (Paystack, Stripe, Flutterwave)",
         "Automated transactional emails & webhook pipelines",
         "Production deployment with SSL & domain configuration",
-        "4 months of free post-launch support and bug fixes"
+        "Included post-launch warranty support and bug fixes"
       ],
       idealFor: "Founders launching MVPs, companies automating manual spreadsheets, and businesses replacing outdated off-the-shelf software.",
       stack: ["React / Next.js", "Node.js / Express", "PostgreSQL", "Tailwind CSS", "REST / GraphQL APIs"]
@@ -58,7 +58,7 @@ const Services = () => {
       detailedScope: "First impressions dictate conversion rates. I design and build lightning-fast, high-converting digital storefronts and marketing pages with fluid animations, zero layout shifts, and flawless mobile responsiveness.",
       deliverables: [
         "Custom UI design with bespoke brand aesthetics & micro-animations",
-        "Sub-second load times scoring 95+ on Google PageSpeed Insights",
+        "Lighthouse-optimized builds targeting 90+ scores on delivered code",
         "Flawless mobile, tablet, and widescreen responsiveness",
         "Lead capture forms with real-time spam validation",
         "Interactive product showcases, calculators, and interactive widgets",
@@ -79,7 +79,7 @@ const Services = () => {
         "Authentication and account security",
         "Database design and workflow logic"
       ],
-      detailedScope: "The engine beneath your product. I engineer robust RESTful and asynchronous API services, normalized relational databases, safe data migrations, and bank-grade security protocols.",
+      detailedScope: "The engine beneath your product. I engineer robust RESTful and asynchronous API services, normalized relational databases, safe data migrations, and hardened security protocols.",
       deliverables: [
         "Well-documented, type-safe RESTful API architecture",
         "Relational database modeling with indexing & query optimization",
@@ -166,9 +166,10 @@ const Services = () => {
         whileInView="visible"
         viewport={sectionViewport}
       >
-        <motion.p variants={item} className="text-accent uppercase tracking-[0.25em] text-[11px] font-mono font-bold mb-3">
-          // 01. CAPABILITIES & SYSTEMS
-        </motion.p>
+        <motion.div variants={item} className="bwl-eyebrow mb-3">
+          <span className="w-2 h-2 bg-accent inline-block" />
+          <span>01 · Capabilities & Systems</span>
+        </motion.div>
         <motion.h3 variants={item} className="text-3xl md:text-5xl font-heading font-bold mb-4 text-black dark:text-white leading-tight">
           What I Can Build <span className="text-accent">For You</span>
         </motion.h3>
@@ -199,7 +200,7 @@ const Services = () => {
             
             <div className="relative z-10">
               <div className="flex items-center justify-between gap-2 mb-3">
-                <span className="bwl-badge">
+                <span className="text-[11px] font-mono font-bold uppercase tracking-[0.18em] text-accent">
                   {service.badge}
                 </span>
                 <span className="text-[11px] font-mono text-gray-500 dark:text-gray-400">
@@ -257,7 +258,7 @@ const Services = () => {
             <div>
               <DialogHeader className="text-left space-y-3 pb-4 border-b border-gray-200 dark:border-white/10">
                 <div className="flex items-center gap-3">
-                  <span className="bwl-badge">
+                  <span className="text-[11px] font-mono font-bold uppercase tracking-[0.18em] text-accent">
                     {selectedService.badge}
                   </span>
                   <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">

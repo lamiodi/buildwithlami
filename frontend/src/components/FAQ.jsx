@@ -48,7 +48,10 @@ const FAQ = () => {
         viewport={sectionViewport}
         transition={{ duration: shouldReduce ? 0 : 0.5, ease: 'easeOut' }}
       >
-        <div className="bwl-badge mb-3 inline-flex">Clear Answers</div>
+        <div className="bwl-eyebrow mb-3">
+          <span className="w-2 h-2 bg-accent inline-block" />
+          <span>Frequently Asked Questions</span>
+        </div>
         <h3 className="text-3xl md:text-5xl font-heading font-bold mb-4 text-black dark:text-white">Frequently Asked Questions</h3>
         <p className="text-gray-600 dark:text-gray-400 text-base md:text-lg font-light leading-relaxed">
           Everything you need to know about my engineering services, process, and milestone billing.

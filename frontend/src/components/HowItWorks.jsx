@@ -36,7 +36,7 @@ const steps = [
   {
     number: '04',
     title: 'Launch',
-    description: 'I deploy, hand off assets and training, and stick around with 4 months of free maintenance.',
+    description: 'I deploy, hand off assets and training, and provide included post-launch warranty support.',
     icon: (
       <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
         <path d="M22 2L15 22l-4-9-9-4z"/>
@@ -79,10 +79,12 @@ const AnimatedStat = ({ stat }) => {
 
   return (
     <div ref={ref} className="text-center md:text-left">
-      <div className="text-3xl md:text-4xl font-heading font-bold text-white mb-1">
+      <div className="text-3xl md:text-4xl font-heading font-bold text-gray-900 dark:text-white mb-1">
         {stat.isText ? stat.value : `${displayValue}${stat.suffix || ''}`}
       </div>
-      <div className="text-[10px] uppercase tracking-widest text-gray-300 font-bold">{stat.label}</div>
+      <div className="text-[10px] uppercase tracking-widest text-gray-500 dark:text-gray-400 font-bold font-mono">
+        {stat.label}
+      </div>
     </div>
   );
 };
@@ -104,8 +106,9 @@ const HowItWorks = () => {
           whileInView="visible"
           viewport={sectionViewport}
         >
-          <div className="bwl-badge mb-4 inline-flex">
-            <span>// 04. EXECUTION FRAMEWORK</span>
+          <div className="bwl-eyebrow mb-4">
+            <span className="w-2 h-2 bg-accent inline-block" />
+            <span>04 · Execution Framework</span>
           </div>
           <motion.h2 variants={item} className="text-4xl md:text-5xl font-heading font-bold text-black dark:text-white mb-4">
             How It <span className="italic font-normal text-accent">Works</span>

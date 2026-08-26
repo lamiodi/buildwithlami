@@ -5,6 +5,7 @@ import { Skeleton, SkeletonTransition } from '../components/Skeleton';
 import { staggerContainer, fadeUpItem, cardHover, cardHoverTransition, buttonHover, buttonTap, reducedMotionVariants } from '../utils/motion';
 import { api } from '../services/api';
 import { notify } from '../services/notify';
+import { CARE_PLANS } from '../config/pricing';
 
 const TrackerSkeleton = () => {
   return (
@@ -335,13 +336,13 @@ const ClientProjectTracker = () => {
               <div className="md:col-span-2 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-3xl shadow-lg p-1 text-white">
                 <div className="bg-white dark:bg-gray-900 rounded-[22px] p-8 md:p-10 flex flex-col md:flex-row items-center gap-8">
                   <div className="flex-1">
-                    <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">Maintenance & Support Package 🛡️</h3>
-                    <p className="text-blue-600 dark:text-blue-400 text-xs font-bold uppercase tracking-widest mb-4">Includes 4 Months Free After Launch</p>
+                    <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">Essential Care Plan 🛡️</h3>
+                    <p className="text-blue-600 dark:text-blue-400 text-xs font-bold uppercase tracking-widest mb-4">Post-Launch Warranty Included</p>
                     <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed mb-4 font-medium">
-                      Every project includes <strong className="font-bold text-gray-900 dark:text-white">4 months of free maintenance immediately after launch</strong> to cover early fixes, stability checks, and support. 
-                      After that, this recommended annual package covers <strong className="font-bold text-gray-900 dark:text-white">Premium Hosting</strong>, <strong className="font-bold text-gray-900 dark:text-white">Domain Renewal</strong>, <strong className="font-bold text-gray-900 dark:text-white">Security Updates</strong>, and <strong className="font-bold text-gray-900 dark:text-white">Technical Support</strong> so your site stays reliable, secure, and current long-term.
+                      Every project includes <strong className="font-bold text-gray-900 dark:text-white">complimentary post-launch warranty support</strong> to cover early bug fixes, stability checks, and handover. 
+                      For long-term reliability, our <strong className="font-bold text-gray-900 dark:text-white">Essential Care Plan</strong> covers <strong className="font-bold text-gray-900 dark:text-white">Hosting Account Management</strong>, <strong className="font-bold text-gray-900 dark:text-white">SSL Renewal</strong>, <strong className="font-bold text-gray-900 dark:text-white">Security Updates</strong>, and <strong className="font-bold text-gray-900 dark:text-white">Automated Uptime Monitoring</strong>. All third-party bills (hosting, domain, email, storage) are paid directly to providers — we configure everything with 0% markup.
                     </p>
-                    <p className="text-gray-900 dark:text-white font-bold">₦99,000 <span className="text-gray-700 dark:text-gray-400 font-bold text-xs uppercase tracking-widest">/ Per Year All-inclusive</span></p>
+                    <p className="text-gray-900 dark:text-white font-bold">₦{CARE_PLANS[0].priceFormatted} <span className="text-gray-700 dark:text-gray-400 font-bold text-xs uppercase tracking-widest">/ Per Year Annual Care</span></p>
                   </div>
                   <motion.a 
                     href={project.maintenance_plan_url} 

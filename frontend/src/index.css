@@ -178,9 +178,14 @@ header,
     @apply px-4 md:px-5 py-2.5 text-xs font-heading font-bold uppercase tracking-[0.15em] transition-all duration-300 flex items-center gap-2 border cursor-pointer;
   }
 
+  /* Editorial Section Eyebrow (Senior Design Typography) */
+  .bwl-eyebrow {
+    @apply inline-flex items-center gap-2.5 text-xs font-mono font-bold uppercase tracking-[0.22em] text-accent;
+  }
+
   /* Standard Badge Chip (Sharp Architectural Tag) */
   .bwl-badge {
-    @apply inline-flex items-center gap-1.5 px-2.5 py-1 bg-accent/10 dark:bg-accent/15 border border-accent/30 text-accent text-[10px] font-mono font-bold uppercase tracking-[0.18em];
+    @apply inline-flex items-center gap-1.5 text-[11px] font-mono font-bold uppercase tracking-[0.18em] text-accent;
   }
 }
 

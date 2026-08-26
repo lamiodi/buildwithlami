@@ -17,9 +17,10 @@ const About = () => {
         whileInView="visible"
         viewport={sectionViewport}
       >
-        <motion.p variants={item} className="uppercase tracking-[0.25em] text-[11px] text-accent mb-3 font-mono font-bold">
-          // 05. ABOUT THE STUDIO
-        </motion.p>
+        <motion.div variants={item} className="bwl-eyebrow mb-3">
+          <span className="w-2 h-2 bg-accent inline-block" />
+          <span>05 · Studio Leadership & Philosophy</span>
+        </motion.div>
         <motion.h2 variants={item} className="text-4xl md:text-6xl lg:text-7xl font-heading font-bold mb-12 tracking-tight text-black dark:text-white">
           ODIBENUAH EUGE<span className="text-accent">NE</span>
         </motion.h2>
@@ -35,8 +36,9 @@ const About = () => {
             <MapPin className="w-3.5 h-3.5 text-accent mr-2" />
             <span>LAGOS, NIGERIA</span>
           </div>
-          <div className="absolute top-6 left-6 font-handwritten text-3xl md:text-4xl text-white transform -rotate-3 opacity-90 drop-shadow-md">
-            My Setup
+          <div className="absolute top-6 left-6 px-3.5 py-1.5 bg-black/70 backdrop-blur-md border border-white/10 text-white/90 font-mono text-[10px] font-medium tracking-[0.2em] uppercase flex items-center gap-2">
+            <span className="w-1.5 h-1.5 bg-accent inline-block" />
+            <span>My Setup</span>
           </div>
         </motion.div>
 

@@ -31,80 +31,93 @@ const STUDIO_PRESETS = [
   {
     id: "web_starter",
     category: "Websites",
-    label: "Websites: Starter (₦250k)",
+    label: "Websites: Starter (₦270k)",
     title: "Starter Digital Platform & Portfolio",
     currency: "NGN",
     items: [
-      { description: "Phase 1: Minimalist UI/UX Design & Brand Asset Integration", qty: 1, rate: 100000 },
-      { description: "Phase 2: High-Performance Frontend Build & WhatsApp Capture", qty: 1, rate: 100000 },
-      { description: "Phase 3: Core Web Vitals Optimization & 1-Month Support", qty: 1, rate: 50000 }
+      { description: "Phase 1: Minimalist UI/UX Design & Brand Asset Integration", qty: 1, rate: 110000 },
+      { description: "Phase 2: High-Performance Frontend Build & WhatsApp Capture", qty: 1, rate: 110000 },
+      { description: "Phase 3: Core Web Vitals Optimization & 14-Day Warranty Support", qty: 1, rate: 50000 }
     ],
-    notes: "Starter Web Package. Includes 1-month post-launch support and 50% kickoff / 50% delivery milestone payment terms."
+    notes: "Starter Web Package. Includes 14-day post-launch warranty support and 50% kickoff / 50% delivery milestone payment terms."
   },
   {
     id: "web_business",
     category: "Websites",
-    label: "Websites: Business ⭐ (₦600k)",
+    label: "Websites: Growth ⭐ (₦520k)",
     title: "Business Corporate Platform & CMS",
     currency: "NGN",
     items: [
       { description: "Phase 1: Information Architecture, UX Wireframes & Design System", qty: 1, rate: 150000 },
-      { description: "Phase 2: Full Corporate Build (Up to 10 Pages) + CMS Integration", qty: 1, rate: 300000 },
-      { description: "Phase 3: Lead Capture CRM Pipeline, SEO Setup & 4-Mo SLA Support", qty: 1, rate: 150000 }
+      { description: "Phase 2: Full Corporate Build (Up to 10 Pages) + CMS Integration", qty: 1, rate: 250000 },
+      { description: "Phase 3: Lead Capture CRM Pipeline, SEO Setup & 30-Day Support", qty: 1, rate: 120000 }
     ],
-    notes: "Standard Corporate Platform. Includes CMS management, CRM lead sync, 4 months post-launch support warranty, and 50/50 milestone payment terms."
+    notes: "Growth Corporate Platform. Includes CMS management, CRM lead sync, 30 days post-launch support warranty, and 50/50 milestone payment terms. Production infrastructure billed separately or managed."
   },
   {
     id: "web_plus",
     category: "Websites",
-    label: "Websites: Business Plus (₦850k)",
-    title: "Business Plus Portal & Multi-Department Platform",
+    label: "Websites: Pro Platform (₦950k+)",
+    title: "Business Pro Portal & Multi-Department Platform",
     currency: "NGN",
     items: [
-      { description: "Phase 1: Enterprise Information Architecture & Portal UI/UX", qty: 1, rate: 200000 },
-      { description: "Phase 2: Custom Multi-Page Portal, Staff Directory & Invoicing", qty: 1, rate: 450000 },
-      { description: "Phase 3: Technical SEO Audit, Speed Optimization & 6-Mo SLA Support", qty: 1, rate: 200000 }
+      { description: "Phase 1: Enterprise Information Architecture & Portal UI/UX", qty: 1, rate: 250000 },
+      { description: "Phase 2: Custom Multi-Page Portal, Staff Directory & Invoicing", qty: 1, rate: 500000 },
+      { description: "Phase 3: Technical SEO Audit, Speed Optimization & 60-Day Support", qty: 1, rate: 200000 }
     ],
-    notes: "Business Plus Platform. Includes custom multi-page portal, staff directory, 6 months post-launch support, and 50/50 milestone billing."
+    notes: "Business Pro Platform. Includes custom multi-page portal, staff directory, 60 days post-launch support, and 50/50 milestone billing."
   },
   {
     id: "ecom_launch",
     category: "E-Commerce",
-    label: "E-Commerce: Launch (₦650k)",
+    label: "E-Commerce: Starter (₦650k)",
     title: "E-Commerce Launch Engine (Boutique)",
     currency: "NGN",
     items: [
-      { description: "Phase 1: Storefront UI/UX & Catalog Architecture (Up to 30 SKUs)", qty: 1, rate: 200000 },
+      { description: "Phase 1: Storefront UI/UX & Catalog Architecture (Up to 25 SKUs)", qty: 1, rate: 200000 },
       { description: "Phase 2: Frictionless Checkout, Paystack/Cards & Inventory Setup", qty: 1, rate: 350000 },
-      { description: "Phase 3: Order Management Dashboard, Testing & 1-Month Support", qty: 1, rate: 100000 }
+      { description: "Phase 3: Order Management Dashboard, Testing & 30-Day Support", qty: 1, rate: 100000 }
     ],
-    notes: "E-Commerce Launch Package. Includes 30 products setup, single gateway integration, 1 month support, and 50/50 milestone billing."
+    notes: "E-Commerce Starter Package. Includes up to 25 products, Paystack integration, 30 days support, and 50/50 milestone billing."
   },
   {
     id: "ecom_growth",
     category: "E-Commerce",
-    label: "E-Commerce: Growth ⭐ (₦850k — e.g. Sassy Brand)",
-    title: "E-Commerce Growth Platform (Multi-Gateway & Cross-Border)",
+    label: "E-Commerce: Growth ⭐ (₦1.25M)",
+    title: "E-Commerce Growth Platform (Multi-Gateway & Abandoned Cart)",
     currency: "NGN",
     items: [
-      { description: "Phase 1: Bespoke Storefront UI/UX, Product Filtering & Category Hierarchy", qty: 1, rate: 250000 },
-      { description: "Phase 2: Multi-Gateway Setup (Paystack + Stripe/UAE), Multi-Zone Shipping & Accounts", qty: 1, rate: 400000 },
-      { description: "Phase 3: Abandoned Cart Automation, Discount Engine, GA4/Meta Pixel & 4-Mo SLA", qty: 1, rate: 200000 }
+      { description: "Phase 1: Bespoke Storefront UI/UX, Product Filtering & Category Hierarchy", qty: 1, rate: 350000 },
+      { description: "Phase 2: Multi-Gateway Setup (Paystack + Stripe), Multi-Zone Shipping & Accounts", qty: 1, rate: 600000 },
+      { description: "Phase 3: Abandoned Cart Automation, Discount Engine, GA4/Meta Pixel & 60-Day Warranty", qty: 1, rate: 300000 }
     ],
-    notes: "E-Commerce Growth Package. Includes up to 100 products, multi-gateway & multi-zone shipping (UAE/Nigeria/Intl), customer accounts, abandoned-cart recovery, discount engine, 4 months post-launch support, and 50/50 milestone billing."
+    notes: "E-Commerce Growth Package. Includes up to 100 products, multi-gateway & multi-zone shipping, customer accounts, abandoned-cart recovery, discount engine, 60 days post-launch support, and 50/50 milestone billing."
   },
   {
-    id: "ecom_pro",
-    category: "E-Commerce",
-    label: "E-Commerce: Commerce Pro (₦1.2M)",
-    title: "Enterprise Commerce Operations & Multi-Warehouse Platform",
+    id: "portal_gatepass",
+    category: "Business Portals",
+    label: "Portals: Estate Gate Pass & QR Access (₦850k)",
+    title: "Estate Visitor Pass & Resident Access Operations Hub",
     currency: "NGN",
     items: [
-      { description: "Phase 1: Enterprise Commerce Architecture & Complex Variant Matrices", qty: 1, rate: 350000 },
-      { description: "Phase 2: Global Multi-Currency Checkout, Courier API Sync & Logistics Ledger", qty: 1, rate: 550000 },
-      { description: "Phase 3: Custom Accounting Webhooks, ERP Sync, Analytics & 6-Mo SLA", qty: 1, rate: 300000 }
+      { description: "Phase 1: Access System Architecture, Resident UI & Admin Dashboard", qty: 1, rate: 300000 },
+      { description: "Phase 2: QR Guard Scanner PWA, Timed Visitor Passes & SMS Alerts", qty: 1, rate: 400000 },
+      { description: "Phase 3: Vehicle Log System, Blacklist Security & Handover", qty: 1, rate: 150000 }
     ],
-    notes: "Enterprise Commerce Pro. Includes multi-warehouse shipping logic, courier APIs, multi-currency checkout, 6 months post-launch support, and 50/50 milestone terms."
+    notes: "Access Operations Hub. Includes resident portal, guard QR scanner, SMS entry alerts, 30 days warranty support, and 50/50 milestone billing."
+  },
+  {
+    id: "portal_school",
+    category: "Business Portals",
+    label: "Portals: School Management & Grading (₦1.6M)",
+    title: "School Management System & Academic Report Portal",
+    currency: "NGN",
+    items: [
+      { description: "Phase 1: Academic Data Model, Multi-Role Auth (Admin/Teacher/Parent)", qty: 1, rate: 500000 },
+      { description: "Phase 2: Student Portals, Automated CA Grading & PDF Report Cards", qty: 1, rate: 750000 },
+      { description: "Phase 3: Online School Fees (Paystack), Attendance & 60-Day Warranty", qty: 1, rate: 350000 }
+    ],
+    notes: "School Management ERP. Includes student registration, automated PDF report card compilation, online tuition payments, and 60 days academic warranty."
   },
   {
     id: "soft_mvp",
@@ -115,9 +128,9 @@ const STUDIO_PRESETS = [
     items: [
       { description: "Phase 1: Data Modeling, RBAC Auth & REST API Architecture", qty: 1, rate: 350000 },
       { description: "Phase 2: Full-Stack Web Application, Interactive Dashboards & Logic", qty: 1, rate: 600000 },
-      { description: "Phase 3: Webhook Integrations, QA Testing, Production Deployment & 4-Mo SLA", qty: 1, rate: 250000 }
+      { description: "Phase 3: Webhook Integrations, QA Testing, Production Deployment & 90-Day Warranty", qty: 1, rate: 250000 }
     ],
-    notes: "Custom Web App MVP. Includes custom database, RBAC authentication, interactive dashboard, 4 months post-launch support, 100% IP transfer, and 50/50 milestone terms."
+    notes: "Custom Web App MVP. Includes custom database, RBAC authentication, interactive dashboard, 90 days post-launch warranty support, 100% IP transfer, and 50/50 milestone terms."
   },
   {
     id: "soft_growth",
@@ -128,16 +141,16 @@ const STUDIO_PRESETS = [
     items: [
       { description: "Phase 1: Enterprise System Modeling, Multi-Role Workflows & API Specs", qty: 1, rate: 600000 },
       { description: "Phase 2: Custom ERP Modules, Financial Ledgers & Client Data Vault", qty: 1, rate: 1000000 },
-      { description: "Phase 3: Partner Integrations, Automated CI/CD, Load Testing & 6-Mo SLA", qty: 1, rate: 400000 }
+      { description: "Phase 3: Partner Integrations, Automated CI/CD, Load Testing & 90-Day Warranty", qty: 1, rate: 400000 }
     ],
-    notes: "Growth Platform Architecture. Includes multi-role workflows, automated reporting ledgers, 6 months post-launch support, and 50/50 milestone terms."
+    notes: "Growth Platform Architecture. Includes multi-role workflows, automated reporting ledgers, 90 days post-launch warranty support, and 50/50 milestone terms."
   }
 ];
 
 const PRESET_ADDONS = [
   { label: "+ Int'l Shipping (₦100k)", desc: "Advanced Multi-Zone International Shipping Setup & Courier APIs", rate: 100000 },
   { label: "+ Extra Gateway (₦80k)", desc: "Additional Payment Gateway (Stripe, UAE Gateway, PayPal)", rate: 80000 },
-  { label: "+ Advanced SEO (₦100k)", desc: "Advanced Technical SEO, Schema Markup & 100% Core Web Vitals", rate: 100000 },
+  { label: "+ Advanced SEO (₦100k)", desc: "Advanced Technical SEO, Schema Markup & Core Web Vitals Compliance", rate: 100000 },
   { label: "+ Custom Automation (₦100k)", desc: "Custom Business Workflow Automations & Webhooks", rate: 100000 },
   { label: "+ CRM Pipeline (₦100k)", desc: "CRM & Leads Pipeline Integration (HubSpot / Airtable)", rate: 100000 },
   { label: "+ Analytics & Meta Pixel (₦50k)", desc: "Advanced Conversion Analytics & Meta Pixel CAPI Tracking", rate: 50000 },
@@ -166,12 +179,12 @@ export default function AdminQuotations() {
         lead_id: '',
         title: '',
         currency: 'NGN',
-        notes: 'Payment Terms: 50% Kickoff Deposit to commence architecture & development. 50% Final Delivery Balance upon QA, handover, and production deployment. Includes 4 months post-launch support included.',
+        notes: 'Payment Terms: 50% Kickoff Deposit to commence architecture & development. 50% Final Delivery Balance upon QA, handover, and production deployment. Includes 90-day post-launch warranty support.',
         valid_until: '',
         line_items: [
             { description: 'Phase 1: Discovery & System Architecture', qty: 1, rate: 150000 },
             { description: 'Phase 2: Full-Stack Platform Development', qty: 1, rate: 450000 },
-            { description: 'Phase 3: QA Testing, Deployment & 4-Mo SLA Support', qty: 1, rate: 100000 }
+            { description: 'Phase 3: QA Testing, Deployment & 90-Day Warranty Support', qty: 1, rate: 100000 }
         ]
     });
 
@@ -257,7 +270,7 @@ export default function AdminQuotations() {
     // Auto-Generate 50/50 Note
     const apply5050TermsToNotes = () => {
         const symbol = form.currency === 'USD' ? '$' : '₦';
-        const noteText = `Payment Terms: 50% Kickoff Deposit (${symbol}${upfrontDeposit50.toLocaleString()}) to commence architecture & development. 50% Final Delivery Balance (${symbol}${deliveryBalance50.toLocaleString()}) upon QA, handover, and production deployment. Includes 4 months post-launch support included.`;
+        const noteText = `Payment Terms: 50% Kickoff Deposit (${symbol}${upfrontDeposit50.toLocaleString()}) to commence architecture & development. 50% Final Delivery Balance (${symbol}${deliveryBalance50.toLocaleString()}) upon QA, handover, and production deployment. Includes 90-day post-launch warranty support.`;
         setForm(prev => ({ ...prev, notes: noteText }));
         notify.success('Updated notes with 50/50 milestone payment terms');
     };
@@ -293,7 +306,7 @@ export default function AdminQuotations() {
                     lead_id: '',
                     title: '',
                     currency: 'NGN',
-                    notes: 'Payment Terms: 50% Kickoff Deposit to commence architecture & development. 50% Final Delivery Balance upon QA, handover, and production deployment. Includes 4 months post-launch support included.',
+                    notes: 'Payment Terms: 50% Kickoff Deposit to commence architecture & development. 50% Final Delivery Balance upon QA, handover, and production deployment. Includes 90-day post-launch warranty support.',
                     valid_until: '',
                     line_items: [{ description: 'Custom Software Development', qty: 1, rate: 350000 }]
                 });

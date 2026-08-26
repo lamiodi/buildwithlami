@@ -17,8 +17,9 @@ const Hero = () => {
         initial="hidden"
         animate="visible"
       >
-        <motion.div variants={item} className="bwl-badge mb-6 inline-flex">
-          <span>// DIGITAL PRODUCT STUDIO · DESIGN & ENGINEERING</span>
+        <motion.div variants={item} className="bwl-eyebrow mb-6">
+          <span className="w-2 h-2 bg-accent inline-block" />
+          <span>Digital Product Studio · Design & Engineering</span>
         </motion.div>
 
         <motion.h1 variants={item} className="text-4xl sm:text-6xl md:text-7xl lg:text-[84px] font-heading font-extrabold leading-[1.02] tracking-tight mb-6 text-black dark:text-white">

@@ -341,8 +341,9 @@ const AboutPage = () => {
           >
             <StarIcon className="absolute top-6 right-6 w-8 h-8 text-gray-200 dark:text-white/10" />
             <div>
-              <div className="bwl-badge mb-4 inline-flex">
-                <span>// LEADERSHIP · SYSTEMS & CODE</span>
+              <div className="bwl-eyebrow mb-4">
+                <span className="w-2 h-2 bg-accent inline-block" />
+                <span>Leadership · Systems & Architecture</span>
               </div>
               <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-heading font-bold mb-3">
                 Eugene Odibenuah

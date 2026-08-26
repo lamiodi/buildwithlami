@@ -2,11 +2,10 @@ import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useReducedMotion } from 'framer-motion';
 import { staggerContainer, fadeUpItem, cardHover, cardHoverTransition, buttonHover, buttonTap, sectionViewport, reducedMotionVariants } from '../utils/motion';
-import { useAutomatedCurrency } from '../utils/currency';
+import { BUILD_PRICING, COMMERCIAL_TERMS } from '../config/pricing';
 
 const ServicesPage = () => {
   const shouldReduce = useReducedMotion();
-  const currency = useAutomatedCurrency();
   const container = shouldReduce ? reducedMotionVariants : staggerContainer;
   const item = shouldReduce ? reducedMotionVariants : fadeUpItem;
 
@@ -21,9 +20,9 @@ const ServicesPage = () => {
 
   const audienceTypes = [
     "Founders launching MVPs",
-    "Businesses upgrading websites",
-    "Teams needing internal tools",
-    "Brands expanding e-commerce"
+    "Schools & Training Academies",
+    "Estates & Facility Operations",
+    "Warehouses & Supermarkets"
   ];
 
   const workflowSteps = [
@@ -44,19 +43,36 @@ const ServicesPage = () => {
     },
     {
       num: "04",
-      title: "Production Launch & 4-Mo SLA",
-      desc: "SSL security hardening, domain cutover, full GitHub code transfer, and 4 months of free warranty."
+      title: "Production Launch & Included Warranty",
+      desc: "SSL security hardening, domain cutover, full GitHub code transfer, and included post-launch warranty support."
     }
   ];
 
   const trustItems = [
     "50/50 Milestone Terms",
-    "4 Months Included Support",
+    "Included Warranty Support",
     "100% Code & IP Ownership",
-    "Sub-Second Performance SLA"
+    "Production Performance Tuning"
   ];
 
   const services = [
+    {
+      id: "business-portals",
+      title: "Business Portals, School Systems & Operational ERPs",
+      bestFor: "Schools, residential estates, wholesale warehouses, and supermarket retail chains",
+      desc: "Turnkey operational systems: student result & tuition portals, QR gate-pass visitor apps, multi-branch warehouse inventory ledgers, and fast cashier POS stations.",
+      outcome: "An automated operations engine that removes manual paperwork, prevents stock shrinkage, and speeds up daily administrative workflows.",
+      deliverables: [
+        "School Admission, Automated CA Grading & PDF Report Cards",
+        "Digital Estate Gate Pass with QR Guard Scanner PWA & SMS Alerts",
+        "Warehouse Batch/Expiry Inventory Hub & Inter-Branch Transfers",
+        "Supermarket POS Cashier Station with Barcode & Thermal Print Support",
+        "100% Code Transfer, GitHub Repository Handover & Staff Training"
+      ],
+      icon: (
+        <svg className="w-8 h-8 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
+      )
+    },
     {
       id: "web-platforms",
       title: "Custom Web Platforms & Portals",
@@ -68,7 +84,7 @@ const ServicesPage = () => {
         "Role-Based Access Control (RBAC) & Secure Sessions",
         "Automated Payment & Transactional Messaging Pipelines",
         "Admin Operational Dashboards & Analytics",
-        "100% Code & IP Ownership Transfer + 4 Months Support"
+        "100% Code & IP Ownership Transfer + Included Warranty"
       ],
       icon: (
         <svg className="w-8 h-8 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
@@ -78,11 +94,11 @@ const ServicesPage = () => {
       id: "interfaces",
       title: "High-Performance Digital Storefronts & UIs",
       bestFor: "Brands needing high-ticket conversion, rapid speed & polished aesthetics",
-      desc: "Modern digital interfaces engineered with sub-second page loads, micro-animations, accessible design systems, and seamless responsive layouts.",
+      desc: "Modern digital interfaces engineered with fast page loads, micro-animations, accessible design systems, and seamless responsive layouts.",
       outcome: "A high-converting digital storefront that builds immediate authority and delivers seamless browsing across mobile and desktop.",
       deliverables: [
         "Bespoke Visual Identity & Micro-Interactions",
-        "Sub-Second Load Times Scoring 95+ on Google Lighthouse",
+        "Lighthouse-Optimized Builds — targeting 90+ scores on delivered code",
         "Flawless Mobile-First Layout & Touch Experience",
         "Interactive Quotation Tools & Scoping Calculators",
         "Frictionless Lead Capture & Spam Protection"
@@ -100,9 +116,9 @@ const ServicesPage = () => {
       deliverables: [
         "Documented, Type-Safe REST API Endpoints",
         "Normalized PostgreSQL / Supabase Schema Architecture",
-        "Paystack, Stripe, Grey & International Payment Gateways",
-        "Automated Database Backup Protocols & Rate-Limiting",
-        "Complete API Postman Collections & Technical Runbooks"
+        "Encrypted authentication (HTTPS/SSL) & hardened dependency management",
+        "Database integrity constraints & automated backups",
+        "Optimized & indexed database queries"
       ],
       icon: (
         <svg className="w-8 h-8 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" /></svg>
@@ -155,8 +171,9 @@ const ServicesPage = () => {
           transition={{ duration: shouldReduce ? 0 : 0.5 }}
           className="text-left max-w-3xl"
         >
-          <div className="bwl-badge mb-4 inline-flex">
-            <span>// ARCHITECTURAL SERVICE MATRIX</span>
+          <div className="bwl-eyebrow mb-4">
+            <span className="w-2 h-2 bg-accent inline-block" />
+            <span>Architectural Service Matrix</span>
           </div>
           <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-heading font-bold tracking-tight text-black dark:text-white leading-[1.08]">
             Built for Scale, Speed & <span className="text-accent">Revenue.</span>
@@ -266,7 +283,10 @@ const ServicesPage = () => {
         {/* Process: 4-Step Structured Workflow */}
         <div className="space-y-12">
           <div className="text-center max-w-2xl mx-auto space-y-3">
-            <div className="bwl-badge inline-flex">Process Framework</div>
+            <div className="bwl-eyebrow mb-2">
+              <span className="w-2 h-2 bg-accent inline-block" />
+              <span>04 · Process Framework</span>
+            </div>
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-heading font-bold text-black dark:text-white">
               How a project <span className="text-accent">moves forward</span>
             </h2>
@@ -310,33 +330,34 @@ const ServicesPage = () => {
           
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
             <div className="lg:col-span-7 space-y-4">
-              <div className="bwl-badge inline-flex">
-                Transparent Studio Rates
+              <div className="bwl-eyebrow mb-2">
+                <span className="w-2 h-2 bg-accent inline-block" />
+                <span>Transparent Studio Rates</span>
               </div>
               <h2 className="text-3xl sm:text-4xl md:text-5xl font-heading font-bold tracking-tight text-white leading-tight">
                 Predictable Scope & <span className="text-accent">Milestone Invoicing</span>
               </h2>
               <p className="text-gray-300 text-sm sm:text-base font-light leading-relaxed">
-                All projects are billed on standard 50/50 milestone terms with 4 months of included maintenance and 100% intellectual property transfer. Use our interactive quotation builder to calculate your exact project scope.
+                All projects are billed on standard 50/50 milestone terms with post-launch warranty support and 100% intellectual property transfer. Use our interactive quotation builder to calculate your exact project scope.
               </p>
               
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
                 <div className="bg-white/5 border border-white/10 p-3.5 rounded-xl">
                   <span className="text-[10px] text-gray-400 uppercase tracking-widest font-mono block">Websites & Portals</span>
                   <span className="text-sm font-bold text-white mt-1 block">
-                    From {currency === 'USD' ? '$700' : '₦250k'}
+                    From ₦{BUILD_PRICING.websites.startingPriceFormatted}
                   </span>
                 </div>
                 <div className="bg-white/5 border border-white/10 p-3.5 rounded-xl">
                   <span className="text-[10px] text-gray-400 uppercase tracking-widest font-mono block">E-Commerce Engines</span>
                   <span className="text-sm font-bold text-white mt-1 block">
-                    From {currency === 'USD' ? '$1,800' : '₦650k'}
+                    From ₦{BUILD_PRICING.ecommerce.startingPriceFormatted}
                   </span>
                 </div>
                 <div className="bg-white/5 border border-white/10 p-3.5 rounded-xl">
                   <span className="text-[10px] text-gray-400 uppercase tracking-widest font-mono block">Custom Software</span>
                   <span className="text-sm font-bold text-white mt-1 block">
-                    From {currency === 'USD' ? '$3,200' : '₦1.2M'}
+                    From ₦{BUILD_PRICING.software.startingPriceFormatted}
                   </span>
                 </div>
               </div>

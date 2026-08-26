@@ -1,24 +1,22 @@
 import React from 'react';
 
+/**
+ * High-taste geometric check icon for feature lists, deliverable matrices, and scope guarantees.
+ */
 const CheckIcon = ({ className = '' }) => (
   <svg
-    className={`w-5 h-5 text-accent ${className}`}
-    aria-hidden="true"
+    className={`w-4 h-4 shrink-0 text-accent ${className}`}
+    viewBox="0 0 16 16"
     fill="none"
-    stroke="currentColor"
-    viewBox="0 0 24 24"
+    xmlns="http://www.w3.org/2000/svg"
+    aria-hidden="true"
   >
     <path
+      d="M13.25 4.75L6 12L2.75 8.75"
+      stroke="currentColor"
+      strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
-      strokeWidth={2}
-      d="M9 12l2 2 4-4"
-    />
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={2}
-      d="M6 12a9 9 0 1118 0 9 9 0 01-18 0z"
     />
   </svg>
 );

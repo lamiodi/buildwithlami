@@ -5,25 +5,18 @@ import SecurityPopup from '../components/SecurityPopup';
 import { api } from '../services/api';
 import { buttonHover, buttonTap, cardHover, cardHoverTransition, reducedMotionVariants, fadeUpItem, staggerContainer } from '../utils/motion';
 import { CONTACT } from '../config/contact';
+import { BUDGET_RANGES } from '../config/pricing';
 import { Clock, PhoneCall, ShieldCheck, CheckCircle2, ArrowRight } from 'lucide-react';
 
 const PROJECT_TYPES = [
   'Business Website',
   'E-Commerce',
-  'Web Application',
-  'SaaS Platform',
+  'Business Portal / ERP (School, Estate, Warehouse, POS)',
+  'Web Application & SaaS',
   'UI/UX Design',
   'SEO & Growth',
   'AI & Automations',
   'Not sure yet',
-];
-
-const BUDGET_RANGES = [
-  'Under ₦350k / $900',
-  '₦350k – ₦850k / $2.5k',
-  '₦850k – ₦2M / $5k',
-  '₦2M+ / $5k+',
-  'Flexible / Quote Me',
 ];
 
 const TIMELINE_OPTIONS = [
@@ -184,8 +177,9 @@ const ContactPage = () => {
           transition={{ duration: shouldReduce ? 0 : 0.5 }}
           className="text-left max-w-3xl"
         >
-          <div className="bwl-badge mb-4 inline-flex">
-            <span>// DIRECT PROJECT DISCOVERY</span>
+          <div className="bwl-eyebrow mb-4">
+            <span className="w-2 h-2 bg-accent inline-block" />
+            <span>Direct Project Discovery</span>
           </div>
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-heading font-extrabold tracking-tight text-black dark:text-white leading-[1.08]">
             Let&apos;s build something <br className="hidden sm:block" />
@@ -209,7 +203,10 @@ const ContactPage = () => {
             className="lg:col-span-7 bg-white dark:bg-[#141414] border border-gray-200 dark:border-white/10 rounded-3xl p-6 sm:p-10 shadow-2xl space-y-8"
           >
             <div>
-              <span className="text-xs uppercase tracking-[0.25em] font-bold text-accent font-mono">// Project Scope Intake</span>
+              <div className="bwl-eyebrow mb-1">
+                <span className="w-2 h-2 bg-accent inline-block" />
+                <span>Project Scope Intake</span>
+              </div>
               <h2 className="text-2xl sm:text-3xl font-heading font-bold text-black dark:text-white mt-1">
                 Tell me about your project
               </h2>

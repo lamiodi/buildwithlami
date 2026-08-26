@@ -385,7 +385,10 @@ const ProjectsPage = () => {
           className="bwl-feature-card text-center relative overflow-hidden shadow-xl"
         >
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-accent to-transparent"></div>
-          <div className="bwl-badge mb-3 inline-flex">Have a project in mind?</div>
+          <div className="bwl-eyebrow mb-4">
+            <span className="w-2 h-2 bg-accent inline-block" />
+            <span>Initiate Project Scope</span>
+          </div>
           <h2 className="text-4xl md:text-6xl font-heading font-bold text-black dark:text-white mb-6">
             Let's work <span className="text-accent">together</span>
           </h2>

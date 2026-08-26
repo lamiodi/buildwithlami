@@ -74,12 +74,10 @@ const Projects = () => {
       {/* Section Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
         <div>
-          <motion.p
-            variants={item}
-            className="text-accent uppercase tracking-[0.25em] text-[11px] font-mono font-bold mb-3"
-          >
-            // 02. SELECTED WORK
-          </motion.p>
+          <motion.div variants={item} className="bwl-eyebrow mb-3">
+            <span className="w-2 h-2 bg-accent inline-block" />
+            <span>02 · Selected Work</span>
+          </motion.div>
           <motion.h2
             variants={item}
             className="text-4xl md:text-5xl lg:text-6xl font-heading font-bold tracking-tight text-black dark:text-white"

@@ -47,7 +47,10 @@ const SaaSProducts = () => {
         viewport={sectionViewport}
         transition={{ duration: shouldReduce ? 0 : 0.5, ease: 'easeOut' }}
       >
-        <div className="bwl-badge mb-3 inline-flex">Independent Ventures</div>
+        <div className="bwl-eyebrow mb-3">
+          <span className="w-2 h-2 bg-accent inline-block" />
+          <span>Independent Software Ventures</span>
+        </div>
         <h3 className="text-3xl md:text-5xl font-heading font-bold mb-4 text-black dark:text-white">SaaS Products & Ventures</h3>
         <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto text-base md:text-lg font-light leading-relaxed">
           Beyond bespoke client builds, I architect and maintain specialized software products solving operational challenges.
