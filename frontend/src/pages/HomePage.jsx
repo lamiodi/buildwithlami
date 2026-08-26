@@ -1,12 +1,11 @@
 import React, { useEffect, useLayoutEffect } from 'react';
 import Hero from '../components/Hero';
-import HowItWorks from '../components/HowItWorks';
-import About from '../components/About';
-import Services from '../components/Services';
-import WhyChoose from '../components/WhyChoose';
-import Pricing from '../components/Pricing';
 import Projects from '../components/Projects';
+import Services from '../components/Services';
+import WhyAndHow from '../components/WhyAndHow';
 import Testimonials from '../components/Testimonials';
+import Pricing from '../components/Pricing';
+import About from '../components/About';
 import FAQ from '../components/FAQ';
 import Contact from '../components/Contact';
 
@@ -35,8 +34,7 @@ const HomePage = () => {
       <Hero />
       <Projects />
       <Services />
-      <WhyChoose />
-      <HowItWorks />
+      <WhyAndHow />
       <Testimonials />
       <Pricing isHomepage={true} />
       <About />

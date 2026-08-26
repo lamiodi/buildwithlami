@@ -40,19 +40,33 @@ const Footer = () => {
               <div className="flex items-center justify-between mb-3">
                 <span className="text-[11px] font-mono font-bold tracking-[0.2em] text-accent uppercase flex items-center gap-1.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
-                  SCAN ME
+                  SCAN FOR TIKTOK
                 </span>
-                <span className="text-[10px] font-mono text-gray-400 uppercase tracking-widest">Connect</span>
+                <a 
+                  href="https://www.tiktok.com/@buildwithlami?_r=1&_t=ZS-99D0TjifdM9"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[10px] font-mono text-gray-400 hover:text-accent uppercase tracking-widest transition-colors flex items-center gap-1"
+                >
+                  <span>@buildwithlami</span>
+                  <span>↗</span>
+                </a>
               </div>
 
-              {/* QR Code Container (100% unobstructed) */}
-              <div className="w-40 h-40 sm:w-48 sm:h-48 lg:w-full lg:aspect-square mx-auto lg:mx-0 bg-white flex items-center justify-center p-3.5 rounded-xl overflow-hidden mb-5 sm:mb-6 shadow-inner">
+              {/* QR Code Container (100% unobstructed, links to TikTok) */}
+              <a
+                href="https://www.tiktok.com/@buildwithlami?_r=1&_t=ZS-99D0TjifdM9"
+                target="_blank"
+                rel="noopener noreferrer"
+                title="Scan or click to open @buildwithlami on TikTok"
+                className="w-40 h-40 sm:w-48 sm:h-48 lg:w-full lg:aspect-square mx-auto lg:mx-0 bg-white flex items-center justify-center p-3.5 rounded-xl overflow-hidden mb-5 sm:mb-6 shadow-inner block group-hover:ring-2 ring-accent transition-all cursor-pointer"
+              >
                 <img
-                  src="/qr-code.svg"
-                  alt="Scan QR Code to connect with BuildWithLami"
+                  src="/tiktok-qr.svg"
+                  alt="Scan QR Code to open @buildwithlami on TikTok"
                   className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
                 />
-              </div>
+              </a>
             </div>
 
             <div className="space-y-1 text-center lg:text-left">
@@ -92,6 +106,15 @@ const Footer = () => {
           <Link to="/pricing" className="hover:text-accent transition-colors">Pricing</Link>
           <Link to="/about" className="hover:text-accent transition-colors">About</Link>
           <Link to="/contact" className="hover:text-accent transition-colors">Contact</Link>
+          <a 
+            href="https://www.tiktok.com/@buildwithlami?_r=1&_t=ZS-99D0TjifdM9" 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className="hover:text-accent transition-colors text-accent flex items-center gap-1"
+          >
+            <span>TikTok</span>
+            <span className="text-[9px]">↗</span>
+          </a>
         </nav>
 
         {/* Massive Branding Headline */}

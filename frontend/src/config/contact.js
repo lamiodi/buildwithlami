@@ -9,6 +9,7 @@ export const CONTACT = {
     phoneE164: '2349064185442',
     address: 'Lagos, Nigeria',
     social: {
+        tiktok: 'https://www.tiktok.com/@buildwithlami?_r=1&_t=ZS-99D0TjifdM9',
         twitter: 'https://twitter.com/buildwithlami',
         github: 'https://github.com/buildwithlami',
         linkedin: 'https://linkedin.com/in/buildwithlami',

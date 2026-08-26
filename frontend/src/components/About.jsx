@@ -26,13 +26,13 @@ const About = () => {
         </motion.h2>
 
         {/* Main Image */}
-        <motion.div variants={item} className="w-full aspect-[16/10] sm:aspect-[16/9] md:aspect-[1.7/1] max-h-[600px] bg-gray-900 mb-16 relative overflow-hidden shadow-2xl rounded-2xl border border-gray-200 dark:border-white/10">
-          <picture>
+        <motion.div variants={item} className="w-full max-w-5xl mx-auto bg-gray-950 dark:bg-[#0c0c0c] mb-16 relative overflow-hidden shadow-2xl rounded-2xl border border-gray-200 dark:border-white/10 flex items-center justify-center">
+          <picture className="w-full h-full block">
             <source type="image/webp" srcSet="/about-founder.webp" />
             <img 
               src="/about-founder.webp" 
               alt="Eugene Odibenuah Desk Setup" 
-              className="w-full h-full object-contain md:object-cover object-center opacity-95 dark:opacity-90"
+              className="w-full h-auto max-h-[720px] object-contain object-center block mx-auto opacity-95 dark:opacity-90"
               loading="lazy"
               decoding="async"
               width="1440"

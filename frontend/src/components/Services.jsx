@@ -178,9 +178,9 @@ const Services = () => {
         </motion.p>
       </motion.div>
 
-      {/* Services Grid (Horizontal Snap on Mobile, 2-Col on Desktop) */}
+      {/* Services Grid (Vertically Stacked on Mobile, 2-Col on Tablet, 3-Col on Desktop) */}
       <motion.div
-        className="flex md:grid md:grid-cols-2 lg:grid-cols-3 gap-6 overflow-x-auto md:overflow-visible pb-6 md:pb-0 snap-x snap-mandatory scrollbar-none -mx-6 px-6 md:mx-0 md:px-0"
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
         variants={container}
         initial="hidden"
         whileInView="visible"
@@ -193,7 +193,7 @@ const Services = () => {
             whileHover={shouldReduce ? {} : cardHover}
             transition={cardHoverTransition}
             onClick={() => handleOpenModal(service)}
-            className="shrink-0 md:shrink w-[85vw] max-w-[360px] sm:w-[340px] md:w-auto min-w-0 snap-center bg-white dark:bg-[#141414] border border-gray-200 dark:border-white/10 hover:border-accent dark:hover:border-accent transition-all p-6 sm:p-7 rounded-2xl relative overflow-hidden group cursor-pointer shadow-sm flex flex-col justify-between"
+            className="w-full bg-white dark:bg-[#141414] border border-gray-200 dark:border-white/10 hover:border-accent dark:hover:border-accent transition-all p-6 sm:p-7 rounded-2xl relative overflow-hidden group cursor-pointer shadow-sm flex flex-col justify-between"
           >
             {/* Orange gradient accent on hover */}
             <div className="absolute inset-0 bg-gradient-to-tr from-accent/10 dark:from-accent/15 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
