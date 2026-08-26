@@ -36,14 +36,14 @@ const ProjectsPage = () => {
     fetchProjects();
   }, []);
 
-  const filters = ['All', 'Web Apps', 'E-Commerce', 'SaaS', 'Business Systems'];
+  const filters = ['All', 'Web Platforms', 'E-Commerce', 'SaaS', 'Business Systems'];
 
   const matchFilter = (project, filter) => {
     if (filter === 'All') return true;
     const cat = (project.category || '').toLowerCase().trim();
     const target = filter.toLowerCase().trim();
     if (cat === target) return true;
-    if (target === 'web apps' && (cat.includes('web') || cat.includes('front') || cat.includes('portal') || cat.includes('app'))) return true;
+    if ((target === 'web platforms' || target === 'web apps' || target === 'websites') && (cat.includes('web') || cat.includes('front') || cat.includes('portal') || cat.includes('platform') || cat.includes('site') || cat.includes('app'))) return true;
     if (target === 'e-commerce' && (cat.includes('commerce') || cat.includes('store') || cat.includes('shop') || cat.includes('retail'))) return true;
     if (target === 'saas' && (cat.includes('saas') || cat.includes('os') || cat.includes('cloud') || cat.includes('platform'))) return true;
     if (target === 'business systems' && (cat.includes('business') || cat.includes('erp') || cat.includes('system') || cat.includes('backend') || cat.includes('ledger'))) return true;
@@ -309,7 +309,7 @@ const ProjectsPage = () => {
                             {/* Badges Overlay */}
                             <div className="absolute top-4 left-4 right-4 flex items-center justify-between pointer-events-none">
                               <span className="bg-white/90 dark:bg-black/80 backdrop-blur-sm text-black dark:text-white text-[10px] font-mono font-bold uppercase tracking-wider px-3 py-1 border border-gray-200 dark:border-white/10 shadow-sm">
-                                {project.category || 'Web Apps'}
+                                {project.category || 'Web Platforms'}
                               </span>
                               <span className="bg-white/90 dark:bg-black/80 backdrop-blur-sm text-gray-700 dark:text-gray-300 text-[10px] font-mono font-bold uppercase tracking-wider px-3 py-1 border border-gray-200 dark:border-white/10 shadow-sm">
                                 {project.year || '2024'} · {project.project_status || 'Client Project'}

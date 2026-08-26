@@ -9,20 +9,18 @@
 import React, { useState, useEffect, useMemo, Suspense, lazy } from 'react';
 import { motion } from 'framer-motion';
 import { api } from '../../services/api';
-import { Card } from '../ui/card';
-import { Badge } from '../ui/badge';
-import { Skeleton } from '../ui/skeleton';
+import Skeleton from '../Skeleton';
 
 // ── Generic skeleton block — used while data is loading ──
 export const WidgetSkeleton = ({ height = 'h-32', lines = 3 }) => (
-    <Card className={`p-5 ${height} bg-card border-border`}>
+    <div className={`p-5 ${height} rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#111]`}>
         <div className="space-y-3">
             <Skeleton className="h-4 w-1/3" />
             {Array.from({ length: lines }).map((_, i) => (
                 <Skeleton key={i} className="h-3" style={{ width: `${100 - i * 15}%` }} />
             ))}
         </div>
-    </Card>
+    </div>
 );
 
 // ── Stat Card Widget (KPI display) ───────────────────────
@@ -37,23 +35,24 @@ export const StatCard = ({ label, value, hint, icon: IconComp, accent = 'blue', 
     };
     const a = accents[accent] || accents.blue;
     return (
-        <Card className={`p-5 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 ring-1 ${a.ring} border-border bg-card`}>
+        <div className={`p-5 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#111] hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 ring-1 ${a.ring}`}>
             <div className="flex items-start justify-between mb-3">
                 <div className={`size-10 rounded-xl bg-gradient-to-br ${a.grad} text-white flex items-center justify-center shadow-md`}>
                     {IconComp && <IconComp className="size-5" aria-hidden="true" />}
                 </div>
                 {isCurrency && (
-                    <Badge variant="outline" className="text-[9px] uppercase tracking-widest text-muted-foreground">NGN / FX</Badge>
+                    <span className="text-[9px] uppercase tracking-widest px-2 py-0.5 rounded-full border border-gray-200 dark:border-gray-700 text-gray-500">NGN / FX</span>
                 )}
             </div>
-            <div className={`text-2xl md:text-3xl font-heading font-bold text-foreground ${isCurrency ? 'whitespace-nowrap' : ''}`}>{value}</div>
+            <div className={`text-2xl md:text-3xl font-heading font-bold text-gray-900 dark:text-white ${isCurrency ? 'whitespace-nowrap' : ''}`}>{value}</div>
             <div className="flex items-center justify-between mt-1">
-                <p className="text-xs text-muted-foreground font-medium">{label}</p>
-                {hint && <p className="text-[10px] text-muted-foreground font-semibold">{hint}</p>}
+                <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">{label}</p>
+                {hint && <p className="text-[10px] text-gray-400 font-semibold">{hint}</p>}
             </div>
-        </Card>
+        </div>
     );
 };
+
 
 // ── Independent Stat Widget: fetches its own data ────────
 export const LazyStatCard = ({ label, endpoint, hint, icon, accent, transform, isCurrency }) => {
@@ -92,24 +91,24 @@ export const useGreeting = () => {
 };
 
 // ── Status Pill (extracted for reuse + memoization) ──────
-const STATUS_VARIANT = {
-    ONBOARDING: 'warning',
-    PLANNING: 'secondary',
-    DESIGN: 'accent',
-    DEVELOPMENT: 'default',
-    REVIEW: 'warning',
-    LAUNCHED: 'success',
-    MAINTENANCE: 'secondary',
-    ARCHIVED: 'outline',
+const STATUS_STYLES = {
+    ONBOARDING: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20',
+    PLANNING: 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700',
+    DESIGN: 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20',
+    DEVELOPMENT: 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/20',
+    REVIEW: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20',
+    LAUNCHED: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20',
+    MAINTENANCE: 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-gray-700',
+    ARCHIVED: 'bg-gray-50 dark:bg-gray-900 text-gray-400 border-gray-200 dark:border-gray-800',
 };
 
 export const StatusPill = React.memo(({ status }) => (
-    <Badge variant={STATUS_VARIANT[status] || 'secondary'} className="text-[10px] font-heading font-bold uppercase tracking-wider whitespace-nowrap">
+    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-heading font-bold uppercase tracking-wider whitespace-nowrap border ${STATUS_STYLES[status] || STATUS_STYLES.PLANNING}`}>
         {status}
-    </Badge>
+    </span>
 ));
 StatusPill.displayName = 'StatusPill';
-StatusPill.displayName = 'StatusPill';
+
 
 // ── Lazy-loaded section widgets ──────────────────────────
 // These split the dashboard into independently-rendered regions

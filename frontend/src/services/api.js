@@ -299,12 +299,24 @@ export const api = {
             // Get CSRF token for upload
             if (!csrfTokenCache) await getCsrfToken();
             
-            const res = await fetch(formatEndpoint(path), {
+            let res = await fetch(formatEndpoint(path), {
                 method: 'POST',
                 credentials: 'include', // Send cookies
                 headers: csrfTokenCache ? { 'X-CSRF-Token': csrfTokenCache } : {},
                 body: form,
             });
+
+            if (res.status === 403) {
+                clearCsrfToken();
+                await getCsrfToken();
+                res = await fetch(formatEndpoint(path), {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: csrfTokenCache ? { 'X-CSRF-Token': csrfTokenCache } : {},
+                    body: form,
+                });
+            }
+
             return parse(res);
         } catch (err) {
             console.error(`[API] UPLOAD ${path} failed:`, err.message);

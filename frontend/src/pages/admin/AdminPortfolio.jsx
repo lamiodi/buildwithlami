@@ -1,53 +1,35 @@
 // ─── src/pages/admin/AdminPortfolio.jsx ─────────────────
-// Workspace-aware portfolio editor.
+// Workspace-aware portfolio editor with advanced image management.
 //
 //   <AdminPortfolio lockedDivision="SOFTWARE" />  → /admin/portfolio
 //   <AdminPortfolio lockedDivision="SURVEY" />    → /admin/survey/portfolio
 //   <AdminPortfolio lockedDivision="DRONE" />     → /admin/drone/portfolio
 //
-// Every workspace is locked to its own division. There is no
-// cross-division view. Each workspace manages only its own
-// portfolio items.
-//
-// v28 — extends the form with the case-study fields consumed
-// by the public detail pages (tagline, year, industry, gallery,
-// challenge, solution, results, flow, ...). The basic fields
-// stay top-level; richer JSONB fields are exposed via
-// collapsible "Case Study Content" + "Division Meta" sections
-// to keep the form approachable while still letting editors
-// ship the full layout.
 // ──────────────────────────────────────────────────────────
 
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown, ChevronRight, X, Loader2 } from 'lucide-react';
-import { useSearchParams } from 'react-router-dom';
+import { 
+    ChevronDown, ChevronRight, X, Loader2, Image as ImageIcon, 
+    UploadCloud, Plus, Trash2, ExternalLink, Search, Check, 
+    Copy, Monitor, Smartphone, Tablet, ArrowUp, ArrowDown, Eye, Edit3
+} from 'lucide-react';
+import { useSearchParams, Link } from 'react-router-dom';
 import { api } from '../../services/api';
 
-// Only use a relative VITE_API_URL or a localhost absolute URL.
-// Cross-origin production URLs (e.g. onrender.com) are rejected
-// because they break the HttpOnly cookie — see services/api.js.
-const API_BASE = (() => {
-    const env = import.meta.env.VITE_API_URL;
-    if (!env) return '/api';
-    if (env.startsWith('/')) return env;
-    try {
-        const u = new URL(env);
-        if (u.hostname === 'localhost' || u.hostname === '127.0.0.1') return env;
-    } catch {
-        // fall through
-    }
-    return '/api';
-})();
-
 const DIVISION_META = {
-    SOFTWARE: { label: 'Software', tone: 'blue' },
-    SURVEY:   { label: 'Survey',   tone: 'amber' },
-    DRONE:    { label: 'Drone',    tone: 'indigo' },
+    SOFTWARE: { label: 'Software', tone: 'blue', accent: '#3b82f6' },
+    SURVEY:   { label: 'Survey',   tone: 'amber', accent: '#f59e0b' },
+    DRONE:    { label: 'Drone',    tone: 'indigo', accent: '#6366f1' },
 };
 
-// JSONB columns that should be edited as raw JSON in the
-// admin form. Mirrors the backend's V28_JSONB_FIELDS set.
+const CATEGORY_PRESETS = {
+    SOFTWARE: ['Web Platforms', 'Business Systems', 'E-Commerce', 'SaaS', 'Mobile Apps', 'Full-Stack'],
+    SURVEY:   ['Boundary Survey', 'Topographical Survey', 'Cadastral Survey', 'Route Survey', 'Bathymetric Survey'],
+    DRONE:    ['Aerial Mapping', 'Site Inspection', 'Orthomosaic', 'Volumetric Analysis', 'Thermal Inspection'],
+};
+
+// JSONB columns that can be edited in the admin form.
 const JSONB_FIELDS = [
     { key: 'challenge',            label: 'Challenge',     placeholder: '{ "problem": "...", "constraints": ["..."], "goals": ["..."] }' },
     { key: 'solution',             label: 'Solution',      placeholder: '{ "architecture": "...", "ui": "...", "backend": "...", "performance": "...", "security": "...", "accessibility": "..." }' },
@@ -63,9 +45,6 @@ const JSONB_FIELDS = [
     { key: 'related_slugs',        label: 'Related Slugs',       placeholder: '["other-project-slug", "another-slug"]' },
 ];
 
-// Try to parse a JSONB textarea value. Empty strings and
-// placeholders become `null` so the backend stores an empty
-// array / object rather than corrupted data.
 const safeParseJson = (raw) => {
     if (raw == null || raw === '') return null;
     const trimmed = String(raw).trim();
@@ -73,26 +52,16 @@ const safeParseJson = (raw) => {
     try {
         return JSON.parse(trimmed);
     } catch {
-        // Return a sentinel string so the backend's Zod
-        // schema can reject the request with a clear error
-        // rather than silently dropping the field.
-        throw new Error(`Invalid JSON in one of the case-study fields. Please fix the syntax.`);
+        throw new Error(`Invalid JSON syntax in one of the case study fields.`);
     }
 };
 
-// Convert a JS value (object / array / string / null) to the
-// string the JSONB textarea expects. Used when loading an
-// existing project into the form.
 const jsonToText = (val) => {
     if (val === null || val === undefined) return '';
     if (typeof val === 'string') return val;
     return JSON.stringify(val, null, 2);
 };
 
-// ── Reusable JSONB textarea ──────────────────────────────
-// Renders a labelled textarea that holds a JSON value. The
-// textarea is editable so the form can hold a partial draft
-// (string while typing, valid JSON on save).
 const JsonField = ({ label, value, onChange, placeholder, error }) => (
     <div>
         <label className="block text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-1.5">
@@ -115,27 +84,20 @@ const JsonField = ({ label, value, onChange, placeholder, error }) => (
     </div>
 );
 
-// ── Image upload helper (also reused for gallery items) ───
 const uploadImageFile = async (file) => {
     const res = await api.upload('/upload', file);
     if (!res.ok) throw new Error(res.error || 'Upload failed');
     return res.data?.url || res.data;
 };
 
-// Default form state per division. Centralised so creating
-// a new project never inherits stale fields from a previous
-// edit and so the case-study JSONB fields have a consistent
-// starting shape.
 const blankFormData = (division) => ({
     title: '', slug: '', summary: '', content: '',
     image_url: '', live_url: '', repo_url: '',
-    division, status: 'DRAFT',
-    location: '', client_name: '', category: '',
+    division, status: 'PUBLISHED',
+    location: '', client_name: '', category: 'Web Platforms',
     display_order: 0, tags: [], tech_stack: [], features: [],
     featured: false,
-    // v28 scalars
-    tagline: '', year: '', industry: '', status_label: '', duration: '', role: '',
-    // v28 JSONB
+    tagline: '', year: new Date().getFullYear().toString(), industry: '', status_label: 'Live', duration: '', role: '',
     gallery: [],
     challenge: { problem: '', constraints: [], goals: [] },
     solution: { architecture: '', ui: '', backend: '', performance: '', security: '', accessibility: '' },
@@ -149,15 +111,14 @@ const blankFormData = (division) => ({
     metrics: {},
     stats: {},
     related_slugs: [],
-    // Division-specific structured data — uses the v28 `meta` JSONB.
     meta: {},
 });
 
 const AdminPortfolio = ({ lockedDivision }) => {
     const activeDivision = lockedDivision || 'SOFTWARE';
-    const [projects, setProjects] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [successMessage, setSuccessMessage] = useState(null);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [editingProject, setEditingProject] = useState(null);
     const [formData, setFormData] = useState(() => blankFormData(activeDivision));
@@ -171,21 +132,33 @@ const AdminPortfolio = ({ lockedDivision }) => {
     const [advancedOpen, setAdvancedOpen] = useState(false);
     const [jsonbOpen, setJsonbOpen] = useState(false);
     const [jsonbDrafts, setJsonbDrafts] = useState({});
+    const [searchQuery, setSearchQuery] = useState('');
+    const [selectedCategoryFilter, setSelectedCategoryFilter] = useState('All');
+    
+    // Direct URL input for gallery
+    const [newGalleryUrl, setNewGalleryUrl] = useState('');
+    const [newGalleryAlt, setNewGalleryAlt] = useState('');
+    const [newGalleryDevice, setNewGalleryDevice] = useState('desktop');
+    const [showAddUrlInput, setShowAddUrlInput] = useState(false);
+
+    const primaryFileInputRef = useRef(null);
     const galleryInputRef = useRef(null);
     const [searchParams, setSearchParams] = useSearchParams();
+
+    const triggerToast = (msg) => {
+        setSuccessMessage(msg);
+        setTimeout(() => setSuccessMessage(null), 4000);
+    };
 
     const fetchProjects = useCallback(async () => {
         try {
             setLoading(true);
-            // We always send `?division=` so the backend never has
-            // to guess. The UI is strictly bound to activeDivision.
             const params = { division: activeDivision };
             const res = await api.get('/projects', { params });
             if (!res.ok) throw new Error(res.error || 'Failed to fetch projects');
-            // /api/projects returns { data: rows, pagination: {...} },
-            // so unwrap before storing. Fall back to [] on any shape
-            // mismatch (e.g. older backend) so .filter() below is safe.
-            setApiProjects(res.data?.data ?? []);
+            const dataRows = Array.isArray(res.data?.data) ? res.data.data : (Array.isArray(res.data) ? res.data : []);
+            setApiProjects(dataRows);
+            setError(null);
         } catch (err) {
             setError(err.message);
         } finally {
@@ -197,32 +170,24 @@ const AdminPortfolio = ({ lockedDivision }) => {
         fetchProjects();
     }, [fetchProjects]);
 
-    // Convert an existing project row into the form state.
-    // Always uses division-locked values, so the backend can
-    // never be tricked into writing a row to the wrong
-    // division.
     const openEditFor = (project) => {
         setEditingProject(project.id);
         setFormData({
             ...blankFormData(activeDivision),
             ...project,
-            // Always lock the division; ignore whatever the row
-            // currently stores.
             division: activeDivision,
         });
         setTagsInput((project.tags || []).join(', '));
         setTechStackInput((project.tech_stack || []).join(', '));
-        setFeaturesInput((project.features || []).join(', '));
+        setFeaturesInput((Array.isArray(project.features) ? project.features : []).join(', '));
 
-        // Initialise JSONB textareas with the project's existing
-        // values. We use string drafts so partial edits are
-        // preserved as the user types.
         const drafts = {};
         JSONB_FIELDS.forEach(({ key }) => {
             drafts[key] = jsonToText(project[key]);
         });
         setJsonbDrafts(drafts);
         setJsonbErrors({});
+        setShowAddUrlInput(false);
         setIsEditModalOpen(true);
     };
 
@@ -238,32 +203,33 @@ const AdminPortfolio = ({ lockedDivision }) => {
         });
         setJsonbDrafts(drafts);
         setJsonbErrors({});
+        setShowAddUrlInput(false);
         setIsEditModalOpen(true);
     };
 
-    // Generic field setter — keeps the call sites small.
     const updateField = useCallback((key, value) => {
         setFormData((prev) => ({ ...prev, [key]: value }));
     }, []);
 
-    const handleImageUpload = async (e) => {
-        const file = e.target.files[0];
+    // Primary Image upload handler
+    const handlePrimaryImageUpload = async (e) => {
+        const file = e.target.files?.[0];
         if (!file) return;
 
         setUploading(true);
         try {
             const url = await uploadImageFile(file);
             updateField('image_url', url);
+            triggerToast('Primary image uploaded successfully!');
         } catch (err) {
             alert('Failed to upload image: ' + err.message);
         } finally {
             setUploading(false);
-            e.target.value = '';
+            if (primaryFileInputRef.current) primaryFileInputRef.current.value = '';
         }
     };
 
-    // Multi-image gallery uploader. Each file is uploaded
-    // separately so a single failure doesn't discard the rest.
+    // Multi-image gallery uploader
     const handleGalleryUpload = async (e) => {
         const files = Array.from(e.target.files || []);
         if (files.length === 0) return;
@@ -274,7 +240,7 @@ const AdminPortfolio = ({ lockedDivision }) => {
         for (const file of files) {
             try {
                 const url = await uploadImageFile(file);
-                successes.push({ src: url, alt: file.name, device: 'desktop' });
+                successes.push({ src: url, alt: file.name.replace(/\.[^/.]+$/, ""), device: 'desktop' });
             } catch (err) {
                 failures.push(file.name);
             }
@@ -284,12 +250,32 @@ const AdminPortfolio = ({ lockedDivision }) => {
                 ...prev,
                 gallery: [...(prev.gallery || []), ...successes],
             }));
+            triggerToast(`Added ${successes.length} image(s) to gallery!`);
         }
         if (failures.length > 0) {
             alert(`Failed to upload ${failures.length} file(s): ${failures.join(', ')}`);
         }
         setGalleryUploading(false);
         if (galleryInputRef.current) galleryInputRef.current.value = '';
+    };
+
+    const addGalleryUrl = () => {
+        if (!newGalleryUrl.trim()) return;
+        setFormData((prev) => ({
+            ...prev,
+            gallery: [
+                ...(prev.gallery || []),
+                {
+                    src: newGalleryUrl.trim(),
+                    alt: newGalleryAlt.trim() || `${prev.title || 'Project'} Preview`,
+                    device: newGalleryDevice || 'desktop',
+                }
+            ],
+        }));
+        setNewGalleryUrl('');
+        setNewGalleryAlt('');
+        setShowAddUrlInput(false);
+        triggerToast('Image added to gallery!');
     };
 
     const removeGalleryItem = (idx) => {
@@ -309,17 +295,19 @@ const AdminPortfolio = ({ lockedDivision }) => {
         });
     };
 
-    // Save handler. Validates JSONB fields locally before
-    // posting so the user gets an immediate error rather than
-    // a backend 400.
+    const setGalleryAsPrimary = (item) => {
+        if (!item?.src) return;
+        updateField('image_url', item.src);
+        triggerToast('Set as primary project image!');
+    };
+
     const handleSave = async (e) => {
         e.preventDefault();
-        // Validate required fields
         if (!formData.title || !formData.slug) {
             alert('Title and slug fields are required');
             return;
         }
-        // Validate JSONB drafts.
+
         const errors = {};
         const parsed = {};
         for (const { key } of JSONB_FIELDS) {
@@ -339,33 +327,27 @@ const AdminPortfolio = ({ lockedDivision }) => {
         try {
             const payload = {
                 ...formData,
-                // Convert comma-separated tags input into the
-                // array the API expects. Trim + drop empties so
-                // accidental double-spaces don't create blanks.
                 tags: tagsInput.split(',').map((t) => t.trim()).filter(Boolean),
                 tech_stack: techStackInput.split(',').map((t) => t.trim()).filter(Boolean),
                 features: featuresInput.split(',').map((t) => t.trim()).filter(Boolean),
-                // Empty string → null so the URL validator
-                // doesn't reject the empty form.
                 image_url: formData.image_url || null,
                 live_url: formData.live_url || null,
                 repo_url: formData.repo_url || null,
                 location: formData.location || null,
                 client_name: formData.client_name || null,
                 category: formData.category || null,
-                // v28 scalars — empty strings → null.
                 tagline: formData.tagline || null,
                 year: formData.year || null,
                 industry: formData.industry || null,
                 status_label: formData.status_label || null,
                 duration: formData.duration || null,
                 role: formData.role || null,
-                // v28 JSONB — already validated, may be null.
+                gallery: Array.isArray(formData.gallery) ? formData.gallery : [],
                 ...parsed,
                 display_order: Number(formData.display_order) || 0,
-                // Force the division to the workspace lock.
                 division: activeDivision,
             };
+
             const url = editingProject ? `/projects/${editingProject}` : '/projects';
             const res = editingProject
                 ? await api.put(url, payload)
@@ -374,51 +356,72 @@ const AdminPortfolio = ({ lockedDivision }) => {
             if (!res.ok) throw new Error(res.error || 'Failed to save project');
             await fetchProjects();
             setIsEditModalOpen(false);
+            triggerToast(editingProject ? 'Project updated successfully!' : 'Project created successfully!');
         } catch (err) {
             alert(err.message);
         }
     };
 
-    const handleDelete = async (id) => {
-        if (!window.confirm('Are you sure you want to delete this project?')) return;
+    const handleDelete = async (id, title) => {
+        if (!window.confirm(`Are you sure you want to delete "${title || 'this project'}"?`)) return;
         try {
             const res = await api.delete(`/projects/${id}`);
             if (!res.ok) throw new Error(res.error || 'Failed to delete project');
-            setProjects(projects.filter((p) => p.id !== id));
+            setApiProjects((prev) => prev.filter((p) => p.id !== id));
+            triggerToast('Project deleted.');
         } catch (err) {
             alert(err.message);
         }
     };
 
     const projectList = useMemo(() => {
-        return apiProjects.filter((p) => p.division === activeDivision);
-    }, [apiProjects, activeDivision]);
+        return apiProjects.filter((p) => {
+            const matchesDiv = p.division === activeDivision || (activeDivision === 'SOFTWARE' && p.division === 'Technology');
+            if (!matchesDiv) return false;
 
-    // Deep-link support: when the URL carries ?edit=<projectId>
-    // (e.g. from the Survey/Drone list pages), auto-open that
-    // project's edit modal once the projects have loaded. Strip
-    // the param so closing the modal doesn't reopen it on the
-    // next render.
+            if (selectedCategoryFilter !== 'All') {
+                if (selectedCategoryFilter === 'Drafts') {
+                    if (p.status !== 'DRAFT') return false;
+                } else if (p.category !== selectedCategoryFilter) {
+                    return false;
+                }
+            }
+
+            if (searchQuery.trim()) {
+                const q = searchQuery.toLowerCase();
+                const matchTitle = (p.title || '').toLowerCase().includes(q);
+                const matchSlug = (p.slug || '').toLowerCase().includes(q);
+                const matchCategory = (p.category || '').toLowerCase().includes(q);
+                const matchTech = (p.tech_stack || []).some(t => t.toLowerCase().includes(q));
+                return matchTitle || matchSlug || matchCategory || matchTech;
+            }
+
+            return true;
+        });
+    }, [apiProjects, activeDivision, selectedCategoryFilter, searchQuery]);
+
+    // Categories available for filter tabs
+    const availableCategories = useMemo(() => {
+        const presets = CATEGORY_PRESETS[activeDivision] || [];
+        const existing = Array.from(new Set(apiProjects.map(p => p.category).filter(Boolean)));
+        return ['All', ...Array.from(new Set([...presets, ...existing]))];
+    }, [activeDivision, apiProjects]);
+
+    // Deep-link support
     useEffect(() => {
         const editId = searchParams.get('edit');
         if (!editId || loading || isEditModalOpen) return;
-        const target = projectList.find((p) => String(p.id) === String(editId));
+        const target = apiProjects.find((p) => String(p.id) === String(editId));
         if (!target) return;
         openEditFor(target);
         const next = new URLSearchParams(searchParams);
         next.delete('edit');
         setSearchParams(next, { replace: true });
-    }, [searchParams, loading, projectList, isEditModalOpen]); // eslint-disable-line react-hooks/exhaustive-deps
-
-    if (loading) return <div className="p-6">Loading...</div>;
+    }, [searchParams, loading, apiProjects, isEditModalOpen]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const headerTitle = `${DIVISION_META[activeDivision]?.label || activeDivision} Portfolio`;
-    const headerSubtitle = `Manage the showcase items visible on the public ${DIVISION_META[activeDivision]?.label || activeDivision} homepage.`;
+    const headerSubtitle = `Manage showcase projects, upload images, and edit live case studies for the ${DIVISION_META[activeDivision]?.label || activeDivision} division.`;
 
-    // Division-specific meta fields surface in a dedicated
-    // section so editors don't have to edit raw JSON. The
-    // `meta` column is JSONB on the backend; we serialise on
-    // submit.
     const META_FIELDS_BY_DIVISION = {
         SURVEY: [
             { key: 'site_area',         label: 'Project Area',         placeholder: '12.4 ha' },
@@ -440,437 +443,808 @@ const AdminPortfolio = ({ lockedDivision }) => {
 
     return (
         <div className="space-y-6">
-            <div className="flex justify-between items-center gap-3 flex-wrap">
+            {/* Header & New Project CTA */}
+            <div className="flex justify-between items-center gap-4 flex-wrap pb-4 border-b border-gray-200 dark:border-gray-800">
                 <div>
-                    <h1 className="text-2xl font-bold">{headerTitle}</h1>
+                    <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white flex items-center gap-2.5">
+                        <span className={`w-3 h-3 rounded-full ${
+                            activeDivision === 'SURVEY' ? 'bg-amber-500' :
+                            activeDivision === 'DRONE' ? 'bg-indigo-500' : 'bg-blue-500'
+                        }`} />
+                        {headerTitle}
+                        <span className="text-xs px-2.5 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 font-mono font-medium">
+                            {apiProjects.filter(p => p.division === activeDivision || (activeDivision === 'SOFTWARE' && p.division === 'Technology')).length} items
+                        </span>
+                    </h1>
                     <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{headerSubtitle}</p>
                 </div>
-                <div className="flex gap-2 items-center">
+                <div className="flex gap-3 items-center">
                     <button
                         onClick={openNew}
-                        className="px-4 py-2 bg-blue-600 text-white rounded-lg font-bold"
+                        className="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold shadow-lg shadow-blue-600/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
                     >
-                        + New Project
+                        <Plus className="w-4 h-4" />
+                        New Project
                     </button>
                 </div>
             </div>
 
-            {error && <div className="text-red-500">{error}</div>}
+            {/* Notification Toast */}
+            <AnimatePresence>
+                {successMessage && (
+                    <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        className="p-3 bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 rounded-xl text-sm font-medium flex items-center gap-2"
+                    >
+                        <Check className="w-4 h-4 text-emerald-500 shrink-0" />
+                        {successMessage}
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {projectList.map((p) => (
-                    <div key={p.id} className="border border-gray-200 dark:border-gray-800 p-4 rounded-xl bg-white dark:bg-[#111] flex flex-col gap-3">
-                        {p.image_url && <img src={p.image_url} alt={p.title} className="w-full h-40 object-cover rounded-lg" />}
-                        <h3 className="text-lg font-bold">{p.title}</h3>
-                        <p className="text-sm text-gray-500">{p.slug}</p>
-                        <div className="flex gap-2 flex-wrap">
-                            <span className="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded w-fit">{p.status}</span>
-                            {p.status_label && (
-                                <span className="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded w-fit">
-                                    {p.status_label}
-                                </span>
-                            )}
-                            {p.year && (
-                                <span className="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded w-fit">
-                                    {p.year}
-                                </span>
-                            )}
-                            {p.division && (
-                                <span className={`text-[9px] font-extrabold uppercase tracking-widest px-1.5 py-0.5 rounded ${
-                                    p.division === 'SURVEY' ? 'bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300' :
-                                    p.division === 'DRONE' ? 'bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300' :
-                                    'bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300'
-                                }`}>
-                                    {p.division}
-                                </span>
-                            )}
-                        </div>
-                        <div className="mt-auto flex justify-between gap-2 pt-4">
-                            <button onClick={() => openEditFor(p)} className="flex-1 px-3 py-1.5 bg-gray-100 dark:bg-gray-800 rounded font-bold text-sm text-center">Edit</button>
-                            <button onClick={() => handleDelete(p.id)} className="flex-1 px-3 py-1.5 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded font-bold text-sm">Delete</button>
-                        </div>
-                    </div>
-                ))}
+            {error && (
+                <div className="p-4 bg-red-500/10 border border-red-500/30 text-red-500 rounded-xl text-sm font-medium">
+                    {error}
+                </div>
+            )}
+
+            {/* Controls: Search & Category Filter Pills */}
+            <div className="flex flex-col md:flex-row gap-3 items-start md:items-center justify-between">
+                <div className="flex items-center gap-2 overflow-x-auto pb-1 max-w-full no-scrollbar">
+                    {availableCategories.map((cat) => (
+                        <button
+                            key={cat}
+                            type="button"
+                            onClick={() => setSelectedCategoryFilter(cat)}
+                            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-colors shrink-0 ${
+                                selectedCategoryFilter === cat
+                                    ? 'bg-blue-600 text-white shadow-sm'
+                                    : 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'
+                            }`}
+                        >
+                            {cat}
+                        </button>
+                    ))}
+                </div>
+
+                <div className="relative w-full md:w-72">
+                    <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                    <input
+                        type="text"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        placeholder="Search projects..."
+                        className="w-full pl-9 pr-4 py-1.5 rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#111] text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    />
+                    {searchQuery && (
+                        <button
+                            type="button"
+                            onClick={() => setSearchQuery('')}
+                            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 text-xs"
+                        >
+                            ✕
+                        </button>
+                    )}
+                </div>
             </div>
 
-            <AnimatePresence>
-                {isEditModalOpen && (
-                    <div className="fixed inset-0 z-50 flex items-start justify-center p-4 bg-black/50 overflow-y-auto">
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.95, y: 12 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.95, y: 12 }}
-                            className="bg-white dark:bg-[#111] rounded-2xl w-full max-w-4xl my-8 max-h-[calc(100vh-4rem)] overflow-y-auto"
+            {/* Project Grid */}
+            {loading ? (
+                <div className="py-20 flex flex-col items-center justify-center gap-3 text-gray-400">
+                    <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
+                    <span className="text-sm">Loading projects...</span>
+                </div>
+            ) : projectList.length === 0 ? (
+                <div className="py-16 text-center border border-dashed border-gray-300 dark:border-gray-800 rounded-2xl p-8">
+                    <ImageIcon className="w-12 h-12 text-gray-400 mx-auto mb-3 opacity-50" />
+                    <h3 className="text-base font-bold text-gray-800 dark:text-gray-200">No projects found</h3>
+                    <p className="text-xs text-gray-500 mt-1 max-w-sm mx-auto">
+                        {searchQuery ? `No projects matching "${searchQuery}".` : `No projects found in this category.`}
+                    </p>
+                    <button
+                        onClick={openNew}
+                        className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg font-bold text-xs inline-flex items-center gap-1.5"
+                    >
+                        <Plus className="w-3.5 h-3.5" />
+                        Create New Project
+                    </button>
+                </div>
+            ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                    {projectList.map((p) => (
+                        <div 
+                            key={p.id} 
+                            className="border border-gray-200 dark:border-gray-800 rounded-2xl bg-white dark:bg-[#111] overflow-hidden flex flex-col group hover:border-gray-400 dark:hover:border-gray-700 transition-all hover:shadow-lg"
                         >
-                            <form onSubmit={handleSave} className="p-6 space-y-6">
-                                <div className="flex justify-between items-center mb-2">
-                                    <h2 className="text-xl font-bold">
-                                        {editingProject ? 'Edit Project' : 'New Project'}
-                                    </h2>
-                                    <button
-                                        type="button"
-                                        onClick={() => setIsEditModalOpen(false)}
-                                        className="text-gray-500 hover:text-gray-800 dark:hover:text-gray-200"
-                                        aria-label="Close"
+                            {/* Card Hero Image */}
+                            <div className="relative w-full h-44 bg-gray-100 dark:bg-gray-900 overflow-hidden">
+                                {p.image_url ? (
+                                    <img 
+                                        src={p.image_url} 
+                                        alt={p.title} 
+                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                                    />
+                                ) : (
+                                    <div className="w-full h-full flex flex-col items-center justify-center text-gray-400">
+                                        <ImageIcon className="w-8 h-8 opacity-40 mb-1" />
+                                        <span className="text-[11px]">No cover image</span>
+                                    </div>
+                                )}
+                                <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5">
+                                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider shadow-sm ${
+                                        p.status === 'PUBLISHED' 
+                                            ? 'bg-emerald-500 text-white' 
+                                            : 'bg-amber-500 text-white'
+                                    }`}>
+                                        {p.status}
+                                    </span>
+                                    {p.category && (
+                                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-black/70 backdrop-blur-md text-white">
+                                            {p.category}
+                                        </span>
+                                    )}
+                                </div>
+                                {p.gallery && Array.isArray(p.gallery) && p.gallery.length > 0 && (
+                                    <div className="absolute bottom-2.5 right-2.5 bg-black/75 backdrop-blur-md text-white text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+                                        <ImageIcon className="w-3 h-3" />
+                                        {p.gallery.length} images
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Card Body */}
+                            <div className="p-4 flex-1 flex flex-col gap-2">
+                                <div className="flex items-start justify-between gap-2">
+                                    <h3 className="text-base font-bold text-gray-900 dark:text-white leading-tight">
+                                        {p.title}
+                                    </h3>
+                                    {p.year && (
+                                        <span className="text-xs text-gray-400 shrink-0 font-mono">
+                                            {p.year}
+                                        </span>
+                                    )}
+                                </div>
+                                
+                                <p className="text-xs text-gray-500 dark:text-gray-400 font-mono">
+                                    /{p.slug}
+                                </p>
+
+                                {p.tagline && (
+                                    <p className="text-xs text-gray-600 dark:text-gray-300 line-clamp-2 mt-0.5">
+                                        {p.tagline}
+                                    </p>
+                                )}
+
+                                {p.tech_stack && Array.isArray(p.tech_stack) && p.tech_stack.length > 0 && (
+                                    <div className="flex gap-1 flex-wrap mt-1">
+                                        {p.tech_stack.slice(0, 4).map((tech, i) => (
+                                            <span key={i} className="text-[10px] px-1.5 py-0.5 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded">
+                                                {tech}
+                                            </span>
+                                        ))}
+                                        {p.tech_stack.length > 4 && (
+                                            <span className="text-[10px] px-1.5 py-0.5 bg-gray-100 dark:bg-gray-800 text-gray-500 rounded">
+                                                +{p.tech_stack.length - 4}
+                                            </span>
+                                        )}
+                                    </div>
+                                )}
+
+                                {/* Action Buttons */}
+                                <div className="mt-auto pt-3 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between gap-2">
+                                    <button 
+                                        onClick={() => openEditFor(p)} 
+                                        className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/30 dark:hover:bg-blue-900/50 text-blue-600 dark:text-blue-300 rounded-lg font-bold text-xs transition-colors"
                                     >
-                                        <X className="w-5 h-5" />
+                                        <Edit3 className="w-3.5 h-3.5" />
+                                        Edit / Upload
+                                    </button>
+                                    
+                                    {p.slug && (
+                                        <Link 
+                                            to={`/work/${p.slug}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="p-2 text-gray-500 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                                            title="View Public Case Study"
+                                        >
+                                            <ExternalLink className="w-4 h-4" />
+                                        </Link>
+                                    )}
+
+                                    <button 
+                                        onClick={() => handleDelete(p.id, p.title)} 
+                                        className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                                        title="Delete Project"
+                                    >
+                                        <Trash2 className="w-4 h-4" />
                                     </button>
                                 </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
 
-                                {/* ─── 1. Basic ─────────────────────────── */}
-                                <section className="space-y-4">
-                                    <SectionTitle>Basic</SectionTitle>
-                                    <div className="grid grid-cols-2 gap-4">
+            {/* Edit / Create Modal */}
+            <AnimatePresence>
+                {isEditModalOpen && (
+                    <div className="fixed inset-0 z-50 flex items-start justify-center p-4 bg-black/60 backdrop-blur-sm overflow-y-auto">
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.96, y: 16 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.96, y: 16 }}
+                            className="bg-white dark:bg-[#111] border border-gray-200 dark:border-gray-800 rounded-2xl w-full max-w-4xl my-6 max-h-[calc(100vh-3rem)] flex flex-col shadow-2xl overflow-hidden"
+                        >
+                            {/* Modal Header */}
+                            <div className="p-5 border-b border-gray-200 dark:border-gray-800 flex justify-between items-center bg-gray-50/50 dark:bg-[#161616]">
+                                <div>
+                                    <h2 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                                        <span className={`w-2.5 h-2.5 rounded-full ${
+                                            activeDivision === 'SURVEY' ? 'bg-amber-500' :
+                                            activeDivision === 'DRONE' ? 'bg-indigo-500' : 'bg-blue-500'
+                                        }`} />
+                                        {editingProject ? `Edit Project: ${formData.title || 'Untitled'}` : 'Create New Project'}
+                                    </h2>
+                                    <p className="text-xs text-gray-500 mt-0.5">
+                                        Division locked to <span className="font-bold text-gray-700 dark:text-gray-300">{activeDivision}</span>
+                                    </p>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => setIsEditModalOpen(false)}
+                                    className="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800"
+                                    aria-label="Close"
+                                >
+                                    <X className="w-5 h-5" />
+                                </button>
+                            </div>
+
+                            {/* Modal Body */}
+                            <form onSubmit={handleSave} className="p-6 space-y-6 overflow-y-auto flex-1">
+                                
+                                {/* ─── 1. Primary Image & Media (Top Priority) ─── */}
+                                <section className="space-y-4 p-5 bg-blue-50/30 dark:bg-blue-950/10 border border-blue-200/60 dark:border-blue-900/40 rounded-xl">
+                                    <div className="flex justify-between items-center">
                                         <div>
-                                            <label className="block text-sm font-bold mb-1">Title</label>
+                                            <h3 className="text-xs font-extrabold uppercase tracking-[0.2em] text-blue-600 dark:text-blue-400">
+                                                1. Project Cover Image
+                                            </h3>
+                                            <p className="text-xs text-gray-500 mt-0.5">
+                                                Primary hero visual for the portfolio showcase and case study hero.
+                                            </p>
+                                        </div>
+                                        {formData.image_url && (
+                                            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 font-bold">
+                                                Image Configured
+                                            </span>
+                                        )}
+                                    </div>
+
+                                    {/* Primary Image Preview Card */}
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
+                                        <div className="md:col-span-1">
+                                            {formData.image_url ? (
+                                                <div className="relative group rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 bg-gray-900 aspect-video md:aspect-[4/3] shadow-md">
+                                                    <img 
+                                                        src={formData.image_url} 
+                                                        alt="Cover Preview" 
+                                                        className="w-full h-full object-cover" 
+                                                    />
+                                                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2 p-2">
+                                                        <a 
+                                                            href={formData.image_url} 
+                                                            target="_blank" 
+                                                            rel="noopener noreferrer"
+                                                            className="px-2.5 py-1 bg-white/90 text-gray-900 rounded-md text-xs font-bold inline-flex items-center gap-1 shadow"
+                                                        >
+                                                            <Eye className="w-3 h-3" /> View Original
+                                                        </a>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => updateField('image_url', '')}
+                                                            className="px-2.5 py-1 bg-red-600 text-white rounded-md text-xs font-bold inline-flex items-center gap-1 shadow"
+                                                        >
+                                                            <Trash2 className="w-3 h-3" /> Remove
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <div className="rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 aspect-video md:aspect-[4/3] flex flex-col items-center justify-center text-gray-400 p-4 text-center">
+                                                    <ImageIcon className="w-8 h-8 opacity-40 mb-1" />
+                                                    <span className="text-xs font-medium">No cover image</span>
+                                                    <span className="text-[10px] text-gray-500">Upload a file or paste URL</span>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {/* Direct URL input & File Upload Button */}
+                                        <div className="md:col-span-2 space-y-3">
+                                            <div>
+                                                <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">
+                                                    Image URL
+                                                </label>
+                                                <div className="flex gap-2">
+                                                    <input
+                                                        type="url"
+                                                        value={formData.image_url || ''}
+                                                        onChange={(e) => updateField('image_url', e.target.value)}
+                                                        placeholder="https://res.cloudinary.com/... or paste image URL"
+                                                        className="w-full p-2 text-xs rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-[#161616] focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                                                    />
+                                                    {formData.image_url && (
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => updateField('image_url', '')}
+                                                            className="px-2.5 text-xs text-gray-500 hover:text-red-500 border border-gray-200 dark:border-gray-700 rounded-lg"
+                                                            title="Clear input"
+                                                        >
+                                                            ✕
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            {/* Styled File Upload Dropzone / Button */}
+                                            <div>
+                                                <input
+                                                    ref={primaryFileInputRef}
+                                                    type="file"
+                                                    accept="image/*"
+                                                    onChange={handlePrimaryImageUpload}
+                                                    className="hidden"
+                                                    id="primary-image-file-input"
+                                                />
+                                                <label
+                                                    htmlFor="primary-image-file-input"
+                                                    className={`w-full cursor-pointer flex items-center justify-center gap-2 p-3 rounded-xl border border-dashed border-blue-400 dark:border-blue-700 bg-blue-500/5 hover:bg-blue-500/10 transition-colors text-xs font-bold text-blue-600 dark:text-blue-400 ${
+                                                        uploading ? 'opacity-60 pointer-events-none' : ''
+                                                    }`}
+                                                >
+                                                    {uploading ? (
+                                                        <>
+                                                            <Loader2 className="w-4 h-4 animate-spin" />
+                                                            Uploading to Cloudinary...
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <UploadCloud className="w-4 h-4" />
+                                                            Upload New File from Device (PNG, JPG, WebP)
+                                                        </>
+                                                    )}
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </section>
+
+                                {/* ─── 2. Basic Info ─────────────────────────── */}
+                                <section className="space-y-4">
+                                    <SectionTitle>2. Project Details</SectionTitle>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-xs font-bold mb-1">Title *</label>
                                             <input
                                                 required
                                                 value={formData.title}
                                                 onChange={(e) => updateField('title', e.target.value)}
-                                                className="w-full p-2 rounded-lg border dark:border-gray-800 bg-transparent"
+                                                placeholder="e.g. Wodibenuah Fair Exhibition Website"
+                                                className="w-full p-2 rounded-lg border dark:border-gray-800 bg-transparent text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
                                             />
                                         </div>
                                         <div>
-                                            <label className="block text-sm font-bold mb-1">Slug</label>
+                                            <label className="block text-xs font-bold mb-1">Slug *</label>
                                             <input
                                                 required
                                                 value={formData.slug}
                                                 onChange={(e) => updateField('slug', e.target.value)}
-                                                className="w-full p-2 rounded-lg border dark:border-gray-800 bg-transparent"
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div className="grid grid-cols-3 gap-4">
-                                        <div>
-                                            <label className="block text-sm font-bold mb-1">Division</label>
-                                            <div className={`w-full p-2 rounded-lg border dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-sm font-bold flex items-center gap-2`}>
-                                                <span className={`w-2 h-2 rounded-full ${
-                                                    activeDivision === 'SURVEY' ? 'bg-amber-500' :
-                                                    activeDivision === 'DRONE'  ? 'bg-indigo-500' :
-                                                                                 'bg-blue-500'
-                                                }`} />
-                                                {DIVISION_META[activeDivision]?.label || activeDivision}
-                                                <span className="ml-auto text-[10px] uppercase tracking-widest text-gray-400">locked</span>
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-bold mb-1">Workflow Status</label>
-                                            <select
-                                                value={formData.status}
-                                                onChange={(e) => updateField('status', e.target.value)}
-                                                className="w-full p-2 rounded-lg border dark:border-gray-800 bg-transparent"
-                                            >
-                                                <option value="DRAFT">DRAFT</option>
-                                                <option value="PUBLISHED">PUBLISHED</option>
-                                                <option value="ARCHIVED">ARCHIVED</option>
-                                            </select>
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-bold mb-1">Display Status</label>
-                                            <input
-                                                value={formData.status_label || ''}
-                                                onChange={(e) => updateField('status_label', e.target.value)}
-                                                placeholder="e.g. Live, In Progress"
-                                                className="w-full p-2 rounded-lg border dark:border-gray-800 bg-transparent"
+                                                placeholder="e.g. wodibenuah-fair"
+                                                className="w-full p-2 rounded-lg border dark:border-gray-800 bg-transparent text-sm font-mono focus:ring-2 focus:ring-blue-500 focus:outline-none"
                                             />
                                         </div>
                                     </div>
 
                                     <div>
-                                        <label className="block text-sm font-bold mb-1">Summary</label>
-                                        <textarea
-                                            value={formData.summary}
-                                            onChange={(e) => updateField('summary', e.target.value)}
-                                            className="w-full p-2 rounded-lg border dark:border-gray-800 bg-transparent"
-                                            rows={2}
+                                        <label className="block text-xs font-bold mb-1">
+                                            Tagline <span className="text-gray-400 font-normal text-[11px]">(One-line value proposition)</span>
+                                        </label>
+                                        <input
+                                            value={formData.tagline || ''}
+                                            onChange={(e) => updateField('tagline', e.target.value)}
+                                            placeholder="A modern digital platform for international craft fairs."
+                                            className="w-full p-2 rounded-lg border dark:border-gray-800 bg-transparent text-sm"
                                         />
                                     </div>
 
                                     <div>
-                                        <label className="block text-sm font-bold mb-1">Tagline <span className="text-gray-400 font-normal text-xs">(one-line value proposition)</span></label>
-                                        <input
-                                            value={formData.tagline || ''}
-                                            onChange={(e) => updateField('tagline', e.target.value)}
-                                            placeholder="A premium storefront engineered for international buyers."
-                                            className="w-full p-2 rounded-lg border dark:border-gray-800 bg-transparent"
+                                        <label className="block text-xs font-bold mb-1">
+                                            Summary <span className="text-gray-400 font-normal text-[11px]">(1-2 paragraph overview)</span>
+                                        </label>
+                                        <textarea
+                                            value={formData.summary || ''}
+                                            onChange={(e) => updateField('summary', e.target.value)}
+                                            rows={2}
+                                            placeholder="A brief executive overview of the project and impact."
+                                            className="w-full p-2 rounded-lg border dark:border-gray-800 bg-transparent text-sm"
                                         />
                                     </div>
                                 </section>
 
-                                {/* ─── 2. Classification ───────────────── */}
+                                {/* ─── 3. Classification & Category Presets ─── */}
                                 <section className="space-y-4">
-                                    <SectionTitle>Classification</SectionTitle>
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div>
-                                            <label className="block text-sm font-bold mb-1">Category</label>
-                                            <input
-                                                value={formData.category}
-                                                onChange={(e) => updateField('category', e.target.value)}
-                                                className="w-full p-2 rounded-lg border dark:border-gray-800 bg-transparent"
-                                                placeholder="e.g. Full-Stack, E-Commerce"
-                                            />
+                                    <SectionTitle>3. Classification & Category</SectionTitle>
+                                    
+                                    <div>
+                                        <div className="flex justify-between items-center mb-1">
+                                            <label className="block text-xs font-bold">Category</label>
+                                            <span className="text-[11px] text-gray-400">Click preset or enter custom</span>
                                         </div>
+                                        
+                                        {/* Quick-select chips */}
+                                        <div className="flex gap-1.5 flex-wrap mb-2">
+                                            {(CATEGORY_PRESETS[activeDivision] || []).map((cat) => (
+                                                <button
+                                                    key={cat}
+                                                    type="button"
+                                                    onClick={() => updateField('category', cat)}
+                                                    className={`px-2.5 py-1 rounded-md text-xs font-medium transition-colors ${
+                                                        formData.category === cat
+                                                            ? 'bg-blue-600 text-white font-bold'
+                                                            : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                                                    }`}
+                                                >
+                                                    {cat}
+                                                </button>
+                                            ))}
+                                        </div>
+
+                                        <input
+                                            value={formData.category || ''}
+                                            onChange={(e) => updateField('category', e.target.value)}
+                                            className="w-full p-2 rounded-lg border dark:border-gray-800 bg-transparent text-sm"
+                                            placeholder="e.g. Web Platforms, E-Commerce, SaaS, Business Systems"
+                                        />
+                                    </div>
+
+                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                                         <div>
-                                            <label className="block text-sm font-bold mb-1">Industry</label>
+                                            <label className="block text-xs font-bold mb-1">Industry</label>
                                             <input
                                                 value={formData.industry || ''}
                                                 onChange={(e) => updateField('industry', e.target.value)}
-                                                className="w-full p-2 rounded-lg border dark:border-gray-800 bg-transparent"
-                                                placeholder="e.g. Healthcare, Fashion, Geoinformatics"
+                                                className="w-full p-2 rounded-lg border dark:border-gray-800 bg-transparent text-sm"
+                                                placeholder="e.g. Exhibitions & Trade"
                                             />
                                         </div>
-                                    </div>
-
-                                    <div className="grid grid-cols-3 gap-4">
                                         <div>
-                                            <label className="block text-sm font-bold mb-1">Year</label>
+                                            <label className="block text-xs font-bold mb-1">Year</label>
                                             <input
                                                 value={formData.year || ''}
                                                 onChange={(e) => updateField('year', e.target.value)}
-                                                className="w-full p-2 rounded-lg border dark:border-gray-800 bg-transparent"
+                                                className="w-full p-2 rounded-lg border dark:border-gray-800 bg-transparent text-sm font-mono"
                                                 placeholder="2024"
                                             />
                                         </div>
                                         <div>
-                                            <label className="block text-sm font-bold mb-1">Duration</label>
+                                            <label className="block text-xs font-bold mb-1">Duration</label>
                                             <input
                                                 value={formData.duration || ''}
                                                 onChange={(e) => updateField('duration', e.target.value)}
-                                                className="w-full p-2 rounded-lg border dark:border-gray-800 bg-transparent"
-                                                placeholder="5 months"
+                                                className="w-full p-2 rounded-lg border dark:border-gray-800 bg-transparent text-sm"
+                                                placeholder="e.g. 6 weeks"
                                             />
                                         </div>
                                         <div>
-                                            <label className="block text-sm font-bold mb-1">Role</label>
+                                            <label className="block text-xs font-bold mb-1">Role</label>
                                             <input
                                                 value={formData.role || ''}
                                                 onChange={(e) => updateField('role', e.target.value)}
-                                                className="w-full p-2 rounded-lg border dark:border-gray-800 bg-transparent"
-                                                placeholder="Lead Engineer / Architect"
+                                                className="w-full p-2 rounded-lg border dark:border-gray-800 bg-transparent text-sm"
+                                                placeholder="Lead Engineer"
                                             />
                                         </div>
                                     </div>
 
-                                    <div className="grid grid-cols-2 gap-4">
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                         <div>
-                                            <label className="block text-sm font-bold mb-1">Location <span className="text-gray-400 font-normal text-xs">(Survey / Drone)</span></label>
+                                            <label className="block text-xs font-bold mb-1">Workflow Status</label>
+                                            <select
+                                                value={formData.status}
+                                                onChange={(e) => updateField('status', e.target.value)}
+                                                className="w-full p-2 rounded-lg border dark:border-gray-800 bg-transparent text-sm"
+                                            >
+                                                <option value="PUBLISHED">PUBLISHED (Public)</option>
+                                                <option value="DRAFT">DRAFT (Hidden)</option>
+                                                <option value="ARCHIVED">ARCHIVED</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-bold mb-1">Status Badge Label</label>
                                             <input
-                                                value={formData.location}
-                                                onChange={(e) => updateField('location', e.target.value)}
-                                                className="w-full p-2 rounded-lg border dark:border-gray-800 bg-transparent"
-                                                placeholder="e.g. Lagos, Nigeria"
+                                                value={formData.status_label || ''}
+                                                onChange={(e) => updateField('status_label', e.target.value)}
+                                                placeholder="e.g. Live, In Production"
+                                                className="w-full p-2 rounded-lg border dark:border-gray-800 bg-transparent text-sm"
                                             />
                                         </div>
                                         <div>
-                                            <label className="block text-sm font-bold mb-1">Client / Site Name</label>
-                                            <input
-                                                value={formData.client_name}
-                                                onChange={(e) => updateField('client_name', e.target.value)}
-                                                className="w-full p-2 rounded-lg border dark:border-gray-800 bg-transparent"
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div>
-                                            <label className="block text-sm font-bold mb-1">Tags <span className="text-gray-400 font-normal text-xs">(comma separated)</span></label>
-                                            <input
-                                                value={tagsInput}
-                                                onChange={(e) => setTagsInput(e.target.value)}
-                                                className="w-full p-2 rounded-lg border dark:border-gray-800 bg-transparent"
-                                                placeholder="e.g. aerial-survey, ncaa"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-bold mb-1">Display Order</label>
+                                            <label className="block text-xs font-bold mb-1">Display Order</label>
                                             <input
                                                 type="number"
                                                 min="0"
                                                 value={formData.display_order}
                                                 onChange={(e) => updateField('display_order', e.target.value)}
-                                                className="w-full p-2 rounded-lg border dark:border-gray-800 bg-transparent"
+                                                className="w-full p-2 rounded-lg border dark:border-gray-800 bg-transparent text-sm font-mono"
                                             />
                                         </div>
                                     </div>
                                 </section>
 
-                                {/* ─── 3. Media (image + gallery) ──────── */}
-                                <section className="space-y-4">
-                                    <SectionTitle>Media</SectionTitle>
-
-                                    <div className="space-y-2 p-4 border border-gray-200 dark:border-gray-800 rounded-lg">
-                                        <label className="block text-sm font-bold">Primary Project Image</label>
-                                        <p className="text-xs text-gray-500 mb-2">The hero image shown on the portfolio grid and the case-study hero.</p>
-                                        {formData.image_url && (
-                                            <div className="relative w-fit">
-                                                <img src={formData.image_url} alt="Primary Preview" className="h-40 rounded-lg object-cover border border-gray-200 dark:border-gray-700" />
-                                                <button
-                                                    type="button"
-                                                    onClick={() => updateField('image_url', '')}
-                                                    className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs shadow-md"
-                                                    aria-label="Remove primary image"
-                                                >
-                                                    ✕
-                                                </button>
-                                            </div>
-                                        )}
-                                        <input
-                                            type="file"
-                                            accept="image/*"
-                                            onChange={handleImageUpload}
-                                            className="block w-full text-sm mt-2 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 dark:file:bg-blue-900/30 dark:file:text-blue-300"
-                                        />
-                                        {uploading && (
-                                            <span className="text-xs text-blue-500 font-bold inline-flex items-center gap-1.5">
-                                                <Loader2 className="w-3 h-3 animate-spin" />
-                                                Uploading to Cloudinary...
-                                            </span>
-                                        )}
+                                {/* ─── 4. Multi-Image Gallery ────────────────── */}
+                                <section className="space-y-4 p-5 border border-gray-200 dark:border-gray-800 rounded-xl bg-gray-50/50 dark:bg-gray-900/20">
+                                    <div className="flex justify-between items-center flex-wrap gap-2">
+                                        <div>
+                                            <SectionTitle>4. Case Study Gallery ({formData.gallery?.length || 0} Frames)</SectionTitle>
+                                            <p className="text-xs text-gray-500 mt-1">
+                                                Additional showcase frames rendered inside the project's case study gallery.
+                                            </p>
+                                        </div>
+                                        <div className="flex gap-2">
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowAddUrlInput((v) => !v)}
+                                                className="px-3 py-1.5 border border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg text-xs font-bold inline-flex items-center gap-1"
+                                            >
+                                                <Plus className="w-3.5 h-3.5" /> Add URL
+                                            </button>
+                                            
+                                            <input
+                                                ref={galleryInputRef}
+                                                type="file"
+                                                accept="image/*"
+                                                multiple
+                                                onChange={handleGalleryUpload}
+                                                className="hidden"
+                                                id="gallery-file-input"
+                                            />
+                                            <label
+                                                htmlFor="gallery-file-input"
+                                                className={`px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer shadow-sm ${
+                                                    galleryUploading ? 'opacity-50 pointer-events-none' : ''
+                                                }`}
+                                            >
+                                                {galleryUploading ? (
+                                                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                                ) : (
+                                                    <UploadCloud className="w-3.5 h-3.5" />
+                                                )}
+                                                Upload Images
+                                            </label>
+                                        </div>
                                     </div>
 
-                                    <div className="space-y-2 p-4 border border-gray-200 dark:border-gray-800 rounded-lg">
-                                        <label className="block text-sm font-bold">Gallery</label>
-                                        <p className="text-xs text-gray-500 mb-2">
-                                            Multi-image gallery shown on the case-study detail page (featured + grid). First image is the featured frame.
-                                        </p>
-                                        {formData.gallery && formData.gallery.length > 0 && (
-                                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
-                                                {formData.gallery.map((g, i) => (
-                                                    <div key={i} className="relative group border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
-                                                        <img src={g.src} alt={g.alt || `Frame ${i + 1}`} className="w-full h-24 object-cover" />
-                                                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-colors" />
-                                                        <div className="absolute top-1 left-1 text-[9px] font-bold bg-black/70 text-white px-1.5 py-0.5 rounded">
+                                    {/* Add Image by URL Panel */}
+                                    <AnimatePresence>
+                                        {showAddUrlInput && (
+                                            <motion.div
+                                                initial={{ opacity: 0, height: 0 }}
+                                                animate={{ opacity: 1, height: 'auto' }}
+                                                exit={{ opacity: 0, height: 0 }}
+                                                className="p-3 bg-white dark:bg-[#161616] border border-gray-200 dark:border-gray-700 rounded-xl space-y-2"
+                                            >
+                                                <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                                                    <input
+                                                        type="url"
+                                                        value={newGalleryUrl}
+                                                        onChange={(e) => setNewGalleryUrl(e.target.value)}
+                                                        placeholder="Image URL (https://...)"
+                                                        className="p-2 text-xs rounded-lg border dark:border-gray-700 bg-transparent"
+                                                    />
+                                                    <input
+                                                        type="text"
+                                                        value={newGalleryAlt}
+                                                        onChange={(e) => setNewGalleryAlt(e.target.value)}
+                                                        placeholder="Caption / Description"
+                                                        className="p-2 text-xs rounded-lg border dark:border-gray-700 bg-transparent"
+                                                    />
+                                                    <div className="flex gap-2">
+                                                        <select
+                                                            value={newGalleryDevice}
+                                                            onChange={(e) => setNewGalleryDevice(e.target.value)}
+                                                            className="p-2 text-xs rounded-lg border dark:border-gray-700 bg-transparent flex-1"
+                                                        >
+                                                            <option value="desktop">Desktop</option>
+                                                            <option value="mobile">Mobile</option>
+                                                            <option value="tablet">Tablet</option>
+                                                        </select>
+                                                        <button
+                                                            type="button"
+                                                            onClick={addGalleryUrl}
+                                                            className="px-3 py-2 bg-emerald-600 text-white rounded-lg text-xs font-bold shrink-0"
+                                                        >
+                                                            Add Frame
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
+
+                                    {/* Gallery Frames List */}
+                                    {formData.gallery && formData.gallery.length > 0 ? (
+                                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 pt-2">
+                                            {formData.gallery.map((g, i) => (
+                                                <div 
+                                                    key={i} 
+                                                    className="group relative border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden bg-gray-900 shadow-sm flex flex-col"
+                                                >
+                                                    <div className="relative h-28 w-full bg-black/40 overflow-hidden">
+                                                        <img 
+                                                            src={g.src} 
+                                                            alt={g.alt || `Frame ${i + 1}`} 
+                                                            className="w-full h-full object-cover" 
+                                                        />
+                                                        <div className="absolute top-1 left-1 bg-black/75 backdrop-blur-sm text-white text-[9px] font-bold px-1.5 py-0.5 rounded">
                                                             #{i + 1}
                                                         </div>
-                                                        <div className="absolute top-1 right-1 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                        <div className="absolute top-1 right-1 bg-black/75 backdrop-blur-sm text-white text-[9px] uppercase px-1.5 py-0.5 rounded">
+                                                            {g.device || 'desktop'}
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="p-2 bg-white dark:bg-[#161616] flex-1 flex flex-col justify-between gap-1.5">
+                                                        <input
+                                                            type="text"
+                                                            value={g.alt || ''}
+                                                            onChange={(e) => {
+                                                                const val = e.target.value;
+                                                                setFormData(prev => {
+                                                                    const copy = [...(prev.gallery || [])];
+                                                                    copy[i] = { ...copy[i], alt: val };
+                                                                    return { ...prev, gallery: copy };
+                                                                });
+                                                            }}
+                                                            placeholder="Caption..."
+                                                            className="w-full text-[11px] p-1 border border-gray-200 dark:border-gray-800 rounded bg-transparent"
+                                                        />
+                                                        
+                                                        <div className="flex items-center justify-between gap-1 pt-1 border-t border-gray-100 dark:border-gray-800">
+                                                            <div className="flex gap-1">
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => moveGalleryItem(i, -1)}
+                                                                    disabled={i === 0}
+                                                                    className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 disabled:opacity-30 text-xs"
+                                                                    title="Move backward"
+                                                                >
+                                                                    <ArrowUp className="w-3 h-3" />
+                                                                </button>
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => moveGalleryItem(i, 1)}
+                                                                    disabled={i === formData.gallery.length - 1}
+                                                                    className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 disabled:opacity-30 text-xs"
+                                                                    title="Move forward"
+                                                                >
+                                                                    <ArrowDown className="w-3 h-3" />
+                                                                </button>
+                                                            </div>
+
                                                             <button
                                                                 type="button"
-                                                                onClick={() => moveGalleryItem(i, -1)}
-                                                                disabled={i === 0}
-                                                                className="w-6 h-6 rounded bg-white/90 text-black text-xs font-bold disabled:opacity-40"
-                                                                aria-label="Move up"
+                                                                onClick={() => setGalleryAsPrimary(g)}
+                                                                className="text-[10px] text-blue-600 dark:text-blue-400 hover:underline font-bold"
+                                                                title="Set as main cover image"
                                                             >
-                                                                ↑
+                                                                Make Cover
                                                             </button>
-                                                            <button
-                                                                type="button"
-                                                                onClick={() => moveGalleryItem(i, 1)}
-                                                                disabled={i === formData.gallery.length - 1}
-                                                                className="w-6 h-6 rounded bg-white/90 text-black text-xs font-bold disabled:opacity-40"
-                                                                aria-label="Move down"
-                                                            >
-                                                                ↓
-                                                            </button>
+
                                                             <button
                                                                 type="button"
                                                                 onClick={() => removeGalleryItem(i)}
-                                                                className="w-6 h-6 rounded bg-red-500 text-white text-xs font-bold"
-                                                                aria-label="Remove"
+                                                                className="p-1 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded"
+                                                                title="Delete image"
                                                             >
-                                                                ✕
+                                                                <Trash2 className="w-3 h-3" />
                                                             </button>
                                                         </div>
                                                     </div>
-                                                ))}
-                                            </div>
-                                        )}
-                                        <input
-                                            ref={galleryInputRef}
-                                            type="file"
-                                            accept="image/*"
-                                            multiple
-                                            onChange={handleGalleryUpload}
-                                            className="block w-full text-sm mt-2 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 dark:file:bg-blue-900/30 dark:file:text-blue-300"
-                                        />
-                                        {galleryUploading && (
-                                            <span className="text-xs text-blue-500 font-bold inline-flex items-center gap-1.5">
-                                                <Loader2 className="w-3 h-3 animate-spin" />
-                                                Uploading gallery images...
-                                            </span>
-                                        )}
-                                    </div>
-
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div>
-                                            <label className="block text-sm font-bold mb-1">Live URL</label>
-                                            <input
-                                                value={formData.live_url}
-                                                onChange={(e) => updateField('live_url', e.target.value)}
-                                                className="w-full p-2 rounded-lg border dark:border-gray-800 bg-transparent"
-                                            />
+                                                </div>
+                                            ))}
                                         </div>
-                                        <div>
-                                            <label className="block text-sm font-bold mb-1">Repo URL</label>
-                                            <input
-                                                value={formData.repo_url}
-                                                onChange={(e) => updateField('repo_url', e.target.value)}
-                                                className="w-full p-2 rounded-lg border dark:border-gray-800 bg-transparent"
-                                            />
-                                        </div>
-                                    </div>
+                                    ) : (
+                                        <p className="text-xs text-gray-400 italic py-2">
+                                            No additional gallery frames added yet. Click "Upload Images" or "Add URL" above.
+                                        </p>
+                                    )}
                                 </section>
 
-                                {/* ─── 4. Tech / Features ────────────── */}
+                                {/* ─── 5. Tech Stack & Features ──────────────── */}
                                 <section className="space-y-4">
-                                    <SectionTitle>Tech & Features</SectionTitle>
-                                    <div className="grid grid-cols-2 gap-4">
+                                    <SectionTitle>5. Tech Stack & Key Features</SectionTitle>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div>
-                                            <label className="block text-sm font-bold mb-1">Tech Stack <span className="text-gray-400 font-normal text-xs">(comma separated)</span></label>
+                                            <label className="block text-xs font-bold mb-1">
+                                                Tech Stack <span className="text-gray-400 font-normal text-[11px]">(comma separated)</span>
+                                            </label>
                                             <input
                                                 value={techStackInput}
                                                 onChange={(e) => setTechStackInput(e.target.value)}
-                                                className="w-full p-2 rounded-lg border dark:border-gray-800 bg-transparent"
-                                                placeholder="e.g. React, Node.js, PostgreSQL"
+                                                className="w-full p-2 rounded-lg border dark:border-gray-800 bg-transparent text-sm font-mono"
+                                                placeholder="React, Tailwind CSS, PostgreSQL, Supabase"
                                             />
                                         </div>
                                         <div>
-                                            <label className="block text-sm font-bold mb-1">Features <span className="text-gray-400 font-normal text-xs">(comma separated)</span></label>
+                                            <label className="block text-xs font-bold mb-1">
+                                                Features <span className="text-gray-400 font-normal text-[11px]">(comma separated)</span>
+                                            </label>
                                             <input
                                                 value={featuresInput}
                                                 onChange={(e) => setFeaturesInput(e.target.value)}
-                                                className="w-full p-2 rounded-lg border dark:border-gray-800 bg-transparent"
-                                                placeholder="e.g. Real-time chat, GPS tracking"
+                                                className="w-full p-2 rounded-lg border dark:border-gray-800 bg-transparent text-sm"
+                                                placeholder="Real-time syncing, Interactive maps, Role-based auth"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-xs font-bold mb-1">Live URL (Demo / Production)</label>
+                                            <input
+                                                value={formData.live_url || ''}
+                                                onChange={(e) => updateField('live_url', e.target.value)}
+                                                className="w-full p-2 rounded-lg border dark:border-gray-800 bg-transparent text-sm"
+                                                placeholder="https://example.com"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-bold mb-1">Repo URL</label>
+                                            <input
+                                                value={formData.repo_url || ''}
+                                                onChange={(e) => updateField('repo_url', e.target.value)}
+                                                className="w-full p-2 rounded-lg border dark:border-gray-800 bg-transparent text-sm font-mono"
+                                                placeholder="https://github.com/..."
                                             />
                                         </div>
                                     </div>
                                 </section>
 
-                                {/* ─── 5. Write-up ───────────────────── */}
+                                {/* ─── 6. Full Write-Up / Markdown ──────────── */}
                                 <section className="space-y-4">
-                                    <SectionTitle>Write-up</SectionTitle>
+                                    <SectionTitle>6. Detailed Case Study Write-Up</SectionTitle>
                                     <div>
-                                        <label className="block text-sm font-bold mb-1">Content (Markdown / HTML)</label>
+                                        <label className="block text-xs font-bold mb-1">
+                                            Content (Markdown / HTML supported)
+                                        </label>
                                         <textarea
-                                            value={formData.content}
+                                            value={formData.content || ''}
                                             onChange={(e) => updateField('content', e.target.value)}
-                                            className="w-full p-2 rounded-lg border dark:border-gray-800 bg-transparent"
-                                            rows={8}
-                                            placeholder="Full project write-up — supports Markdown."
+                                            className="w-full p-3 rounded-lg border dark:border-gray-800 bg-transparent text-sm font-mono"
+                                            rows={6}
+                                            placeholder="Write comprehensive case study details, technical decisions, and architecture overview."
                                         />
                                     </div>
                                 </section>
 
-                                {/* ─── 6. Division-specific Meta ─────── */}
+                                {/* ─── 7. Division-Specific Meta ─────────────── */}
                                 {metaFields.length > 0 && (
                                     <section className="space-y-4">
                                         <SectionTitle>
-                                            {activeDivision === 'SURVEY' ? 'Survey' : 'Drone'} Meta
+                                            {activeDivision === 'SURVEY' ? 'Survey Specifics' : 'Drone Specifics'}
                                         </SectionTitle>
-                                        <p className="text-xs text-gray-500 -mt-2">
-                                            Division-specific structured fields, saved into the <code>meta</code> JSONB column.
-                                        </p>
                                         <div className="grid grid-cols-2 gap-4">
                                             {metaFields.map((m) => (
                                                 <div key={m.key}>
-                                                    <label className="block text-sm font-bold mb-1">{m.label}</label>
+                                                    <label className="block text-xs font-bold mb-1">{m.label}</label>
                                                     <input
                                                         value={formData.meta?.[m.key] ?? ''}
                                                         onChange={(e) => updateField('meta', {
                                                             ...(formData.meta || {}),
                                                             [m.key]: e.target.value,
                                                         })}
-                                                        className="w-full p-2 rounded-lg border dark:border-gray-800 bg-transparent"
+                                                        className="w-full p-2 rounded-lg border dark:border-gray-800 bg-transparent text-sm"
                                                         placeholder={m.placeholder}
                                                     />
                                                 </div>
@@ -879,59 +1253,26 @@ const AdminPortfolio = ({ lockedDivision }) => {
                                     </section>
                                 )}
 
-                                {/* ─── 7. Advanced (collapsible) ─────── */}
-                                <section className="border border-gray-200 dark:border-gray-800 rounded-lg overflow-hidden">
-                                    <button
-                                        type="button"
-                                        onClick={() => setAdvancedOpen((v) => !v)}
-                                        className="w-full flex items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors"
-                                    >
-                                        <span className="text-sm font-bold uppercase tracking-widest text-gray-700 dark:text-gray-300">
-                                            Advanced
-                                        </span>
-                                        {advancedOpen ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
-                                    </button>
-                                    <AnimatePresence initial={false}>
-                                        {advancedOpen && (
-                                            <motion.div
-                                                initial={{ height: 0, opacity: 0 }}
-                                                animate={{ height: 'auto', opacity: 1 }}
-                                                exit={{ height: 0, opacity: 0 }}
-                                                transition={{ duration: 0.2 }}
-                                                className="overflow-hidden"
-                                            >
-                                                <div className="p-4 pt-0 space-y-4 border-t border-gray-200 dark:border-gray-800">
-                                                    <label className="flex items-center gap-2 text-sm font-bold">
-                                                        <input
-                                                            type="checkbox"
-                                                            checked={!!formData.featured}
-                                                            onChange={(e) => updateField('featured', e.target.checked)}
-                                                        />
-                                                        Feature on public homepage
-                                                    </label>
-                                                </div>
-                                            </motion.div>
-                                        )}
-                                    </AnimatePresence>
-                                </section>
-
-                                {/* ─── 8. Case-study JSONB (collapsible) */}
-                                <section className="border border-gray-200 dark:border-gray-800 rounded-lg overflow-hidden">
+                                {/* ─── 8. Structured JSONB Sections (Collapsible) ─── */}
+                                <section className="border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden">
                                     <button
                                         type="button"
                                         onClick={() => setJsonbOpen((v) => !v)}
-                                        className="w-full flex items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors"
+                                        className="w-full flex items-center justify-between p-4 bg-gray-50/50 dark:bg-gray-900/40 hover:bg-gray-100 dark:hover:bg-gray-900 transition-colors"
                                     >
-                                        <span className="text-sm font-bold uppercase tracking-widest text-gray-700 dark:text-gray-300">
-                                            Case Study Content (JSON)
-                                        </span>
-                                        <span className="flex items-center gap-2">
+                                        <div className="flex items-center gap-2 text-left">
+                                            <span className="text-xs font-extrabold uppercase tracking-widest text-gray-700 dark:text-gray-300">
+                                                Advanced Case Study Fields (JSON)
+                                            </span>
                                             {Object.keys(jsonbErrors).length > 0 && (
-                                                <span className="text-[10px] text-red-500 font-bold">errors</span>
+                                                <span className="text-[10px] bg-red-500 text-white px-2 py-0.5 rounded-full font-bold">
+                                                    Syntax error in JSON
+                                                </span>
                                             )}
-                                            {jsonbOpen ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
-                                        </span>
+                                        </div>
+                                        {jsonbOpen ? <ChevronDown className="w-4 h-4 text-gray-400" /> : <ChevronRight className="w-4 h-4 text-gray-400" />}
                                     </button>
+
                                     <AnimatePresence initial={false}>
                                         {jsonbOpen && (
                                             <motion.div
@@ -941,9 +1282,9 @@ const AdminPortfolio = ({ lockedDivision }) => {
                                                 transition={{ duration: 0.2 }}
                                                 className="overflow-hidden"
                                             >
-                                                <div className="p-4 pt-0 space-y-4 border-t border-gray-200 dark:border-gray-800">
+                                                <div className="p-4 space-y-4 border-t border-gray-200 dark:border-gray-800">
                                                     <p className="text-xs text-gray-500">
-                                                        Optional structured content consumed by the public case-study detail page. Leave empty to use the write-up above as the source.
+                                                        Edit structured data blocks (Challenge, Solution, Results, System Flow, Architecture, Metrics).
                                                     </p>
                                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                         {JSONB_FIELDS.map((f) => (
@@ -963,20 +1304,21 @@ const AdminPortfolio = ({ lockedDivision }) => {
                                     </AnimatePresence>
                                 </section>
 
+                                {/* Modal Footer with Save Actions */}
                                 <div className="pt-4 flex gap-3 sticky bottom-0 bg-white dark:bg-[#111] -mx-6 px-6 py-4 border-t border-gray-200 dark:border-gray-800">
                                     <button
                                         type="button"
                                         onClick={() => setIsEditModalOpen(false)}
-                                        className="px-4 py-2 rounded-lg font-bold border border-gray-200 dark:border-gray-800"
+                                        className="px-5 py-2.5 rounded-xl font-bold text-xs border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                                     >
                                         Cancel
                                     </button>
                                     <button
                                         type="submit"
                                         disabled={uploading || galleryUploading}
-                                        className="flex-1 bg-blue-600 text-white py-2 rounded-lg font-bold disabled:opacity-50"
+                                        className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-xl font-bold text-xs shadow-lg shadow-blue-600/20 disabled:opacity-50 transition-all"
                                     >
-                                        Save Project
+                                        {uploading || galleryUploading ? 'Uploading Media...' : (editingProject ? 'Save Project Changes' : 'Create Project')}
                                     </button>
                                 </div>
                             </form>
@@ -988,7 +1330,6 @@ const AdminPortfolio = ({ lockedDivision }) => {
     );
 };
 
-// Small section title used inside the modal.
 const SectionTitle = ({ children }) => (
     <h3 className="text-xs font-extrabold uppercase tracking-[0.2em] text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-800 pb-2">
         {children}

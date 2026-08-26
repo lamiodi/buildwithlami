@@ -1,14 +1,29 @@
-// ── Fallback project data used when the backend is unavailable ──
-// Single source of truth — imported by ProjectsPage, ProjectDetailPage, and Projects component.
-//
-// Each entry supports the legacy fields (title, summary, description, features, tech_stack, …)
-// used by the Projects grid, plus a rich set of optional case-study fields consumed by the
-// premium ProjectDetailPage. Missing case-study fields are gracefully hidden by the page so
-// older rows from the API still render correctly.
+// ─── syncSoftwareProjects.js ──────────────────────────────
+// Synchronises the 6 canonical software projects into PostgreSQL with:
+// - division = 'SOFTWARE'
+// - Curated category tags (Web Platforms, Business Systems, E-Commerce, SaaS)
+// - Full v28 case study JSONB data (challenge, solution, results, tech stack, gallery, etc.)
+// ──────────────────────────────────────────────────────────
 
-const fallbackProjects = [
+import 'dotenv/config';
+import pool from '../config/db.js';
+
+async function checkCols() {
+  console.log('[Sync] Updating projects_division_check constraint...');
+  await pool.query(`
+    ALTER TABLE projects DROP CONSTRAINT IF EXISTS projects_division_check;
+    ALTER TABLE projects ADD CONSTRAINT projects_division_check CHECK (division IN ('SOFTWARE', 'SURVEY', 'DRONE', 'Technology', 'Surveying', 'Drone', 'Products'));
+  `);
+  const res = await pool.query("SELECT column_name, data_type, udt_name FROM information_schema.columns WHERE table_name='projects' ORDER BY ordinal_position");
+  console.log('PROJECTS COLUMNS:', res.rows.map(r => `${r.column_name}: ${r.data_type} (${r.udt_name})`));
+  const cons = await pool.query("SELECT conname, pg_get_constraintdef(oid) as def FROM pg_constraint WHERE conrelid = 'projects'::regclass");
+  console.log('PROJECTS CONSTRAINTS:', cons.rows);
+}
+
+
+
+const canonicalProjects = [
   {
-    id: 1,
     title: "VonneX2X Enterprise ERP",
     slug: "vonnex2x-enterprise-erp",
     summary: "A bespoke business operations ecosystem featuring intelligent scheduling, GPS-fenced workforce management, and real-time retail/service POS integration.",
@@ -17,13 +32,14 @@ const fallbackProjects = [
     category: "Business Systems",
     project_status: "Client Project",
     tech_stack: ["React", "Node.js", "PostgreSQL", "Supabase"],
-    image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=2070&auto=format&fit=crop",
+    image_url: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=2070&auto=format&fit=crop",
     live_url: "#",
-    github_url: null,
+    repo_url: null,
     year: "2024",
-    client: "VonneX2X Ltd.",
+    client_name: "VonneX2X Ltd.",
     industry: "Retail & Service Operations",
-    status: "Live",
+    status: "PUBLISHED",
+    status_label: "Live",
     duration: "5 months",
     role: "Lead Engineer / Architect",
     tagline: "An operations command center for retail and service businesses.",
@@ -55,7 +71,7 @@ const fallbackProjects = [
       { value: "1", label: "Single Source of Truth", description: "Rosters, sales, and appointments managed in one hub." },
       { value: "GPS-Verified", label: "Attendance Tracking", description: "Audited clock-ins tied to verifiable geofences." }
     ],
-    featureCategories: [
+    feature_categories: [
       {
         name: "Scheduling",
         icon: "calendar",
@@ -97,7 +113,7 @@ const fallbackProjects = [
       { step: "POS", detail: "Charged through the unified checkout." },
       { step: "Reports", detail: "Revenue + performance surfaced to the owner dashboard." }
     ],
-    techCategories: [
+    tech_categories: [
       { name: "Frontend", icon: "monitor", items: ["React", "Vite", "Tailwind CSS"] },
       { name: "Backend", icon: "server", items: ["Node.js", "Express", "Socket.io"] },
       { name: "Database", icon: "database", items: ["PostgreSQL", "Redis"] },
@@ -146,10 +162,11 @@ const fallbackProjects = [
       bundle: "184 KB"
     },
     stats: { screens: 28, endpoints: 42, tables: 17 },
-    relatedSlugs: ["tiabrand-ecommerce", "eduflow-academic-erp"]
+    related_slugs: ["tiabrand-ecommerce", "eduflow-academic-erp"],
+    display_order: 1,
+    featured: true
   },
   {
-    id: 2,
     title: "The TiaBrand E-commerce Website",
     slug: "tiabrand-ecommerce",
     summary: "A premium e-commerce platform built to support multi-currency sales, complex product bundles, and secure Paystack payments while keeping product and order management simple.",
@@ -158,13 +175,14 @@ const fallbackProjects = [
     category: "E-Commerce",
     project_status: "Client Project",
     tech_stack: ["React", "Node.js", "PostgreSQL", "Paystack"],
-    image: "https://images.unsplash.com/photo-1661956602116-aa6865609028?q=80&w=1964&auto=format&fit=crop",
+    image_url: "https://images.unsplash.com/photo-1661956602116-aa6865609028?q=80&w=1964&auto=format&fit=crop",
     live_url: "#",
-    github_url: null,
+    repo_url: null,
     year: "2024",
-    client: "The TiaBrand",
+    client_name: "The TiaBrand",
     industry: "Fashion E-Commerce",
-    status: "Live",
+    status: "PUBLISHED",
+    status_label: "Live",
     duration: "4 months",
     role: "Full-Stack Engineer",
     tagline: "A premium storefront engineered for international buyers.",
@@ -195,7 +213,7 @@ const fallbackProjects = [
       { value: "0", label: "Stock oversells", description: "Reservation queue eliminated race conditions." },
       { value: "98", label: "Lighthouse score", description: "Performance, a11y, SEO — all green." }
     ],
-    featureCategories: [
+    feature_categories: [
       {
         name: "Storefront",
         icon: "monitor",
@@ -228,7 +246,7 @@ const fallbackProjects = [
       { step: "Webhook", detail: "Fires on success, updates inventory ledger." },
       { step: "Receipt", detail: "Order confirmation + tracking link emailed." }
     ],
-    techCategories: [
+    tech_categories: [
       { name: "Frontend", icon: "monitor", items: ["React", "Vite", "Tailwind CSS"] },
       { name: "Backend", icon: "server", items: ["Node.js", "Express"] },
       { name: "Database", icon: "database", items: ["PostgreSQL"] },
@@ -269,10 +287,11 @@ const fallbackProjects = [
       bundle: "162 KB"
     },
     stats: { screens: 22, endpoints: 36, tables: 14 },
-    relatedSlugs: ["vonnex2x-enterprise-erp", "wodibenuah-fair"]
+    related_slugs: ["vonnex2x-enterprise-erp", "wodibenuah-fair"],
+    display_order: 2,
+    featured: false
   },
   {
-    id: 3,
     title: "Wodibenuah Fair Exhibition Website",
     slug: "wodibenuah-fair",
     summary: "A high-end lifestyle event platform featuring automated vendor onboarding, high-volume ticket checkout, and a real-time organizer command center.",
@@ -281,13 +300,14 @@ const fallbackProjects = [
     category: "Web Platforms",
     project_status: "Client Project",
     tech_stack: ["React", "Supabase", "Node.js", "Paystack"],
-    image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=2015&auto=format&fit=crop",
+    image_url: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=2015&auto=format&fit=crop",
     live_url: "#",
-    github_url: null,
+    repo_url: null,
     year: "2024",
-    client: "Wodibenuah Fair",
+    client_name: "Wodibenuah Fair",
     industry: "Events & Lifestyle",
-    status: "Live",
+    status: "PUBLISHED",
+    status_label: "Live",
     duration: "3 months",
     role: "Full-Stack Engineer",
     tagline: "An event platform that feels like the fair itself.",
@@ -317,7 +337,7 @@ const fallbackProjects = [
       { value: "0", label: "Downtime on launch day", description: "Through a 50x traffic spike." },
       { value: "100%", label: "Vendor automation", description: "Onboarding, approvals, and notifications — no manual back-and-forth." }
     ],
-    featureCategories: [
+    feature_categories: [
       {
         name: "Ticketing",
         icon: "ticket",
@@ -350,7 +370,7 @@ const fallbackProjects = [
       { step: "Confirmation", detail: "Ticket delivered to email with QR." },
       { step: "Entry", detail: "Scanned at the gate, synced to admin dashboard." }
     ],
-    techCategories: [
+    tech_categories: [
       { name: "Frontend", icon: "monitor", items: ["React", "Tailwind CSS", "Vite"] },
       { name: "Backend", icon: "server", items: ["Supabase", "Edge Functions"] },
       { name: "Database", icon: "database", items: ["PostgreSQL", "RLS"] },
@@ -393,10 +413,11 @@ const fallbackProjects = [
       bundle: "171 KB"
     },
     stats: { screens: 24, endpoints: 31, tables: 12 },
-    relatedSlugs: ["tiabrand-ecommerce", "vonnex2x-enterprise-erp"]
+    related_slugs: ["tiabrand-ecommerce", "vonnex2x-enterprise-erp"],
+    display_order: 3,
+    featured: false
   },
   {
-    id: 4,
     title: "Sourceline Limited Website",
     slug: "sourceline-limited",
     summary: "A trust-first geoinformatics platform with SURCON/CAC regulatory license verification, a dynamic CMS, and a qualified lead capture engine.",
@@ -405,13 +426,14 @@ const fallbackProjects = [
     category: "Web Platforms",
     project_status: "Client Project",
     tech_stack: ["React 19", "Supabase", "Vite", "Tailwind CSS"],
-    image: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=2070&auto=format&fit=crop",
+    image_url: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=2070&auto=format&fit=crop",
     live_url: "#",
-    github_url: null,
+    repo_url: null,
     year: "2025",
-    client: "Sourceline Limited",
+    client_name: "Sourceline Limited",
     industry: "Geoinformatics & Surveying",
-    status: "Live",
+    status: "PUBLISHED",
+    status_label: "Live",
     duration: "3 months",
     role: "Lead Engineer",
     tagline: "A trust-first platform for a regulated industry.",
@@ -441,7 +463,7 @@ const fallbackProjects = [
       { value: "100%", label: "License transparency", description: "SURCON number verifiable on every page." },
       { value: "0", label: "Engineering tickets", description: "For content updates since launch." }
     ],
-    featureCategories: [
+    feature_categories: [
       {
         name: "Trust",
         icon: "shield",
@@ -474,7 +496,7 @@ const fallbackProjects = [
       { step: "Inquire", detail: "Submits a qualifying lead form." },
       { step: "Sales", detail: "Receives a structured inquiry in the inbox." }
     ],
-    techCategories: [
+    tech_categories: [
       { name: "Frontend", icon: "monitor", items: ["React 19", "Vite", "Tailwind CSS"] },
       { name: "Backend", icon: "server", items: ["Supabase", "Edge Functions"] },
       { name: "Database", icon: "database", items: ["PostgreSQL", "RLS"] },
@@ -515,10 +537,11 @@ const fallbackProjects = [
       bundle: "148 KB"
     },
     stats: { screens: 18, endpoints: 24, tables: 9 },
-    relatedSlugs: ["vonnex2x-enterprise-erp", "eduflow-academic-erp"]
+    related_slugs: ["vonnex2x-enterprise-erp", "eduflow-academic-erp"],
+    display_order: 4,
+    featured: false
   },
   {
-    id: 5,
     title: "EduFlow Academic ERP",
     slug: "eduflow-academic-erp",
     summary: "A school management and financial platform featuring automated WAEC grading, installment fee ledgers, and automated parent SMS notifications.",
@@ -527,13 +550,14 @@ const fallbackProjects = [
     category: "Business Systems",
     project_status: "Internal Product",
     tech_stack: ["React", "Node.js", "PostgreSQL", "Termii API"],
-    image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=2070&auto=format&fit=crop",
+    image_url: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=2070&auto=format&fit=crop",
     live_url: "#",
-    github_url: null,
+    repo_url: null,
     year: "2024",
-    client: "EduFlow (Internal Build)",
+    client_name: "EduFlow (Internal Build)",
     industry: "Education",
-    status: "Live",
+    status: "PUBLISHED",
+    status_label: "Live",
     duration: "6 months",
     role: "Full-Stack Engineer",
     tagline: "A culturally-adapted ERP for Nigerian schools.",
@@ -563,7 +587,7 @@ const fallbackProjects = [
       { value: "95%", label: "SMS delivery rate", description: "To parents, even on weak networks." },
       { value: "500+", label: "Students supported", description: "Across multiple schools on the platform." }
     ],
-    featureCategories: [
+    feature_categories: [
       {
         name: "Academics",
         icon: "graduation",
@@ -596,7 +620,7 @@ const fallbackProjects = [
       { step: "System", detail: "Sends SMS to the parent." },
       { step: "Proprietor", detail: "Reviews the term summary in the dashboard." }
     ],
-    techCategories: [
+    tech_categories: [
       { name: "Frontend", icon: "monitor", items: ["React", "Tailwind CSS"] },
       { name: "Backend", icon: "server", items: ["Node.js", "Express"] },
       { name: "Database", icon: "database", items: ["PostgreSQL"] },
@@ -638,10 +662,11 @@ const fallbackProjects = [
       bundle: "198 KB"
     },
     stats: { screens: 32, endpoints: 48, tables: 22 },
-    relatedSlugs: ["vonnex2x-enterprise-erp", "medios-hospital-os"]
+    related_slugs: ["vonnex2x-enterprise-erp", "medios-hospital-os"],
+    display_order: 5,
+    featured: false
   },
   {
-    id: 6,
     title: "MediOS Hospital OS",
     slug: "medios-hospital-os",
     summary: "An offline-first clinic and hospital management system featuring zero-downtime offline charts and an automated HMO insurance claims scrubber.",
@@ -650,13 +675,14 @@ const fallbackProjects = [
     category: "SaaS",
     project_status: "Concept Prototype",
     tech_stack: ["React", "PWA", "IndexedDB", "RxDB"],
-    image: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=2070&auto=format&fit=crop",
+    image_url: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=2070&auto=format&fit=crop",
     live_url: "#",
-    github_url: null,
+    repo_url: null,
     year: "2024",
-    client: "MediOS (Internal Build)",
+    client_name: "MediOS (Internal Build)",
     industry: "Healthcare",
-    status: "Live",
+    status: "PUBLISHED",
+    status_label: "Live",
     duration: "7 months",
     role: "Lead Engineer",
     tagline: "A hospital OS that survives the network.",
@@ -686,7 +712,7 @@ const fallbackProjects = [
       { value: "40%", label: "Fewer claim rejections", description: "Tariff validation before submission." },
       { value: "0", label: "Data loss incidents", description: "Across pilot clinics." }
     ],
-    featureCategories: [
+    feature_categories: [
       {
         name: "Clinical",
         icon: "stethoscope",
@@ -719,7 +745,7 @@ const fallbackProjects = [
       { step: "Claim", detail: "Submits HMO claim with tariff validation." },
       { step: "Sync", detail: "Background worker syncs deltas when online." }
     ],
-    techCategories: [
+    tech_categories: [
       { name: "Frontend", icon: "monitor", items: ["React", "PWA", "Tailwind CSS"] },
       { name: "Backend", icon: "server", items: ["Node.js", "Express"] },
       { name: "Database", icon: "database", items: ["RxDB", "IndexedDB", "PostgreSQL"] },
@@ -763,8 +789,143 @@ const fallbackProjects = [
       bundle: "212 KB"
     },
     stats: { screens: 26, endpoints: 38, tables: 18 },
-    relatedSlugs: ["eduflow-academic-erp", "vonnex2x-enterprise-erp"]
+    related_slugs: ["eduflow-academic-erp", "vonnex2x-enterprise-erp"],
+    display_order: 6,
+    featured: false
   }
 ];
 
-export default fallbackProjects;
+async function syncProjects() {
+  console.log('[Sync] Starting PostgreSQL software projects synchronisation...');
+  await checkCols();
+  
+  for (const proj of canonicalProjects) {
+    console.log(`[Sync] Upserting project: ${proj.title} (slug: ${proj.slug})`);
+
+    const existingRes = await pool.query('SELECT id, image_url, gallery FROM projects WHERE slug = $1', [proj.slug]);
+    
+    // Preserve existing uploaded Cloudinary images if already present in DB
+    const existingRow = existingRes.rows[0];
+    const finalImageUrl = existingRow?.image_url && existingRow.image_url.includes('cloudinary.com')
+      ? existingRow.image_url
+      : proj.image_url;
+
+    const finalGallery = existingRow?.gallery && Array.isArray(existingRow.gallery) && existingRow.gallery.length > 0
+      ? existingRow.gallery
+      : (proj.gallery || [{ src: finalImageUrl, alt: proj.title, device: 'desktop' }]);
+
+    const query = `
+      INSERT INTO projects (
+        title, slug, summary, content, tech_stack, features, category,
+        image_url, live_url, repo_url, division, featured, status,
+        location, client_name, display_order, tags, published_at,
+        tagline, year, industry, status_label, duration, role,
+        gallery, challenge, solution, results, feature_categories,
+        flow, tech_categories, architecture, timeline,
+        responsibilities, metrics, stats, related_slugs, meta
+      )
+      VALUES (
+        $1, $2, $3, $4, $5, $6::jsonb, $7,
+        $8, $9, $10, 'SOFTWARE', $11, $12,
+        $13, $14, $15, $16, NOW(),
+        $17, $18, $19, $20, $21, $22,
+        $23::jsonb, $24::jsonb, $25::jsonb, $26::jsonb, $27::jsonb,
+        $28::jsonb, $29::jsonb, $30::jsonb, $31::jsonb,
+        $32::jsonb, $33::jsonb, $34::jsonb, $35::jsonb, $36::jsonb
+      )
+      ON CONFLICT (slug) DO UPDATE SET
+        title = EXCLUDED.title,
+        summary = EXCLUDED.summary,
+        content = EXCLUDED.content,
+        tech_stack = EXCLUDED.tech_stack,
+        features = EXCLUDED.features,
+        category = EXCLUDED.category,
+        image_url = CASE 
+          WHEN projects.image_url IS NOT NULL AND projects.image_url != '' THEN projects.image_url 
+          ELSE EXCLUDED.image_url 
+        END,
+        live_url = EXCLUDED.live_url,
+        repo_url = EXCLUDED.repo_url,
+        division = 'SOFTWARE',
+        featured = EXCLUDED.featured,
+        status = EXCLUDED.status,
+        client_name = EXCLUDED.client_name,
+        display_order = EXCLUDED.display_order,
+        tags = EXCLUDED.tags,
+        tagline = EXCLUDED.tagline,
+        year = EXCLUDED.year,
+        industry = EXCLUDED.industry,
+        status_label = EXCLUDED.status_label,
+        duration = EXCLUDED.duration,
+        role = EXCLUDED.role,
+        gallery = CASE 
+          WHEN jsonb_array_length(projects.gallery) > 0 THEN projects.gallery 
+          ELSE EXCLUDED.gallery 
+        END,
+        challenge = EXCLUDED.challenge,
+        solution = EXCLUDED.solution,
+        results = EXCLUDED.results,
+        feature_categories = EXCLUDED.feature_categories,
+        flow = EXCLUDED.flow,
+        tech_categories = EXCLUDED.tech_categories,
+        architecture = EXCLUDED.architecture,
+        timeline = EXCLUDED.timeline,
+        responsibilities = EXCLUDED.responsibilities,
+        metrics = EXCLUDED.metrics,
+        stats = EXCLUDED.stats,
+        related_slugs = EXCLUDED.related_slugs,
+        updated_at = NOW()
+      RETURNING id, title, slug, division, category, image_url;
+    `;
+
+    const values = [
+      proj.title,
+      proj.slug,
+      proj.summary,
+      proj.description,
+      proj.tech_stack,
+      JSON.stringify(proj.features || []),
+      proj.category,
+      finalImageUrl,
+      proj.live_url,
+      proj.repo_url,
+      proj.featured,
+      proj.status,
+      proj.location || null,
+      proj.client_name,
+      proj.display_order,
+      proj.tags || [],
+      proj.tagline,
+      proj.year,
+      proj.industry,
+      proj.status_label,
+      proj.duration,
+      proj.role,
+      JSON.stringify(finalGallery),
+      JSON.stringify(proj.challenge),
+      JSON.stringify(proj.solution),
+      JSON.stringify(proj.results),
+      JSON.stringify(proj.feature_categories),
+      JSON.stringify(proj.flow),
+      JSON.stringify(proj.tech_categories),
+      JSON.stringify(proj.architecture),
+      JSON.stringify(proj.timeline),
+      JSON.stringify(proj.responsibilities),
+      JSON.stringify(proj.metrics),
+      JSON.stringify(proj.stats),
+      JSON.stringify(proj.related_slugs),
+      JSON.stringify({}),
+    ];
+
+    const result = await pool.query(query, values);
+    console.log(`[Sync] OK: ${result.rows[0].title} -> division=${result.rows[0].division}, category=${result.rows[0].category}, id=${result.rows[0].id}`);
+  }
+
+  console.log('[Sync] Done! All 6 software projects synced to PostgreSQL.');
+  process.exit(0);
+}
+
+syncProjects().catch((err) => {
+  console.error('[Sync] Failed:', err);
+  process.exit(1);
+});

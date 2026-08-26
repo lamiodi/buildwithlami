@@ -101,9 +101,10 @@ const updateProjectSchema = z.object({
     meta: z.any().optional().nullable(),
 });
 
-// JSONB columns added by v28. Used by updateProject to
+// JSONB columns. Used by updateProject and createProject to
 // decide which fields need an explicit ::jsonb cast on bind.
 const V28_JSONB_FIELDS = new Set([
+    'features',
     'gallery',
     'challenge',
     'solution',
@@ -138,15 +139,20 @@ export async function getProjects(req, res) {
             conditions.push(`status = 'PUBLISHED'`);
         }
 
-        // Add division filter if provided
-        if (req.query.division && ['SOFTWARE', 'SURVEY', 'DRONE'].includes(req.query.division)) {
-            vals.push(req.query.division);
-            conditions.push(`division = $${vals.length}`);
+        // Add division filter if provided (handles case-insensitivity and aliases)
+        if (req.query.division) {
+            const rawDiv = String(req.query.division).toUpperCase().trim();
+            const div = (rawDiv === 'TECHNOLOGY' || rawDiv === 'TECH' || rawDiv === 'SOFTWARE') ? 'SOFTWARE' : rawDiv;
+            if (['SOFTWARE', 'SURVEY', 'DRONE'].includes(div)) {
+                vals.push(div);
+                conditions.push(`(division = $${vals.length} OR (division = 'Technology' AND $${vals.length} = 'SOFTWARE'))`);
+            }
         }
 
         if (conditions.length > 0) {
             query += ` WHERE ` + conditions.join(' AND ');
         }
+
 
         query += ` ORDER BY created_at DESC`;
 
@@ -243,7 +249,7 @@ export async function createProject(req, res) {
                 responsibilities, metrics, stats, related_slugs, meta
             )
             VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10,
+                $1, $2, $3, $4, $5, $6::jsonb, $7, $8, $9, $10,
                 $11, $12, $13, $14, $15, $16, $17,
                 CASE WHEN $13 = 'PUBLISHED' THEN NOW() ELSE NULL END,
                 $18, $19, $20, $21, $22, $23,
@@ -258,7 +264,7 @@ export async function createProject(req, res) {
                 data.summary || null,
                 data.content || null,
                 data.tech_stack || [],
-                data.features || [],
+                JSON.stringify(data.features || []),
                 data.category || null,
                 data.image_url || null,
                 data.live_url || null,
