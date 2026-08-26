@@ -326,7 +326,7 @@ const AboutPage = () => {
                 className="w-full h-full object-cover grayscale-[15%] hover:grayscale-0 transition-all duration-700 hover:scale-105"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
-              <div className="absolute bottom-3 left-3 bg-black/70 backdrop-blur-md px-3 py-1 rounded-full text-[10px] uppercase tracking-widest text-white font-bold border border-white/10">
+              <div className="absolute bottom-3 left-3 bg-black/80 backdrop-blur-md px-3 py-1 text-[10px] font-mono uppercase tracking-[0.2em] text-white font-bold border border-white/10">
                 Founder · Lead Engineer
               </div>
             </div>
@@ -341,14 +341,13 @@ const AboutPage = () => {
           >
             <StarIcon className="absolute top-6 right-6 w-8 h-8 text-gray-200 dark:text-white/10" />
             <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/10 border border-accent/20 text-accent text-xs font-bold uppercase tracking-wider mb-4">
-                <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
-                Engineering & Product Leadership
+              <div className="bwl-badge mb-4 inline-flex">
+                <span>// LEADERSHIP · SYSTEMS & CODE</span>
               </div>
               <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-heading font-bold mb-3">
                 Eugene Odibenuah
               </h2>
-              <p className="text-xs sm:text-sm uppercase tracking-widest text-accent font-bold mb-5">
+              <p className="text-xs sm:text-sm uppercase tracking-widest text-accent font-bold mb-5 font-mono">
                 Founder, BuildWithLami · Full-Stack Software Engineer
               </p>
               <div className="text-gray-800 dark:text-gray-200 text-sm sm:text-base md:text-lg leading-relaxed font-light space-y-4">
@@ -387,8 +386,8 @@ const AboutPage = () => {
           >
             <div>
               <div className="flex items-center justify-between mb-8 pb-4 border-b border-gray-200 dark:border-white/5">
-                <h3 className="text-xs uppercase tracking-[0.25em] font-bold text-accent">
-                  Professional Experience
+                <h3 className="text-xs uppercase tracking-[0.25em] font-bold text-accent font-mono">
+                  // Professional Experience
                 </h3>
                 <span className="text-xs font-mono text-gray-500">2021 — Present</span>
               </div>
@@ -399,7 +398,7 @@ const AboutPage = () => {
                       <h4 className="text-lg sm:text-xl font-heading font-bold text-black dark:text-white">
                         {exp.role}
                       </h4>
-                      <span className="text-xs font-bold text-accent bg-accent/10 px-2.5 py-0.5 rounded-full">
+                      <span className="text-xs font-mono font-bold text-accent bg-accent/10 px-2.5 py-1 border border-accent/20">
                         {exp.period}
                       </span>
                     </div>
@@ -410,7 +409,7 @@ const AboutPage = () => {
                       {exp.overview}
                     </p>
                     <div className="pt-2">
-                      <p className="text-[11px] uppercase tracking-wider text-gray-500 dark:text-gray-400 font-bold mb-2">
+                      <p className="text-[11px] font-mono uppercase tracking-wider text-gray-500 dark:text-gray-400 font-bold mb-2">
                         Selected Scope & Capabilities:
                       </p>
                       <ul className="grid grid-cols-1 gap-1.5 text-xs text-gray-700 dark:text-gray-300">
@@ -437,8 +436,8 @@ const AboutPage = () => {
           >
             <div>
               <div className="flex items-center justify-between mb-8 pb-4 border-b border-gray-200 dark:border-white/5">
-                <h3 className="text-xs uppercase tracking-[0.25em] font-bold text-accent">
-                  Education & Foundations
+                <h3 className="text-xs uppercase tracking-[0.25em] font-bold text-accent font-mono">
+                  // Education & Foundations
                 </h3>
                 <span className="text-xs font-mono text-gray-500">Academic & Systems</span>
               </div>
@@ -449,7 +448,7 @@ const AboutPage = () => {
                       <h4 className="text-lg sm:text-xl font-heading font-bold text-black dark:text-white">
                         {edu.degree}
                       </h4>
-                      <span className="text-xs font-bold text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-white/5 px-2.5 py-0.5 rounded-full">
+                      <span className="text-xs font-mono font-bold text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-white/5 px-2.5 py-1 border border-gray-200 dark:border-white/10">
                         {edu.period}
                       </span>
                     </div>
@@ -471,7 +470,7 @@ const AboutPage = () => {
                             Eugene Odibenuah
                           </span>
                         </div>
-                        <div className="w-11 h-11 rounded-full border border-accent/30 bg-accent/10 flex items-center justify-center text-accent font-mono text-xs font-extrabold shadow-inner">
+                        <div className="w-11 h-11 border border-accent/30 bg-accent/10 flex items-center justify-center text-accent font-mono text-xs font-extrabold shadow-inner">
                           EO
                         </div>
                       </div>
@@ -501,7 +500,7 @@ const AboutPage = () => {
           {/* Section Header with Category Filter Tabs */}
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-gray-200 dark:border-white/10">
             <div>
-              <div className="flex items-center gap-2 text-accent text-xs font-bold uppercase tracking-[0.25em] mb-2">
+              <div className="flex items-center gap-2 text-accent text-xs font-bold uppercase tracking-[0.25em] mb-2 font-mono">
                 <StarIcon className="w-4 h-4" />
                 <span>Production Stack</span>
               </div>
@@ -527,10 +526,10 @@ const AboutPage = () => {
                   key={tab.key}
                   type="button"
                   onClick={() => setActiveCategory(tab.key)}
-                  className={`px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all ${
+                  className={`px-3.5 py-1.5 text-xs font-mono font-bold uppercase tracking-wider transition-all cursor-pointer ${
                     activeCategory === tab.key
-                      ? 'bg-accent text-white shadow-md'
-                      : 'bg-gray-100 dark:bg-white/5 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-white/10'
+                      ? 'bg-accent text-white shadow-md border border-accent'
+                      : 'bg-gray-100 dark:bg-white/5 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-white/10 border border-gray-200 dark:border-white/10'
                   }`}
                 >
                   {tab.label}

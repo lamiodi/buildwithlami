@@ -11,6 +11,7 @@ import ThemeToast from './components/ThemeToast';
 import { Toaster } from './components/ui/sonner';
 import SoundEffects from './components/SoundEffects';
 import { lazyWithRetry } from './utils/lazyWithRetry';
+import { HomePageSkeleton, PageSkeleton } from './components/Skeleton';
 
 const HomePage = lazyWithRetry(() => import('./pages/HomePage'));
 const ProjectsPage = lazyWithRetry(() => import('./pages/ProjectsPage'));
@@ -169,6 +170,13 @@ function App() {
     location.pathname.startsWith('/portal') ||
     location.pathname === '/login';
 
+  const RouteSuspenseFallback = () => {
+    if (location.pathname === '/' || location.pathname === '') {
+      return <HomePageSkeleton />;
+    }
+    return <PageSkeleton />;
+  };
+
   return (
     <AuthProvider>
     <ClientAuthProvider>
@@ -176,7 +184,7 @@ function App() {
       <ErrorBoundary>
         {!hideGlobalLayout && <Navbar isDark={isDark} toggleTheme={toggleTheme} />}
         <main>
-          <Suspense fallback={<div className="min-h-[60vh] flex items-center justify-center"><div className="w-8 h-8 rounded-full border-2 border-accent border-t-transparent animate-spin" /></div>}>
+          <Suspense fallback={<RouteSuspenseFallback />}>
             <AnimatePresence mode="wait">
               <Routes location={location} key={location.pathname}>
                 <Route path="/" element={<PageWrapper><HomePage /></PageWrapper>} />

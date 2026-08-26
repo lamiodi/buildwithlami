@@ -155,9 +155,8 @@ const ServicesPage = () => {
           transition={{ duration: shouldReduce ? 0 : 0.5 }}
           className="text-left max-w-3xl"
         >
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-accent/10 border border-accent/20 text-accent text-xs font-bold uppercase tracking-wider mb-4">
-            <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
-            Engineering & Product Services
+          <div className="bwl-badge mb-4 inline-flex">
+            <span>// ARCHITECTURAL SERVICE MATRIX</span>
           </div>
           <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-heading font-bold tracking-tight text-black dark:text-white leading-[1.08]">
             Built for Scale, Speed & <span className="text-accent">Revenue.</span>
@@ -178,7 +177,7 @@ const ServicesPage = () => {
             <motion.div
               key={audience}
               variants={item}
-              className="bg-white dark:bg-[#141414] border border-gray-200 dark:border-white/10 px-4 py-3.5 text-xs font-bold uppercase tracking-wider text-gray-800 dark:text-gray-200 rounded-xl shadow-xs text-center flex items-center justify-center"
+              className="bg-white dark:bg-[#141414] border border-gray-200 dark:border-white/10 px-4 py-3.5 text-xs font-mono font-bold uppercase tracking-wider text-gray-800 dark:text-gray-200 shadow-xs text-center flex items-center justify-center"
             >
               {audience}
             </motion.div>
@@ -206,7 +205,7 @@ const ServicesPage = () => {
                 {/* Header & Core Description (7 Cols) */}
                 <div className="lg:col-span-7 space-y-4">
                   <div className="flex items-center gap-3.5">
-                    <div className="w-12 h-12 rounded-2xl bg-accent/10 flex items-center justify-center group-hover:scale-105 transition-transform">
+                    <div className="w-12 h-12 bg-accent/10 border border-accent/20 flex items-center justify-center group-hover:scale-105 transition-transform text-accent">
                       {service.icon}
                     </div>
                     <div>
@@ -217,7 +216,7 @@ const ServicesPage = () => {
                     </div>
                   </div>
 
-                  <div className="inline-block bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 px-3 py-1 text-[11px] uppercase tracking-wider text-gray-700 dark:text-gray-300 font-bold rounded-lg">
+                  <div className="inline-block bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 px-3 py-1 text-[11px] font-mono uppercase tracking-wider text-gray-700 dark:text-gray-300 font-bold">
                     Best for: {service.bestFor}
                   </div>
 

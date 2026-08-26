@@ -166,10 +166,8 @@ const Services = () => {
         whileInView="visible"
         viewport={sectionViewport}
       >
-        <motion.p variants={item} className="text-gray-800 dark:text-gray-200 tracking-widest uppercase text-xs mb-3 font-bold flex items-center gap-2">
-          <span className="text-accent">✦</span>
-          Bespoke Digital Solutions
-          <span className="text-accent">✦</span>
+        <motion.p variants={item} className="text-accent uppercase tracking-[0.25em] text-[11px] font-mono font-bold mb-3">
+          // 01. CAPABILITIES & SYSTEMS
         </motion.p>
         <motion.h3 variants={item} className="text-3xl md:text-5xl font-heading font-bold mb-4 text-black dark:text-white leading-tight">
           What I Can Build <span className="text-accent">For You</span>
@@ -201,7 +199,7 @@ const Services = () => {
             
             <div className="relative z-10">
               <div className="flex items-center justify-between gap-2 mb-3">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-accent bg-accent/10 dark:bg-accent/20 px-2.5 py-1 rounded-full border border-accent/20">
+                <span className="bwl-badge">
                   {service.badge}
                 </span>
                 <span className="text-[11px] font-mono text-gray-500 dark:text-gray-400">
@@ -215,7 +213,7 @@ const Services = () => {
               <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed mb-4 font-light">{service.desc}</p>
               
               <div className="bg-gray-50 dark:bg-white/5 border-l-2 border-accent p-3 rounded-r-lg mb-5">
-                <p className="text-[11px] font-bold uppercase tracking-wider text-accent mb-0.5">Key Outcome</p>
+                <p className="text-[11px] font-bold uppercase tracking-wider text-accent mb-0.5 font-mono">Key Outcome</p>
                 <p className="text-xs text-black dark:text-white font-medium">{service.outcome}</p>
               </div>
 
@@ -243,7 +241,7 @@ const Services = () => {
                   e.stopPropagation();
                   handleOpenModal(service);
                 }}
-                className="bg-black text-white dark:bg-white dark:text-black text-[11px] font-heading font-bold px-4 py-2 uppercase tracking-[0.15em] hover:bg-accent dark:hover:bg-accent dark:hover:text-white transition-all cursor-pointer active:scale-[0.98]"
+                className="btn-dark !px-4 !py-2 !text-[10px]"
               >
                 Scope & Specs
               </button>
@@ -259,7 +257,7 @@ const Services = () => {
             <div>
               <DialogHeader className="text-left space-y-3 pb-4 border-b border-gray-200 dark:border-white/10">
                 <div className="flex items-center gap-3">
-                  <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-accent bg-accent/10 px-3 py-1 border border-accent/20 rounded-full">
+                  <span className="bwl-badge">
                     {selectedService.badge}
                   </span>
                   <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">

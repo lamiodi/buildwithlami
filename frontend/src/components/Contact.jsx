@@ -170,7 +170,7 @@ const Contact = () => {
                     value={formData.project_type}
                     onValueChange={(val) => setFormData({...formData, project_type: val})}
                   >
-                    <SelectTrigger className="w-full bg-white/5 hover:bg-white/10 border-white/15 text-white rounded-xl h-11 text-xs focus:ring-accent">
+                    <SelectTrigger className="w-full bg-white/5 hover:bg-white/10 border-white/15 text-white rounded-xl h-11 text-xs focus:outline-none focus:border-accent dark:focus:border-accent focus:ring-0 transition-colors">
                       <SelectValue placeholder="Select type" />
                     </SelectTrigger>
                     <SelectContent className="bg-zinc-900 border-zinc-700 text-white shadow-2xl">
@@ -193,7 +193,7 @@ const Contact = () => {
                     value={formData.budget}
                     onValueChange={(val) => setFormData({...formData, budget: val})}
                   >
-                    <SelectTrigger className="w-full bg-white/5 hover:bg-white/10 border-white/15 text-white rounded-xl h-11 text-xs focus:ring-accent">
+                    <SelectTrigger className="w-full bg-white/5 hover:bg-white/10 border-white/15 text-white rounded-xl h-11 text-xs focus:outline-none focus:border-accent dark:focus:border-accent focus:ring-0 transition-colors">
                       <SelectValue placeholder="Select budget" />
                     </SelectTrigger>
                     <SelectContent className="bg-zinc-900 border-zinc-700 text-white shadow-2xl">
@@ -216,7 +216,7 @@ const Contact = () => {
                     value={formData.timeline}
                     onValueChange={(val) => setFormData({...formData, timeline: val})}
                   >
-                    <SelectTrigger className="w-full bg-white/5 hover:bg-white/10 border-white/15 text-white rounded-xl h-11 text-xs focus:ring-accent">
+                    <SelectTrigger className="w-full bg-white/5 hover:bg-white/10 border-white/15 text-white rounded-xl h-11 text-xs focus:outline-none focus:border-accent dark:focus:border-accent focus:ring-0 transition-colors">
                       <SelectValue placeholder="Select timeline" />
                     </SelectTrigger>
                     <SelectContent className="bg-zinc-900 border-zinc-700 text-white shadow-2xl">

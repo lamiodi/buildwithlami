@@ -47,7 +47,9 @@ const WhyChoose = () => {
         viewport={sectionViewport}
         transition={{ duration: shouldReduce ? 0 : 0.5, ease: 'easeOut' }}
       >
-        <p className="text-xs uppercase tracking-widest text-accent font-bold mb-2">Core Engineering Principles</p>
+        <p className="text-xs uppercase tracking-[0.25em] text-accent font-mono font-bold mb-2">
+          // 03. CORE ENGINEERING PRINCIPLES
+        </p>
         <h3 className="text-3xl md:text-4xl font-heading font-bold text-black dark:text-white">Why BuildWithLami</h3>
         <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto text-sm md:text-base font-light mt-3">
           I combine clean engineering, systems architecture, and conversion-focused UX to build software that is practical, fast, and ready for production scale.
@@ -68,7 +70,7 @@ const WhyChoose = () => {
             className="shrink-0 md:shrink w-[82vw] max-w-[320px] sm:w-[290px] md:w-auto min-w-0 snap-center p-6 bg-white dark:bg-[#141414] rounded-2xl shadow-sm border border-gray-200 dark:border-white/10 hover:border-accent/50 transition-all flex flex-col justify-between"
           >
             <div>
-              <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center text-accent mb-4">
+              <div className="w-12 h-12 bg-accent/10 border border-accent/20 flex items-center justify-center text-accent mb-4">
                 {reason.icon}
               </div>
               <h4 className="text-lg font-heading font-bold mb-2 text-gray-900 dark:text-white">{reason.title}</h4>

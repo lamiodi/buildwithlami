@@ -184,9 +184,8 @@ const ContactPage = () => {
           transition={{ duration: shouldReduce ? 0 : 0.5 }}
           className="text-left max-w-3xl"
         >
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-accent/10 border border-accent/20 text-accent text-xs font-bold uppercase tracking-wider mb-4">
-            <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
-            Direct Project Discovery
+          <div className="bwl-badge mb-4 inline-flex">
+            <span>// DIRECT PROJECT DISCOVERY</span>
           </div>
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-heading font-extrabold tracking-tight text-black dark:text-white leading-[1.08]">
             Let&apos;s build something <br className="hidden sm:block" />
@@ -210,7 +209,7 @@ const ContactPage = () => {
             className="lg:col-span-7 bg-white dark:bg-[#141414] border border-gray-200 dark:border-white/10 rounded-3xl p-6 sm:p-10 shadow-2xl space-y-8"
           >
             <div>
-              <span className="text-xs uppercase tracking-[0.25em] font-bold text-accent">Project Scope Intake</span>
+              <span className="text-xs uppercase tracking-[0.25em] font-bold text-accent font-mono">// Project Scope Intake</span>
               <h2 className="text-2xl sm:text-3xl font-heading font-bold text-black dark:text-white mt-1">
                 Tell me about your project
               </h2>
@@ -230,7 +229,7 @@ const ContactPage = () => {
                     placeholder="e.g. Alex Johnson"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm text-black dark:text-white placeholder-gray-400 focus:outline-none focus:border-accent dark:focus:border-accent transition-colors"
+                    className="bwl-input"
                   />
                 </div>
                 <div>
@@ -245,12 +244,12 @@ const ContactPage = () => {
                     value={formData.email}
                     onChange={handleEmailChange}
                     onBlur={handleEmailBlur}
-                    className={`w-full bg-gray-50 dark:bg-white/5 border rounded-xl px-4 py-3 text-sm text-black dark:text-white placeholder-gray-400 focus:outline-none transition-colors ${
+                    className={`bwl-input ${
                       emailError
-                        ? 'border-red-500 focus:border-red-500'
+                        ? '!border-red-500 focus:!border-red-500'
                         : isEmailDirty && formData.email && !emailError
-                        ? 'border-green-500 focus:border-green-500'
-                        : 'border-gray-200 dark:border-white/10 focus:border-accent dark:focus:border-accent'
+                        ? '!border-green-500 focus:!border-green-500'
+                        : ''
                     }`}
                   />
                   {emailError && (
@@ -340,7 +339,7 @@ const ContactPage = () => {
                   placeholder="Describe what you want to achieve, key features, reference websites, or current business bottlenecks."
                   value={formData.message}
                   onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                  className="w-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl p-4 text-sm text-black dark:text-white placeholder-gray-400 focus:outline-none focus:border-accent dark:focus:border-accent transition-colors resize-y min-h-[110px]"
+                  className="bwl-input resize-y min-h-[110px]"
                 ></textarea>
               </div>
 
@@ -372,12 +371,12 @@ const ContactPage = () => {
                   disabled={status === 'submitting' || status === 'success'}
                   whileHover={shouldReduce || status === 'submitting' ? {} : buttonHover}
                   whileTap={shouldReduce || status === 'submitting' ? {} : buttonTap}
-                  className={`w-full py-4 text-[11px] font-heading font-bold uppercase tracking-[0.15em] transition-all duration-300 flex items-center justify-center gap-2 shadow-lg active:scale-[0.98] ${
+                  className={`btn-primary w-full ${
                     status === 'success'
-                      ? 'bg-emerald-600 text-white'
+                      ? '!bg-emerald-600'
                       : status === 'submitting'
-                      ? 'bg-gray-400 text-white cursor-wait'
-                      : 'bg-accent text-white hover:bg-black dark:hover:bg-white dark:hover:text-black hover:shadow-accent/30'
+                      ? '!bg-gray-400 !cursor-wait'
+                      : ''
                   }`}
                 >
                   <AnimatePresence mode="wait">

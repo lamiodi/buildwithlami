@@ -106,14 +106,14 @@ const ProjectsPage = () => {
               <button
                 key={filter}
                 onClick={() => setActiveFilter(filter)}
-                className={`px-4 md:px-5 py-2.5 text-xs font-bold uppercase tracking-widest rounded-full transition-all duration-300 flex items-center gap-2 border ${
+                className={`px-4 md:px-5 py-2.5 text-xs font-mono font-bold uppercase tracking-wider transition-all duration-300 flex items-center gap-2 border cursor-pointer ${
                   activeFilter === filter
                     ? 'bg-accent text-white border-accent shadow-md'
                     : 'border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300 hover:border-accent hover:text-accent bg-white dark:bg-[#141414]'
                 }`}
               >
                 <span>{filter}</span>
-                <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold transition-colors ${
+                <span className={`text-[10px] px-1.5 py-0.5 font-mono font-bold transition-colors ${
                   activeFilter === filter
                     ? 'bg-white/25 text-white'
                     : 'bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-300'
@@ -141,13 +141,13 @@ const ProjectsPage = () => {
           }
         >
           {filteredProjects.length === 0 ? (
-            <div className="text-center py-24 border border-dashed border-gray-300 dark:border-white/10 rounded-2xl bg-white dark:bg-[#141414] p-8">
+            <div className="text-center py-24 border border-dashed border-gray-300 dark:border-white/10 bg-white dark:bg-[#141414] p-8">
               <p className="text-lg text-gray-600 dark:text-gray-400 mb-4 font-medium">
                 No projects found under the <span className="text-accent font-bold">{activeFilter}</span> category.
               </p>
               <button
                 onClick={() => setActiveFilter('All')}
-                className="px-6 py-3 bg-black text-white dark:bg-white dark:text-black text-xs font-bold uppercase tracking-widest hover:bg-accent dark:hover:bg-accent dark:hover:text-white transition-colors rounded-lg"
+                className="px-6 py-3 bg-black text-white dark:bg-white dark:text-black text-xs font-bold uppercase tracking-widest hover:bg-accent dark:hover:bg-accent dark:hover:text-white transition-colors"
               >
                 View All Projects
               </button>
@@ -162,7 +162,7 @@ const ProjectsPage = () => {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={sectionViewport}
                   transition={{ duration: shouldReduce ? 0 : 0.6 }}
-                  className="bg-white dark:bg-[#141414] border border-gray-200 dark:border-white/10 rounded-3xl overflow-hidden shadow-xl group hover:border-accent/40 transition-all duration-500"
+                  className="bg-white dark:bg-[#141414] border border-gray-200 dark:border-white/10 overflow-hidden shadow-xl group hover:border-accent/40 transition-all duration-500"
                 >
                   <div className="grid grid-cols-1 lg:grid-cols-12 gap-0">
                     
@@ -179,7 +179,7 @@ const ProjectsPage = () => {
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-between p-6 md:p-8">
                         <div className="flex items-center gap-2">
-                          <span className="bg-accent text-white text-[11px] font-bold uppercase tracking-widest px-3.5 py-1.5 rounded-full shadow-md">
+                          <span className="bg-accent text-white text-[10px] font-mono font-bold uppercase tracking-[0.18em] px-3.5 py-1.5 shadow-md border border-accent">
                             ★ Featured Case Study
                           </span>
                         </div>
@@ -197,8 +197,8 @@ const ProjectsPage = () => {
                     {/* Right: Case Study Context & Outcomes (5 cols) */}
                     <div className="lg:col-span-5 p-8 md:p-10 flex flex-col justify-between space-y-6">
                       <div className="space-y-4">
-                        <span className="text-xs uppercase tracking-widest font-bold text-accent">
-                          Enterprise Operations Platform
+                        <span className="text-xs uppercase tracking-widest font-bold text-accent font-mono">
+                          // Enterprise Operations Platform
                         </span>
                         <p className="text-gray-700 dark:text-gray-300 text-sm md:text-base font-light leading-relaxed">
                           {featuredProject.summary || featuredProject.description}
@@ -222,10 +222,10 @@ const ProjectsPage = () => {
 
                         {/* Tech Pills */}
                         <div className="pt-3">
-                          <p className="text-[11px] font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-2">Core Tech Stack</p>
+                          <p className="text-[11px] font-mono font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-2">Core Tech Stack</p>
                           <div className="flex flex-wrap gap-2">
                             {(featuredProject.tech_stack || ["React", "Node.js", "PostgreSQL", "Supabase"]).slice(0, 4).map((tech, i) => (
-                              <span key={i} className="text-xs font-mono font-medium bg-gray-100 dark:bg-white/5 text-gray-800 dark:text-gray-200 px-3 py-1 rounded-md border border-gray-200 dark:border-white/10">
+                              <span key={i} className="text-xs font-mono font-medium bg-gray-100 dark:bg-white/5 text-gray-800 dark:text-gray-200 px-3 py-1 border border-gray-200 dark:border-white/10">
                                 {tech}
                               </span>
                             ))}
@@ -260,13 +260,15 @@ const ProjectsPage = () => {
 
               {/* REMAINING PROJECTS GRID */}
               {remainingProjects.length > 0 && (
-                <div>
-                  <div className="flex items-center justify-between mb-8">
-                    <div>
-                      <p className="text-xs font-bold uppercase tracking-widest text-accent mb-1 font-mono">Portfolio Grid</p>
-                      <h3 className="text-2xl md:text-3xl font-heading font-bold text-black dark:text-white">
-                        {featuredProject ? 'More Selected Works' : 'Selected Works'}
+                <div className="space-y-8">
+                  <div className="flex items-center justify-between border-b border-gray-200 dark:border-white/10 pb-4">
+                    <div className="flex items-center gap-3">
+                      <h3 className="text-lg md:text-xl font-heading font-bold text-black dark:text-white">
+                        Production Deployments
                       </h3>
+                      <span className="text-xs font-mono font-bold text-accent bg-accent/10 px-2 py-0.5 border border-accent/20">
+                        {activeFilter}
+                      </span>
                     </div>
                     <span className="text-xs font-mono text-gray-500 dark:text-gray-400">
                       {remainingProjects.length} {remainingProjects.length === 1 ? 'project' : 'projects'}
@@ -282,7 +284,7 @@ const ProjectsPage = () => {
                   >
                     {remainingProjects.map((project) => {
                       const projKey = project.slug || project.id;
-                      const hasLiveDemo = project.live_url && project.live_url !== '#';
+                      const hasLiveDemo = project.live_url && project.live_url !== '#' && project.live_url !== '';
                       const techList = Array.isArray(project.tech_stack) ? project.tech_stack : [];
 
                       return (
@@ -306,10 +308,10 @@ const ProjectsPage = () => {
                             />
                             {/* Badges Overlay */}
                             <div className="absolute top-4 left-4 right-4 flex items-center justify-between pointer-events-none">
-                              <span className="bg-white/90 dark:bg-black/80 backdrop-blur-sm text-black dark:text-white text-[10px] font-mono font-bold uppercase tracking-wider px-3 py-1 rounded-full border border-gray-200 dark:border-white/10 shadow-sm">
+                              <span className="bg-white/90 dark:bg-black/80 backdrop-blur-sm text-black dark:text-white text-[10px] font-mono font-bold uppercase tracking-wider px-3 py-1 border border-gray-200 dark:border-white/10 shadow-sm">
                                 {project.category || 'Web Apps'}
                               </span>
-                              <span className="bg-white/90 dark:bg-black/80 backdrop-blur-sm text-gray-700 dark:text-gray-300 text-[10px] font-mono font-bold uppercase tracking-wider px-3 py-1 rounded-full border border-gray-200 dark:border-white/10 shadow-sm">
+                              <span className="bg-white/90 dark:bg-black/80 backdrop-blur-sm text-gray-700 dark:text-gray-300 text-[10px] font-mono font-bold uppercase tracking-wider px-3 py-1 border border-gray-200 dark:border-white/10 shadow-sm">
                                 {project.year || '2024'} · {project.project_status || 'Client Project'}
                               </span>
                             </div>
@@ -333,7 +335,7 @@ const ProjectsPage = () => {
                               {/* 3-4 Key Technologies */}
                               <div className="flex flex-wrap gap-2">
                                 {techList.slice(0, 4).map((tech, i) => (
-                                  <span key={i} className="text-[11px] font-mono text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-white/5 px-2.5 py-1 rounded border border-gray-200 dark:border-white/10">
+                                  <span key={i} className="text-[11px] font-mono text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-white/5 px-2.5 py-1 border border-gray-200 dark:border-white/10">
                                     {tech}
                                   </span>
                                 ))}

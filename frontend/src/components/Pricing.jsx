@@ -2290,7 +2290,7 @@ const Pricing = ({ isHomepage = false }) => {
             <div id="quote-builder" className="p-8 sm:p-12 rounded-3xl bg-gradient-to-br from-gray-900 via-neutral-900 to-black text-white border border-gray-800 shadow-2xl">
               <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 border-b border-white/10 pb-8 mb-8">
                 <div>
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/20 text-accent text-xs font-bold uppercase tracking-wider mb-2">
+                  <div className="bwl-badge mb-3 inline-flex">
                     <Calculator className="w-3.5 h-3.5" /> Interactive Project Quotation Builder
                   </div>
                   <h3 className="text-3xl sm:text-4xl font-heading font-extrabold tracking-tight">

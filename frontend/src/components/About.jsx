@@ -17,8 +17,8 @@ const About = () => {
         whileInView="visible"
         viewport={sectionViewport}
       >
-        <motion.p variants={item} className="uppercase tracking-[0.3em] text-[11px] text-accent mb-3 font-mono font-bold">
-          About The Studio
+        <motion.p variants={item} className="uppercase tracking-[0.25em] text-[11px] text-accent mb-3 font-mono font-bold">
+          // 05. ABOUT THE STUDIO
         </motion.p>
         <motion.h2 variants={item} className="text-4xl md:text-6xl lg:text-7xl font-heading font-bold mb-12 tracking-tight text-black dark:text-white">
           ODIBENUAH EUGE<span className="text-accent">NE</span>
@@ -31,7 +31,7 @@ const About = () => {
             alt="My Desk Setup" 
             className="w-full h-full object-cover opacity-90 dark:opacity-80"
           />
-          <div className="absolute bottom-6 right-6 bg-white/90 dark:bg-[#141414]/90 backdrop-blur-md border border-gray-200 dark:border-white/10 text-black dark:text-white font-mono font-bold px-5 py-2.5 rounded-full text-xs tracking-widest uppercase flex items-center shadow-lg">
+          <div className="absolute bottom-6 right-6 bg-white/90 dark:bg-[#141414]/90 backdrop-blur-md border border-gray-200 dark:border-white/10 text-black dark:text-white font-mono font-bold px-4 py-2 text-[10px] tracking-[0.2em] uppercase flex items-center shadow-lg">
             <MapPin className="w-3.5 h-3.5 text-accent mr-2" />
             <span>LAGOS, NIGERIA</span>
           </div>

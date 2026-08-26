@@ -215,13 +215,12 @@ const SoftwareHomePage = () => {
     <div className="min-h-screen bg-gray-50 dark:bg-background text-gray-900 dark:text-white font-body selection:bg-accent selection:text-white transition-colors duration-300">
       
       {/* ── TOP DIVISION BADGE ── */}
-      <div className="bg-accent/10 border-b border-accent/20 py-2.5 px-4 text-center">
-        <div className="max-w-7xl mx-auto flex items-center justify-between text-xs font-bold uppercase tracking-widest">
+      <div className="bg-accent/10 border-b border-accent/20 py-2 px-4 text-center">
+        <div className="max-w-7xl mx-auto flex items-center justify-between text-xs font-mono font-bold uppercase tracking-widest">
           <div className="flex items-center gap-2 text-accent">
-            <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />
-            <span className="font-heading">Division: Software & SaaS Engineering</span>
+            <span>[ // DIVISION · SOFTWARE & SAAS ARCHITECTURE ]</span>
           </div>
-          <div className="hidden sm:block text-[11px] text-gray-500 dark:text-gray-400 font-mono font-medium">
+          <div className="hidden sm:block text-[11px] text-gray-600 dark:text-gray-400 font-mono font-medium">
             Bespoke Web Platforms · SaaS Architecture · APIs
           </div>
         </div>
@@ -238,7 +237,7 @@ const SoftwareHomePage = () => {
           className="text-center max-w-4xl mx-auto"
         >
           <div className="bwl-badge mb-6 inline-flex">
-            <Sparkles className="w-3.5 h-3.5" /> High-Performance Web & SaaS Engineering
+            <span>// HIGH-PERFORMANCE SOFTWARE SYSTEMS</span>
           </div>
 
           <h1 className="text-4xl sm:text-6xl md:text-7xl font-extrabold font-heading tracking-tight leading-[1.05] text-gray-900 dark:text-white mb-6">
@@ -343,7 +342,7 @@ const SoftwareHomePage = () => {
                         <span className="font-mono font-bold text-accent">
                           {currency === 'USD' ? `$${type.baseCostUSD.toLocaleString()}` : `₦${type.baseCostNGN.toLocaleString()}`}
                         </span>
-                        <span className="text-gray-400 font-medium">~{type.baseWeeks} wks</span>
+                        <span className="text-gray-600 dark:text-gray-400 font-medium">~{type.baseWeeks} wks</span>
                       </div>
                     </button>
                   );
@@ -356,7 +355,7 @@ const SoftwareHomePage = () => {
                 <label className="block text-xs font-mono font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400">
                   02 — Modular Infrastructure & Custom Modules
                 </label>
-                <span className="text-[11px] text-gray-400 font-medium">Optional capabilities</span>
+                <span className="text-[11px] text-gray-600 dark:text-gray-400 font-medium">Optional capabilities</span>
               </div>
               <div className="space-y-3">
                 {ADDON_OPTIONS.map(addon => {
@@ -456,7 +455,7 @@ const SoftwareHomePage = () => {
                 Lock Scope & Submit Technical Brief →
               </Link>
 
-              <p className="text-[10px] text-gray-400 text-center leading-normal">
+              <p className="text-[10px] text-gray-500 dark:text-gray-400 text-center leading-normal">
                 Technical roadmap and fixed quote verified upon initial brief review.
               </p>
             </div>

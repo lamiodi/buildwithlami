@@ -173,14 +173,14 @@ header,
     @apply w-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm text-black dark:text-white placeholder-gray-400 focus:outline-none focus:border-accent dark:focus:border-accent transition-colors;
   }
 
-  /* Interactive Filter & Category Pill Tab (rounded-full) */
+  /* Interactive Filter & Category Tab (Architectural Tag) */
   .bwl-pill-tab {
-    @apply px-4 md:px-5 py-2.5 text-xs font-bold uppercase tracking-widest rounded-full transition-all duration-300 flex items-center gap-2 border cursor-pointer;
+    @apply px-4 md:px-5 py-2.5 text-xs font-heading font-bold uppercase tracking-[0.15em] transition-all duration-300 flex items-center gap-2 border cursor-pointer;
   }
 
-  /* Standard Badge Chip */
+  /* Standard Badge Chip (Sharp Architectural Tag) */
   .bwl-badge {
-    @apply inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-accent/10 border border-accent/20 text-accent text-[10px] font-mono font-bold uppercase tracking-widest;
+    @apply inline-flex items-center gap-1.5 px-2.5 py-1 bg-accent/10 dark:bg-accent/15 border border-accent/30 text-accent text-[10px] font-mono font-bold uppercase tracking-[0.18em];
   }
 }
 

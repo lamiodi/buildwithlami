@@ -76,9 +76,9 @@ const Projects = () => {
         <div>
           <motion.p
             variants={item}
-            className="text-accent uppercase tracking-[0.3em] text-[11px] font-bold mb-3"
+            className="text-accent uppercase tracking-[0.25em] text-[11px] font-mono font-bold mb-3"
           >
-            SELECTED WORK
+            // 02. SELECTED WORK
           </motion.p>
           <motion.h2
             variants={item}
@@ -131,7 +131,7 @@ const Projects = () => {
                 loading="lazy"
                 decoding="async"
               />
-              <div className="absolute top-4 left-4 bg-black/80 backdrop-blur-md text-white text-[10px] uppercase tracking-widest font-bold px-3 py-1.5 rounded-full border border-white/10">
+              <div className="absolute top-4 left-4 bg-black/80 backdrop-blur-md text-white text-[10px] font-mono uppercase tracking-[0.18em] font-bold px-3 py-1.5 border border-white/10">
                 Featured Case Study · {featuredProject.year || '2024'}
               </div>
             </div>
@@ -143,7 +143,7 @@ const Projects = () => {
                   {(featuredProject.tech_stack || ['React', 'Node.js', 'PostgreSQL']).slice(0, 4).map((tech, idx) => (
                     <span
                       key={idx}
-                      className="text-[10px] uppercase font-bold tracking-wider px-2.5 py-1 rounded-md bg-gray-100 dark:bg-white/5 text-gray-800 dark:text-gray-300 border border-gray-200 dark:border-white/5"
+                      className="text-[10px] font-mono uppercase font-bold tracking-wider px-2.5 py-1 bg-gray-100 dark:bg-white/5 text-gray-800 dark:text-gray-300 border border-gray-200 dark:border-white/5"
                     >
                       {tech}
                     </span>
@@ -181,7 +181,7 @@ const Projects = () => {
                 <button
                   type="button"
                   onClick={() => navigate(`/projects/${featuredProject.slug || featuredProject.id}`)}
-                  className="bg-accent hover:bg-black dark:hover:bg-white dark:hover:text-black text-white text-[11px] font-heading font-bold uppercase tracking-[0.15em] px-8 py-3.5 transition-all shadow-lg hover:shadow-accent/30 active:scale-[0.98] cursor-pointer"
+                  className="btn-primary !px-8 !py-3.5"
                 >
                   View Case Study →
                 </button>
@@ -190,7 +190,7 @@ const Projects = () => {
                     href={featuredProject.live_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center text-[11px] font-heading font-bold uppercase tracking-[0.15em] text-gray-800 dark:text-gray-200 hover:text-accent hover:border-accent px-6 py-3.5 border border-gray-300 dark:border-white/15 transition-all bg-transparent active:scale-[0.98]"
+                    className="btn-secondary !px-6 !py-3.5"
                   >
                     Live Demo ↗
                   </a>
@@ -227,7 +227,7 @@ const Projects = () => {
                     height="350"
                     loading="lazy"
                   />
-                  <div className="absolute top-3 right-3 bg-black/80 backdrop-blur-md text-white text-[9px] font-mono uppercase tracking-widest font-bold px-2.5 py-1 rounded-full border border-white/10">
+                  <div className="absolute top-3 right-3 bg-black/80 backdrop-blur-md text-white text-[9px] font-mono uppercase tracking-widest font-bold px-2.5 py-1 border border-white/10">
                     {p.year || '2024'}
                   </div>
                 </div>
@@ -237,7 +237,7 @@ const Projects = () => {
                     {(p.tech_stack || ['React', 'Node.js', 'PostgreSQL']).slice(0, 3).map((t, tIdx) => (
                       <span
                         key={tIdx}
-                        className="text-[9px] font-mono uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-gray-100 dark:bg-white/5 border border-gray-200/50 dark:border-white/5 text-gray-700 dark:text-gray-300"
+                        className="text-[9px] font-mono uppercase font-bold tracking-wider px-2 py-0.5 bg-gray-100 dark:bg-white/5 border border-gray-200/50 dark:border-white/5 text-gray-700 dark:text-gray-300"
                       >
                         {t}
                       </span>

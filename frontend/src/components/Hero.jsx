@@ -17,11 +17,8 @@ const Hero = () => {
         initial="hidden"
         animate="visible"
       >
-        <motion.div variants={item} className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-accent/10 border border-accent/20 mb-6">
-          <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />
-          <span className="text-accent uppercase tracking-widest text-[11px] font-mono font-bold">
-            Digital Product Studio · Design & Engineering
-          </span>
+        <motion.div variants={item} className="bwl-badge mb-6 inline-flex">
+          <span>// DIGITAL PRODUCT STUDIO · DESIGN & ENGINEERING</span>
         </motion.div>
 
         <motion.h1 variants={item} className="text-4xl sm:text-6xl md:text-7xl lg:text-[84px] font-heading font-extrabold leading-[1.02] tracking-tight mb-6 text-black dark:text-white">
@@ -50,25 +47,20 @@ const Hero = () => {
           </div>
         </motion.div>
 
-        {/* Button Pair - Exact User-Approved Hero Standard */}
+        {/* Button Pair - Exact Architectural Standard */}
         <motion.div variants={item} className="flex flex-col sm:flex-row sm:items-center gap-4">
-          <motion.div whileHover={shouldReduce ? {} : buttonHover} whileTap={shouldReduce ? {} : buttonTap}>
-            <Link
-              to="/contact"
-              className="bg-accent text-white font-bold uppercase text-[11px] px-10 py-4 tracking-[0.15em] hover:bg-black dark:hover:bg-white dark:hover:text-black transition-all duration-300 inline-block text-center shadow-lg hover:shadow-accent/30 w-full sm:w-auto"
-            >
-              Start a Project
-            </Link>
-          </motion.div>
-          
-          <motion.div whileHover={shouldReduce ? {} : buttonHover} whileTap={shouldReduce ? {} : buttonTap}>
-            <Link
-              to="/projects"
-              className="border border-gray-200 dark:border-gray-800 text-gray-800 dark:text-gray-200 text-[11px] uppercase tracking-[0.15em] font-bold hover:border-accent hover:text-accent transition-all duration-300 inline-block text-center py-4 px-10 w-full sm:w-auto"
-            >
-              See My Work
-            </Link>
-          </motion.div>
+          <Link
+            to="/contact"
+            className="btn-primary w-full sm:w-auto"
+          >
+            Start a Project
+          </Link>
+          <Link
+            to="/projects"
+            className="btn-secondary w-full sm:w-auto"
+          >
+            See My Work
+          </Link>
         </motion.div>
       </motion.div>
       
@@ -89,8 +81,8 @@ const Hero = () => {
             fetchPriority="high"
             decoding="async"
           />
-          <div className="absolute -bottom-4 -right-4 bg-white dark:bg-[#141414] text-black dark:text-white text-xs font-bold px-4 py-2 rounded-xl shadow-xl border border-gray-200 dark:border-white/10 flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-500" />
+          <div className="absolute -bottom-4 -right-4 bg-white dark:bg-[#141414] text-black dark:text-white text-xs font-mono font-bold px-4 py-2 shadow-xl border border-gray-200 dark:border-white/10 flex items-center gap-2">
+            <span className="w-2 h-2 bg-emerald-500" />
             <span>Eugene Odibenuah · Lead Engineer</span>
           </div>
         </div>
