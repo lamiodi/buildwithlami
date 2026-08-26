@@ -38,16 +38,16 @@ async function optimizeImages() {
   if (fs.existsSync(aboutPng)) {
     console.log('Processing about founder image...');
     await sharp(aboutPng)
-      .resize(800, 1000, { fit: 'cover' })
-      .webp({ quality: 85, effort: 6 })
+      .resize(1440, null, { withoutEnlargement: true })
+      .webp({ quality: 88, effort: 6 })
       .toFile(path.join(publicDir, 'about-founder.webp'));
 
     await sharp(aboutPng)
-      .resize(800, 1000, { fit: 'cover' })
-      .webp({ quality: 85, effort: 6 })
+      .resize(1440, null, { withoutEnlargement: true })
+      .webp({ quality: 88, effort: 6 })
       .toFile(path.join(publicDir, 'Rectangle 50 (1).webp'));
 
-    console.log('About images created: about-founder.webp, Rectangle 50 (1).webp');
+    console.log('About images created: about-founder.webp (1440x845), Rectangle 50 (1).webp');
   }
 
   // 3. Drone Images

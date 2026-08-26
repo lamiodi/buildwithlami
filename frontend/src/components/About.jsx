@@ -26,24 +26,24 @@ const About = () => {
         </motion.h2>
 
         {/* Main Image */}
-        <motion.div variants={item} className="w-full h-64 md:h-[500px] lg:h-[600px] bg-gray-200 dark:bg-[#141414] mb-16 relative overflow-hidden shadow-2xl rounded-2xl border border-gray-200 dark:border-white/10">
+        <motion.div variants={item} className="w-full aspect-[16/10] sm:aspect-[16/9] md:aspect-[1.7/1] max-h-[600px] bg-gray-900 mb-16 relative overflow-hidden shadow-2xl rounded-2xl border border-gray-200 dark:border-white/10">
           <picture>
             <source type="image/webp" srcSet="/about-founder.webp" />
             <img 
               src="/about-founder.webp" 
               alt="Eugene Odibenuah Desk Setup" 
-              className="w-full h-full object-cover opacity-90 dark:opacity-80"
+              className="w-full h-full object-contain md:object-cover object-center opacity-95 dark:opacity-90"
               loading="lazy"
               decoding="async"
-              width="800"
-              height="1000"
+              width="1440"
+              height="845"
             />
           </picture>
-          <div className="absolute bottom-6 right-6 bg-white/90 dark:bg-[#141414]/90 backdrop-blur-md border border-gray-200 dark:border-white/10 text-black dark:text-white font-mono font-bold px-4 py-2 text-[10px] tracking-[0.2em] uppercase flex items-center shadow-lg">
+          <div className="absolute bottom-6 right-6 bg-white/90 dark:bg-[#141414]/90 backdrop-blur-md border border-gray-200 dark:border-white/10 text-black dark:text-white font-mono font-bold px-4 py-2 text-[10px] tracking-[0.2em] uppercase flex items-center shadow-lg z-10">
             <MapPin className="w-3.5 h-3.5 text-accent mr-2" />
             <span>LAGOS, NIGERIA</span>
           </div>
-          <div className="absolute top-6 left-6 px-3.5 py-1.5 bg-black/70 backdrop-blur-md border border-white/10 text-white/90 font-mono text-[10px] font-medium tracking-[0.2em] uppercase flex items-center gap-2">
+          <div className="absolute top-6 left-6 px-3.5 py-1.5 bg-black/70 backdrop-blur-md border border-white/10 text-white/90 font-mono text-[10px] font-medium tracking-[0.2em] uppercase flex items-center gap-2 z-10">
             <span className="w-1.5 h-1.5 bg-accent inline-block" />
             <span>My Setup</span>
           </div>
