@@ -23,6 +23,9 @@ export const uploadToCloudinary = async (file, options = {}) => {
     // Graceful fallback when no Cloudinary creds. Returns the
     // file as a data URI so the upload flow still works end-to-end.
     if (!process.env.CLOUDINARY_URL && !process.env.CLOUDINARY_API_KEY) {
+        if (process.env.NODE_ENV === 'production') {
+            throw new Error('Cloud storage service (Cloudinary) is not configured in production.');
+        }
         const b64 = Buffer.from(file.buffer).toString('base64');
         return { url: `data:${file.mimetype};base64,${b64}`, mocked: true };
     }

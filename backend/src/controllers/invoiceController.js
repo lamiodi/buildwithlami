@@ -69,24 +69,46 @@ export const createInvoice = async (req, res) => {
         const isPaystackSupported = currencyCode === 'NGN';
 
         // Insert pending invoice into database. invoice_number
-        // is generated server-side as INV-YYYY-NNN where NNN is
-        // the count of invoices this year + 1. Using a UNIQUE
-        // column on invoice_number + a defensive ON CONFLICT
-        // fallback in case two concurrent inserts race.
-        const yearPrefix = `INV-${new Date().getFullYear()}-`;
-        const { rows: countRows } = await pool.query(
-            `SELECT COUNT(*)::int AS n FROM invoices WHERE invoice_number LIKE $1`,
-            [yearPrefix + '%']
-        );
-        const nextSeq = String((countRows[0]?.n || 0) + 1).padStart(3, '0');
-        const invoiceNumber = yearPrefix + nextSeq;
+        // is generated server-side as INV-YYYY-NNN.
+        // Uses MAX numeric sequence query + retry loop for collision safety.
+        const currentYear = new Date().getFullYear();
+        const yearPrefix = `INV-${currentYear}-`;
+        
+        let invoice = null;
+        let attempts = 0;
+        const maxAttempts = 5;
 
-        const { rows } = await pool.query(
-            `INSERT INTO invoices (client_id, project_id, amount, currency, due_date, status, invoice_number, tax_rate, discount_amount, deposit_required, notes, line_items)
-             VALUES ($1, $2, $3, $4, $5, 'PENDING', $6, $7, $8, $9, $10, $11::jsonb) RETURNING *`,
-            [clientId, projectId, amount, currencyCode, dueDate || null, invoiceNumber, taxRate, discountAmount, depositRequired, notes, JSON.stringify(lineItems)]
-        );
-        const invoice = rows[0];
+        while (!invoice && attempts < maxAttempts) {
+            attempts++;
+            const { rows: seqRows } = await pool.query(
+                `SELECT COALESCE(MAX(NULLIF(regexp_replace(invoice_number, '^INV-[0-9]+-', ''), '')::int), 0) AS max_seq
+                 FROM invoices 
+                 WHERE invoice_number LIKE $1`,
+                [yearPrefix + '%']
+            );
+            const nextSeq = String((seqRows[0]?.max_seq || 0) + attempts).padStart(3, '0');
+            const invoiceNumber = yearPrefix + nextSeq;
+
+            try {
+                const { rows } = await pool.query(
+                    `INSERT INTO invoices (client_id, project_id, amount, currency, due_date, status, invoice_number, tax_rate, discount_amount, deposit_required, notes, line_items)
+                     VALUES ($1, $2, $3, $4, $5, 'PENDING', $6, $7, $8, $9, $10, $11::jsonb) RETURNING *`,
+                    [clientId, projectId, amount, currencyCode, dueDate || null, invoiceNumber, taxRate, discountAmount, depositRequired, notes, JSON.stringify(lineItems)]
+                );
+                invoice = rows[0];
+            } catch (insertErr) {
+                // If unique constraint violation on invoice_number (23505), retry with incremented attempt
+                if (insertErr.code === '23505' && insertErr.constraint?.includes('invoice_number')) {
+                    console.warn(`[Invoices] invoice_number collision on ${invoiceNumber}, retrying (attempt ${attempts})...`);
+                    continue;
+                }
+                throw insertErr;
+            }
+        }
+
+        if (!invoice) {
+            return res.status(500).json({ error: 'Failed to generate unique invoice number. Please try again.' });
+        }
 
         // Initialize transaction with Paystack (NGN only).
         if (isPaystackSupported && process.env.PAYSTACK_SECRET_KEY) {

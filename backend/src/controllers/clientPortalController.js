@@ -97,7 +97,7 @@ export async function getInvoices(req, res) {
     const clientId = req.clientUser.id;
     try {
         const { rows } = await pool.query(
-            `SELECT id, invoice_number, status, total, currency, due_date, created_at, pdf_url 
+            `SELECT id, invoice_number, status, amount AS total, amount, currency, due_date, pay_token, created_at 
              FROM invoices 
              WHERE client_id = $1 
              ORDER BY created_at DESC`,

@@ -8,29 +8,38 @@
 export const ROLE_DIVISIONS = {
     'Owner':             ['*'],
     'Administrator':     ['*'],
+    'Finance':           ['*'],
     'Project Manager':   ['SOFTWARE', 'SURVEY', 'DRONE'],
+    'Developer':         ['SOFTWARE'],
+    'Survey Manager':    ['SURVEY'],
+    'Surveyor':          ['SURVEY'],
+    'Drone Manager':     ['DRONE'],
+    'Drone Pilot':       ['DRONE'],
     'Staff':             ['SOFTWARE', 'SURVEY', 'DRONE'],
     'Client':            [], // clients only see their own project — gated at resource level
+    'CLIENT_PORTAL':     [],
 };
 
 const CANONICAL_ROLES = new Set(Object.keys(ROLE_DIVISIONS));
 
 // Legacy aliases that pre-date v22 — preserved so old JWTs and
-// un-migrated DB rows still resolve to a canonical role.
+// un-migrated DB rows still resolve to their respective canonical role.
 const LEGACY_ROLE_ALIASES = {
     'admin': 'Owner',
     'owner': 'Owner',
     'admin2': 'Administrator',
     'administrator': 'Administrator',
+    'finance': 'Finance',
     'project_manager': 'Project Manager',
     'pm': 'Project Manager',
-    'survey_manager': 'Staff',
-    'drone_manager': 'Staff',
-    'finance': 'Staff',
-    'developer': 'Staff',
-    'surveyor': 'Staff',
-    'drone_pilot': 'Staff',
+    'developer': 'Developer',
+    'survey_manager': 'Survey Manager',
+    'surveyor': 'Surveyor',
+    'drone_manager': 'Drone Manager',
+    'drone_pilot': 'Drone Pilot',
+    'staff': 'Staff',
     'client': 'Client',
+    'client_portal': 'CLIENT_PORTAL',
 };
 
 /**

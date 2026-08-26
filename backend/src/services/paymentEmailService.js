@@ -35,6 +35,10 @@ const buildTransport = () =>
 
 const sendOrLog = async (mailOptions) => {
     if (!process.env.SMTP_USER) {
+        if (process.env.NODE_ENV === 'production') {
+            console.warn(`[PaymentEmail] ⚠️ PRODUCTION ALERT: SMTP_USER not configured. Outgoing payment email skipped: "${mailOptions.subject}"`);
+            return { success: false, error: 'SMTP credentials not configured on server', mocked: true };
+        }
         console.log(`[PaymentEmail] 📧 (mock — no SMTP_USER) to=${mailOptions.to} subject="${mailOptions.subject}"`);
         return { success: true, mocked: true };
     }

@@ -107,24 +107,34 @@ app.use(cors({
     origin: allowedOrigins,
     credentials: true,
 }));
-app.use(express.json({ limit: '100kb' }));
+app.use(express.json({
+    limit: '100kb',
+    verify: (req, _res, buf) => {
+        // Save the raw body buffer as string for cryptographic webhook signature verifications
+        if (buf && buf.length) {
+            req.rawBody = buf.toString('utf8');
+        }
+    }
+}));
 app.use(cookieParser()); // Parse cookies for JWT + CSRF
 
-// Apply CSRF protection to all routes except auth login/refresh/logout
+// Apply CSRF protection to all routes except auth login/refresh/logout, third-party webhooks, and token-authenticated public payment endpoints
 app.use((req, res, next) => {
-    // Skip CSRF for safe methods and auth endpoints
+    // Skip CSRF for safe methods, auth endpoints, third-party webhooks, and public token-based payment routes
     const skipPaths = [
         '/api/auth/login',
         '/api/auth/refresh',
         '/api/auth/logout',
         '/api/auth/2fa',
         '/api/client-auth/login',
-        '/api/client-auth/logout'
+        '/api/client-auth/logout',
+        '/api/invoices/webhook/paystack',
+        '/api/payments/public'
     ];
-    const isAuthEndpoint = skipPaths.some(path => req.path.startsWith(path));
+    const isSkippedPath = skipPaths.some(path => req.path.startsWith(path));
     const isSafeMethod = ['GET', 'HEAD', 'OPTIONS'].includes(req.method);
     
-    if (isAuthEndpoint || isSafeMethod) {
+    if (isSkippedPath || isSafeMethod) {
         return next();
     }
     csrfProtection(req, res, next);
@@ -140,7 +150,6 @@ app.use('/', uptimeRoutes);
 
 // ── Dashboard (admin overview) ───────────────────────────
 app.use('/api/dashboard', dashboardRoutes);
-app.use('/api/contracts', contractRoutes);
 
 // ── API routes ───────────────────────────────────────────
 app.use('/api/auth', authLimiter, authRoutes);

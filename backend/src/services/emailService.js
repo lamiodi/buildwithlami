@@ -38,6 +38,10 @@ export const sendNotificationEmail = async ({ name, email, subject, message, toE
         };
 
         if (!process.env.SMTP_USER) {
+            if (process.env.NODE_ENV === 'production') {
+                console.warn('[EmailService] ⚠️ PRODUCTION ALERT: SMTP_USER not configured. Outgoing email skipped:', mailOptions.subject);
+                return { success: false, error: 'SMTP credentials not configured on server', mocked: true };
+            }
             console.log('[EmailService] 📧 SMTP credentials missing. Mocking email send:');
             console.log(mailOptions);
             return { success: true, mocked: true };

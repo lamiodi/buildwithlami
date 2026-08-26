@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Crosshair, ArrowRight, ArrowUpRight, Camera, Video, ShieldCheck, Mail, Phone, MapPin, Layers, Radio } from 'lucide-react';
+import { Crosshair, ArrowRight, ArrowUpRight, Camera, Video, ShieldCheck, Mail, Phone, MapPin, Layers, Radio, Download } from 'lucide-react';
 import { CONTACT } from '../config/contact';
 
 const DroneFooter = () => {
@@ -14,7 +14,7 @@ const DroneFooter = () => {
   };
 
   return (
-    <footer className="w-full bg-[#0a0a0a] text-white pt-12 pb-8 px-4 md:px-8 border-t border-white/5 font-sans">
+    <footer className="w-full bg-[#0a0a0a] text-white pt-12 pb-8 px-4 md:px-8 border-t border-white/5 font-sans rounded-b-[2.5rem]">
       <div className="max-w-7xl mx-auto space-y-12">
 
         {/* Top Feature Card: Pilot Identity & Readiness */}
@@ -28,7 +28,7 @@ const DroneFooter = () => {
             <div className="lg:col-span-6 space-y-6">
               <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-xs font-semibold text-white/90">
                 <span className="w-2 h-2 rounded-full bg-[#F44A22] animate-pulse" />
-                <span className="tracking-wide">Lami Aerial</span>
+                <span className="tracking-wide">Lami Aerial · Commercial Drone &amp; Aerial Imaging</span>
               </div>
 
               <div>
@@ -37,7 +37,7 @@ const DroneFooter = () => {
                   <span className="text-[#F44A22]">From Above.</span>
                 </h3>
                 <p className="mt-4 text-sm text-gray-400 leading-relaxed max-w-lg font-normal">
-                  Commercial drone photography, 4K 60fps HDR architectural videography, recurring construction milestone progress, and precision orthomosaics across Nigeria.
+                  Commercial drone photography, 4K 60fps HDR architectural videography (10-bit D-Log M), recurring construction milestone progress, and precision photogrammetry basemaps across Nigeria.
                 </p>
               </div>
 
@@ -49,7 +49,7 @@ const DroneFooter = () => {
                   </div>
                   <div>
                     <span className="text-[10px] uppercase font-bold tracking-wider text-gray-400 block">Fleet Hardware</span>
-                    <span className="text-xs font-bold text-white">DJI Mini 4 Pro &amp; 4K</span>
+                    <span className="text-xs font-bold text-white">DJI Mini 4 Pro &amp; Mini 4K</span>
                   </div>
                 </div>
 
@@ -62,6 +62,20 @@ const DroneFooter = () => {
                     <span className="text-xs font-bold text-white">Eugene Odibenuah</span>
                   </div>
                 </div>
+              </div>
+
+              {/* CV Download button inside Pilot block */}
+              <div className="pt-1">
+                <a
+                  href="/eugene-odibenuah-land-surveyor-cv.pdf"
+                  download="Eugene-Odibenuah-Surveyor-CV.pdf"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 text-xs font-semibold text-gray-300 hover:text-white transition-colors bg-white/5 hover:bg-white/10 px-4 py-2.5 rounded-xl border border-white/10"
+                >
+                  <Download className="w-3.5 h-3.5 text-[#F44A22]" />
+                  <span>Download Pilot / Surveyor CV (PDF)</span>
+                </a>
               </div>
             </div>
 
@@ -108,7 +122,7 @@ const DroneFooter = () => {
                 onClick={(e) => { e.preventDefault(); scrollToSection('contact'); }}
                 className="w-full py-4 rounded-full bg-white text-black hover:bg-[#F44A22] hover:text-white font-bold text-xs uppercase tracking-[0.2em] transition-colors flex items-center justify-center gap-3 shadow-lg"
               >
-                <span>Book Flight Mission</span>
+                <span>Book a Flight</span>
                 <ArrowRight className="w-4 h-4" />
               </a>
             </div>
@@ -142,7 +156,7 @@ const DroneFooter = () => {
               </li>
               <li>
                 <a href="#services" onClick={(e) => { e.preventDefault(); scrollToSection('services'); }} className="hover:text-white transition-colors">
-                  Photogrammetry &amp; 2D Maps
+                  Photogrammetry Basemaps
                 </a>
               </li>
             </ul>
@@ -155,22 +169,22 @@ const DroneFooter = () => {
             </span>
             <ul className="space-y-2.5 text-gray-400">
               <li>
-                <a href="#fleet" onClick={(e) => { e.preventDefault(); scrollToSection('fleet'); }} className="hover:text-white transition-colors">
-                  DJI Mini 4 Pro (4K/60fps)
+                <a href="#equipment" onClick={(e) => { e.preventDefault(); scrollToSection('equipment'); }} className="hover:text-white transition-colors">
+                  DJI Mini 4 Pro (4K/60fps HDR)
                 </a>
               </li>
               <li>
-                <a href="#fleet" onClick={(e) => { e.preventDefault(); scrollToSection('fleet'); }} className="hover:text-white transition-colors">
-                  DJI Mini 4K (Backup Unit)
+                <a href="#equipment" onClick={(e) => { e.preventDefault(); scrollToSection('equipment'); }} className="hover:text-white transition-colors">
+                  DJI Mini 4K (Backup &amp; Rapid)
                 </a>
               </li>
               <li>
-                <a href="#fleet" onClick={(e) => { e.preventDefault(); scrollToSection('fleet'); }} className="hover:text-white transition-colors">
-                  10-bit D-Log M Color Grading
+                <a href="#equipment" onClick={(e) => { e.preventDefault(); scrollToSection('equipment'); }} className="hover:text-white transition-colors">
+                  10-bit D-Log M (Mini 4 Pro)
                 </a>
               </li>
               <li>
-                <a href="#fleet" onClick={(e) => { e.preventDefault(); scrollToSection('fleet'); }} className="hover:text-white transition-colors">
+                <a href="#equipment" onClick={(e) => { e.preventDefault(); scrollToSection('equipment'); }} className="hover:text-white transition-colors">
                   48MP RAW Stills (DNG)
                 </a>
               </li>
@@ -187,10 +201,13 @@ const DroneFooter = () => {
                 <Link to="/drone" className="hover:text-white transition-colors">Drone Overview</Link>
               </li>
               <li>
-                <a href="#work" onClick={(e) => { e.preventDefault(); scrollToSection('work'); }} className="hover:text-white transition-colors">Mission Archive</a>
+                <a href="#portfolio" onClick={(e) => { e.preventDefault(); scrollToSection('portfolio'); }} className="hover:text-white transition-colors">Sample Missions</a>
               </li>
               <li>
                 <a href="#workflow" onClick={(e) => { e.preventDefault(); scrollToSection('workflow'); }} className="hover:text-white transition-colors">Safety &amp; Workflow</a>
+              </li>
+              <li>
+                <a href="#pricing" onClick={(e) => { e.preventDefault(); scrollToSection('pricing'); }} className="hover:text-white transition-colors">Pricing Expectations</a>
               </li>
               <li>
                 <a href="#faq" onClick={(e) => { e.preventDefault(); scrollToSection('faq'); }} className="hover:text-white transition-colors">Flight FAQ</a>
@@ -236,7 +253,7 @@ const DroneFooter = () => {
             LAMI AERIAL
           </h2>
           <p className="text-[10px] md:text-xs uppercase tracking-[0.3em] text-gray-500 font-bold mt-2">
-            Aerial Cinematography · Construction Progress · Orthomosaic Mapping
+            Commercial Drone &amp; Aerial Imaging · Chief Pilot: Eugene Odibenuah
           </p>
         </div>
 

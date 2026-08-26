@@ -1,7 +1,7 @@
-# BuildWithLami Enterprise Platform Blueprint v3.5 (Digital Product Studio & Agency OS)
+# BuildWithLami Enterprise Platform Blueprint v4.0 (Agency OS & Multi-Division Studio)
 
 > **Last Updated:** August 2026  
-> **Status:** Production live & 100% feature complete. Includes Universal Design System, GoodFound-inspired dual-currency pricing architecture, 4-step interactive Quotation Builder, 50/50 milestone calculation, Matter.js interactive physics, Vercel API rewrites, cross-origin HttpOnly cookie strategy, 2FA persistence, Client Portal SPA, Project Milestones & Timeline, 1-Click Quotation-to-Contract Pipeline, Flagship Invoice Generator with QR codes & partial payments, Categorized Document Repository, Zoho Sign contracts, and Nigerian & International market workflows.  
+> **Status:** Production live & 100% feature complete. Includes Universal Design System, 3-Division Architecture (Software · Cadastral Survey · Commercial Drone), Solo Founder Operator OS, GoodFound-inspired dual-currency pricing architecture, 4-step interactive Quotation Builder, 50/50 milestone calculation, Matter.js interactive physics, Vercel API rewrites, cross-origin HttpOnly cookie strategy, 2FA persistence, Client Portal SPA, Project Milestones & Timeline, 1-Click Quotation-to-Contract Pipeline, Flagship Invoice Generator with QR codes & partial payments, Categorized Document Repository, Zoho Sign contracts, and Nigerian & International market workflows.  
 > **Companion docs:** [`ROADMAP.md`](file:///c:/Users/nuke/Documents/buildwithlami/ROADMAP.md) (phased build history), [`UPDATE.md`](file:///c:/Users/nuke/Documents/buildwithlami/UPDATE.md) (decision log), [`docs/GOODFOUND_STUDIO_PORTFOLIO_LEARNINGS.md`](file:///c:/Users/nuke/Documents/buildwithlami/docs/GOODFOUND_STUDIO_PORTFOLIO_LEARNINGS.md) (competitive tear-down), [`docs/SCHEMA.md`](file:///c:/Users/nuke/Documents/buildwithlami/docs/SCHEMA.md) (database reference), [`docs/DEPLOYMENT.md`](file:///c:/Users/nuke/Documents/buildwithlami/docs/DEPLOYMENT.md) (ops), [`docs/ENV_VARIABLES.md`](file:///c:/Users/nuke/Documents/buildwithlami/docs/ENV_VARIABLES.md) (configuration).
 
 ---
@@ -9,102 +9,72 @@
 ## 1. Executive Summary
 
 **Project Name:** BuildWithLami (`buildwithlami.com` / `buildwithlami.vercel.app`)  
-**Type:** Digital Product Studio Portfolio & High-Performance Agency Operating System  
-**Founder & Lead Engineer:** Eugene Odibenuah (Lagos, Nigeria · Worldwide Remote)  
-**Stack:** React 19.2.5 (Vite 8) + TailwindCSS 3.4.19 + Framer Motion 12 + Express 4.21 + PostgreSQL 14+ (raw `pg` client) + Matter.js 0.19 + Cloudinary + Zoho Sign (stub & live modes)
+**Type:** Multi-Division Digital Product Studio & Solo-Founder Operating System  
+**Founder & Technical Principal:** Eugene Odibenuah (Lagos, Nigeria · Worldwide Remote)  
+**Stack:** React 19.2.5 (Vite 8) + TailwindCSS 3.4.19 + Framer Motion 12 + Express 4.21 + PostgreSQL 14+ (raw `pg` client) + Matter.js 0.19 + Cloudinary + Paystack + Nodemailer
 
-### Core Mission
+### Core Mission & Operator Model
 
-Provide a world-class, conversion-focused digital studio experience for prospective clients while acting as a robust, automated operation center for freelance engineering (Web Applications, E-Commerce Platforms, Custom Software, APIs, Technical SEO, and UI/UX) — handling inbound leads, client onboarding, dynamic intake, credential vaulting, multi-currency 50/50 milestone invoicing, international wire/bank-transfer verification, signed contracts, quotation conversion, project document management, and live milestone tracking from a single dashboard.
+BuildWithLami operates as a **high-leverage Solo-Founder Operating System (One-Man Agency)**. The platform is architected so a single technical principal can seamlessly manage three integrated commercial divisions from a unified command center without administrative friction:
 
-### Dual-Audience Pricing Architecture
+1. **Digital Product Studio & Software Engineering** (`/`): High-performance Web Applications, E-Commerce, SaaS Platforms, APIs, UI/UX Systems, and Technical SEO.
+2. **Cadastral & Land Surveying Division** (`/survey`): Boundary Surveys, Beacon Installations, Layout Demarcations, Topographical & Contour Mapping, and Land Registry compliance.
+3. **Commercial Drone & Aerial Data Division** (`/drone`): High-resolution Orthomosaics, Construction Progress Telemetry, Real Estate Aerial Media, and 4K Volumetric/Visual Inspections.
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                   SOLO FOUNDER (EUGENE ODIBENUAH)                            │
+│                 Unified Admin Operations Center (/admin)                    │
+├──────────────────────┬──────────────────────────────┬───────────────────────┤
+│ SOFTWARE STUDIO      │ SURVEY DIVISION              │ DRONE DIVISION        │
+│ • Web & Mobile Apps  │ • Boundary Demarcation       │ • 4K Drone Media      │
+│ • Custom SaaS/APIs   │ • Topographical / Contours   │ • Orthomosaics / DSM  │
+│ • Technical SEO/AI   │ • Land Registry & Beacons    │ • Site Monitoring     │
+├──────────────────────┴──────────────────────────────┴───────────────────────┤
+│ SHARED BACKEND ENGINE: Auth (2FA) · CRM · Invoicing · Payments · Client Portal │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 2. Dual-Audience Pricing Architecture
 
 * **International Clients (Outside Africa - USD $)**: Exact GoodFound Studio standard figures ($899 Web, $1,799 E-Commerce, $3,200 Custom Software, $699 UI/UX, $599 Branding, $599 SEO, $699 Marketing, $1,199 AI, $149/mo Maintenance Retainer).
 * **Local Clients (Nigeria - NGN ₦)**: Tailored local figures (₦350k Web, ₦650k E-Commerce, ₦1.2M Custom Software, ₦280k UI/UX, ₦250k Branding, ₦220k SEO, ₦250k Marketing, ₦450k AI, ₦60k/mo Maintenance Retainer).
-* **Enterprise Cloud Guarantee**: Global Edge CDN, automated backups, 99.9% uptime architecture, and 100% IP code ownership transfer included across all tiers without confusing infrastructure choices.
+* **Survey & Drone Service Tiers**: Flat NGN rate cards (₦150k Standard Plot Survey, ₦350k Perimeter & Topography, ₦150k Aerial Photography, ₦300k Orthomosaic Photogrammetry Mapping).
+* **Enterprise Cloud Guarantee**: Global Edge CDN, automated backups, 99.9% uptime architecture, and 100% IP code ownership transfer included across all tiers.
 * **Transparent Scoping**: Explicit *"What's NOT Included"* lists on every tier card to prevent scope creep and eliminate ambiguity.
 * **50/50 Milestone Terms**: 50% upfront deposit to commence engineering, 50% balance upon final staging approval and production handoff.
 
-### Interactive User Flows
-
-1. **Public Portfolio & Discovery Pipeline**
-   ```
-   VISITOR → BROWSE /projects | /services | /pricing → INTERACTIVE QUOTE BUILDER
-   → PRE-FILLED INTAKE BRIEF (/contact?service=...&tier=...) → messages + leads (CRM)
-   ```
-
-2. **Client Portal & Delivery Pipeline**
-   ```
-   LEAD CONVERTED → ADMIN GENERATES CLIENT PORTAL → CLIENT ACCESSES UNIQUE TRACKING ID
-   → COMPLETES INTAKE TEMPLATE → VAULTS CREDENTIALS (AES-256-GCM)
-   → SIGNS CONTRACT VIA ZOHO SIGN → PAYS 50% MILESTONE (PAYSTACK NGN / GREY USD)
-   → TRACKS 5-STAGE SPRINT TIMELINE → DOWNLOADS DELIVERABLE ASSETS
-   ```
-
 ---
 
-## 2. System Architecture
+## 3. System Architecture & Technical Specifications
 
-### A. Tech Stack & Library Standards
-
-| Layer | Technology | Status | Notes |
+| Layer | Technology | Status | Implementation Notes |
 | :--- | :--- | :--- | :--- |
-| **Frontend** | React 19.2.5 + Vite 8 (SPA) | ✅ Built & Responsive | React Router v6/v7, lazy-loaded admin routes & client portal, automated currency detector (`currency.js`) |
-| **Styling** | TailwindCSS 3.4.19 + Framer Motion 12 | ✅ Standardized | Unified design system tokens, `dark:bg-[#141414]` surfaces, custom select/input styles |
+| **Frontend** | React 19.2.5 + Vite 8 (SPA) | ✅ Production Ready | React Router v6/v7, lazy-loaded admin routes & client portal, automated currency detector (`currency.js`) |
+| **Styling** | TailwindCSS 3.4.19 + Framer Motion 12 | ✅ Standardized | Unified design system tokens, `dark:bg-[#141414]` surfaces, division-specific theme accents |
 | **Design System** | BuildWithLami Universal Button & Card System | ✅ Standardized | Razor-sharp architectural buttons (`text-[11px] font-bold uppercase tracking-[0.15em] px-10 py-4`), `rounded-2xl` cards |
-| **Visual Elements** | Matter.js 0.19 2D Physics Canvas | ✅ Live on Footer & TechStack | Interactive floating cards with collision boundaries and reduced-motion fallbacks |
+| **Visuals** | Matter.js 0.19 2D Physics Canvas | ✅ Live on Footer & TechStack | Interactive floating cards with collision boundaries and reduced-motion fallbacks |
 | **Icons** | Lucide React + Stroke-based SVGs (1.5px) | ✅ Standardized | Clean architectural stroke icons; informal emojis removed from structural cards |
-| **Markdown** | Custom regex parser + DOMPurify | ✅ `utils/markdown.js` | Dependency-free parsing with safe HTML sanitization |
-| **Backend** | Node.js + Express 4.21 | ✅ Built & Rate-Limited | 26 route modules, 24 controllers |
-| **Database** | PostgreSQL 14+ (raw `pg` client) | ✅ Migrations v2–v35 deployed | 24 tables, 58+ indexes, 4 triggers |
-| **Auth** | JWT (HttpOnly Cookie) + TOTP 2FA | ✅ Implemented | Admin & Client auth contexts; 5 RBAC roles, cookie persistence across domains |
+| **WhatsApp Widgets** | Adaptive Division HUDs | ✅ Live across all 3 pages | Context-aware WhatsApp contact widgets for Software, Survey, and Drone with collision avoidance |
+| **Backend** | Node.js + Express 4.21 | ✅ Audited & Hardened | 28 route modules, 24 controllers, global raw body capture for webhooks, CSRF-gated |
+| **Database** | PostgreSQL 14+ (raw `pg` client) | ✅ Migrations v1–v35 | 24 tables, 58+ indexes, automated sequences, atomic invoice number generator |
+| **Auth & Security** | JWT (HttpOnly Cookie) + TOTP 2FA + RBAC | ✅ Audited & Hardened | 10 canonical roles, dual-secret client token architecture, CSRF double-submit protection |
 | **Proxy & Rewrites** | Vercel Rewrite (`/api/*` → Render) | ✅ Active | `frontend/vercel.json` proxies `/api/*` to Render backend for first-party cookie compliance |
 | **Secrets Vault** | AES-256-GCM (server-side) | ✅ `backend/src/utils/crypto.js` | Per-secret IV + auth tag encryption for client server credentials |
-| **Email Service** | Nodemailer (SMTP) | ✅ Templates with `{{placeholder}}` | 5 core templates; falls back to stdout during development |
-| **Payment Rails** | Paystack (NGN) + Grey Bank Transfer (USD/GBP/EUR) | ✅ `payment_proofs` review queue | Public `/pay/:token` page with currency selection |
+| **Email Service** | Nodemailer (SMTP) | ✅ Production Safe | Graceful dev mock logging with strict production alerting and failure notifications |
+| **Payment Rails** | Paystack (NGN) + Grey Bank Transfer (USD/GBP/EUR) | ✅ Production Verified | Cryptographic HMAC-SHA512 webhook verification + manual `/admin/payments` review queue |
 | **Contracts** | Zoho Sign v1 (stub + live modes) | ✅ `zohoSignService.js` | Generates legally binding contracts, stores signed PDFs as `bytea` |
-| **Media Hosting** | Cloudinary + Local Fallbacks | ✅ Implemented | Hero imagery, project attachments, and payment proof uploads |
-| **Live FX Rates** | open.er-api.com (free, no key) | ✅ Daily 5am UTC cron | Automated NGN conversion with manual admin overrides |
+| **Media Hosting** | Cloudinary CDN | ✅ Production Safe | Hero imagery, project attachments, and payment proof uploads with strict 503 fallback guards |
+| **Live FX Rates** | open.er-api.com | ✅ Daily 5am UTC cron | Automated NGN conversion with manual admin overrides in `/admin/settings` |
 
 ---
 
-## 3. Design System & Visual Baseline
-
-The BuildWithLami design language is defined by a rigorous, high-contrast, architectural aesthetic.
-
-### A. The Master Button System
-
-All buttons across the platform derive from the user-approved **Hero Section Button Pair**:
-
-```jsx
-/* 1. PRIMARY CONVERSION CTA (e.g. Start a Project, Request Proposal) */
-<Link
-  to="/contact"
-  className="bg-accent text-white font-heading font-bold uppercase text-[11px] px-8 sm:px-10 py-4 tracking-[0.15em] hover:bg-black dark:hover:bg-white dark:hover:text-black transition-all duration-300 inline-flex items-center justify-center text-center shadow-lg hover:shadow-accent/30 active:scale-[0.98] cursor-pointer"
->
-  Start a Project
-</Link>
-
-/* 2. SECONDARY OUTLINE CTA (e.g. See My Work, WhatsApp Direct) */
-<Link
-  to="/projects"
-  className="border border-gray-300 dark:border-white/15 text-gray-900 dark:text-gray-100 font-heading font-bold text-[11px] uppercase tracking-[0.15em] hover:border-accent hover:text-accent transition-all duration-300 inline-flex items-center justify-center text-center py-4 px-8 sm:px-10 active:scale-[0.98] bg-transparent cursor-pointer"
->
-  See My Work
-</Link>
-
-/* 3. CARD-LEVEL ACTION (e.g. Scope & Specs, Case Study) */
-<button
-  type="button"
-  className="bg-black dark:bg-white text-white dark:text-black hover:bg-accent dark:hover:bg-accent dark:hover:text-white font-heading text-[11px] font-bold uppercase tracking-[0.15em] px-6 py-3.5 transition-all duration-300 inline-flex items-center justify-center text-center shadow-md active:scale-[0.98] cursor-pointer"
->
-  View Case Study →
-</button>
-```
-
-### B. Color Tokens & Surface Hierarchy
+## 4. Master Design System Tokens
 
 ```css
+/* Light Mode Canvas */
 :root {
   --bg-canvas: 0 0% 100%;             /* #ffffff - Page Background */
   --bg-surface: 0 0% 98%;            /* #fafafa - Light Card Surface */
@@ -115,6 +85,7 @@ All buttons across the platform derive from the user-approved **Hero Section But
   --border-subtle: 0 0% 90%;         /* #e5e5e5 */
 }
 
+/* Dark Mode Canvas */
 .dark {
   --bg-canvas: 0 0% 8.6%;            /* #161616 - Dark Canvas */
   --bg-surface: 0 0% 8%;             /* #141414 - Consolidated Card Surface */
@@ -124,100 +95,103 @@ All buttons across the platform derive from the user-approved **Hero Section But
 }
 ```
 
-### C. Typography Scale
-
-* **Headings**: `Space Grotesk` (`font-heading`) — Bold, geometric, modern engineering character.
-* **Body Text**: `Advent Pro` (`font-body`) — Clean, readable, light aesthetic.
-* **Badges & Meta**: `JetBrains Mono` / monospace (`font-mono`) — Technical credibility.
-* **Founder Signature**: `Caveat` (`font-handwritten` / `font-signature`) — Authentic founder stamp.
-
----
-
-## 4. Public Navigation & Routing Map
-
-| Route | View Component | Description |
-| :--- | :--- | :--- |
-| `/` | `HomePage.jsx` | Hero, Selected Works showcase, Services overview, Founder story, Pricing preview, Contact intake |
-| `/projects` | `ProjectsPage.jsx` | Full case-study portfolio with category filter tabs (Web Apps, E-Commerce, SaaS, Business Systems) |
-| `/projects/:id` | `ProjectDetailPage.jsx` | In-depth engineering case study (Problem $\to$ Strategy $\to$ Architecture $\to$ Deliverables $\to$ Outcome) |
-| `/services` | `ServicesPage.jsx` | Full capabilities catalog with outcome-driven descriptions, deliverables, and interactive scope modal |
-| `/pricing` | `PricingPage.jsx` | GoodFound dual-currency pricing tiers, 4-step interactive Quote Builder, and 50/50 milestone calculation |
-| `/about` | `AboutPage.jsx` | Founder background, engineering philosophy, education, tech stack breakdown, and work history |
-| `/contact` | `ContactPage.jsx` | Project intake form with URL parameter pre-filling (`?service=...&tier=...`), 3-step "What Happens Next" box, and WhatsApp direct reach |
-| `/pay/:token` | `PaymentPage.jsx` | Token-gated public checkout (Paystack NGN or Grey bank wire for USD/GBP/EUR) |
-| `/track/:id` | `ClientProjectTracker.jsx`| Real-time milestone tracker for clients |
-| `/portal/*` | `ClientPortalLayout.jsx` | Authenticated client dashboard, invoices, contracts, credentials vault, and deliverables repository |
-| `/admin/*` | `AdminLayout.jsx` | Founder operations center (CRM, Quotations, Invoices, Contracts, Payments, Reports, Settings) |
+### Typography Scale
+* **Headings**: `Space Grotesk` (`font-heading`) — Geometric modern engineering structure.
+* **Body Text**: `Advent Pro` (`font-body`) — Clean, light, high-legibility character.
+* **Technical Data**: `JetBrains Mono` / monospace (`font-mono`) — Precision coordinates, invoice numbers, metadata.
+* **Signature**: `Caveat` (`font-handwritten` / `font-signature`) — Founder verification mark.
 
 ---
 
-## 5. Pricing & Quotation Engine Architecture
+## 5. Navigation & Public Routing Topology
 
-### A. Tier Structure by Service Category
-
-```
-1. Business Websites & Web Portals (Starter · Growth [Popular] · Enterprise)
-2. Digital Storefronts & E-Commerce (Starter · Growth [Popular] · Scale)
-3. Custom Software & Internal Platforms (MVP Sprint · Production Platform · Enterprise Suite)
-4. UI/UX Interface Design (Design Sprint · Complete System · Design Retainer)
-5. Brand Identity & Visual Assets (Core Brand · Brand System · Full Studio Identity)
-6. Technical SEO & Organic Visibility (Audit · Growth Implementation · Monthly Retainer)
-7. Digital Marketing & Campaigns (Campaign Strategy · Growth Launch · Full Funnel)
-8. AI Integration & Workflow Automation (Audit & PoC · Production AI · Autonomous Agents)
-9. Maintenance & SLA Support (Starter Maintenance · Growth SLA · Enterprise Retainer)
-```
-
-### B. Interactive Quotation Builder Flow
-
-```
-[ Step 1: Core Category ] ──▶ [ Step 2: Deliverables Tier ] ──▶ [ Step 3: Optional Add-ons ]
-                                                                             │
-                                                                             ▼
-[ Request Proposal CTA ] ◀── [ 50/50 Milestone Terms ] ◀── [ Enterprise Cloud Guarantee ]
-(/contact?service=...&tier=...) (50% Kickoff / 50% Delivery)    (CDN, SSL, Backups, 100% IP)
-```
-
----
-
-## 6. Client Portal & Operations Workflow
-
-```
-┌──────────────┐     ┌──────────────┐     ┌──────────────┐     ┌──────────────┐
-│  CRM Lead    │ ──▶ │  Quotation   │ ──▶ │ Zoho Sign    │ ──▶ │  50% Deposit │
-│  (Inquiry)   │     │  (1-Click)   │     │  Contract    │     │  (Paystack/  │
-└──────────────┘     └──────────────┘     └──────────────┘     │   Grey Wire) │
-                                                               └──────┬───────┘
-                                                                      │
-┌──────────────┐     ┌──────────────┐     ┌──────────────┐            ▼
-│ Final 50%    │ ◀── │ Staging QA   │ ◀── │ 5-Stage      │ ◀── ┌──────────────┐
-│ Payment & IP │     │ & Client     │     │ Milestone    │     │ Client Portal│
-│ Handover     │     │ Sign-off     │     │ Sprints      │     │ & Credential │
-└──────────────┘     └──────────────┘     └──────────────┘     │ Vault Active │
-                                                               └──────────────┘
-```
-
----
-
-## 7. Security, Privacy & Reliability Standards
-
-* **Cookie Authentication**: JWT stored in secure HttpOnly cookies with `sameSite: 'none'` + `secure: true` in production, routed via first-party Vercel rewrites.
-* **Zero Client Infrastructure Demands**: Clients never manage Redis configurations or server clusters; all builds receive managed high-availability cloud deployments.
-* **Credential Vaulting**: Sensitive production API keys and database strings are encrypted server-side with **AES-256-GCM** (unique IV + 128-bit authentication tag).
-* **Payment Security**: Paystack webhooks verified via HMAC-SHA512 `crypto.timingSafeEqual` signatures; international bank transfers verified in `/admin/payments` review queue.
-* **XSS Defense**: Dual-layer sanitization with `isomorphic-dompurify` on server inputs and browser DOMPurify on Markdown renders.
-* **Zero Build Errors SLA**: Automated CI pipeline enforces zero-warning Vite bundle compilation on every commit.
-
----
-
-## 8. Development Roadmap & Milestones
-
-| # | Milestone | Status | Completed |
+| Route | View Component | Division | Description |
 | :--- | :--- | :--- | :--- |
-| **01–12** | Core OS Architecture (Auth, CRM, Invoicing, Zoho Contracts, Multi-Division) | ✅ Complete | July 2026 |
-| **13–19** | Client Portal SPA, Project Milestones, Expense Engine, Document Repo | ✅ Complete | July 2026 |
-| **20** | **GoodFound Pricing Architecture & Cognitive Load Simplification** (Dual USD/NGN pricing, explicit exclusions, 4-step quote calculator, 50/50 milestones) | ✅ Complete | August 2026 |
-| **21** | **Universal Design System & Visual Consistency Overhaul** (Hero button baseline, surface token consolidation, Lucide icon standardization, container width alignment) | ✅ Complete | August 2026 |
+| `/` | `SoftwareHomePage.jsx` | Software | Flagship Studio Hero, Selected Works, Capabilities, Pricing Preview, Physics Canvas |
+| `/survey` | `SurveyHomePage.jsx` | Survey | Cadastral Land Surveying, Boundary Demarcation, Beaconing, GIS/Topo Mapping, Custom Survey Footer & WhatsApp HUD |
+| `/drone` | `DroneHomePage.jsx` | Drone | Commercial Drone Services, Orthomosaic Photogrammetry, 4K Aerial Videography, Custom Drone Footer & WhatsApp HUD |
+| `/projects` | `ProjectsPage.jsx` | Universal | Multi-division case-study portfolio with category tabs (Web Apps, E-Commerce, Survey, Drone) |
+| `/projects/:id` | `ProjectDetailPage.jsx` | Universal | Deep engineering case study (Problem $\to$ Strategy $\to$ Architecture $\to$ Deliverables $\to$ Outcome) |
+| `/services` | `ServicesPage.jsx` | Software | Full capabilities catalog with outcome-driven descriptions and deliverables |
+| `/pricing` | `PricingPage.jsx` | Software | Dual-currency pricing tiers, 4-step interactive Quote Builder, and 50/50 milestone calculation |
+| `/about` | `AboutPage.jsx` | Universal | Founder background, engineering philosophy, tech stack breakdown, and career timeline |
+| `/contact` | `ContactPage.jsx` | Universal | Inbound intake with URL pre-fill (`?service=...&tier=...`) and instant CRM auto-tagging |
+| `/pay/:token` | `PaymentPage.jsx` | Universal | Token-gated public invoice checkout (Paystack NGN card/transfer or Grey USD/GBP/EUR bank transfer) |
+| `/portal/*` | `ClientPortalLayout.jsx` | Universal | Client dashboard: Billing & Invoices, Deliverables Repository, Credential Vault, and Milestones |
+| `/admin/*` | `AdminLayout.jsx` | Solo Founder | Master operating system: Unified Inbox, CRM Kanban, Quotations, Invoices, Proof Review, Reports, Settings |
 
 ---
 
-*End of Blueprint v3.5. Maintained and governed by BuildWithLami.*
+## 6. Solo-Founder Operating Workflows
+
+### A. Discovery to Project Initiation Flow
+```
+VISITOR (Software, Survey, or Drone)
+  │
+  ├──► SUBMITS INTAKE BRIEF (/contact or /survey or /drone)
+  │       │
+  │       ▼
+  └──► AUTO-GENERATES CRM LEAD IN DATABASE (backend/src/controllers/contactController.js)
+          │
+          ▼
+       FOUNDER REVIEWS IN UNIFIED ADMIN INBOX (/admin/inbox)
+          │
+          ├──► GENERATES MODULAR 3-TIER QUOTATION (/admin/quotations)
+          │       │
+          │       ▼
+          ├──► 1-CLICK CONVERTS TO CONTRACT VIA ZOHO SIGN (/admin/contracts)
+          │       │
+          │       ▼
+          └──► ISSUES 50% KICKOFF INVOICE WITH PAYSTACK/GREY TOKEN (/admin/invoices)
+                  │
+                  ▼
+               CLIENT PAYS VIA /pay/:token
+                  │
+                  ├──► PAYSTACK WEBHOOK CONFIRMS (HMAC-SHA512 Verified)
+                  │       OR
+                  └──► FOUNDER CONFIRMS BANK TRANSFER IN REVIEW QUEUE (/admin/payments)
+                          │
+                          ▼
+                       PROJECT AUTO-ACTIVATES IN DATABASE (`client_projects`)
+                          │
+                          ▼
+                       CLIENT ACCESSES SECURE PORTAL (`/portal`)
+```
+
+### B. Client Self-Service & Delivery Pipeline
+```
+CLIENT PORTAL (/portal)
+  ├── 1. PROJECT TIMELINE & 5-STAGE SPRINT TRACKER
+  ├── 2. INVOICES & RECEIPT ARCHIVE (Linked to live /pay/:token receipts)
+  ├── 3. CREDENTIAL VAULT (AES-256-GCM encrypted submission for hosting & API keys)
+  ├── 4. DOCUMENT & DELIVERABLE REPOSITORY (CAD files, drone footage, ZIP bundles)
+  └── 5. 50% FINAL BALANCE SETTLEMENT & IP OWNERSHIP HANDOVER
+```
+
+---
+
+## 7. Production Reliability & Security Baseline
+
+1. **Deterministic Webhook Verification**:
+   - Paystack webhooks processed with `req.rawBody` captured at global parser level.
+   - Constant-time HMAC-SHA512 hash validation prevents timing attacks.
+   - Server-side amount matching (`AND amount = event.data.amount / 100`) eliminates client-side payment tampering.
+
+2. **Atomic Invoice Sequence Generator**:
+   - `invoice_number` sequence computed using numeric regex extraction + automated retry loop on collision (PostgreSQL error 23505), guaranteeing race-condition-free invoice generation.
+
+3. **RBAC & Role Normalisation**:
+   - Full 10-role specification in `roles.js` (`Owner`, `Administrator`, `Finance`, `Project Manager`, `Developer`, `Survey Manager`, `Surveyor`, `Drone Manager`, `Drone Pilot`, `Staff`).
+   - Clean permission boundaries for solo-founder administration and client portal segregation.
+
+4. **CSRF & Cookie Protection**:
+   - Double-submit CSRF cookie protection across all authenticated routes.
+   - Explicit `skipPaths` whitelist for third-party webhooks (`/api/invoices/webhook/paystack`) and token-gated public checkouts (`/api/payments/public`).
+
+5. **Zero Build Warnings & Continuous Verification**:
+   - Frontend compiles with Rolldown/Vite with zero errors or bundle warnings.
+   - Backend boots with zero deprecation warnings and scheduled daily health checks.
+
+---
+
+*End of Blueprint v4.0. Maintained and governed by BuildWithLami.*

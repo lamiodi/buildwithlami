@@ -33,10 +33,11 @@ router.use(requireRole('Owner', 'Administrator'));
 const searchLimiter = rateLimit({
     windowMs: 60 * 1000, // 1 minute
     max: 60,
-    keyGenerator: (req) => req.user?.id || req.ip,
+    keyGenerator: (req) => String(req.user?.id || 'admin-search'),
     message: { error: 'Search rate limit reached. Please slow down.' },
     standardHeaders: true,
     legacyHeaders: false,
+    validate: { keyGeneratorIpFallback: false },
 });
 
 // ── Unified inbox ───────────────────────────────────────

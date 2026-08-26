@@ -19,6 +19,9 @@ router.post('/', verifyToken, requireRole('Administrator', 'Owner', 'Project Man
         // account. We return a deterministic data-URI placeholder
         // that the admin UI can preview.
         if (!process.env.CLOUDINARY_URL && !process.env.CLOUDINARY_API_KEY) {
+            if (process.env.NODE_ENV === 'production') {
+                return res.status(503).json({ error: 'Cloud storage service (Cloudinary) is not configured in production.' });
+            }
             const b64 = Buffer.from(req.file.buffer).toString('base64');
             const dataUri = `data:${req.file.mimetype};base64,${b64}`;
             return res.json({ url: dataUri, mocked: true });
