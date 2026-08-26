@@ -206,7 +206,7 @@ const SurveyHomePage = () => {
       accuracy: "Sub-Centimeter Accuracy",
       spec: "Multi-constellation GPS, GLONASS, and Galileo tracking for primary ground control and boundary coordinate baselines.",
       badge: "Satellite GNSS",
-      image_url: "/images/survey/survey_inst_gnss.jpg"
+      image_url: "/images/survey/survey_inst_gnss.webp"
     },
     {
       name: "Total Station & Electronic Theodolite",
@@ -214,7 +214,7 @@ const SurveyHomePage = () => {
       accuracy: "2\" Angular / 1mm+2ppm Distance",
       spec: "Electronic distance and angle measurement for architectural baselines, structural setting out, and dense urban boundaries.",
       badge: "Optical & EDM",
-      image_url: "/images/survey/survey_inst_totalstation.jpg"
+      image_url: "/images/survey/survey_inst_totalstation.webp"
     },
     {
       name: "DJI Aerial Mapping Drone",
@@ -222,7 +222,7 @@ const SurveyHomePage = () => {
       accuracy: "High-Resolution GSD Orthomosaics",
       spec: "DJI Mini 4 Pro aircraft for photogrammetric contours, orthomosaics, and visual estate verification.",
       badge: "Aerial Photogrammetry",
-      image_url: "/images/drone/drone_thumb_mini4pro.jpg"
+      image_url: "/images/drone/drone_thumb_mini4pro.webp"
     }
   ];
 
@@ -242,14 +242,11 @@ const SurveyHomePage = () => {
   };
 
   // Fallback projects shown if the API is unreachable or empty.
-  // Keeps the page presentable until the admin publishes real
-  // entries from /admin/portfolio. Placeholders only — replace
-  // with verified client work before going public.
   const fallbackProjects = [
-    { id: 'fallback-1', title: "Residential Estate Boundary Survey", summary: 'Cadastral demarcation for a 40-unit housing estate', area: "8 Ha",  tags: ['Cadastral'],   location: "Lagos", image_url: '/images/survey/survey_proj_boundary.jpg' },
-    { id: 'fallback-2', title: "Subdivision Layout — Lekki Axis",  summary: 'Plot subdivision and access road alignment',      area: "12 Ha",  tags: ['Subdivision'], location: "Lagos", image_url: '/images/survey/survey_proj_subdivision.jpg' },
-    { id: 'fallback-3', title: "Topographic Baseline for Site Plan", summary: 'Terrain map for an architect’s master plan',    area: "5 Ha",   tags: ['Topographic'], location: "FCT", image_url: '/images/survey/survey_proj_topographic.jpg' },
-    { id: 'fallback-4', title: "Construction Setting Out",          summary: 'Building footprint and column setting out',       area: "2 Ha",   tags: ['Engineering'], location: "Lagos", image_url: '/images/survey/survey_proj_boundary.jpg' },
+    { id: 'fallback-1', title: "Residential Estate Boundary Survey", summary: 'Cadastral demarcation for a 40-unit housing estate', area: "8 Ha",  tags: ['Cadastral'],   location: "Lagos", image_url: '/images/survey/survey_proj_boundary.webp' },
+    { id: 'fallback-2', title: "Subdivision Layout — Lekki Axis",  summary: 'Plot subdivision and access road alignment',      area: "12 Ha",  tags: ['Subdivision'], location: "Lagos", image_url: '/images/survey/survey_proj_subdivision.webp' },
+    { id: 'fallback-3', title: "Topographic Baseline for Site Plan", summary: 'Terrain map for an architect’s master plan',    area: "5 Ha",   tags: ['Topographic'], location: "FCT", image_url: '/images/survey/survey_proj_topographic.webp' },
+    { id: 'fallback-4', title: "Construction Setting Out",          summary: 'Building footprint and column setting out',       area: "2 Ha",   tags: ['Engineering'], location: "Lagos", image_url: '/images/survey/survey_proj_boundary.webp' },
   ];
 
   // Live projects fetched from /api/projects/division/SURVEY.
@@ -439,9 +436,11 @@ const SurveyHomePage = () => {
           <div className="w-full md:w-[35%] bg-[#e6e6e6] flex flex-col border-b md:border-b-0 md:border-r border-gray-300">
             <div className="w-full h-[50vh] md:h-[70%] bg-gray-200 overflow-hidden">
               <img
-                src="/images/survey/survey_hero_field.jpg"
+                src="/images/survey/survey_hero_field.webp"
                 alt="Cadastral Survey Field Operations"
                 className="w-full h-full object-cover grayscale-[10%] contrast-110 hover:scale-105 transition-transform duration-700"
+                loading="eager"
+                decoding="async"
               />
             </div>
             <div className="p-8 md:p-12 flex flex-col justify-between flex-1">

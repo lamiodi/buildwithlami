@@ -12,6 +12,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 
+    <!-- Preload critical hero image for sub-second LCP -->
+    <link rel="preload" as="image" href="/eugene-hero.webp" type="image/webp" fetchpriority="high" />
+
     <!-- Preload the global webfont CSS so the browser fetches it
          in parallel with the rest of the head, before it sees the
          @import in index.css. -->
@@ -20,6 +23,7 @@
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Advent+Pro:ital,wght@0,100..900;1,100..900&family=Space+Grotesk:wght@300..700&family=Caveat:wght@400..700&display=swap"
     />
+    <meta name="theme-color" content="#141414" />
 
     <title>BuildWithLami — Software, Survey & Drone Services</title>
     <meta name="description" content="BuildWithLami — Eugene Odibenuah's enterprise platform for software development, land surveying, and drone services." />

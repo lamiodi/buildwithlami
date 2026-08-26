@@ -24,11 +24,28 @@ export default defineConfig({
     },
   },
   build: {
+    cssCodeSplit: true,
+    chunkSizeWarningLimit: 600,
     rollupOptions: {
       output: {
         manualChunks(id) {
           if (id.includes('node_modules')) {
-            return 'vendor';
+            if (id.includes('react-dom') || id.includes('react-router') || (id.includes('/react/') && !id.includes('@radix-ui') && !id.includes('lucide-react'))) {
+              return 'vendor-react';
+            }
+            if (id.includes('framer-motion')) {
+              return 'vendor-framer';
+            }
+            if (id.includes('lucide-react')) {
+              return 'vendor-icons';
+            }
+            if (id.includes('matter-js')) {
+              return 'vendor-physics';
+            }
+            if (id.includes('@radix-ui') || id.includes('clsx') || id.includes('tailwind-merge') || id.includes('sonner') || id.includes('dompurify') || id.includes('class-variance-authority')) {
+              return 'vendor-ui';
+            }
+            return 'vendor-misc';
           }
         }
       }

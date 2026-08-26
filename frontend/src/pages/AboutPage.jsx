@@ -318,13 +318,18 @@ const AboutPage = () => {
             className="md:col-span-4 bg-white dark:bg-gradient-to-br dark:from-[#1e1e1e] dark:to-[#151515] p-5 sm:p-6 rounded-[2rem] border border-gray-200 dark:border-white/5 flex items-center justify-center shadow-xl overflow-hidden"
           >
             <div className="relative w-full aspect-square overflow-hidden rounded-2xl bg-gray-900 shadow-inner">
-              <img
-                src="/ChatGPT Image Aug 22, 2026, 06_24_14 PM.png"
-                alt="Eugene Odibenuah — Founder of BuildWithLami"
-                loading="lazy"
-                decoding="async"
-                className="w-full h-full object-cover grayscale-[15%] hover:grayscale-0 transition-all duration-700 hover:scale-105"
-              />
+              <picture>
+                <source type="image/webp" srcSet="/eugene-hero.webp" />
+                <img
+                  src="/eugene-hero.webp"
+                  alt="Eugene Odibenuah — Founder of BuildWithLami"
+                  loading="lazy"
+                  decoding="async"
+                  width="800"
+                  height="1200"
+                  className="w-full h-full object-cover grayscale-[15%] hover:grayscale-0 transition-all duration-700 hover:scale-105"
+                />
+              </picture>
               <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
               <div className="absolute bottom-3 left-3 bg-black/80 backdrop-blur-md px-3 py-1 text-[10px] font-mono uppercase tracking-[0.2em] text-white font-bold border border-white/10">
                 Founder · Lead Engineer

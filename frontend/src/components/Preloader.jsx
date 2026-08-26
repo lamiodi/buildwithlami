@@ -7,7 +7,13 @@ const Preloader = ({ onComplete }) => {
   const shouldReduce = useReducedMotion();
 
   useEffect(() => {
-    const duration = shouldReduce ? 150 : 350;
+    // If already preloaded in this browser session, skip immediately
+    if (typeof window !== 'undefined' && sessionStorage.getItem('bwl_preloader_seen')) {
+      if (onComplete) onComplete();
+      return;
+    }
+
+    const duration = shouldReduce ? 100 : 250;
     const interval = 16;
     const steps = Math.max(1, duration / interval);
     let current = 0;
@@ -20,12 +26,17 @@ const Preloader = ({ onComplete }) => {
 
       if (current >= steps) {
         clearInterval(timer);
+        try {
+          sessionStorage.setItem('bwl_preloader_seen', 'true');
+        } catch {
+          // ignore private mode storage error
+        }
         setTimeout(() => {
           setIsExiting(true);
           setTimeout(() => {
             if (onComplete) onComplete();
-          }, shouldReduce ? 0 : 200);
-        }, shouldReduce ? 0 : 100);
+          }, shouldReduce ? 0 : 150);
+        }, shouldReduce ? 0 : 50);
       }
     }, interval);
 

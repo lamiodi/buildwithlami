@@ -195,10 +195,10 @@ const DroneHomePage = () => {
 
   // -- Placeholder portfolio --
   const fallbackPortfolio = [
-    { id: 'fallback-1', title: "Luxury Duplex Development",     summary: 'Hero aerials + twilight exteriors for a beachfront duplex launch', industry: 'Real Estate',    services: 'Aerial Photography · Twilight Shots', equipment: 'DJI Mini 4 Pro', location: 'Lagos, Nigeria', year: '2025', image_url: '/images/drone/drone_proj_realestate.jpg' },
-    { id: 'fallback-2', title: "Estate Construction Progress",  summary: 'Monthly construction flyovers for a 40-unit housing estate',     industry: 'Construction',   services: 'Construction Progress · Investor Updates', equipment: 'DJI Mini 4 Pro', location: 'Lekki, Nigeria', year: '2025', image_url: '/images/drone/drone_proj_construction.jpg' },
-    { id: 'fallback-3', title: "Resort Promotional Video",       summary: 'Cinematic resort tour with beach, pool, and amenity reveals',     industry: 'Hospitality',    services: 'Cinematic 4K Video · Resort Tour', equipment: 'DJI Mini 4 Pro', location: 'Epe, Nigeria', year: '2024', image_url: '/images/drone/drone_proj_hospitality.jpg' },
-    { id: 'fallback-4', title: "Residential Estate Mapping",     summary: 'Orthomosaic & contour map for a 12-hectare subdivision plan',     industry: 'Surveying',      services: 'Drone Mapping · Orthomosaic', equipment: 'DJI Mini 4 Pro', location: 'FCT, Nigeria', year: '2024', image_url: '/images/drone/drone_proj_orthomosaic.jpg' },
+    { id: 'fallback-1', title: "Luxury Duplex Development",     summary: 'Hero aerials + twilight exteriors for a beachfront duplex launch', industry: 'Real Estate',    services: 'Aerial Photography · Twilight Shots', equipment: 'DJI Mini 4 Pro', location: 'Lagos, Nigeria', year: '2025', image_url: '/images/drone/drone_proj_realestate.webp' },
+    { id: 'fallback-2', title: "Estate Construction Progress",  summary: 'Monthly construction flyovers for a 40-unit housing estate',     industry: 'Construction',   services: 'Construction Progress · Investor Updates', equipment: 'DJI Mini 4 Pro', location: 'Lekki, Nigeria', year: '2025', image_url: '/images/drone/drone_proj_construction.webp' },
+    { id: 'fallback-3', title: "Resort Promotional Video",       summary: 'Cinematic resort tour with beach, pool, and amenity reveals',     industry: 'Hospitality',    services: 'Cinematic 4K Video · Resort Tour', equipment: 'DJI Mini 4 Pro', location: 'Epe, Nigeria', year: '2024', image_url: '/images/drone/drone_proj_hospitality.webp' },
+    { id: 'fallback-4', title: "Residential Estate Mapping",     summary: 'Orthomosaic & contour map for a 12-hectare subdivision plan',     industry: 'Surveying',      services: 'Drone Mapping · Orthomosaic', equipment: 'DJI Mini 4 Pro', location: 'FCT, Nigeria', year: '2024', image_url: '/images/drone/drone_proj_orthomosaic.webp' },
   ];
 
   // Live projects fetched from /api/projects/division/DRONE
@@ -445,9 +445,11 @@ const DroneHomePage = () => {
           <div className="absolute top-[45%] left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 w-[90%] md:w-[70%] max-w-5xl pointer-events-none">
             <div className="relative w-full pb-[60%]">
               <img
-                src="/images/drone/drone_hero_mini4pro.jpg"
+                src="/images/drone/drone_hero_mini4pro.webp"
                 alt="DJI Mini 4 Pro"
                 className="absolute inset-0 w-full h-full object-contain drop-shadow-2xl scale-110"
+                loading="eager"
+                decoding="async"
               />
 
               {/* Subtle annotations that match what the kit can do */}
@@ -477,10 +479,10 @@ const DroneHomePage = () => {
           {/* Thumbnails below the drone */}
           <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex gap-4 z-30 hidden md:flex pointer-events-auto">
             <div className="w-20 h-20 bg-white rounded-3xl shadow-sm border border-gray-100 flex items-center justify-center p-3 cursor-pointer hover:shadow-md transition-shadow">
-              <img src="/images/drone/drone_thumb_mini4pro.jpg" alt="DJI Mini 4 Pro" className="w-full h-full object-contain" />
+              <img src="/images/drone/drone_thumb_mini4pro.webp" alt="DJI Mini 4 Pro" className="w-full h-full object-contain" loading="lazy" decoding="async" />
             </div>
             <div className="w-20 h-20 bg-white rounded-3xl shadow-sm border border-gray-100 flex items-center justify-center p-3 cursor-pointer hover:shadow-md transition-shadow">
-              <img src="/images/drone/drone_thumb_mini4k.jpg" alt="DJI Mini 4K" className="w-full h-full object-contain" />
+              <img src="/images/drone/drone_thumb_mini4k.webp" alt="DJI Mini 4K" className="w-full h-full object-contain" loading="lazy" decoding="async" />
             </div>
           </div>
         </section>
@@ -1166,9 +1168,11 @@ const DroneHomePage = () => {
             <div className="flex items-center gap-4 mb-6">
               <div className="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center p-2 border border-white/10 overflow-hidden">
                 <img 
-                  src={selectedEquipmentModal.name.includes('Pro') ? '/images/drone/drone_thumb_mini4pro.jpg' : '/images/drone/drone_thumb_mini4k.jpg'} 
+                  src={selectedEquipmentModal.name.includes('Pro') ? '/images/drone/drone_thumb_mini4pro.webp' : '/images/drone/drone_thumb_mini4k.webp'} 
                   alt={selectedEquipmentModal.name} 
                   className="w-full h-full object-contain" 
+                  loading="lazy"
+                  decoding="async"
                 />
               </div>
               <div>

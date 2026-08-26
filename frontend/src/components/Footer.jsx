@@ -1,10 +1,32 @@
-import React from 'react';
+import React, { useState, useEffect, useRef, Suspense, lazy } from 'react';
 import { Link } from 'react-router-dom';
-import TechStack from './TechStack';
 import { CONTACT } from '../config/contact';
+
+const TechStack = lazy(() => import('./TechStack'));
 
 const Footer = () => {
   const displayYear = 2026;
+  const [shouldLoadTechStack, setShouldLoadTechStack] = useState(false);
+  const techStackContainerRef = useRef(null);
+
+  useEffect(() => {
+    if (shouldLoadTechStack) return;
+    const el = techStackContainerRef.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setShouldLoadTechStack(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: '300px' }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [shouldLoadTechStack]);
 
   return (
     <footer className="bg-black text-white pt-16 pb-12 px-6 md:px-12 font-mono selection:bg-white selection:text-black border-t border-white/10">
@@ -29,8 +51,24 @@ const Footer = () => {
           </div>
 
           {/* Interactive Physics Canvas */}
-          <div className="flex-1 min-h-[380px] rounded-2xl relative overflow-hidden border border-white/10">
-            <TechStack />
+          <div 
+            ref={techStackContainerRef}
+            className="flex-1 min-h-[380px] rounded-2xl relative overflow-hidden border border-white/10"
+          >
+            {shouldLoadTechStack ? (
+              <Suspense fallback={
+                <div className="w-full h-full min-h-[380px] bg-[#111] flex items-center justify-center text-xs font-mono text-gray-500">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />
+                    <span>Loading interactive stack...</span>
+                  </div>
+                </div>
+              }>
+                <TechStack />
+              </Suspense>
+            ) : (
+              <div className="w-full h-full min-h-[380px] bg-[#111]" />
+            )}
           </div>
         </div>
 

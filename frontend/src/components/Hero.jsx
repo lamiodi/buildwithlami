@@ -73,15 +73,22 @@ const Hero = () => {
         transition={{ duration: shouldReduce ? 0 : 0.6, delay: shouldReduce ? 0 : 0.2, ease: 'easeOut' }}
       >
         <div className="w-64 h-80 sm:w-72 sm:h-96 bg-gray-900 rounded-2xl relative overflow-visible shadow-2xl border border-gray-200 dark:border-white/10 p-2">
-          <img
-            src="/ChatGPT Image Aug 22, 2026, 06_24_14 PM.png"
-            alt="Eugene Odibenuah - Founder & Lead Engineer"
-            className="w-full h-full object-cover rounded-xl"
-            width="1280"
-            height="1920"
-            fetchPriority="high"
-            decoding="async"
-          />
+          <picture>
+            <source
+              type="image/webp"
+              srcSet="/eugene-hero-400.webp 400w, /eugene-hero.webp 800w"
+              sizes="(max-width: 640px) 256px, 288px"
+            />
+            <img
+              src="/eugene-hero.webp"
+              alt="Eugene Odibenuah - Founder & Lead Engineer"
+              className="w-full h-full object-cover rounded-xl"
+              width="800"
+              height="1200"
+              fetchPriority="high"
+              decoding="async"
+            />
+          </picture>
           <div className="absolute -bottom-4 -right-4 bg-white dark:bg-[#141414] text-black dark:text-white text-xs font-mono font-bold px-4 py-2 shadow-xl border border-gray-200 dark:border-white/10 flex items-center gap-2">
             <span className="w-2 h-2 bg-emerald-500" />
             <span>Eugene Odibenuah · Lead Engineer</span>

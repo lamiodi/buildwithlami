@@ -27,11 +27,18 @@ const About = () => {
 
         {/* Main Image */}
         <motion.div variants={item} className="w-full h-64 md:h-[500px] lg:h-[600px] bg-gray-200 dark:bg-[#141414] mb-16 relative overflow-hidden shadow-2xl rounded-2xl border border-gray-200 dark:border-white/10">
-          <img 
-            src="/Rectangle 50 (1).png" 
-            alt="My Desk Setup" 
-            className="w-full h-full object-cover opacity-90 dark:opacity-80"
-          />
+          <picture>
+            <source type="image/webp" srcSet="/about-founder.webp" />
+            <img 
+              src="/about-founder.webp" 
+              alt="Eugene Odibenuah Desk Setup" 
+              className="w-full h-full object-cover opacity-90 dark:opacity-80"
+              loading="lazy"
+              decoding="async"
+              width="800"
+              height="1000"
+            />
+          </picture>
           <div className="absolute bottom-6 right-6 bg-white/90 dark:bg-[#141414]/90 backdrop-blur-md border border-gray-200 dark:border-white/10 text-black dark:text-white font-mono font-bold px-4 py-2 text-[10px] tracking-[0.2em] uppercase flex items-center shadow-lg">
             <MapPin className="w-3.5 h-3.5 text-accent mr-2" />
             <span>LAGOS, NIGERIA</span>
