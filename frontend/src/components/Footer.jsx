@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef, Suspense, lazy } from 'react';
 import { Link } from 'react-router-dom';
-import { CONTACT } from '../config/contact';
 
 const TechStack = lazy(() => import('./TechStack'));
 
@@ -29,21 +28,34 @@ const Footer = () => {
   }, [shouldLoadTechStack]);
 
   return (
-    <footer className="bg-black text-white pt-16 pb-12 px-6 md:px-12 font-mono selection:bg-white selection:text-black border-t border-white/10">
-      <div className="max-w-7xl mx-auto space-y-12">
+    <footer className="bg-black text-white pt-12 sm:pt-16 pb-10 sm:pb-12 px-4 sm:px-6 md:px-12 font-mono selection:bg-white selection:text-black border-t border-white/10 overflow-hidden">
+      <div className="max-w-7xl mx-auto space-y-10 sm:space-y-12">
 
         {/* Top: QR, Studio Branding & Interactive TechStack Physics Section */}
-        <div className="flex flex-col lg:flex-row gap-6 mb-12">
+        <div className="flex flex-col lg:flex-row gap-6 mb-8 sm:mb-12">
           {/* Studio Brand & QR Identity Card */}
-          <div className="w-full lg:w-[280px] bg-[#111] border border-white/10 p-6 rounded-2xl flex flex-col justify-between group shrink-0">
-            <div className="w-full aspect-square bg-white flex items-center justify-center p-3 rounded-xl overflow-hidden mb-6">
-              <img
-                src="/qr-code.svg"
-                alt="QR Code"
-                className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
-              />
+          <div className="w-full lg:w-[280px] bg-[#111] border border-white/10 p-5 sm:p-6 rounded-2xl flex flex-col justify-between group shrink-0">
+            <div>
+              {/* Non-overlay Scan Me indicator */}
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-[11px] font-mono font-bold tracking-[0.2em] text-accent uppercase flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
+                  SCAN ME
+                </span>
+                <span className="text-[10px] font-mono text-gray-400 uppercase tracking-widest">Connect</span>
+              </div>
+
+              {/* QR Code Container (100% unobstructed) */}
+              <div className="w-40 h-40 sm:w-48 sm:h-48 lg:w-full lg:aspect-square mx-auto lg:mx-0 bg-white flex items-center justify-center p-3.5 rounded-xl overflow-hidden mb-5 sm:mb-6 shadow-inner">
+                <img
+                  src="/qr-code.svg"
+                  alt="Scan QR Code to connect with BuildWithLami"
+                  className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
+                />
+              </div>
             </div>
-            <div className="space-y-1">
+
+            <div className="space-y-1 text-center lg:text-left">
               <span className="text-xs font-bold text-accent uppercase tracking-widest block">Software Studio</span>
               <h3 className="text-xl font-heading font-bold text-white tracking-tight">BuildWithLami</h3>
               <p className="text-xs text-gray-400 font-mono">Founded by Eugene Odibenuah</p>
@@ -53,11 +65,11 @@ const Footer = () => {
           {/* Interactive Physics Canvas */}
           <div 
             ref={techStackContainerRef}
-            className="flex-1 min-h-[380px] rounded-2xl relative overflow-hidden border border-white/10"
+            className="flex-1 min-h-[300px] sm:min-h-[380px] rounded-2xl relative overflow-hidden border border-white/10"
           >
             {shouldLoadTechStack ? (
               <Suspense fallback={
-                <div className="w-full h-full min-h-[380px] bg-[#111] flex items-center justify-center text-xs font-mono text-gray-500">
+                <div className="w-full h-full min-h-[300px] sm:min-h-[380px] bg-[#111] flex items-center justify-center text-xs font-mono text-gray-500">
                   <div className="flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />
                     <span>Loading interactive stack...</span>
@@ -67,13 +79,13 @@ const Footer = () => {
                 <TechStack />
               </Suspense>
             ) : (
-              <div className="w-full h-full min-h-[380px] bg-[#111]" />
+              <div className="w-full h-full min-h-[300px] sm:min-h-[380px] bg-[#111]" />
             )}
           </div>
         </div>
 
         {/* Navigation Links */}
-        <nav className="flex flex-wrap gap-x-8 gap-y-4 mb-12 text-[11px] md:text-[12px] tracking-[0.2em] font-heading font-bold uppercase border-b border-white/10 pb-10">
+        <nav className="flex flex-wrap items-center justify-center sm:justify-start gap-x-6 sm:gap-x-8 gap-y-3 sm:gap-y-4 mb-8 sm:mb-12 text-[11px] md:text-[12px] tracking-[0.2em] font-heading font-bold uppercase border-b border-white/10 pb-8 sm:pb-10">
           <Link to="/" className="hover:text-accent transition-colors">Home</Link>
           <Link to="/projects" className="hover:text-accent transition-colors">Work</Link>
           <Link to="/services" className="hover:text-accent transition-colors">Services</Link>
@@ -83,7 +95,7 @@ const Footer = () => {
         </nav>
 
         {/* Massive Branding Headline */}
-        <div className="mb-16 select-none pointer-events-none w-full text-center">
+        <div className="mb-10 sm:mb-16 select-none pointer-events-none w-full text-center overflow-hidden">
           <h2
             className="font-black leading-[0.85] uppercase text-white whitespace-nowrap"
             style={{ fontSize: 'clamp(25px, 9.72vw, 146px)', letterSpacing: '-0.04em' }}
@@ -93,38 +105,16 @@ const Footer = () => {
         </div>
 
         {/* Bottom Information Row */}
-        <div className="flex flex-col gap-6 sm:flex-row sm:flex-wrap sm:justify-between sm:items-center pt-10 border-t border-white/10 text-[10px] md:text-[11px] tracking-[0.2em] font-bold uppercase text-white/90">
-          {/* Social / quick links */}
-          <div className="flex flex-wrap gap-x-8 gap-y-3">
-            <a
-              href={`mailto:${CONTACT.email}`}
-              className="hover:text-accent transition-colors"
-            >
-              Email
-            </a>
-            <a
-              href="https://linkedin.com/in/eugene-odibenuah"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:text-accent transition-colors"
-            >
-              LinkedIn
-            </a>
-            <a
-              href="https://github.com/lamiodi"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:text-accent transition-colors"
-            >
-              GitHub
-            </a>
+        <div className="flex flex-col sm:flex-row justify-between items-center text-center sm:text-left gap-4 pt-8 border-t border-white/10 text-[10px] md:text-[11px] tracking-[0.2em] font-bold uppercase text-white/90">
+          {/* Quick links */}
+          <div className="flex flex-wrap justify-center sm:justify-start gap-x-6 sm:gap-x-8 gap-y-2">
             <Link to="/contact" className="hover:text-accent transition-colors">
               Inquiries
             </Link>
           </div>
 
           {/* Copyright */}
-          <div className="opacity-90 font-mono font-medium lowercase tracking-[0.15em]">
+          <div className="opacity-90 font-mono font-medium lowercase tracking-[0.15em] text-center sm:text-right">
             copyright {displayYear} // BuildWithLami · founded by Eugene Odibenuah
           </div>
         </div>
@@ -134,3 +124,4 @@ const Footer = () => {
 };
 
 export default Footer;
+

@@ -72,7 +72,7 @@ const Hero = () => {
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: shouldReduce ? 0 : 0.6, delay: shouldReduce ? 0 : 0.2, ease: 'easeOut' }}
       >
-        <div className="w-64 h-80 sm:w-72 sm:h-96 bg-gray-900 rounded-2xl relative overflow-visible shadow-2xl border border-gray-200 dark:border-white/10 p-2">
+        <div className="w-64 h-80 sm:w-72 sm:h-96 bg-gray-900 rounded-2xl relative overflow-visible shadow-2xl border border-gray-200 dark:border-white/10 p-2 shrink-0">
           <picture>
             <source
               type="image/webp"
@@ -89,8 +89,11 @@ const Hero = () => {
               decoding="async"
             />
           </picture>
-          <div className="absolute -bottom-4 -right-4 bg-white dark:bg-[#141414] text-black dark:text-white text-xs font-mono font-bold px-4 py-2 shadow-xl border border-gray-200 dark:border-white/10 flex items-center gap-2">
-            <span className="w-2 h-2 bg-emerald-500" />
+          <div className="absolute -bottom-3.5 sm:-bottom-4 -right-2 sm:-right-4 bg-white dark:bg-[#141414] text-black dark:text-white text-[11px] sm:text-xs font-mono font-bold px-3 sm:px-4 py-1.5 sm:py-2 shadow-2xl border border-gray-200 dark:border-white/10 flex items-center gap-2 whitespace-nowrap select-none z-10 rounded-sm">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+            </span>
             <span>Eugene Odibenuah · Lead Engineer</span>
           </div>
         </div>

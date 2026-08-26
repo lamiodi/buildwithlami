@@ -368,10 +368,10 @@ const ServicesPage = () => {
                 to="/pricing"
                 className="btn-primary w-full sm:w-auto"
               >
-                Open Pricing & Quote Calculator →
+                View Transparent Pricing →
               </Link>
               <span className="text-xs text-gray-400 font-mono">
-                Interactive Scoping · Instant Estimates · Zero Obligation
+                Clear Fixed Tiers · 50/50 Milestones · Zero Hidden Fees
               </span>
             </div>
           </div>

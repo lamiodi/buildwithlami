@@ -43,10 +43,18 @@ const ProjectsPage = () => {
     const cat = (project.category || '').toLowerCase().trim();
     const target = filter.toLowerCase().trim();
     if (cat === target) return true;
-    if ((target === 'web platforms' || target === 'web apps' || target === 'websites') && (cat.includes('web') || cat.includes('front') || cat.includes('portal') || cat.includes('platform') || cat.includes('site') || cat.includes('app'))) return true;
-    if (target === 'e-commerce' && (cat.includes('commerce') || cat.includes('store') || cat.includes('shop') || cat.includes('retail'))) return true;
-    if (target === 'saas' && (cat.includes('saas') || cat.includes('os') || cat.includes('cloud') || cat.includes('platform'))) return true;
-    if (target === 'business systems' && (cat.includes('business') || cat.includes('erp') || cat.includes('system') || cat.includes('backend') || cat.includes('ledger'))) return true;
+    if (target === 'web platforms') {
+      return cat.includes('web') && !cat.includes('saas') && !cat.includes('erp') && !cat.includes('commerce');
+    }
+    if (target === 'e-commerce') {
+      return cat.includes('commerce') || cat.includes('store') || cat.includes('shop') || cat.includes('retail');
+    }
+    if (target === 'saas') {
+      return cat.includes('saas') || cat.includes('cloud') || cat.includes('software-as-a-service');
+    }
+    if (target === 'business systems') {
+      return cat.includes('business') || cat.includes('erp') || cat.includes('system') || cat.includes('academic') || cat.includes('portal') || cat.includes('ledger');
+    }
     return (project.tech_stack?.join(' ') || '').toLowerCase().includes(target);
   };
 

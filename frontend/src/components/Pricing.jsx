@@ -11,7 +11,6 @@ import {
   Globe, 
   Zap, 
   Sliders, 
-  Calculator,
   ChevronRight,
   ShieldCheck,
   Package,
@@ -26,8 +25,7 @@ import { staggerContainer, fadeUpItem, cardHover, sectionViewport, reducedMotion
 import { 
   COMMERCIAL_TERMS, 
   CARE_PLANS, 
-  BUILD_PRICING, 
-  OPTIONAL_ADDONS 
+  BUILD_PRICING 
 } from '../config/pricing';
 
 const Pricing = ({ isHomepage = false }) => {
@@ -40,40 +38,10 @@ const Pricing = ({ isHomepage = false }) => {
   // Category Selector as Primary Navigation (defaults to 'websites')
   const [activeCategory, setActiveCategory] = useState('websites');
 
-  // Interactive Quote Builder State
-  const [quoteCategory, setQuoteCategory] = useState('websites');
-  const [quoteTierId, setQuoteTierId] = useState('web_growth');
-  const [selectedAddons, setSelectedAddons] = useState(['addon_gateway']);
-
   // Get active category object and tiers
   const currentCategoryData = BUILD_PRICING[activeCategory] || BUILD_PRICING.websites;
   const currentTiers = currentCategoryData.tiers;
 
-  // Builder Calculations
-  const builderCategoryData = BUILD_PRICING[quoteCategory] || BUILD_PRICING.websites;
-  const selectedTier = builderCategoryData.tiers.find(t => t.id === quoteTierId) || builderCategoryData.tiers[1] || builderCategoryData.tiers[0];
-
-  const tierCost = selectedTier.priceNGN || selectedTier.numPrice || 0;
-  const addonsCost = selectedAddons.reduce((sum, addonId) => {
-    const addon = OPTIONAL_ADDONS.find(a => a.id === addonId);
-    if (!addon) return sum;
-    return sum + (addon.costNGN || 0);
-  }, 0);
-
-  const totalEstimate = tierCost > 0 ? (tierCost + addonsCost) : null;
-  const upfrontFifty = totalEstimate ? Math.round(totalEstimate * 0.5) : null;
-  const deliveryFifty = totalEstimate ? (totalEstimate - upfrontFifty) : null;
-
-  const formatNumber = (num) => {
-    if (!num && num !== 0) return "Custom";
-    return num.toLocaleString();
-  };
-
-  const toggleAddon = (id) => {
-    setSelectedAddons(prev => 
-      prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
-    );
-  };
 
   return (
     <section id="pricing" className="py-24 px-6 md:px-12 bg-gray-50 dark:bg-background transition-colors duration-300">
@@ -581,216 +549,7 @@ const Pricing = ({ isHomepage = false }) => {
                   </span>
                 </div>
               </div>
-            </div>
-
-            {/* ── 4. UNIFIED INTERACTIVE PROJECT QUOTATION STUDIO ── */}
-            <div id="quote-builder" className="p-6 sm:p-10 lg:p-12 rounded-3xl bg-gradient-to-br from-gray-900 via-neutral-900 to-black text-white border border-gray-800 shadow-2xl space-y-10">
-              
-              {/* Header with Live Investment Badge */}
-              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 border-b border-white/10 pb-8">
-                <div>
-                  <div className="bwl-eyebrow mb-3">
-                    <span className="w-2 h-2 bg-accent inline-block" />
-                    <span>Interactive Project Quotation Studio</span>
-                  </div>
-                  <h3 className="text-2xl sm:text-3xl lg:text-4xl font-heading font-extrabold tracking-tight">
-                    Configure Scope → Add Capabilities → Instant Milestone Terms
-                  </h3>
-                  <p className="text-xs sm:text-sm text-gray-400 mt-1 max-w-2xl font-light">
-                    Select your service discipline, baseline package tier, and modular business enhancements. Instant investment calculation with transparent 50/50 milestone terms.
-                  </p>
-                </div>
-
-                <div className="text-left lg:text-right shrink-0 bg-white/5 p-4 rounded-2xl border border-white/10">
-                  <span className="text-[10px] font-mono uppercase tracking-widest text-gray-400 block mb-1">Estimated Investment</span>
-                  <div className="text-3xl sm:text-4xl font-extrabold font-heading text-white">
-                    {totalEstimate ? `${symbol}${formatNumber(totalEstimate)}` : "Custom Quote"}
-                  </div>
-                  <span className="text-[11px] text-accent font-mono block mt-0.5">
-                    {selectedAddons.length} modular {selectedAddons.length === 1 ? 'enhancement' : 'enhancements'} selected
-                  </span>
-                </div>
               </div>
-
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-                
-                {/* Left: Configuration Steps (8 cols) */}
-                <div className="lg:col-span-8 space-y-8">
-                  
-                  {/* Step 1: Select Service Category */}
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-2">
-                      <span className="w-6 h-6 rounded-full bg-accent/20 text-accent font-mono font-bold text-xs flex items-center justify-center">01</span>
-                      <label className="text-xs font-mono font-bold uppercase tracking-wider text-gray-300">Select Service Category</label>
-                    </div>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
-                      {Object.values(BUILD_PRICING).map(cat => (
-                        <button
-                          key={cat.id}
-                          onClick={() => {
-                            setQuoteCategory(cat.id);
-                            const defaultTier = cat.tiers[1] || cat.tiers[0];
-                            if (defaultTier) setQuoteTierId(defaultTier.id);
-                          }}
-                          className={`p-3 rounded-xl border text-left transition-all ${
-                            quoteCategory === cat.id
-                              ? 'border-accent bg-accent/15 text-white shadow-md'
-                              : 'border-white/10 bg-white/5 text-gray-400 hover:border-white/20 hover:text-white'
-                          }`}
-                        >
-                          <span className="text-xs font-bold block truncate">{cat.label}</span>
-                          <span className="text-[10px] text-gray-500 font-mono block mt-0.5">From {symbol}{cat.startingPriceFormatted}</span>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Step 2: Select Package Tier */}
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-2">
-                      <span className="w-6 h-6 rounded-full bg-accent/20 text-accent font-mono font-bold text-xs flex items-center justify-center">02</span>
-                      <label className="text-xs font-mono font-bold uppercase tracking-wider text-gray-300">Select Baseline Scope Tier</label>
-                    </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                      {builderCategoryData.tiers.map(tier => (
-                        <button
-                          key={tier.id}
-                          onClick={() => setQuoteTierId(tier.id)}
-                          className={`p-4 rounded-xl border text-left transition-all relative ${
-                            quoteTierId === tier.id
-                              ? 'border-accent bg-accent/20 text-white shadow-lg ring-1 ring-accent'
-                              : 'border-white/10 bg-white/5 text-gray-400 hover:border-white/20 hover:text-white'
-                          }`}
-                        >
-                          {tier.popular && (
-                            <span className="absolute top-3 right-3 text-[9px] font-mono font-bold text-accent bg-accent/10 px-2 py-0.5 rounded">
-                              POPULAR
-                            </span>
-                          )}
-                          <span className="text-sm font-bold block text-white">{tier.name}</span>
-                          <span className="text-xs text-gray-400 font-mono block mt-0.5">{tier.timeline}</span>
-                          <span className="text-base font-extrabold text-accent font-heading block mt-2">
-                            {tier.priceFormatted === "Custom Quote" ? "Custom Quote" : `${symbol}${tier.priceFormatted}`}
-                          </span>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Step 3: Add Tailored Capabilities & Add-ons */}
-                  <div className="space-y-3 pt-2">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <span className="w-6 h-6 rounded-full bg-accent/20 text-accent font-mono font-bold text-xs flex items-center justify-center">03</span>
-                        <label className="text-xs font-mono font-bold uppercase tracking-wider text-gray-300">Optional Business Capabilities & Add-ons</label>
-                      </div>
-                      <span className="text-[10px] text-gray-400 font-mono">1-Click Modular Integration</span>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                      {OPTIONAL_ADDONS.map(addon => {
-                        const isSelected = selectedAddons.includes(addon.id);
-                        return (
-                          <div
-                            key={addon.id}
-                            onClick={() => toggleAddon(addon.id)}
-                            className={`p-3.5 rounded-xl border cursor-pointer transition-all flex flex-col justify-between ${
-                              isSelected
-                                ? 'border-accent bg-accent/15 text-white shadow-md ring-1 ring-accent/40'
-                                : 'border-white/10 bg-white/5 text-gray-400 hover:border-white/20 hover:text-gray-200'
-                            }`}
-                          >
-                            <div>
-                              <div className="flex items-start justify-between gap-2 mb-1.5">
-                                <span className="text-xs font-bold text-white leading-snug">{addon.name}</span>
-                                <div className={`w-4 h-4 rounded border flex items-center justify-center shrink-0 mt-0.5 ${
-                                  isSelected ? 'bg-accent border-accent text-white' : 'border-white/30 bg-transparent'
-                                }`}>
-                                  {isSelected && <Check className="w-3 h-3 stroke-[3]" />}
-                                </div>
-                              </div>
-                              <p className="text-[11px] text-gray-400 leading-snug line-clamp-2">{addon.desc}</p>
-                            </div>
-                            <div className="pt-2 mt-2 border-t border-white/5 flex items-center justify-between">
-                              <span className="text-[10px] uppercase font-mono text-gray-500 font-bold">Add-on Rate</span>
-                              <span className="text-xs font-mono font-bold text-accent">+{symbol}{formatNumber(addon.costNGN)}</span>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                </div>
-
-                {/* Right: Sticky Quotation Summary Card (4 cols) */}
-                <div className="lg:col-span-4 bg-white/5 border border-white/10 rounded-2xl p-6 lg:p-7 space-y-6 lg:sticky lg:top-28">
-                  <div>
-                    <span className="text-[10px] font-mono uppercase tracking-widest text-accent block mb-1">Live Quotation Summary</span>
-                    <h4 className="text-xl font-bold font-heading text-white">{selectedTier.name} ({builderCategoryData.label.split(' ')[1] || builderCategoryData.label})</h4>
-                    <p className="text-xs text-gray-400 mt-1 font-light">{selectedTier.desc}</p>
-                  </div>
-
-                  <div className="space-y-4 border-t border-white/10 pt-4 text-xs">
-                    <div className="space-y-2">
-                      <div className="flex justify-between items-center text-gray-300">
-                        <span>Baseline Package:</span>
-                        <span className="font-mono font-bold text-white">
-                          {selectedTier.priceFormatted === "Custom Quote" ? "Custom Quote" : `${symbol}${selectedTier.priceFormatted}`}
-                        </span>
-                      </div>
-
-                      {/* Itemized selected addons list */}
-                      {selectedAddons.length > 0 && (
-                        <div className="pt-2 space-y-1">
-                          {selectedAddons.map(addonId => {
-                            const addon = OPTIONAL_ADDONS.find(a => a.id === addonId);
-                            if (!addon) return null;
-                            const cost = addon.costNGN;
-                            return (
-                              <div key={addon.id} className="flex items-center justify-between text-[11px] text-gray-400 font-mono">
-                                <span className="truncate pr-2">• {addon.name}</span>
-                                <span className="shrink-0 text-gray-300">+{symbol}{formatNumber(cost)}</span>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      )}
-                    </div>
-
-                    {/* 50/50 Milestone Terms Breakdown Box */}
-                    {totalEstimate && (
-                      <div className="bg-black/40 p-4 rounded-xl border border-white/10 space-y-2.5 mb-6">
-                        <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider block font-mono">50/50 Milestone Schedule</span>
-                        <div className="flex justify-between items-center text-xs">
-                          <span className="text-emerald-400 font-semibold">1. 50% Kickoff Milestone:</span>
-                          <span className="font-mono font-bold text-white">{symbol}{formatNumber(upfrontFifty)}</span>
-                        </div>
-                        <div className="flex justify-between items-center text-xs">
-                          <span className="text-accent font-semibold">2. 50% Final Delivery:</span>
-                          <span className="font-mono font-bold text-white">{symbol}{formatNumber(deliveryFifty)}</span>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  <div>
-                    <Link
-                      to={`/contact?service=${encodeURIComponent(quoteCategory)}&tier=${encodeURIComponent(selectedTier.name || '')}&addons=${encodeURIComponent(selectedAddons.join(','))}`}
-                      className="btn-primary w-full text-center flex items-center justify-center gap-2"
-                    >
-                      Request Proposal with This Scope <ArrowRight className="w-3.5 h-3.5" />
-                    </Link>
-                    <div className="flex items-center justify-center gap-2 text-[10px] text-gray-400 mt-3 font-mono">
-                      <span>✓ 100% Code Ownership</span>
-                      <span>·</span>
-                      <span>✓ Post-Launch Warranty</span>
-                    </div>
-                  </div>
-                </div>
-
-              </div>
-            </div>
 
             {/* ── FOOTER COMMERCIAL NOTICE ── */}
             <div className="text-center text-xs text-gray-500 dark:text-gray-400 font-mono pt-4 border-t border-gray-200 dark:border-white/10">

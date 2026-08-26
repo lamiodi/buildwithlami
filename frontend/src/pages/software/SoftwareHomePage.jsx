@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useReducedMotion } from 'framer-motion';
 import { 
@@ -6,14 +6,10 @@ import {
   Layers, 
   Cpu, 
   Zap, 
-  Database, 
   Server, 
   CheckCircle, 
   ArrowRight, 
-  Calculator, 
-  Terminal, 
   Sparkles, 
-  Clock, 
   Check, 
   FolderGit2,
   ChevronDown,
@@ -21,33 +17,7 @@ import {
   Workflow
 } from 'lucide-react';
 import { api } from '../../services/api';
-import { notify } from '../../services/notify';
 import fallbackProjects from '../../data/fallbackProjects';
-import { BUILD_PRICING, COMMERCIAL_TERMS } from '../../config/pricing';
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '../../components/ui/select';
-
-const PROJECT_TYPES = [
-  { id: 'business', name: 'Business Corporate Platform', baseCostNGN: BUILD_PRICING.websites.tiers[1].priceNGN, baseWeeks: 3, icon: Layers, desc: 'Bespoke corporate website with CMS, lead capture automation, and SEO.' },
-  { id: 'ecommerce', name: 'E-Commerce Growth Engine', baseCostNGN: BUILD_PRICING.ecommerce.tiers[1].priceNGN, baseWeeks: 4, icon: Zap, desc: 'Scalable commerce system with accounts, cart recovery, discount engine & payments.' },
-  { id: 'mvp', name: 'MVP / Startup Prototype', baseCostNGN: BUILD_PRICING.software.tiers[0].priceNGN, baseWeeks: 6, icon: Database, desc: 'Custom full-stack software built to test product-market fit and onboard early users.' },
-  { id: 'growth_platform', name: 'Growth Platform & Custom ERP', baseCostNGN: BUILD_PRICING.software.tiers[1].priceNGN, baseWeeks: 8, icon: Server, desc: 'Scaling business software with multi-role workflows, automated ledgers & portals.' },
-  { id: 'saas_enterprise', name: 'Enterprise Multi-Tenant SaaS', baseCostNGN: BUILD_PRICING.software.tiers[2].priceNGN, baseWeeks: 12, icon: Cpu, desc: 'Mission-critical distributed architecture, subscription billing, and production-grade cloud architecture.' },
-];
-
-const ADDON_OPTIONS = [
-  { id: 'auth_2fa', name: 'Advanced Auth & 2FA Security', costNGN: 85000, weeks: 0.5 },
-  { id: 'payment_gateway', name: 'Paystack / Stripe / Grey Gateway', costNGN: 120000, weeks: 0.5 },
-  { id: 'crm_leads', name: 'Custom CRM Pipeline & Leads Automation', costNGN: 150000, weeks: 1 },
-  { id: 'seo_cwv', name: 'Core Web Vitals & Technical SEO Compliance', costNGN: 95000, weeks: 0.5 },
-  { id: 'portal_vault', name: 'Client Portal & Protected Data Vault', costNGN: 180000, weeks: 1 },
-];
 
 const TECH_CATEGORIES = [
   {
@@ -97,10 +67,6 @@ const FAQS = [
 
 const SoftwareHomePage = () => {
   const shouldReduce = useReducedMotion();
-  
-  // Interactive Estimator State
-  const [selectedType, setSelectedType] = useState(PROJECT_TYPES[1]);
-  const [selectedAddons, setSelectedAddons] = useState(['auth_2fa', 'payment_gateway']);
   const [activeFaq, setActiveFaq] = useState(null);
 
   // Live projects from API
@@ -129,83 +95,6 @@ const SoftwareHomePage = () => {
     };
     fetchSoftwareProjects();
   }, []);
-
-  const toggleAddon = (id) => {
-    setSelectedAddons(prev => 
-      prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
-    );
-  };
-
-  // Compute estimate
-  const calculatedEstimate = useMemo(() => {
-    let base = selectedType.baseCostNGN;
-    let weeks = selectedType.baseWeeks;
-
-    selectedAddons.forEach(addonId => {
-      const addon = ADDON_OPTIONS.find(a => a.id === addonId);
-      if (addon) {
-        base += addon.costNGN;
-        weeks += addon.weeks;
-      }
-    });
-
-    const upfrontAmount = Math.round(base * 0.5);
-    const deliveryAmount = base - upfrontAmount;
-
-    return {
-      total: base,
-      cost: `₦${base.toLocaleString()}`,
-      upfront: `₦${upfrontAmount.toLocaleString()}`,
-      delivery: `₦${deliveryAmount.toLocaleString()}`,
-      weeks: Math.ceil(weeks),
-      symbol: '₦'
-    };
-  }, [selectedType, selectedAddons]);
-
-  const [form, setForm] = useState({
-    full_name: '',
-    email: '',
-    phone: '',
-    message: '',
-    honeypot: ''
-  });
-  const [submitting, setSubmitting] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (form.honeypot) return; // Drop spam
-    if (!form.full_name || !form.email || !form.message) {
-      notify.error('Please fill in your name, email, and project overview.');
-      return;
-    }
-
-    setSubmitting(true);
-    try {
-      const payload = {
-        name: form.full_name,
-        email: form.email,
-        phone: form.phone,
-        service: `Software: ${selectedType.name}`,
-        budget: calculatedEstimate.cost,
-        timeline: `~${calculatedEstimate.weeks} Weeks`,
-        message: `${form.message}\n\n[Automated Scope Summary]:\nArchitecture: ${selectedType.name}\nModules: ${selectedAddons.join(', ')}\nEstimate: ${calculatedEstimate.cost} (50% Upfront: ${calculatedEstimate.upfront} / 50% Delivery: ${calculatedEstimate.delivery})`
-      };
-
-      const res = await api.post('/contact', payload);
-      if (res.ok) {
-        setSubmitted(true);
-        notify.success('Technical brief received! I will review your requirements and respond within 24 hours.');
-        setForm({ full_name: '', email: '', phone: '', message: '', honeypot: '' });
-      } else {
-        notify.error(res.data?.error || 'Failed to submit brief. Please try again.');
-      }
-    } catch {
-      notify.error('Network error. Please try again or reach out directly.');
-    } finally {
-      setSubmitting(false);
-    }
-  };
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-background text-gray-900 dark:text-white pt-24 font-body transition-colors duration-300">
@@ -250,9 +139,9 @@ const SoftwareHomePage = () => {
           </div>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-            <a href="#estimator" className="btn-primary w-full sm:w-auto">
-              Configure Project Scope & Calculator <Calculator className="w-4 h-4 ml-2" />
-            </a>
+            <Link to="/pricing" className="btn-primary w-full sm:w-auto">
+              View Transparent Pricing <ArrowRight className="w-4 h-4 ml-2" />
+            </Link>
             <Link to="/contact" className="btn-secondary w-full sm:w-auto">
               Book Architecture Consultation →
             </Link>
@@ -260,178 +149,6 @@ const SoftwareHomePage = () => {
         </div>
       </section>
 
-      {/* ── INTERACTIVE SOFTWARE SCOPE & QUOTATION ESTIMATOR ── */}
-      <section id="estimator" className="py-20 px-6 md:px-12 max-w-7xl mx-auto border-t border-gray-200 dark:border-white/10">
-        <div className="mb-12">
-          <div className="bwl-eyebrow mb-2">
-            <span className="w-2 h-2 bg-accent inline-block" />
-            <span>Interactive Project Estimator</span>
-          </div>
-          <h2 className="text-3xl md:text-5xl font-extrabold font-heading text-gray-900 dark:text-white tracking-tight">
-            Configure Your Software Architecture
-          </h2>
-          <p className="text-gray-600 dark:text-gray-400 mt-2 text-sm sm:text-base max-w-2xl font-light">
-            Select your baseline software archetype and modular capabilities to get an immediate cost and timeline breakdown with transparent 50/50 milestone terms.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          
-          {/* Left: Configuration Selectors (8 cols) */}
-          <div className="lg:col-span-8 space-y-8">
-            
-            <div>
-              <label className="block text-xs font-mono font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-4">
-                01 — Select Baseline Platform Archetype
-              </label>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                {PROJECT_TYPES.map((type) => {
-                  const Icon = type.icon;
-                  const isSelected = selectedType.id === type.id;
-                  return (
-                    <button
-                      key={type.id}
-                      onClick={() => setSelectedType(type)}
-                      className={`p-5 rounded-2xl text-left border transition-all duration-200 flex flex-col justify-between cursor-pointer ${
-                        isSelected 
-                          ? 'bg-accent/5 dark:bg-accent/10 border-accent ring-2 ring-accent/30 shadow-md scale-[1.01]' 
-                          : 'bg-white dark:bg-[#141414] border-gray-200 dark:border-white/10 hover:border-gray-300 dark:hover:border-white/20'
-                      }`}
-                    >
-                      <div>
-                        <div className="flex items-center justify-between mb-3">
-                          <div className={`p-2.5 rounded-xl ${isSelected ? 'bg-accent text-white' : 'bg-gray-100 dark:bg-white/5 text-gray-700 dark:text-gray-300'}`}>
-                            <Icon className="w-5 h-5" />
-                          </div>
-                          {isSelected && <span className="text-[10px] font-mono font-bold uppercase text-accent bg-accent/10 px-2.5 py-0.5 rounded-full">Selected</span>}
-                        </div>
-                        <h4 className="font-bold text-gray-900 dark:text-white text-base font-heading">{type.name}</h4>
-                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-2 leading-relaxed">{type.desc}</p>
-                      </div>
-                      <div className="mt-4 pt-3 border-t border-gray-100 dark:border-white/5 flex items-center justify-between text-xs">
-                        <span className="font-mono font-bold text-accent">
-                          ₦{type.baseCostNGN.toLocaleString()}
-                        </span>
-                        <span className="text-gray-600 dark:text-gray-400 font-medium">~{type.baseWeeks} wks</span>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            <div>
-              <div className="flex items-center justify-between mb-4">
-                <label className="block text-xs font-mono font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400">
-                  02 — Modular Infrastructure & Custom Modules
-                </label>
-                <span className="text-[11px] text-gray-600 dark:text-gray-400 font-medium">Optional capabilities</span>
-              </div>
-              <div className="space-y-3">
-                {ADDON_OPTIONS.map(addon => {
-                  const isChecked = selectedAddons.includes(addon.id);
-                  return (
-                    <div 
-                      key={addon.id}
-                      onClick={() => toggleAddon(addon.id)}
-                      className={`p-4 rounded-2xl border cursor-pointer flex items-center justify-between transition-all ${
-                        isChecked 
-                          ? 'bg-accent/5 dark:bg-accent/10 border-accent ring-1 ring-accent/20' 
-                          : 'bg-white dark:bg-[#141414] border-gray-200 dark:border-white/10 hover:border-gray-300 dark:hover:border-white/20'
-                      }`}
-                    >
-                      <div className="flex items-center gap-3.5">
-                        <div className={`w-5 h-5 rounded-md flex items-center justify-center border transition-colors ${
-                          isChecked ? 'bg-accent border-accent text-white' : 'border-gray-300 dark:border-white/20 bg-white dark:bg-black'
-                        }`}>
-                          {isChecked && <Check className="w-3.5 h-3.5 stroke-[3]" />}
-                        </div>
-                        <div>
-                          <p className="font-bold text-sm text-gray-900 dark:text-white font-heading">{addon.name}</p>
-                          <p className="text-xs text-gray-500 dark:text-gray-400">+{addon.weeks} week sprint addition</p>
-                        </div>
-                      </div>
-                      <div className="font-mono text-sm font-bold text-accent">
-                        +₦{addon.costNGN.toLocaleString()}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-
-          {/* Right: Architectural Scope Summary (4 cols) */}
-          <div className="lg:col-span-4 sticky top-24">
-            <div className="p-6 sm:p-8 rounded-3xl bg-white dark:bg-[#141414] border border-gray-200 dark:border-white/10 shadow-xl space-y-6">
-              <div className="border-b border-gray-100 dark:border-white/5 pb-4">
-                <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-accent block mb-1">
-                  Architectural Scope Summary
-                </span>
-                <div className="text-3xl sm:text-4xl font-extrabold font-heading text-gray-900 dark:text-white mt-1 tracking-tight">
-                  {calculatedEstimate.cost}
-                </div>
-                <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mt-2">
-                  <Clock className="w-4 h-4 text-accent shrink-0" />
-                  <span>Target Delivery: <strong className="text-gray-900 dark:text-white font-semibold">~{calculatedEstimate.weeks} Weeks Sprint</strong></span>
-                </div>
-              </div>
-
-              {/* 50/50 Milestone Payment Structure Box */}
-              <div className="p-4 rounded-2xl bg-accent/5 dark:bg-accent/10 border border-accent/20 space-y-2.5">
-                <div className="flex items-center justify-between text-[10px] font-extrabold uppercase tracking-wider text-accent">
-                  <span>Milestone Terms</span>
-                  <span className="bg-accent text-white text-[9px] px-2 py-0.5 rounded-full font-mono font-bold">50 / 50</span>
-                </div>
-                <div className="grid grid-cols-2 gap-3 pt-1 border-t border-accent/20">
-                  <div>
-                    <span className="text-[10px] text-gray-600 dark:text-gray-400 block font-medium">1. 50% Kickoff Deposit</span>
-                    <span className="text-xs font-bold font-mono text-gray-900 dark:text-white">{calculatedEstimate.upfront}</span>
-                  </div>
-                  <div className="text-right">
-                    <span className="text-[10px] text-gray-600 dark:text-gray-400 block font-medium">2. 50% Final Delivery</span>
-                    <span className="text-xs font-bold font-mono text-gray-900 dark:text-white">{calculatedEstimate.delivery}</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-2.5 text-xs">
-                <div className="flex justify-between text-gray-600 dark:text-gray-300">
-                  <span>Architecture:</span>
-                  <span className="font-bold text-gray-900 dark:text-white">{selectedType.name}</span>
-                </div>
-                <div className="flex justify-between text-gray-600 dark:text-gray-300">
-                  <span>Custom Modules:</span>
-                  <span className="font-bold text-gray-900 dark:text-white">{selectedAddons.length} features selected</span>
-                </div>
-                <div className="flex justify-between text-gray-600 dark:text-gray-300">
-                  <span>Milestone Terms:</span>
-                  <span className="font-bold text-accent">50% Kickoff / 50% Delivery</span>
-                </div>
-                <div className="flex justify-between text-gray-600 dark:text-gray-300">
-                  <span>Post-Launch Warranty:</span>
-                  <span className="font-bold text-emerald-600 dark:text-emerald-400">90 Days Support Included</span>
-                </div>
-                <div className="flex justify-between text-gray-600 dark:text-gray-300">
-                  <span>IP Ownership:</span>
-                  <span className="font-bold text-gray-900 dark:text-white">100% Code & GitHub Transfer</span>
-                </div>
-              </div>
-
-              <Link 
-                to={`/contact?service=${encodeURIComponent(selectedType.name)}&budget=${encodeURIComponent(calculatedEstimate.cost)}`}
-                className="btn-primary w-full"
-              >
-                Lock Scope & Submit Technical Brief →
-              </Link>
-
-              <p className="text-[10px] text-gray-500 dark:text-gray-400 text-center leading-normal">
-                Technical roadmap and fixed quote verified upon initial brief review.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* ── MODERN ENGINEERING STACK ── */}
       <section className="py-20 px-6 md:px-12 max-w-7xl mx-auto border-t border-gray-200 dark:border-white/10">

@@ -5,13 +5,12 @@ import SecurityPopup from '../components/SecurityPopup';
 import { api } from '../services/api';
 import { buttonHover, buttonTap, cardHover, cardHoverTransition, reducedMotionVariants, fadeUpItem, staggerContainer } from '../utils/motion';
 import { CONTACT } from '../config/contact';
-import { BUDGET_RANGES } from '../config/pricing';
 import { Clock, PhoneCall, ShieldCheck, CheckCircle2, ArrowRight } from 'lucide-react';
 
 const PROJECT_TYPES = [
   'Business Website',
   'E-Commerce',
-  'Business Portal / ERP (School, Estate, Warehouse, POS)',
+  'Business Operation System (e.g. shops or firms)',
   'Web Application & SaaS',
   'UI/UX Design',
   'SEO & Growth',
@@ -278,28 +277,7 @@ const ContactPage = () => {
                 </div>
               </div>
 
-              {/* Estimated Budget */}
-              <div>
-                <label className="block text-xs uppercase tracking-wider font-bold text-gray-700 dark:text-gray-300 mb-2">
-                  Estimated Budget Range
-                </label>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                  {BUDGET_RANGES.map((budget) => (
-                    <button
-                      key={budget}
-                      type="button"
-                      onClick={() => setFormData({ ...formData, budget: formData.budget === budget ? '' : budget })}
-                      className={`px-3 py-2 rounded-xl text-xs font-semibold border transition-all text-center truncate ${
-                        formData.budget === budget
-                          ? 'bg-accent text-white border-accent shadow-sm'
-                          : 'bg-gray-50 dark:bg-white/5 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-white/10 hover:border-accent/50'
-                      }`}
-                    >
-                      {budget}
-                    </button>
-                  ))}
-                </div>
-              </div>
+
 
               {/* Preferred Timeline */}
               <div>
