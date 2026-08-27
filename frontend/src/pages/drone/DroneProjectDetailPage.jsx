@@ -13,8 +13,8 @@
 //
 // Route: /drone/projects/:id
 //
-// Design language: dark canvas, white Michroma headings,
-// Geomini body, subtle gradients, glassmorphism on the
+// Design language: dark canvas, white Aboreto headings,
+// Montserrat body, subtle gradients, glassmorphism on the
 // floating elements only. Section count is intentionally
 // focused (8) — DJI Enterprise / Skydio / Apple feel rather
 // than a 15-block marketing document.
@@ -50,13 +50,14 @@ import { api } from '../../services/api';
 import { dronePlaceholder } from '../../utils/placeholders';
 import { CONTACT } from '../../config/contact';
 
-// ── Page-scoped fonts (Michroma + Geomini) ────────────────
+// ── Page-scoped fonts (Aboreto + Montserrat) ──────────────
 //
 // Same approach as the rest of the drone surfaces: inject
 // the <link> tags and the .drone-heading / .drone-body CSS
 // class rules on mount, then remove them on unmount so
 // navigation to other pages cleans up.
-const FONT_HREF = 'https://fonts.googleapis.com/css2?family=Geomini:wght@200..800&family=Michroma&display=swap';
+const FONT_HREF =
+  'https://fonts.googleapis.com/css2?family=Aboreto&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap';
 
 const useFontsEffect = () => {
   useEffect(() => {
@@ -83,8 +84,17 @@ const useFontsEffect = () => {
     const style = document.createElement('style');
     style.setAttribute('data-drone-detail-fonts', '');
     style.textContent = `
-      .drone-heading { font-family: "Michroma", sans-serif; font-weight: 400; font-style: normal; letter-spacing: 0.02em; }
-      .drone-body    { font-family: "Geomini",  sans-serif;  font-optical-sizing: auto; font-style: normal; }
+      .drone-heading {
+        font-family: "Aboreto", system-ui, sans-serif;
+        font-weight: 400;
+        font-style: normal;
+      }
+      .drone-body {
+        font-family: "Montserrat", system-ui, sans-serif;
+        font-optical-sizing: auto;
+        font-weight: 400;
+        font-style: normal;
+      }
     `;
     add(style);
 

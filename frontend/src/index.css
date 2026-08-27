@@ -6,15 +6,19 @@
    browser reuse a system-installed copy of the same family when one
    exists, then quietly upgrade to the webfont when it arrives. */
 @font-face {
-  font-family: 'Advent Pro Fallback';
+  /* Metric-matched fallback for Schibsted Grotesk (heading)
+     Schibsted Grotesk is a compact geometric grotesk — metrics
+     tuned to minimise layout shift while the webfont loads. */
+  font-family: 'Schibsted Grotesk Fallback';
   src: local('Arial'), local('Helvetica'), local('sans-serif');
-  size-adjust: 105%;
-  ascent-override: 92%;
-  descent-override: 24%;
+  size-adjust: 100%;
+  ascent-override: 90%;
+  descent-override: 23%;
   line-gap-override: 0%;
 }
 
 @font-face {
+  /* Metric-matched fallback for Space Grotesk (body) */
   font-family: 'Space Grotesk Fallback';
   src: local('Arial'), local('Helvetica'), local('sans-serif');
   size-adjust: 105%;

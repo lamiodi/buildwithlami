@@ -19,7 +19,10 @@ import {
 import DroneFooter from '../../components/DroneFooter';
 
 // ── Drone-page fonts ─────────────────────────────────────
-const FONT_HREF = 'https://fonts.googleapis.com/css2?family=Geomini:wght@200..800&family=Michroma&display=swap';
+// Heading: Aboreto (display, single weight 400).
+// Body:    Montserrat (variable, 100-900 + italic).
+const FONT_HREF =
+  'https://fonts.googleapis.com/css2?family=Aboreto&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap';
 
 const useFontsEffect = () => {
     useEffect(() => {
@@ -47,8 +50,23 @@ const useFontsEffect = () => {
         const style = document.createElement('style');
         style.setAttribute('data-drone-fonts', '');
         style.textContent = `
-            .drone-heading { font-family: "Michroma", sans-serif; font-weight: 400; font-style: normal; letter-spacing: 0.02em; }
-            .drone-body    { font-family: "Geomini", sans-serif;  font-optical-sizing: auto; font-style: normal; }
+            /* Aboreto: single weight 400, used for all display headings
+               on the drone page. Pinning weight prevents Tailwind's
+               font-bold / font-black utilities from requesting weights
+               Aboreto does not ship. */
+            .drone-heading {
+              font-family: "Aboreto", system-ui, sans-serif;
+              font-weight: 400;
+              font-style: normal;
+            }
+            /* Montserrat: variable, 100-900 + italic. Used for body
+               copy, nav items, list rows, and small UI labels. */
+            .drone-body {
+              font-family: "Montserrat", system-ui, sans-serif;
+              font-optical-sizing: auto;
+              font-weight: 400;
+              font-style: normal;
+            }
         `;
         add(style);
 
@@ -470,9 +488,9 @@ const DroneHomePage = () => {
   }, []);
 
   return (
-    <div className="bg-[#0a0a0a] min-h-screen p-4 md:p-6 flex flex-col font-sans drone-body">
-      {/* Main Card Container */}
-      <div className="flex-1 bg-[#f4f4f4] rounded-[2.5rem] overflow-y-auto overflow-x-hidden flex flex-col relative shadow-2xl scrollbar-hide">
+    <div className="min-h-screen flex flex-col font-sans drone-body">
+      {/* Main Content */}
+      <div className="flex-1 bg-[#f4f4f4] overflow-y-auto overflow-x-hidden flex flex-col relative scrollbar-hide">
 
         {/* ==== NAVBAR ==== */}
         <header className="flex justify-between items-center px-6 md:px-12 py-5 z-40 relative sticky top-0 bg-[#f4f4f4]/95 backdrop-blur-md border-b border-gray-200/60">

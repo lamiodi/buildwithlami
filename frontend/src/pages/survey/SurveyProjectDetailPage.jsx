@@ -8,10 +8,10 @@
 // own block.
 //
 // Design language: white canvas, charcoal type, hairline
-// borders, blueprint-inspired details, Manrope / Mulish.
-// Section count is intentionally focused (9) — the goal is
-// the feel of a Leica / Trimble / Foster + Partners report,
-// not a marketing brochure.
+// borders, blueprint-inspired details, Antic Didone headings
+// with Manrope body. Section count is intentionally focused
+// (9) — the goal is the feel of a Leica / Trimble / Foster
+// + Partners report, not a marketing brochure.
 //
 // Data sources (unchanged from the previous version):
 //   GET /api/projects/:id                  (this project)
@@ -60,14 +60,14 @@ import { surveyPlaceholder, projectPlaceholder } from '../../utils/placeholders'
 import { CONTACT } from '../../config/contact';
 import SurveyFooter from '../../components/SurveyFooter';
 
-// ── Page-scoped fonts (Manrope + Mulish) ──────────────────
+// ── Page-scoped fonts (Antic Didone + Manrope) ────────────
 //
 // Same approach as the rest of the survey surfaces: inject
 // the <link> tags and the .survey-heading / .survey-body CSS
 // class rules on mount, then remove them on unmount so
 // navigation to other pages cleans up.
 const FONT_HREF =
-  'https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&family=Mulish:ital,wght@0,200..1000;1,200..1000&display=swap';
+  'https://fonts.googleapis.com/css2?family=Antic+Didone&family=Manrope:wght@200..800&display=swap';
 
 const useFontsEffect = () => {
   useEffect(() => {
@@ -97,8 +97,17 @@ const useFontsEffect = () => {
     const style = document.createElement('style');
     style.setAttribute('data-survey-detail-fonts', '');
     style.textContent = `
-      .survey-heading { font-family: "Manrope", sans-serif; font-optical-sizing: auto; font-weight: 700; font-style: normal; letter-spacing: -0.01em; }
-      .survey-body    { font-family: "Mulish",  sans-serif; font-optical-sizing: auto; font-style: normal; }
+      .survey-heading {
+        font-family: "Antic Didone", serif;
+        font-weight: 400;
+        font-style: normal;
+      }
+      .survey-body {
+        font-family: "Manrope", sans-serif;
+        font-optical-sizing: auto;
+        font-weight: 400;
+        font-style: normal;
+      }
     `;
     add(style);
 

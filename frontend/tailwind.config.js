@@ -48,8 +48,8 @@ export default {
         sm: "calc(var(--radius) - 4px)",
       },
       fontFamily: {
-        heading: ['"Space Grotesk"', '"Space Grotesk Fallback"', 'system-ui', 'sans-serif'],
-        body: ['"Advent Pro"', '"Advent Pro Fallback"', 'system-ui', 'sans-serif'],
+        heading: ['"Schibsted Grotesk"', '"Schibsted Grotesk Fallback"', 'system-ui', 'sans-serif'],
+        body: ['"Space Grotesk"', '"Space Grotesk Fallback"', 'system-ui', 'sans-serif'],
         handwritten: ['"Caveat"', 'cursive'],
       },
       keyframes: {

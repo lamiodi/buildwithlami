@@ -45,7 +45,10 @@ import {
 import SurveyFooter from '../../components/SurveyFooter';
 
 // ── Survey-page fonts ────────────────────────────────────
-const FONT_HREF = 'https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=Mulish:ital,wght@0,300..900;1,300..900&display=swap';
+// Heading: Antic Didone (display serif, single weight 400).
+// Body:    Manrope (variable sans, 200-800).
+const FONT_HREF =
+  'https://fonts.googleapis.com/css2?family=Antic+Didone&family=Manrope:wght@200..800&display=swap';
 
 const useFontsEffect = () => {
   const fontRef = useRef(null);
@@ -54,7 +57,7 @@ const useFontsEffect = () => {
     if (typeof document === 'undefined') return;
 
     // Clean existing survey fonts to avoid duplicate styles
-    const existingLink = document.querySelector('link[href*="Manrope"], link[href*="Mulish"]');
+    const existingLink = document.querySelector('link[href*="Manrope"], link[href*="Mulish"], link[href*="Antic+Didone"]');
     const existingStyle = document.querySelector('style[data-survey-fonts]');
     if (existingLink) existingLink.remove();
     if (existingStyle) existingStyle.remove();
@@ -81,8 +84,23 @@ const useFontsEffect = () => {
     const style = document.createElement('style');
     style.setAttribute('data-survey-fonts', '');
     style.textContent = `
-      .survey-heading { font-family: "Manrope", sans-serif; font-weight: 700; letter-spacing: -0.02em; }
-      .survey-body    { font-family: "Mulish",  sans-serif; font-optical-sizing: auto; }
+      /* Antic Didone: single weight 400, used for all display
+         headings on the survey page. Pinning weight prevents
+         Tailwind's font-bold / font-black utilities from
+         requesting weights Antic Didone does not ship. */
+      .survey-heading {
+        font-family: "Antic Didone", serif;
+        font-weight: 400;
+        font-style: normal;
+      }
+      /* Manrope: variable, 200-800. Used for body copy,
+         nav items, list rows, and small UI labels. */
+      .survey-body {
+        font-family: "Manrope", sans-serif;
+        font-optical-sizing: auto;
+        font-weight: 400;
+        font-style: normal;
+      }
     `;
     add(style);
 
