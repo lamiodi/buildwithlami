@@ -101,6 +101,15 @@ const useFontsEffect = () => {
         font-family: "Antic Didone", serif;
         font-weight: 400;
         font-style: normal;
+        /* Slight open tracking: Didone display serifs read
+           tighter in UPPERCASE than they render, and the
+           default tracking-tight Tailwind utility was
+           crushing the hairline strokes. 0.04em keeps the
+           heads tight while restoring legibility on every
+           h1 / h2 / h3 that uses this class. Loaded after
+           Tailwind so it wins the cascade against
+           .tracking-tight at equal specificity. */
+        letter-spacing: 0.04em;
       }
       .survey-body {
         font-family: "Manrope", sans-serif;

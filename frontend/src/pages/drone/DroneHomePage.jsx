@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { 
+import { motion, useReducedMotion } from 'framer-motion';
+import {
   Crosshair, ArrowRight, ArrowUpRight, Plus, Minus, Mail, Phone, MapPin, Download,
   Map as MapIcon, Building2, Home, Mountain, Calendar, TreePine, Landmark, Plane,
   X, Check, Camera, Video, Shield, Layers, Sliders, Menu, Calculator, Clock, CheckCircle2, ShieldCheck
@@ -78,6 +79,7 @@ const useFontsEffect = () => {
 
 const DroneHomePage = () => {
   useFontsEffect();
+  const reduce = useReducedMotion();
 
   useEffect(() => {
     document.title = 'Lami Aerial — Commercial Drone & Aerial Imaging | Chief Pilot Eugene Odibenuah';
@@ -564,179 +566,204 @@ const DroneHomePage = () => {
           </nav>
         </div>
 
-        {/* ==== HERO SECTION (Background graphics removed, leaving only drone & copy) ==== */}
-        <section className="relative min-h-[92dvh] flex flex-col shrink-0 justify-center">
-          <div className="flex flex-1 relative z-10">
-            
-            {/* Left Pane — Outcome copy & CTAs */}
-            <div className="w-full md:w-1/2 flex flex-col justify-center px-6 md:px-16 py-12 md:py-20 z-10">
-              <div className="inline-flex items-center gap-2 mb-4">
-                <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />
-                <p className="text-[11px] font-bold tracking-[0.25em] uppercase text-gray-500">
-                  Lami Aerial · Chief Pilot: Eugene Odibenuah
-                </p>
-              </div>
+        {/* ==== HERO SECTION (Cinematic dark editorial: 58/42 split, real aerial photo + glassmorphism equipment card) ==== */}
+        <section
+          id="hero"
+          className="relative min-h-[88dvh] flex flex-col shrink-0 justify-center overflow-hidden bg-[#0a0a0a] text-white"
+        >
+          {/* Atmospheric radial accents (warm glow anchored to the brand accent) */}
+          <div className="pointer-events-none absolute inset-0 z-0" aria-hidden="true">
+            <div className="absolute -top-32 -left-24 w-[40rem] h-[40rem] rounded-full opacity-25"
+                 style={{ background: 'radial-gradient(circle, rgba(244,74,34,0.32) 0%, transparent 60%)' }} />
+            <div className="absolute bottom-[-12rem] right-[-8rem] w-[36rem] h-[36rem] rounded-full opacity-20"
+                 style={{ background: 'radial-gradient(circle, rgba(244,74,34,0.22) 0%, transparent 60%)' }} />
+          </div>
 
-              <h2
-                className="drone-heading font-bold leading-[1.12] mb-6 max-w-md text-gray-900 tracking-tight"
-                style={{ fontSize: 'clamp(1.55rem, 3.1vw, 2.6rem)' }}
+          {/* Subtle film grain (Apple-style, scoped to hero, no scroll-jank) */}
+          <div
+            className="pointer-events-none absolute inset-0 z-[2] opacity-[0.05] mix-blend-overlay"
+            aria-hidden="true"
+            style={{
+              backgroundImage:
+                "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.95' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.6 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>\")",
+              backgroundSize: '240px 240px',
+            }}
+          />
+
+          {/* Top-right operational HUD: real Lagos coordinates, AGL altitude, status. */}
+          <div className="hidden md:flex absolute top-6 right-6 lg:right-10 z-20 items-center gap-3 text-[10px] font-bold uppercase tracking-[0.22em] text-white/55">
+            <div className="flex items-center gap-2">
+              <span className="relative flex h-1.5 w-1.5">
+                <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-70 animate-ping" />
+                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-400" />
+              </span>
+              <span className="text-white/80">Mission Active</span>
+            </div>
+            <span className="w-px h-3 bg-white/15" aria-hidden="true" />
+            <span className="font-mono tracking-[0.15em] text-white/60">06°31'N 003°22'E</span>
+            <span className="w-px h-3 bg-white/15" aria-hidden="true" />
+            <span className="font-mono tracking-[0.15em] text-white/60">AGL 124m</span>
+          </div>
+
+          <div className="flex flex-1 relative z-10 pt-20 md:pt-20">
+
+            {/* Left Pane (58%) — cinematic editorial typography. */}
+            <div className="w-full md:w-[58%] flex flex-col justify-center px-6 md:px-10 lg:px-16 py-10 md:py-14 z-10">
+              <motion.div
+                initial={reduce ? false : { opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, delay: 0.05, ease: [0.16, 1, 0.3, 1] }}
+                className="flex items-center gap-3 mb-7"
               >
-                Show investors your construction progress. Market properties with cinematic aerial visuals. Document sites with mapping clarity.
-              </h2>
-              
-              <p className="text-sm text-gray-600 font-medium leading-relaxed max-w-md mb-8">
-                Commercial aerial photography, 4K 60fps video (10-bit D-Log M), and precision photogrammetry basemaps across Nigeria.
-              </p>
+                <span className="h-px w-10 bg-accent" aria-hidden="true" />
+                <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/65">
+                  Commercial Drone Operations
+                </span>
+              </motion.div>
 
-              <div className="flex flex-wrap items-center gap-4">
-                <button 
-                  onClick={() => scrollTo('contact')} 
-                  className="bg-black text-white rounded-full py-3.5 px-7 flex items-center gap-3 hover:bg-accent transition-colors group active:scale-[0.98] shadow-lg shadow-black/15"
+              <motion.h1
+                initial={reduce ? false : { opacity: 0, y: 22 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 1.0, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
+                className="drone-heading tracking-[-0.025em] leading-[0.95] mb-7 text-white"
+                style={{ fontSize: 'clamp(2.6rem, 5.5vw, 5.2rem)' }}
+              >
+                See Your Project<br />
+                <span className="text-white/35">From Above.</span>
+              </motion.h1>
+
+              <motion.p
+                initial={reduce ? false : { opacity: 0, y: 14 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                className="text-sm md:text-base text-white/65 font-medium leading-relaxed max-w-md mb-10"
+              >
+                Commercial drone services in Nigeria. HDR cinematography, photogrammetry basemaps, and inspection stills for real estate, construction, and events.
+              </motion.p>
+
+              <motion.div
+                initial={reduce ? false : { opacity: 0, y: 14 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                className="flex flex-wrap items-center gap-6"
+              >
+                <button
+                  onClick={() => scrollTo('contact')}
+                  className="group bg-white text-black rounded-full py-3.5 pl-7 pr-2 flex items-center gap-3 hover:bg-accent hover:text-white transition-colors active:scale-[0.98] shadow-[0_8px_30px_rgba(244,74,34,0.18)]"
                 >
                   <span className="font-bold text-sm">Book a Flight</span>
-                  <span className="bg-white text-black rounded-full w-7 h-7 flex items-center justify-center group-hover:translate-x-1 transition-transform shrink-0">
+                  <span className="bg-black text-white rounded-full w-7 h-7 flex items-center justify-center group-hover:translate-x-0.5 transition-transform shrink-0">
                     <ArrowRight className="w-3.5 h-3.5" />
                   </span>
                 </button>
-                <button 
-                  onClick={() => scrollTo('portfolio')} 
-                  className="font-bold text-sm underline decoration-2 underline-offset-4 text-gray-800 hover:text-accent transition-colors"
+                <button
+                  onClick={() => scrollTo('portfolio')}
+                  className="font-bold text-sm underline decoration-2 underline-offset-[6px] decoration-white/30 text-white/85 hover:text-accent hover:decoration-accent transition-colors"
                 >
                   View Portfolio
                 </button>
-              </div>
+              </motion.div>
+            </div>
 
-              {/* Mobile-only Drone (Clean: no background circles/glows) */}
-              <div className="mt-10 md:hidden flex justify-center">
-                <div className="relative w-[85%] max-w-[280px]">
+            {/* Right Pane (42%) - Real aerial photo + glassmorphism equipment card. */}
+            <div className="w-full md:w-[42%] hidden md:flex flex-col justify-center px-4 md:px-6 lg:px-10 py-10 md:py-14 z-10 relative">
+              <div className="relative w-full mx-auto" style={{ maxWidth: '560px' }}>
+
+                {/* Aerial photo with slow Ken Burns scale-in for cinematic depth. */}
+                <motion.div
+                  initial={reduce ? false : { opacity: 0, scale: 1.06 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 1.6, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                  className="relative w-full aspect-[4/5] overflow-hidden rounded-2xl"
+                  style={{ boxShadow: '0 30px 80px -20px rgba(0,0,0,0.65), 0 0 0 1px rgba(255,255,255,0.06)' }}
+                >
                   <img
-                    src="/images/drone/drone_hero_mini4pro.webp"
-                    alt="DJI Mini 4 Pro Drone"
-                    className="relative w-full object-contain drop-shadow-2xl drone-float-sm"
+                    src="/images/drone/drone_proj_hospitality.webp"
+                    alt="Aerial photograph of a coastal resort at sunset, captured on a commercial drone mission"
+                    className="absolute inset-0 w-full h-full object-cover"
                     loading="eager"
                     decoding="async"
                   />
-                </div>
-              </div>
-            </div>
+                  {/* Subtle gradient overlay: lets the photo sit in the dark theme without competing with text. */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/5 to-black/15" />
+                  {/* Crosshair-style frame: signals "ops viewfinder" without an LLM AI-tell. */}
+                  <div className="absolute top-4 left-4 w-4 h-4 border-t border-l border-white/40" aria-hidden="true" />
+                  <div className="absolute top-4 right-4 w-4 h-4 border-t border-r border-white/40" aria-hidden="true" />
+                  <div className="absolute bottom-4 left-4 w-4 h-4 border-b border-l border-white/40" aria-hidden="true" />
+                  <div className="absolute bottom-4 right-4 w-4 h-4 border-b border-r border-white/40" aria-hidden="true" />
+                </motion.div>
 
-            {/* Right Pane — Headline */}
-            <div className="w-full md:w-1/2 flex flex-col justify-center px-6 md:px-16 py-12 md:py-20 z-10 hidden md:flex">
-              <h1
-                className="drone-heading font-black tracking-tighter leading-[0.9] mb-6 text-gray-900"
-                style={{ fontSize: 'clamp(2.8rem, 5.5vw, 5.2rem)' }}
-              >
-                See Your<br />Project<br /><span className="text-gray-400">From Above.</span>
-              </h1>
-              <p className="text-gray-500 leading-relaxed max-w-sm text-sm font-medium">
-                Professional commercial drone services in Nigeria — flown on the flagship DJI Mini 4 Pro and Mini 4K, engineered for technical clarity, and delivered ready to publish.
-              </p>
-            </div>
-          </div>
-
-          {/* Desktop Drone Floating Layer (Clean: No background rings, glow or artificial shadow circles) */}
-          <div
-            className="absolute top-[48%] left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 w-[56%] max-w-2xl pointer-events-none hidden md:block"
-            style={{ perspective: '1400px' }}
-          >
-            <div className="relative w-full" style={{ transformStyle: 'preserve-3d' }}>
-              
-              {/* Drone with 3D Float Animation */}
-              <div className="relative pb-[52%] drone-float">
-                <img
-                  src="/images/drone/drone_hero_mini4pro.webp"
-                  alt="DJI Mini 4 Pro Commercial Drone"
-                  className="absolute inset-0 w-full h-full object-contain"
-                  loading="eager"
-                  decoding="async"
+                {/* Glassmorphism equipment card: real DJI Mini 4 Pro specs (radical authenticity). */}
+                <motion.div
+                  initial={reduce ? false : { opacity: 0, x: 24, y: 8 }}
+                  animate={{ opacity: 1, x: 0, y: 0 }}
+                  transition={{ duration: 1.0, delay: 0.7, ease: [0.16, 1, 0.3, 1] }}
+                  className="absolute -bottom-7 -left-4 lg:-left-10 w-[78%] max-w-[320px] rounded-2xl border border-white/10 p-5 backdrop-blur-xl"
                   style={{
-                    filter: 'drop-shadow(0 25px 45px rgba(0,0,0,0.18))',
-                    transform: 'rotateX(7deg) rotateY(-5deg)',
-                    transformStyle: 'preserve-3d',
+                    background: 'linear-gradient(135deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0.03) 100%)',
+                    boxShadow:
+                      'inset 0 1px 0 rgba(255,255,255,0.14), inset 0 -1px 0 rgba(255,255,255,0.04), 0 24px 60px -10px rgba(0,0,0,0.55)',
                   }}
-                />
-              </div>
+                >
+                  <div className="flex items-center gap-2 mb-2.5">
+                    <span className="h-1.5 w-1.5 rounded-full bg-accent animate-pulse" />
+                    <span className="text-[9px] font-bold uppercase tracking-[0.22em] text-white/65">Primary Airframe</span>
+                  </div>
+                  <h3 className="drone-heading text-xl text-white mb-0.5">DJI Mini 4 Pro</h3>
+                  <p className="text-[10px] text-white/45 font-medium mb-3.5 tracking-wide">249g takeoff weight</p>
 
-              {/* Annotation: Top Left */}
-              <div className="absolute top-[8%] left-[0%] flex items-center gap-2 drone-annotation-1">
-                <span className="text-[10px] text-gray-600 font-bold w-24 text-right leading-tight tracking-wide uppercase">
-                  4K / 60fps<br/>HDR Video
-                </span>
-                <div className="flex items-center gap-1">
-                  <div className="w-12 h-[1px] bg-gray-400" />
-                  <div className="w-2 h-2 rounded-full border-2 border-accent bg-[#f4f4f4] shrink-0" />
-                </div>
+                  <div className="grid grid-cols-2 gap-x-3 gap-y-2.5 pt-3 border-t border-white/10">
+                    <div>
+                      <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-white/40 mb-0.5">Video</p>
+                      <p className="text-xs text-white font-semibold">4K / 100fps HDR</p>
+                    </div>
+                    <div>
+                      <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-white/40 mb-0.5">Stills</p>
+                      <p className="text-xs text-white font-semibold">48MP DNG RAW</p>
+                    </div>
+                    <div>
+                      <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-white/40 mb-0.5">Profile</p>
+                      <p className="text-xs text-white font-semibold">10-bit D-Log M</p>
+                    </div>
+                    <div>
+                      <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-white/40 mb-0.5">Missions</p>
+                      <p className="text-xs text-white font-semibold">Waypoint + RTH</p>
+                    </div>
+                  </div>
+                </motion.div>
               </div>
-
-              {/* Annotation: Bottom Left */}
-              <div className="absolute top-[65%] left-[-6%] flex items-center gap-2 drone-annotation-2">
-                <span className="text-[10px] text-gray-600 font-bold leading-tight tracking-wide uppercase">
-                  48MP RAW (DNG)
-                </span>
-                <div className="flex items-center gap-1">
-                  <div className="w-20 h-[1px] bg-gray-400 -rotate-6 origin-left" />
-                  <div className="w-2 h-2 rounded-full border-2 border-accent bg-[#f4f4f4] -translate-y-1.5 shrink-0" />
-                </div>
-              </div>
-
-              {/* Annotation: Top Right */}
-              <div
-                className="absolute top-[15%] right-[-4%] flex items-center gap-2 flex-row-reverse drone-annotation-1"
-                style={{ animationDelay: '0.35s' }}
-              >
-                <span className="text-[10px] text-gray-600 font-bold w-24 leading-tight tracking-wide uppercase">
-                  Obstacle<br/>Avoidance
-                </span>
-                <div className="flex items-center gap-1 flex-row-reverse">
-                  <div className="w-14 h-[1px] bg-gray-400" />
-                  <div className="w-2 h-2 rounded-full border-2 border-accent bg-[#f4f4f4] shrink-0" />
-                </div>
-              </div>
-
-              {/* Annotation: Mid Right */}
-              <div
-                className="absolute top-[52%] right-[-10%] flex items-center gap-2 flex-row-reverse drone-annotation-2"
-                style={{ animationDelay: '0.55s' }}
-              >
-                <span className="text-[10px] text-gray-600 font-bold leading-tight tracking-wide uppercase">
-                  Waypoint<br/>Flights
-                </span>
-                <div className="flex items-center gap-1 flex-row-reverse">
-                  <div className="w-24 h-[1px] bg-gray-400 rotate-6 origin-right" />
-                  <div className="w-2 h-2 rounded-full border-2 border-accent bg-[#f4f4f4] translate-y-1.5 shrink-0" />
-                </div>
-              </div>
-
-              {/* 10-bit D-Log M badge (Mini 4 Pro specific) */}
-              <div
-                className="absolute top-[34%] left-[-10%] drone-annotation-2"
-                style={{ animationDelay: '0.75s' }}
-              >
-                <div className="bg-black text-white rounded-xl px-3 py-1.5 flex items-center gap-2 shadow-xl border border-white/10">
-                  <div className="w-1.5 h-1.5 rounded-full bg-accent shrink-0" />
-                  <span className="text-[9px] font-black tracking-wider uppercase drone-heading">10-Bit D-Log M · Mini 4 Pro</span>
-                </div>
-              </div>
-
             </div>
           </div>
 
-          {/* Drone Model Quick Thumbnails */}
-          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-3 z-30 hidden md:flex pointer-events-auto">
-            <button 
-              onClick={() => scrollTo('equipment')} 
-              className="w-14 h-14 bg-white rounded-2xl shadow-sm border border-gray-200 flex items-center justify-center p-2 hover:shadow-lg hover:-translate-y-0.5 transition-all active:scale-95"
-              title="View DJI Mini 4 Pro Specs"
+          {/* Mobile-only: photo + compact glass card stacked. */}
+          <div className="md:hidden flex flex-col gap-5 px-6 pb-12 relative z-10">
+            <motion.div
+              initial={reduce ? false : { opacity: 0, scale: 1.04 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 1.0, ease: [0.16, 1, 0.3, 1] }}
+              className="relative w-full aspect-[4/3] overflow-hidden rounded-2xl"
+              style={{ boxShadow: '0 20px 50px -10px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.06)' }}
             >
-              <img src="/images/drone/drone_thumb_mini4pro.webp" alt="DJI Mini 4 Pro" className="w-full h-full object-contain" loading="lazy" decoding="async" />
-            </button>
-            <button 
-              onClick={() => scrollTo('equipment')} 
-              className="w-14 h-14 bg-white rounded-2xl shadow-sm border border-gray-200 flex items-center justify-center p-2 hover:shadow-lg hover:-translate-y-0.5 transition-all active:scale-95"
-              title="View DJI Mini 4K Specs"
+              <img
+                src="/images/drone/drone_proj_hospitality.webp"
+                alt="Aerial photograph captured on a commercial drone mission"
+                className="absolute inset-0 w-full h-full object-cover"
+                loading="eager"
+                decoding="async"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/35 to-transparent" />
+            </motion.div>
+            <div
+              className="rounded-2xl border border-white/10 p-5 backdrop-blur-xl"
+              style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0.03) 100%)' }}
             >
-              <img src="/images/drone/drone_thumb_mini4k.webp" alt="DJI Mini 4K" className="w-full h-full object-contain" loading="lazy" decoding="async" />
-            </button>
+              <div className="flex items-center gap-2 mb-1.5">
+                <span className="h-1.5 w-1.5 rounded-full bg-accent" />
+                <span className="text-[9px] font-bold uppercase tracking-[0.22em] text-white/65">Primary Airframe</span>
+              </div>
+              <h3 className="drone-heading text-lg text-white mb-0.5">DJI Mini 4 Pro</h3>
+              <p className="text-[11px] text-white/50 font-medium">4K HDR · 48MP · 249g</p>
+            </div>
           </div>
         </section>
 
@@ -1581,42 +1608,9 @@ const DroneHomePage = () => {
         .scrollbar-hide,
         .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
 
-        /* ── Drone 3D Float Animation ──────────────── */
-        @keyframes droneFloat {
-          0%, 100% { transform: translateY(0px) rotateX(7deg) rotateY(-5deg); }
-          50%       { transform: translateY(-16px) rotateX(7deg) rotateY(-5deg); }
-        }
-        .drone-float > img {
-          animation: droneFloat 4.5s ease-in-out infinite;
-        }
-
-        /* ── Mobile Float ───────────────────────────── */
-        @keyframes droneFloatSm {
-          0%, 100% { transform: translateY(0px); }
-          50%       { transform: translateY(-12px); }
-        }
-        .drone-float-sm {
-          animation: droneFloatSm 3.8s ease-in-out infinite;
-        }
-
-        /* ── Annotation fade-in + subtle pulse ──────── */
-        @keyframes annotationIn {
-          0%   { opacity: 0; transform: translateX(-6px); }
-          100% { opacity: 1; transform: translateX(0); }
-        }
-        @keyframes annotationPulse {
-          0%, 100% { opacity: 1; }
-          50%       { opacity: 0.65; }
-        }
-        .drone-annotation-1 {
-          animation:
-            annotationIn   0.7s ease-out 1s   both,
-            annotationPulse 5s  ease-in-out 2s infinite;
-        }
-        .drone-annotation-2 {
-          animation:
-            annotationIn   0.7s ease-out 1.4s both,
-            annotationPulse 5s  ease-in-out 2.4s infinite;
+        /* ── Hero reduced-motion guard ──────────────── */
+        @media (prefers-reduced-motion: reduce) {
+          .animate-ping { animation: none !important; }
         }
       `}} />
     </div>
