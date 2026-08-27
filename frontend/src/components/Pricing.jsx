@@ -12,6 +12,7 @@ import {
   Zap, 
   Sliders, 
   ChevronRight,
+  ChevronDown,
   ShieldCheck,
   Package,
   Plus,
@@ -239,17 +240,38 @@ const Pricing = ({ isHomepage = false }) => {
                 </div>
               </div>
 
-              {/* Category Pills - Responsive Wrap Grid */}
-              <div className="flex flex-wrap items-center gap-2.5 sm:gap-3 w-full pt-2">
+              {/* Category Selector — mobile dropdown, desktop pill row */}
+              {/* Mobile (< sm): native <select> for OS-native picker UX */}
+              <div className="sm:hidden pt-2">
+                <label htmlFor="pricing-category-select" className="sr-only">
+                  Select studio capability
+                </label>
+                <div className="relative">
+                  <select
+                    id="pricing-category-select"
+                    value={activeCategory}
+                    onChange={(e) => setActiveCategory(e.target.value)}
+                    className="w-full appearance-none pl-4 pr-11 py-3.5 rounded-xl bg-white dark:bg-[#141414] border border-gray-300 dark:border-white/15 text-sm font-mono font-bold uppercase tracking-wider text-gray-900 dark:text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent cursor-pointer"
+                  >
+                    {Object.values(BUILD_PRICING).map(cat => (
+                      <option key={cat.id} value={cat.id}>
+                        {cat.label}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown
+                    className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 dark:text-gray-400"
+                    aria-hidden="true"
+                  />
+                </div>
+              </div>
+
+              {/* Desktop (>= sm): pill buttons, wrap onto rows as needed */}
+              <div className="hidden sm:flex flex-wrap items-center gap-2.5 sm:gap-3 w-full pt-2">
                 {Object.values(BUILD_PRICING).map(cat => (
                   <button
                     key={cat.id}
-                    onClick={() => {
-                      setActiveCategory(cat.id);
-                      setQuoteCategory(cat.id);
-                      const defaultTier = cat.tiers[1] || cat.tiers[0];
-                      if (defaultTier) setQuoteTierId(defaultTier.id);
-                    }}
+                    onClick={() => setActiveCategory(cat.id)}
                     className={`px-4 py-2.5 sm:px-5 sm:py-3 rounded-xl text-xs font-mono font-bold uppercase tracking-wider transition-all duration-200 flex items-center gap-2 cursor-pointer ${
                       activeCategory === cat.id
                         ? 'bg-black text-white dark:bg-white dark:text-black shadow-lg ring-2 ring-accent border-transparent scale-[1.02]'

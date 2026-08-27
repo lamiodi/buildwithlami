@@ -29,7 +29,7 @@ const About = () => {
              (1440 / 845) so the <img> scales to fit without zoom or
              letterboxing. width/height attrs on <img> preserve layout
              space before the webfont loads (no CLS). */}
-        <motion.div variants={item} className="w-full max-w-5xl mx-auto bg-gray-950 dark:bg-[#0c0c0c] mb-16 relative overflow-hidden shadow-2xl rounded-2xl border border-gray-200 dark:border-white/10">
+        <motion.div variants={item} className="w-full max-w-6xl mx-auto bg-gray-950 dark:bg-[#0c0c0c] mb-16 relative overflow-hidden shadow-2xl rounded-2xl border border-gray-200 dark:border-white/10">
           <div className="relative w-full" style={{ aspectRatio: '1440 / 845' }}>
             <img
               src="/about-founder.webp"
