@@ -48,7 +48,7 @@ export default {
         sm: "calc(var(--radius) - 4px)",
       },
       fontFamily: {
-        heading: ['"Schibsted Grotesk"', '"Schibsted Grotesk Fallback"', 'system-ui', 'sans-serif'],
+        heading: ['"Antic Didone"', '"Antic Didone Fallback"', 'Georgia', 'serif'],
         body: ['"Space Grotesk"', '"Space Grotesk Fallback"', 'system-ui', 'sans-serif'],
         handwritten: ['"Caveat"', 'cursive'],
       },

@@ -767,8 +767,6 @@ const SurveyHomePage = () => {
                 <a
                   href="/eugene-odibenuah-land-surveyor-cv.pdf"
                   download="Eugene-Odibenuah-Surveyor-CV.pdf"
-                  target="_blank"
-                  rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-gray-600 hover:text-black transition-colors"
                 >
                   <Download className="w-3.5 h-3.5" />
@@ -872,8 +870,6 @@ const SurveyHomePage = () => {
               <a
                 href="/eugene-odibenuah-land-surveyor-cv.pdf"
                 download="Eugene-Odibenuah-Surveyor-CV.pdf"
-                target="_blank"
-                rel="noopener noreferrer"
                 className="w-full bg-black text-white hover:bg-gray-800 py-3.5 px-4 text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 transition-colors shadow-sm active:scale-98"
               >
                 <Download className="w-4 h-4 text-emerald-400" />

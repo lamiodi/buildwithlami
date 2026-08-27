@@ -6,11 +6,12 @@
    browser reuse a system-installed copy of the same family when one
    exists, then quietly upgrade to the webfont when it arrives. */
 @font-face {
-  /* Metric-matched fallback for Schibsted Grotesk (heading)
-     Schibsted Grotesk is a compact geometric grotesk — metrics
-     tuned to minimise layout shift while the webfont loads. */
-  font-family: 'Schibsted Grotesk Fallback';
-  src: local('Arial'), local('Helvetica'), local('sans-serif');
+  /* Metric-matched fallback for Antic Didone (heading).
+     Antic Didone is a high-contrast didone serif; the fallback
+     uses Georgia (a widely available serif) tuned to minimise
+     layout shift while the webfont loads. */
+  font-family: 'Antic Didone Fallback';
+  src: local('Georgia'), local('Times New Roman'), local('serif');
   size-adjust: 100%;
   ascent-override: 90%;
   descent-override: 23%;
