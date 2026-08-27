@@ -25,20 +25,22 @@ const About = () => {
           ODIBENUAH EUGE<span className="text-accent">NE</span>
         </motion.h2>
 
-        {/* Main Image */}
-        <motion.div variants={item} className="w-full max-w-5xl mx-auto bg-gray-950 dark:bg-[#0c0c0c] mb-16 relative overflow-hidden shadow-2xl rounded-2xl border border-gray-200 dark:border-white/10 flex items-center justify-center">
-          <picture className="w-full h-full block">
-            <source type="image/webp" srcSet="/about-founder.webp" />
-            <img 
-              src="/about-founder.webp" 
-              alt="Eugene Odibenuah Desk Setup" 
-              className="w-full h-auto max-h-[720px] object-contain object-center block mx-auto opacity-95 dark:opacity-90"
+        {/* Main Image — container aspect-ratio matches the image
+             (1440 / 845) so the <img> scales to fit without zoom or
+             letterboxing. width/height attrs on <img> preserve layout
+             space before the webfont loads (no CLS). */}
+        <motion.div variants={item} className="w-full max-w-5xl mx-auto bg-gray-950 dark:bg-[#0c0c0c] mb-16 relative overflow-hidden shadow-2xl rounded-2xl border border-gray-200 dark:border-white/10">
+          <div className="relative w-full" style={{ aspectRatio: '1440 / 845' }}>
+            <img
+              src="/about-founder.webp"
+              alt="Eugene Odibenuah Desk Setup"
+              className="absolute inset-0 w-full h-full object-contain opacity-95 dark:opacity-90"
               loading="lazy"
               decoding="async"
               width="1440"
               height="845"
             />
-          </picture>
+          </div>
           <div className="absolute bottom-6 right-6 bg-white/90 dark:bg-[#141414]/90 backdrop-blur-md border border-gray-200 dark:border-white/10 text-black dark:text-white font-mono font-bold px-4 py-2 text-[10px] tracking-[0.2em] uppercase flex items-center shadow-lg z-10">
             <MapPin className="w-3.5 h-3.5 text-accent mr-2" />
             <span>LAGOS, NIGERIA</span>
