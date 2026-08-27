@@ -12,7 +12,7 @@ import {
   Zap, 
   Sliders, 
   ChevronRight,
-  ChevronDown,
+  ChevronLeft,
   ShieldCheck,
   Package,
   Plus,
@@ -240,30 +240,71 @@ const Pricing = ({ isHomepage = false }) => {
                 </div>
               </div>
 
-              {/* Category Selector — mobile dropdown, desktop pill row */}
-              {/* Mobile (< sm): native <select> for OS-native picker UX */}
+              {/* Mobile (< sm): premium segmented selector.
+                   Top strip: index chip "03 / 10" + active label.
+                   Body: large active category with description.
+                   Footer: two-column Prev / Next pager so the user
+                   flips through all 10 disciplines. */}
               <div className="sm:hidden pt-2">
-                <label htmlFor="pricing-category-select" className="sr-only">
-                  Select studio capability
-                </label>
-                <div className="relative">
-                  <select
-                    id="pricing-category-select"
-                    value={activeCategory}
-                    onChange={(e) => setActiveCategory(e.target.value)}
-                    className="w-full appearance-none pl-4 pr-11 py-3.5 rounded-xl bg-white dark:bg-[#141414] border border-gray-300 dark:border-white/15 text-sm font-mono font-bold uppercase tracking-wider text-gray-900 dark:text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent cursor-pointer"
-                  >
-                    {Object.values(BUILD_PRICING).map(cat => (
-                      <option key={cat.id} value={cat.id}>
-                        {cat.label}
-                      </option>
-                    ))}
-                  </select>
-                  <ChevronDown
-                    className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 dark:text-gray-400"
-                    aria-hidden="true"
-                  />
-                </div>
+                {(() => {
+                  const cats = Object.values(BUILD_PRICING);
+                  const idx = cats.findIndex(c => c.id === activeCategory);
+                  const active = cats[idx];
+                  const prev = cats[(idx - 1 + cats.length) % cats.length];
+                  const next = cats[(idx + 1) % cats.length];
+                  return (
+                    <div className="rounded-2xl border border-gray-300 dark:border-white/15 bg-white dark:bg-[#141414] shadow-sm overflow-hidden">
+                      {/* Header strip: index + label */}
+                      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-white/10 bg-gray-50 dark:bg-white/5">
+                        <div className="flex items-center gap-2">
+                          <span className="px-2 py-0.5 rounded-md bg-accent text-white font-mono text-[10px] font-bold tracking-widest">
+                            {String(idx + 1).padStart(2, '0')} / {String(cats.length).padStart(2, '0')}
+                          </span>
+                          <span className="text-[10px] font-mono uppercase tracking-[0.18em] text-gray-500 dark:text-gray-400">
+                            Discipline
+                          </span>
+                        </div>
+                        <span className="text-[10px] font-mono uppercase tracking-[0.18em] text-gray-400 dark:text-gray-500">
+                          Tap ← / → to switch
+                        </span>
+                      </div>
+
+                      {/* Active category display */}
+                      <div className="px-4 py-4">
+                        <span className="block text-base font-heading font-bold text-gray-900 dark:text-white truncate">
+                          {active.label}
+                        </span>
+                        <span className="block text-[11px] text-gray-500 dark:text-gray-400 truncate mt-0.5">
+                          {active.title.replace(/^\d+\.\s*/, '')}
+                        </span>
+                      </div>
+
+                      {/* Prev / Next pager */}
+                      <div className="grid grid-cols-2 border-t border-gray-100 dark:border-white/10 divide-x divide-gray-100 dark:divide-white/10">
+                        <button
+                          type="button"
+                          onClick={() => setActiveCategory(prev.id)}
+                          className="flex items-center justify-between gap-2 px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-white/5 transition-colors"
+                        >
+                          <ChevronLeft className="w-4 h-4 text-gray-500 dark:text-gray-400 shrink-0" />
+                          <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300 truncate">
+                            {prev.label}
+                          </span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setActiveCategory(next.id)}
+                          className="flex items-center justify-between gap-2 px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-white/5 transition-colors"
+                        >
+                          <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300 truncate">
+                            {next.label}
+                          </span>
+                          <ChevronRight className="w-4 h-4 text-gray-500 dark:text-gray-400 shrink-0" />
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })()}
               </div>
 
               {/* Desktop (>= sm): pill buttons, wrap onto rows as needed */}
