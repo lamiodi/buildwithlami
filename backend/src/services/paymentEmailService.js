@@ -36,8 +36,13 @@ const buildTransport = () =>
 const sendOrLog = async (mailOptions) => {
     if (!process.env.SMTP_USER) {
         if (process.env.NODE_ENV === 'production') {
-            console.warn(`[PaymentEmail] ⚠️ PRODUCTION ALERT: SMTP_USER not configured. Outgoing payment email skipped: "${mailOptions.subject}"`);
-            return { success: false, error: 'SMTP credentials not configured on server', mocked: true };
+            // In production we REFUSE to silently drop customer-critical emails.
+            // The caller (invoice/payment controller) will see the throw and
+            // return 500, which surfaces the misconfiguration to the admin
+            // instead of telling the customer their invoice is on the way
+            // when it actually never went out.
+            console.error(`[PaymentEmail] ❌ PRODUCTION ERROR: SMTP_USER not configured. Refusing to silently drop email: "${mailOptions.subject}"`);
+            throw new Error('SMTP credentials not configured on server');
         }
         console.log(`[PaymentEmail] 📧 (mock — no SMTP_USER) to=${mailOptions.to} subject="${mailOptions.subject}"`);
         return { success: true, mocked: true };
@@ -51,7 +56,7 @@ const sendOrLog = async (mailOptions) => {
     }
 };
 
-const fromAddress = () => process.env.EMAIL_FROM || '"BuildWithLami" <no-reply@buildwithlami.com>';
+const fromAddress = () => process.env.EMAIL_FROM || '"Buildwith_lami" <no-reply@buildwithlami.com>';
 const adminAddress = () => process.env.ADMIN_EMAIL || process.env.EMAIL_TO;
 
 /**
@@ -62,7 +67,7 @@ export const sendInvoiceEmail = async ({ clientEmail, clientName, invoiceId: _in
     if (!clientEmail) return { success: false, error: 'No client email' };
     const safeName = escapeHtml(clientName || 'there');
     const payUrl = `${process.env.FRONTEND_URL || 'https://buildwithlami.com'}/pay/${payToken}`;
-    const subject = `Your BuildWithLami invoice — ${fmtAmount(amount, currency)}`;
+    const subject = `Your Buildwith_lami invoice — ${fmtAmount(amount, currency)}`;
     const text = `Hi ${clientName || 'there'},
 
 Your invoice for ${projectName ? `the project "${projectName}"` : 'your project'} is ready.
@@ -74,7 +79,7 @@ Pay securely online: ${payUrl}
 If you'd prefer to pay by bank transfer, that page also shows our USD/GBP account details via Grey.
 
 Thanks,
-BuildWithLami`;
+Buildwith_lami`;
 
     const html = `<div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:560px;margin:0 auto;padding:24px;background:#fafafa;">
   <div style="background:white;padding:32px;border-radius:8px;border:1px solid #eee;">
@@ -87,9 +92,9 @@ BuildWithLami`;
       ${dueDate ? `<div style="font-size:13px;color:#555;margin-top:6px;">Due by ${escapeHtml(dueDate)}</div>` : ''}
     </div>
     <a href="${payUrl}" style="display:inline-block;background:#E94E1B;color:white;padding:14px 28px;border-radius:4px;text-decoration:none;font-weight:700;font-size:14px;letter-spacing:0.02em;">Pay Securely Online</a>
-    <p style="color:#888;font-size:12px;line-height:1.6;margin:24px 0 0 0;">The payment page also shows our US Dollar and British Pound bank transfer details if you prefer to pay via Grey.</p>
+    <p style="color:#888;font-size:12px;line-height:1.6;margin:24px 0 0 0;">The payment page also shows our US Dollar, Euro, and British Pound bank transfer details if you prefer to pay via Grey.</p>
     <hr style="border:none;border-top:1px solid #eee;margin:24px 0;"/>
-    <p style="color:#888;font-size:12px;margin:0;">BuildWithLami · Lagos, Nigeria</p>
+    <p style="color:#888;font-size:12px;margin:0;">Buildwith_lami · Lagos, Nigeria</p>
   </div>
 </div>`;
 
@@ -111,7 +116,7 @@ We received your payment proof for ${fmtAmount(amount, currency)} (reference: ${
 Our team will review and confirm within 1 business hour. You'll get a separate email when it's confirmed.
 
 Thanks,
-BuildWithLami`;
+Buildwith_lami`;
     const html = `<div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:560px;margin:0 auto;padding:24px;background:#fafafa;">
   <div style="background:white;padding:32px;border-radius:8px;border:1px solid #eee;">
     <h2 style="margin:0 0 8px 0;color:#0a0a0a;font-size:22px;">Proof received ✓</h2>
@@ -164,7 +169,7 @@ Payment confirmed: ${fmtAmount(amount, currency)} for ${projectName || 'your pro
 
 Your project is now active. We'll be in touch within 1 business day with next steps and the kickoff schedule.
 
-Thanks for trusting BuildWithLami.`;
+Thanks for trusting Buildwith_lami.`;
     const html = `<div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:560px;margin:0 auto;padding:24px;background:#fafafa;">
   <div style="background:white;padding:32px;border-radius:8px;border:1px solid #eee;">
     <h2 style="margin:0 0 8px 0;color:#0a0a0a;font-size:22px;">Payment confirmed ✓</h2>
@@ -177,7 +182,7 @@ Thanks for trusting BuildWithLami.`;
         📅 We'll be in touch within <strong>1 business day</strong> with next steps.
       </div>
     </div>
-    <p style="color:#555;font-size:14px;line-height:1.6;margin:0 0 0 0;">Thanks for trusting BuildWithLami.</p>
+    <p style="color:#555;font-size:14px;line-height:1.6;margin:0 0 0 0;">Thanks for trusting Buildwith_lami.</p>
   </div>
 </div>`;
     return sendOrLog({ from: fromAddress(), to: clientEmail, subject, text, html });

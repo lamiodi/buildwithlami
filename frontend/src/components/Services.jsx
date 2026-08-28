@@ -35,7 +35,7 @@ const Services = () => {
         "Full-stack web application (React/Next.js + Node/PostgreSQL)",
         "Role-based authentication & secure session management",
         "Admin control panel & operational metrics dashboard",
-        "Payment processing (Paystack, Stripe, Flutterwave)",
+        "Payment processing (Paystack)",
         "Automated transactional emails & webhook pipelines",
         "Production deployment with SSL & domain configuration",
         "Included post-launch warranty support and bug fixes"
@@ -89,7 +89,7 @@ const Services = () => {
         "Complete API documentation and Postman collections"
       ],
       idealFor: "Applications requiring secure multi-tenant data isolation, fin-tech or healthcare compliance, and high throughput.",
-      stack: ["Node.js", "Express", "PostgreSQL / Supabase", "Redis", "Docker", "AWS / Vercel"]
+      stack: ["Node.js", "Express", "PostgreSQL", "JWT / 2FA", "REST APIs"]
     },
     {
       id: "audits-strategy",

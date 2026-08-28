@@ -9,12 +9,15 @@ import { Clock, PhoneCall, ShieldCheck, CheckCircle2, ArrowRight } from 'lucide-
 
 const PROJECT_TYPES = [
   'Business Website',
-  'E-Commerce',
-  'Business Operation System (e.g. shops or firms)',
-  'Web Application & SaaS',
+  'E-Commerce Store',
+  'Custom Software',
+  'Business Portal / ERP',
   'UI/UX Design',
+  'Branding',
   'SEO & Growth',
+  'Marketing',
   'AI & Automations',
+  'Maintenance',
   'Not sure yet',
 ];
 
@@ -106,12 +109,12 @@ const ContactPage = () => {
   // Detect URL parameters from Pricing Page selection (e.g. ?service=ecommerce&tier=Growth)
   useEffect(() => {
     window.scrollTo(0, 0);
-    document.title = "Start a Project | BuildWithLami — Direct Engineering Inquiry";
+    document.title = "Start a Project | Buildwith_lami — Direct Engineering Inquiry";
     const metaDesc = document.querySelector('meta[name="description"]');
     if (metaDesc) {
       metaDesc.setAttribute(
         'content',
-        "Start a project inquiry with BuildWithLami (Eugene Odibenuah). Custom software engineering, high-converting websites, e-commerce, and technical consulting."
+        "Start a project inquiry with Buildwith_lami (Eugene Odibenuah). Custom software engineering, high-converting websites, e-commerce, and technical consulting."
       );
     }
 
@@ -123,11 +126,15 @@ const ContactPage = () => {
     if (serviceParam || tierParam) {
       let matchedType = '';
       if (serviceParam === 'websites') matchedType = 'Business Website';
-      else if (serviceParam === 'ecommerce') matchedType = 'E-Commerce';
+      else if (serviceParam === 'ecommerce') matchedType = 'E-Commerce Store';
       else if (serviceParam === 'software') matchedType = 'Custom Software';
-      else if (serviceParam === 'ui_ux') matchedType = 'UI/UX Design';
+      else if (serviceParam === 'portals') matchedType = 'Business Portal / ERP';
+      else if (serviceParam === 'uiux') matchedType = 'UI/UX Design';
+      else if (serviceParam === 'branding') matchedType = 'Branding';
       else if (serviceParam === 'seo') matchedType = 'SEO & Growth';
-      else if (serviceParam === 'ai_automation') matchedType = 'AI & Automations';
+      else if (serviceParam === 'marketing') matchedType = 'Marketing';
+      else if (serviceParam === 'ai') matchedType = 'AI & Automations';
+      else if (serviceParam === 'maintenance') matchedType = 'Maintenance';
 
       setFormData(prev => ({
         ...prev,
@@ -153,6 +160,9 @@ const ContactPage = () => {
       project_type: formData.project_type || null,
       budget: formData.budget || null,
       timeline: formData.timeline || null,
+      service: serviceParam || null,
+      tier: tierParam || null,
+      currency: currencyParam || null,
       message: formData.message.trim(),
     });
 
@@ -411,7 +421,7 @@ const ContactPage = () => {
                 For quick scope questions, budget checks, or rapid consultation, message me directly on WhatsApp.
               </p>
               <a
-                href={`https://wa.me/${CONTACT.phoneE164 || '2348085186714'}?text=${encodeURIComponent("Hi Eugene, I'm reaching out from BuildWithLami to discuss a project.")}`}
+                href={`https://wa.me/${CONTACT.phoneE164}?text=${encodeURIComponent("Hi Eugene, I'm reaching out from Buildwith_lami to discuss a project.")}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-full py-4 px-4 bg-emerald-600 text-white font-heading font-bold text-[11px] uppercase tracking-[0.15em] flex items-center justify-center gap-2 hover:bg-emerald-500 transition-all shadow-lg active:scale-[0.98]"

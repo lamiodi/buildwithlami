@@ -7,7 +7,7 @@ import Pricing from '../components/Pricing';
 
 const PricingPage = () => {
     useEffect(() => {
-        document.title = "Pricing — BuildWithLami";
+        document.title = "Pricing — Buildwith_lami";
         window.scrollTo(0, 0);
     }, []);
 

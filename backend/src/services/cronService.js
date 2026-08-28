@@ -125,11 +125,11 @@ const checkDomainExpirations = async () => {
 
             // 1. Send Professional Email to the Client
             await sendNotificationEmail({
-                name: 'BuildWithLami',
+                name: 'Buildwith_lami',
                 email: 'no-reply@buildwithlami.com',
                 toEmail: project.primary_contact_email,
                 subject: `Action Required: Domain Expiring Soon (${project.domain_name})`,
-                message: `Dear ${project.client_name},\n\nThis is a friendly automated reminder that the domain name for your project, ${project.domain_name}, is set to expire on ${new Date(project.domain_expiration).toDateString()}.\n\nTo avoid any downtime or disruption to your website and services, please log in to your domain registrar to renew it at your earliest convenience.\n\nIf you have already renewed it or need any assistance, please feel free to reply to this email.\n\nBest regards,\nEugene Odibenuah\nBuildWithLami (buildwithlami.com)`
+                message: `Dear ${project.client_name},\n\nThis is a friendly automated reminder that the domain name for your project, ${project.domain_name}, is set to expire on ${new Date(project.domain_expiration).toDateString()}.\n\nTo avoid any downtime or disruption to your website and services, please log in to your domain registrar to renew it at your earliest convenience.\n\nIf you have already renewed it or need any assistance, please feel free to reply to this email.\n\nBest regards,\nEugene Odibenuah\nBuildwith_lami (buildwithlami.com)`
             });
 
             // 2. Send Alert to Admin (configurable via env)

@@ -301,7 +301,7 @@ const WhatsAppWidget = () => {
     </>
   );
   const actionLabel = 'Start WhatsApp Chat ↗';
-  const defaultMessage = "Hi Eugene! I'd like to discuss a software project with BuildWithLami.";
+  const defaultMessage = "Hi Eugene! I'd like to discuss a software project with Buildwith_lami.";
   const waLink = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(defaultMessage)}`;
 
   return (

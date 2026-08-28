@@ -445,13 +445,13 @@ const DroneProjectDetailPage = () => {
       }
       setLoading(false);
 
-      document.title = `${res.data?.title || 'Mission'} | BuildWithLami Drone`;
+      document.title = `${res.data?.title || 'Mission'} | Buildwith_lami Drone`;
       const metaDesc = document.querySelector('meta[name="description"]');
       if (metaDesc) {
         metaDesc.setAttribute(
           'content',
           res.data?.summary ||
-            `Drone case study — ${res.data?.title || 'mission'} by BuildWithLami.`
+            `Drone case study — ${res.data?.title || 'mission'} by Buildwith_lami.`
         );
       }
     };

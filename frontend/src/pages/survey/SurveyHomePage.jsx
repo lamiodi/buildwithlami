@@ -617,7 +617,7 @@ const SurveyHomePage = () => {
     if (metaDesc) {
       metaDesc.setAttribute(
         'content',
-        'GeoSurvey // BuildWithLami Surveying Division — Professional cadastral boundary demarcation, topographic mapping, construction setting out, and estate subdivision across Nigeria.'
+        'GeoSurvey // Buildwith_lami Surveying Division — Professional cadastral boundary demarcation, topographic mapping, construction setting out, and estate subdivision across Nigeria.'
       );
     }
     return () => {

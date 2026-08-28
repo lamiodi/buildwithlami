@@ -18,10 +18,10 @@ const ProjectsPage = () => {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    document.title = "Selected Works | BuildWithLami — Software Portfolio";
+    document.title = "Selected Works | Buildwith_lami — Software Portfolio";
     const metaDesc = document.querySelector('meta[name="description"]');
     if (metaDesc) {
-      metaDesc.setAttribute("content", "Explore selected software engineering works by Eugene Odibenuah (BuildWithLami) — from custom business ERPs and SaaS platforms to luxury e-commerce and regulatory web portals.");
+      metaDesc.setAttribute("content", "Explore selected software engineering works by Eugene Odibenuah (Buildwith_lami) — from custom business ERPs and SaaS platforms to luxury e-commerce and regulatory web portals.");
     }
     const fetchProjects = async () => {
       const res = await api.get('/projects/division/SOFTWARE');
@@ -411,7 +411,7 @@ const ProjectsPage = () => {
               Start a Project →
             </Link>
             <a
-              href={`https://wa.me/${CONTACT.phoneE164 || '2348085186714'}`}
+              href={`https://wa.me/${CONTACT.phoneE164}`}
               target="_blank"
               rel="noopener noreferrer"
               className="btn-secondary w-full sm:w-auto"

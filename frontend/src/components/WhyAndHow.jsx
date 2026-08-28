@@ -137,7 +137,7 @@ const WhyAndHow = () => {
               <span>03 · Principles & Execution Standards</span>
             </div>
             <h2 className="text-3xl md:text-5xl font-heading font-bold text-black dark:text-white tracking-tight">
-              Why BuildWithLami <span className="text-accent">&</span> How It Works
+              Why Buildwith_lami <span className="text-accent">&</span> How It Works
             </h2>
             <p className="text-gray-600 dark:text-gray-400 text-sm md:text-base font-light mt-4 leading-relaxed">
               I combine systems architecture, clean software engineering, and conversion-focused UX with a predictable, transparent four-step delivery process.

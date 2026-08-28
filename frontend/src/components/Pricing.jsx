@@ -104,7 +104,7 @@ const Pricing = ({ isHomepage = false }) => {
                 <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-gray-900 dark:text-white">RUN · Production Infrastructure</span>
               </div>
               <p className="text-xs text-gray-600 dark:text-gray-400 font-light leading-relaxed">
-                Hosting, database, CDN, SSL, and transactional email. Pay providers directly or select a BuildWithLami-managed infrastructure plan (from ₦130k/yr).
+                Hosting, database, CDN, SSL, and transactional email. Pay providers directly or select a Buildwith_lami-managed infrastructure plan (from ₦130k/yr).
               </p>
             </div>
 
@@ -171,7 +171,7 @@ const Pricing = ({ isHomepage = false }) => {
                     <span className="text-xs text-gray-600 dark:text-gray-400 block mt-1 font-medium">Starter · Growth (Best Value) · Pro Custom</span>
                   </div>
                   <ul className="space-y-2.5 text-xs text-gray-700 dark:text-gray-300 mb-6">
-                    <li className="flex items-center gap-2.5"><CheckIcon className="text-accent" /> <span>Multi-gateway checkout (Paystack/Stripe)</span></li>
+                    <li className="flex items-center gap-2.5"><CheckIcon className="text-accent" /> <span>Paystack checkout & bank transfer (NGN, USD, EUR, GBP)</span></li>
                     <li className="flex items-center gap-2.5"><CheckIcon className="text-accent" /> <span>Abandoned cart recovery & accounts</span></li>
                     <li className="flex items-center gap-2.5"><CheckIcon className="text-accent" /> <span>30 days priority bug-fix support</span></li>
                   </ul>
@@ -549,7 +549,7 @@ const Pricing = ({ isHomepage = false }) => {
                       <strong className="text-gray-900 dark:text-white">Client-Owned:</strong> Pay host directly with 0% markup.
                     </div>
                     <div>
-                      <strong className="text-gray-900 dark:text-white">BuildWithLami-Managed:</strong> Custom infrastructure quote per stack. Essential Care manages & monitors your infrastructure — it never pays third-party bills.
+                      <strong className="text-gray-900 dark:text-white">Buildwith_lami-Managed:</strong> Custom infrastructure quote per stack. Essential Care manages & monitors your infrastructure — it never pays third-party bills.
                     </div>
                   </div>
                 </div>
@@ -578,7 +578,7 @@ const Pricing = ({ isHomepage = false }) => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5 pt-2">
                 <div className="p-5 rounded-2xl bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-900/40 space-y-2">
                   <h4 className="text-xs font-bold font-heading uppercase tracking-wider text-emerald-800 dark:text-emerald-300 flex items-center gap-2">
-                    <span>✓</span> BuildWithLami Responsibility (Application Engineering)
+                    <span>✓</span> Buildwith_lami Responsibility (Application Engineering)
                   </h4>
                   <ul className="space-y-1.5 text-xs text-gray-700 dark:text-gray-300 font-light">
                     <li>• Bespoke application & database architecture implementation</li>

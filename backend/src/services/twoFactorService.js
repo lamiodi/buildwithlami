@@ -33,7 +33,7 @@ import {
     decryptTotpSecret,
 } from '../utils/twoFactorCrypto.js';
 
-const ISSUER = 'BuildWithLami';
+const ISSUER = 'Buildwith_lami';
 const RECOVERY_CODE_COUNT = 8;
 const RECOVERY_CODE_BYTES = 5; // 10 hex chars — easy to type, plenty of entropy.
 

@@ -74,10 +74,10 @@ const SoftwareHomePage = () => {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    document.title = "Software Engineering & Architecture | BuildWithLami";
+    document.title = "Software Engineering & Architecture | Buildwith_lami";
     const metaDesc = document.querySelector('meta[name="description"]');
     if (metaDesc) {
-      metaDesc.setAttribute("content", "BuildWithLami Software Division: Custom web platforms, high-performance applications, secure APIs, and tailored SaaS systems built by Eugene Odibenuah.");
+      metaDesc.setAttribute("content", "Buildwith_lami Software Division: Custom web platforms, high-performance applications, secure APIs, and tailored SaaS systems built by Eugene Odibenuah.");
     }
 
     const fetchSoftwareProjects = async () => {

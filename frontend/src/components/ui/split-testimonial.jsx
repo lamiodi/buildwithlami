@@ -4,32 +4,10 @@ import React, { useState } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 
-export const DEFAULT_TESTIMONIALS = [
-  {
-    id: 1,
-    quote: "BuildWithLami transformed our operations. Their software division engineered a custom portal that cut our processing time in half with flawless precision.",
-    name: "Sarah Johnson",
-    role: "Operations Director",
-    company: "TechFlow Systems",
-    image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=900&auto=format&fit=crop&q=80",
-  },
-  {
-    id: 2,
-    quote: "The drone mapping data and architectural execution provided by Lami ODI was remarkably accurate. Saved our engineering team weeks on site validation.",
-    name: "David Okafor",
-    role: "Chief Surveyor",
-    company: "AgriCorp Infrastructure",
-    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=900&auto=format&fit=crop&q=80",
-  },
-  {
-    id: 3,
-    quote: "Professional, fast, and technically brilliant. They understood exactly what our SaaS architecture needed and delivered way beyond expectations.",
-    name: "Elena Rodriguez",
-    role: "Founder & CEO",
-    company: "SaaSify Cloud",
-    image: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=900&auto=format&fit=crop&q=80",
-  },
-];
+// Testimonials are intentionally empty. Fabricated quotes with stock photos
+// were removed during the consistency audit (Phase C). Add real, consented
+// client quotes here as you collect them.
+export const DEFAULT_TESTIMONIALS = [];
 
 export function TestimonialsSplit({ items = DEFAULT_TESTIMONIALS }) {
   const [activeIndex, setActiveIndex] = useState(0);

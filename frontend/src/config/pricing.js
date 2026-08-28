@@ -14,7 +14,7 @@ export const COMMERCIAL_TERMS = {
     label: '50% Kickoff Milestone / 50% Final Delivery'
   },
   disclaimer:
-    'Website performance depends on application architecture, hosting infrastructure, traffic volume, third-party services, media assets, and network conditions. BuildWithLami optimizes the application for production performance, while specific uptime or performance guarantees require an appropriate infrastructure tier.',
+    'Website performance depends on application architecture, hosting infrastructure, traffic volume, third-party services, media assets, and network conditions. Buildwith_lami optimizes the application for production performance, while specific uptime or performance guarantees require an appropriate infrastructure tier.',
   footerNotice:
     'All prices in Nigerian Naira (₦). Prices exclude 7.5% VAT where applicable. International clients receive separate USD quotes.'
 };

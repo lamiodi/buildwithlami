@@ -164,7 +164,7 @@ const AdminEmailTemplates = () => {
         const res = await api.post('/email-templates', {
             name: newName.trim(),
             subject: 'New template — edit me',
-            body: 'Hi {{client_name}},\n\nThis is a brand new template. Edit me!\n\n— The BuildWithLami team',
+            body: 'Hi {{client_name}},\n\nThis is a brand new template. Edit me!\n\n— The Buildwith_lami team',
             placeholders: ['client_name'],
         });
         setCreating(false);
@@ -319,7 +319,7 @@ const AdminEmailTemplates = () => {
                                                 onChange={(e) => setEditBody(e.target.value)}
                                                 rows={16}
                                                 className={`${inputClass} font-mono text-xs`}
-                                                placeholder="Hi {{client_name}},&#10;&#10;Welcome aboard!&#10;&#10;— The BuildWithLami team"
+                                                placeholder="Hi {{client_name}},&#10;&#10;Welcome aboard!&#10;&#10;— The Buildwith_lami team"
                                             />
                                         </div>
                                         {detectedPlaceholders.length > 0 && (

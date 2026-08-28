@@ -51,7 +51,7 @@ const WhyChoose = () => {
           <span className="w-2 h-2 bg-accent inline-block" />
           <span>03 · Core Engineering Principles</span>
         </div>
-        <h3 className="text-3xl md:text-4xl font-heading font-bold text-black dark:text-white">Why BuildWithLami</h3>
+        <h3 className="text-3xl md:text-4xl font-heading font-bold text-black dark:text-white">Why Buildwith_lami</h3>
         <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto text-sm md:text-base font-light mt-3">
           I combine clean engineering, systems architecture, and conversion-focused UX to build software that is practical, fast, and ready for production scale.
         </p>

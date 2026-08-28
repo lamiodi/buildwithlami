@@ -27,7 +27,7 @@ export const sendNotificationEmail = async ({ name, email, subject, message, toE
         const safeMessage = escapeHtml(message);
 
         const mailOptions = {
-            from: process.env.EMAIL_FROM || '"BuildWithLami" <no-reply@buildwithlami.com>',
+            from: process.env.EMAIL_FROM || '"Buildwith_lami" <no-reply@buildwithlami.com>',
             to: toEmail || process.env.ADMIN_EMAIL || process.env.EMAIL_TO,
             subject: `New Inquiry from ${safeName}: ${safeSubject}`,
             text: `You have a new message from your portfolio website.\n\nName: ${name}\nEmail: ${email}\n\nMessage:\n${message}`,
@@ -39,8 +39,8 @@ export const sendNotificationEmail = async ({ name, email, subject, message, toE
 
         if (!process.env.SMTP_USER) {
             if (process.env.NODE_ENV === 'production') {
-                console.warn('[EmailService] ⚠️ PRODUCTION ALERT: SMTP_USER not configured. Outgoing email skipped:', mailOptions.subject);
-                return { success: false, error: 'SMTP credentials not configured on server', mocked: true };
+                console.error('[EmailService] ❌ PRODUCTION ERROR: SMTP_USER not configured. Refusing to silently drop email:', mailOptions.subject);
+                throw new Error('SMTP credentials not configured on server');
             }
             console.log('[EmailService] 📧 SMTP credentials missing. Mocking email send:');
             console.log(mailOptions);

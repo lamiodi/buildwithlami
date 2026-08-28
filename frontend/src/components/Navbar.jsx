@@ -80,13 +80,13 @@ const Navbar = ({ isDark, toggleTheme }) => {
               }
             }}
             className="flex items-center gap-2.5 group active:scale-95 transition-all"
-            aria-label="BuildWithLami Home"
+            aria-label="Buildwith_lami Home"
           >
             <div className="w-9 h-9 rounded-xl bg-black text-white dark:bg-white dark:text-black flex items-center justify-center font-heading font-extrabold text-sm tracking-tight shadow-sm group-hover:bg-accent group-hover:text-white dark:group-hover:bg-accent dark:group-hover:text-white transition-colors">
               BWL
             </div>
             <span className="font-heading font-bold text-base tracking-tight text-black dark:text-white group-hover:text-accent transition-colors">
-              BuildWithLami
+              Buildwith_lami
             </span>
           </Link>
           
@@ -185,7 +185,7 @@ const Navbar = ({ isDark, toggleTheme }) => {
                   BWL
                 </div>
                 <span className="font-heading font-bold text-sm tracking-tight text-black dark:text-white">
-                  BuildWithLami
+                  Buildwith_lami
                 </span>
               </Link>
               
@@ -270,7 +270,7 @@ const Navbar = ({ isDark, toggleTheme }) => {
               <div className="flex items-center justify-between px-2 pt-2 text-[11px] text-gray-500 font-medium">
                 <span>Milestone Invoicing: 50/50</span>
                 <a
-                  href={`https://wa.me/${CONTACT.phoneE164 || '2348085186714'}?text=${encodeURIComponent("Hi Eugene, I'm reaching out from BuildWithLami to discuss a project.")}`}
+                  href={`https://wa.me/${CONTACT.phoneE164}?text=${encodeURIComponent("Hi Eugene, I'm reaching out from Buildwith_lami to discuss a project.")}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-emerald-600 dark:text-emerald-400 font-bold hover:underline flex items-center gap-1"

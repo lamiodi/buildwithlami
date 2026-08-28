@@ -21,11 +21,11 @@ import TechIcon from '../components/TechIcon';
 const experience = [
   {
     role: 'Founder & Full-Stack Developer',
-    company: 'BuildWithLami',
+    company: 'Buildwith_lami',
     period: '2023 — Present',
     location: 'Lagos, Nigeria (Worldwide Remote)',
     overview:
-      'I run BuildWithLami, where I design and engineer custom digital products for businesses, founders, and growing teams.',
+      'I run Buildwith_lami, where I design and engineer custom digital products for businesses, founders, and growing teams.',
     selectedWork: [
       'Enterprise web applications & internal tools',
       'High-conversion e-commerce platforms',
@@ -251,7 +251,7 @@ const AboutPage = () => {
   // SEO + scroll-to-top
   useEffect(() => {
     window.scrollTo(0, 0);
-    document.title = 'About Eugene Odibenuah | BuildWithLami — Full-Stack Software Engineer';
+    document.title = 'About Eugene Odibenuah | Buildwith_lami — Full-Stack Software Engineer';
 
     const setMeta = (selector, attr, value) => {
       const el = document.querySelector(selector);
@@ -261,13 +261,13 @@ const AboutPage = () => {
     setMeta(
       'meta[name="description"]',
       'content',
-      'About BuildWithLami — founded by Eugene Odibenuah, a full-stack software engineer based in Lagos, Nigeria. Custom web platforms, SaaS applications, and enterprise systems built for real-world reliability.'
+      'About Buildwith_lami — founded by Eugene Odibenuah, a full-stack software engineer based in Lagos, Nigeria. Custom web platforms, SaaS applications, and enterprise systems built for real-world reliability.'
     );
-    setMeta('meta[property="og:title"]', 'content', 'About Eugene Odibenuah | BuildWithLami');
+    setMeta('meta[property="og:title"]', 'content', 'About Eugene Odibenuah | Buildwith_lami');
     setMeta(
       'meta[property="og:description"]',
       'content',
-      'Full-stack software engineer & founder of BuildWithLami. Designing and engineering high-performance web platforms and scalable business systems.'
+      'Full-stack software engineer & founder of Buildwith_lami. Designing and engineering high-performance web platforms and scalable business systems.'
     );
     setMeta('meta[property="og:type"]', 'content', 'profile');
   }, []);
@@ -322,7 +322,7 @@ const AboutPage = () => {
                 <source type="image/webp" srcSet="/eugene-hero.webp" />
                 <img
                   src="/eugene-hero.webp"
-                  alt="Eugene Odibenuah — Founder of BuildWithLami"
+                  alt="Eugene Odibenuah — Founder of Buildwith_lami"
                   loading="lazy"
                   decoding="async"
                   width="800"
@@ -354,7 +354,7 @@ const AboutPage = () => {
                 Eugene Odibenuah
               </h2>
               <p className="text-xs sm:text-sm uppercase tracking-widest text-accent font-bold mb-5 font-mono">
-                Founder, BuildWithLami · Full-Stack Software Engineer
+                Founder, Buildwith_lami · Full-Stack Software Engineer
               </p>
               <div className="text-gray-800 dark:text-gray-200 text-sm sm:text-base md:text-lg leading-relaxed font-light space-y-4">
                 <p>

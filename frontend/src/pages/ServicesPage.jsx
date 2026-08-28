@@ -11,7 +11,7 @@ const ServicesPage = () => {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    document.title = "Services | BuildWithLami — Web Platforms & Technical Strategy";
+    document.title = "Services | Buildwith_lami — Web Platforms & Technical Strategy";
     const metaDesc = document.querySelector('meta[name="description"]');
     if (metaDesc) {
       metaDesc.setAttribute("content", "Bespoke web platforms, high-performance interfaces, secure data backends, technical audits, and organic SEO growth strategies engineered by Eugene Odibenuah.");

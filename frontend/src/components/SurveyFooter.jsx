@@ -70,7 +70,7 @@ const SurveyFooter = () => {
               </li>
               <li>
                 <Link to="/" className="hover:text-white transition-colors inline-flex items-center gap-1">
-                  BuildWithLami (Parent Studio) <ArrowUpRight className="w-3 h-3 text-gray-400" />
+                  Buildwith_lami (Parent Studio) <ArrowUpRight className="w-3 h-3 text-gray-400" />
                 </Link>
               </li>
               <li className="pt-2">
@@ -95,7 +95,7 @@ const SurveyFooter = () => {
       <div className="border-t border-gray-900 bg-[#070707] py-6 px-6 md:px-12 text-[11px] text-gray-500">
         <div className="max-w-[1400px] mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
           <p className="font-mono">
-            &copy; {currentYear} GeoSurvey // BuildWithLami Surveying Division. All rights reserved.
+            &copy; {currentYear} GeoSurvey // Buildwith_lami Surveying Division. All rights reserved.
           </p>
           <p className="font-mono text-[10px] text-gray-400">
             Lagos Base // Deployments Nationwide Across Nigeria

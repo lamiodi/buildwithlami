@@ -104,7 +104,7 @@ const PaymentPage = () => {
   <title>Invoice ${invoiceNo}</title>
   <style>
     :root {
-      --brand: #e65100; /* BuildWithLami Accent */
+      --brand: #e65100; /* Buildwith_lami Accent */
       --brand-light: #fff3e0;
       --text: #1f2937;
       --muted: #6b7280;
@@ -194,7 +194,7 @@ const PaymentPage = () => {
 
   <div class="footer">
     Thank you for your business. For any questions concerning this invoice, contact hello@buildwithlami.com.<br/>
-    BuildWithLami · Software, Survey & Drone Agency
+    Buildwith_lami · Software, Survey & Drone Agency
   </div>
 </body>
 </html>`;
@@ -241,7 +241,7 @@ const PaymentPage = () => {
                     <div className="text-5xl mb-4">🔗</div>
                     <h1 className="text-2xl font-bold mb-2">Invalid Payment Link</h1>
                     <p className="text-gray-600 mb-6">{error}</p>
-                    <Link to="/" className="text-accent hover:underline font-bold">← Back to BuildWithLami</Link>
+                    <Link to="/" className="text-accent hover:underline font-bold">← Back to Buildwith_lami</Link>
                 </div>
             </div>
         );

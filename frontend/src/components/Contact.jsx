@@ -15,14 +15,17 @@ import {
 import { Mail, Send, CheckCircle2, Sparkles, ShieldCheck, Code } from 'lucide-react';
 
 const projectTypes = [
-  'Business / Corporate Website',
-  'E-commerce Store',
-  'Business Portal / ERP (School, Estate, Warehouse, POS)',
-  'Web Application / SaaS',
-  'Landing Page / Portfolio',
+  'Business Website',
+  'E-Commerce Store',
+  'Custom Software',
+  'Business Portal / ERP',
   'UI/UX Design',
-  'Redesign / Rebuild',
-  'Other'
+  'Branding',
+  'SEO & Growth',
+  'Marketing',
+  'AI & Automations',
+  'Maintenance',
+  'Other',
 ];
 
 const budgetRanges = BUDGET_RANGES;
@@ -54,7 +57,10 @@ const Contact = () => {
       message: formData.message,
       project_type: formData.project_type || null,
       budget: formData.budget || null,
-      timeline: formData.timeline || null
+      timeline: formData.timeline || null,
+      service: null,
+      tier: null,
+      currency: null,
     });
 
     if (res.ok) {

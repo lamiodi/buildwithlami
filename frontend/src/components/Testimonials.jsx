@@ -1,10 +1,13 @@
 import React from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { sectionViewport } from '../utils/motion';
-import { TestimonialsSplit } from './ui/split-testimonial';
+import { TestimonialsSplit, DEFAULT_TESTIMONIALS } from './ui/split-testimonial';
 
 const Testimonials = () => {
   const shouldReduce = useReducedMotion();
+
+  // Don't render the section at all until real, consented testimonials exist.
+  if (!DEFAULT_TESTIMONIALS || DEFAULT_TESTIMONIALS.length === 0) return null;
 
   return (
     <section id="testimonials" className="px-6 md:px-12 max-w-7xl mx-auto py-24 bg-white dark:bg-[#0a0a0a] transition-colors duration-300">

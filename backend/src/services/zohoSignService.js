@@ -127,7 +127,7 @@ export async function downloadPDF(agreementId) {
         // (e.g. file upload to Cloudinary) have something to
         // attach without crashing. The bytes are NOT a real
         // contract PDF.
-        return Buffer.from('%PDF-1.4\n% BuildWithLami STUB MODE\n% This is a placeholder. Force-sign via the admin dev tool to generate a real PDF.\n', 'utf-8');
+        return Buffer.from('%PDF-1.4\n% Buildwith_lami STUB MODE\n% This is a placeholder. Force-sign via the admin dev tool to generate a real PDF.\n', 'utf-8');
     }
 
     try {

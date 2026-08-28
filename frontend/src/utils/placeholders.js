@@ -87,6 +87,6 @@ export function equipmentPlaceholder({ width = 200, height = 200, label = 'Equip
 /**
  * Hero image placeholder for landing sections
  */
-export function heroPlaceholder({ width = 1200, height = 800, label = 'BuildWithLami' } = {}) {
+export function heroPlaceholder({ width = 1200, height = 800, label = 'Buildwith_lami' } = {}) {
   return generatePlaceholder({ width, height, bgColor: '#030712', accentColor: '#f44a22', label });
 }

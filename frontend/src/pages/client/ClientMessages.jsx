@@ -47,7 +47,7 @@ export default function ClientMessages() {
                         </div>
                         <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Message Delivered</h3>
                         <p className="text-sm text-gray-500 dark:text-gray-400 max-w-md mx-auto">
-                            Your message has been dispatched to Eugene and the BuildWithLami agency team. We typically respond within 2–4 hours.
+                            Your message has been dispatched to Eugene and the Buildwith_lami agency team. We typically respond within 2–4 hours.
                         </p>
                         <button
                             onClick={() => setSubmitted(false)}

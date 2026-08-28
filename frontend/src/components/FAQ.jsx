@@ -17,7 +17,7 @@ const faqs = [
   },
   {
     question: "What technologies do you use?",
-    answer: "I specialize in the modern web stack: React/Next.js for the frontend, Node.js/Express for the backend, and PostgreSQL for the database. I also utilize Tailwind CSS, Framer Motion, and various cloud services like Supabase and AWS."
+    answer: "We focus on a modern, reliable stack: React, Node.js, and PostgreSQL — deployed on Render with Cloudinary for media. We run a focused, single-cloud architecture so your product stays maintainable."
   },
   {
     question: "Can you help redesign an existing website?",

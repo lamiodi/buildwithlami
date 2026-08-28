@@ -309,7 +309,7 @@ const AdminClients = () => {
                               if (!isValid) return null;
                               return (
                                 <a
-                                  href={`https://wa.me/${digits}?text=${encodeURIComponent(`Hi ${client.name}, this is Lami Odi from BuildWithLami — following up on your project.`)}`}
+                                  href={`https://wa.me/${digits}?text=${encodeURIComponent(`Hi ${client.name}, this is Lami Odi from Buildwith_lami — following up on your project.`)}`}
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   title={`Chat with ${client.name} on WhatsApp`}

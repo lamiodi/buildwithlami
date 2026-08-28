@@ -71,7 +71,7 @@ const Footer = () => {
 
             <div className="space-y-1 text-center lg:text-left">
               <span className="text-xs font-bold text-accent uppercase tracking-widest block">Software Studio</span>
-              <h3 className="text-xl font-heading font-bold text-white tracking-tight">BuildWithLami</h3>
+              <h3 className="text-xl font-heading font-bold text-white tracking-tight">Buildwith_lami</h3>
               <p className="text-xs text-gray-400 font-mono">Founded by Eugene Odibenuah</p>
             </div>
           </div>
@@ -138,7 +138,7 @@ const Footer = () => {
 
           {/* Copyright */}
           <div className="opacity-90 font-mono font-medium lowercase tracking-[0.15em] text-center sm:text-right">
-            copyright {displayYear} // BuildWithLami · founded by Eugene Odibenuah
+            copyright {displayYear} // Buildwith_lami · founded by Eugene Odibenuah
           </div>
         </div>
       </div>

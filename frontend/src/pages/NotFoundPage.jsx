@@ -9,7 +9,7 @@ const NotFoundPage = () => {
   const item = shouldReduce ? reducedMotionVariants : fadeUpItem;
 
   useEffect(() => {
-    document.title = "404 — Page Not Found | BuildWithLami";
+    document.title = "404 — Page Not Found | Buildwith_lami";
   }, []);
 
   return (

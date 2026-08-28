@@ -303,7 +303,7 @@ export default function AdminSurveyBookings() {
                                     <User className="w-3.5 h-3.5" /> View in CRM Pipeline
                                 </Link>
                                 <a
-                                    href={`mailto:${selectedBooking.email}?subject=Regarding Your Survey Request with BuildWithLami`}
+                                    href={`mailto:${selectedBooking.email}?subject=Regarding Your Survey Request with Buildwith_lami`}
                                     className="px-4 py-2.5 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-colors inline-flex items-center gap-1.5 shadow-md"
                                 >
                                     <Send className="w-3.5 h-3.5" /> Email Client

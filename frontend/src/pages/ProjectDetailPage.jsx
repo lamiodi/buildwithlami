@@ -466,7 +466,7 @@ const ProjectDetailPage = () => {
   // ── SEO + document title ──
   useEffect(() => {
     if (project) {
-      document.title = `${project.title} — Case Study | BuildWithLami`;
+      document.title = `${project.title} — Case Study | Buildwith_lami`;
       const setMeta = (selector, attr, value) => {
         const el = document.querySelector(selector);
         if (el) el.setAttribute(attr, value);
@@ -476,7 +476,7 @@ const ProjectDetailPage = () => {
         'content',
         project.summary ||
           project.description ||
-          `Case study of ${project.title} — engineered by BuildWithLami (Eugene Odibenuah).`
+          `Case study of ${project.title} — engineered by Buildwith_lami (Eugene Odibenuah).`
       );
     }
   }, [project]);
@@ -1474,7 +1474,7 @@ const ProjectDetailPage = () => {
                 </motion.div>
                 <div className="mt-8">
                   <a
-                    href={`https://wa.me/${CONTACT.phoneE164 || '2348085186714'}`}
+                    href={`https://wa.me/${CONTACT.phoneE164}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-xs font-mono text-gray-500 hover:text-accent transition-colors underline"

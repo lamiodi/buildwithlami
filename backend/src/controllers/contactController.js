@@ -25,7 +25,12 @@ const createMessageSchema = z.object({
     message: z.string().min(1),
     project_type: z.string().optional().nullable(),
     budget: z.string().optional().nullable(),
-    timeline: z.string().optional().nullable()
+    timeline: z.string().optional().nullable(),
+    // Optional URL-param context from Pricing.jsx
+    // (e.g. ?service=ecommerce&tier=ecom_growth&currency=USD)
+    service: z.string().optional().nullable(),
+    tier: z.string().optional().nullable(),
+    currency: z.string().optional().nullable(),
 });
 
 export async function submitContactForm(req, res) {
@@ -38,12 +43,15 @@ export async function submitContactForm(req, res) {
         const cleanProjectType = data.project_type ? DOMPurify.sanitize(data.project_type) : null;
         const cleanBudget = data.budget ? DOMPurify.sanitize(data.budget) : null;
         const cleanTimeline = data.timeline ? DOMPurify.sanitize(data.timeline) : null;
+        const cleanService = data.service ? DOMPurify.sanitize(data.service) : null;
+        const cleanTier = data.tier ? DOMPurify.sanitize(data.tier) : null;
+        const cleanCurrency = data.currency ? DOMPurify.sanitize(data.currency) : null;
 
         await pool.query(
-            `INSERT INTO messages (full_name, email, message, project_type, budget, timeline)
-       VALUES ($1, $2, $3, $4, $5, $6)
+            `INSERT INTO messages (full_name, email, message, project_type, budget, timeline, service, tier, currency)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
        RETURNING id, full_name, email, created_at`,
-            [cleanName, data.email, cleanMessage, cleanProjectType, cleanBudget, cleanTimeline]
+            [cleanName, data.email, cleanMessage, cleanProjectType, cleanBudget, cleanTimeline, cleanService, cleanTier, cleanCurrency]
         );
 
         // Phase 3 — auto-tag: every /contact submission also
@@ -51,13 +59,16 @@ export async function submitContactForm(req, res) {
         // source = 'contact_form' and division = 'SOFTWARE'.
         // Failures are swallowed so the public form still
         // succeeds even if the leads table is unavailable.
+        const serviceTag = cleanService ? ` · Service: ${cleanService}` : '';
+        const tierTag = cleanTier ? ` · Tier: ${cleanTier}` : '';
+        const currencyTag = cleanCurrency ? ` · Currency: ${cleanCurrency}` : '';
         insertLeadRow({
             full_name: cleanName,
             email: data.email,
             division: 'SOFTWARE',
             source: 'contact_form',
             notes: cleanMessage
-                ? `Project: ${cleanProjectType || '—'} · Budget: ${cleanBudget || '—'} · Timeline: ${cleanTimeline || '—'}\n\n${cleanMessage}`
+                ? `Project: ${cleanProjectType || '—'} · Budget: ${cleanBudget || '—'} · Timeline: ${cleanTimeline || '—'}${serviceTag}${tierTag}${currencyTag}\n\n${cleanMessage}`
                 : null,
         }).catch(err => console.error('[Contact] lead auto-tag failed:', err.message));
 
