@@ -1,4 +1,4 @@
-# Content Ownership — BuildWithLami
+# Content Ownership — Buildwith_lami
 
 > Who writes what, where it lives, and how to keep it consistent.
 > Add your name when you start writing; remove it when you stop.

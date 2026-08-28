@@ -1,7 +1,7 @@
 // ─── src/components/admin/WorkspaceSelector.jsx ──────────
 // Manual workspace switcher.
 //
-// BuildWithLami is a solo-CEO operation, but the admin nav
+// Buildwith_lami is a solo-CEO operation, but the admin nav
 // spans four logical surfaces (Software / Survey / Drone /
 // Core cross-cutting). This dropdown lets you focus the
 // sidebar on one surface at a time:

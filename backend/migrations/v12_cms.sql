@@ -102,7 +102,7 @@ Welcome aboard! We''re excited to start work on {{project_name}}.
 
 Your project manager will be in touch shortly to schedule a kickoff call.
 
-— The BuildWithLami team',
+— The Buildwith_lami team',
      '["client_name", "project_name"]'::jsonb),
     ('Proposal Sent', 'Your proposal for {{project_name}} is ready',
      'Hi {{client_name}},
@@ -112,36 +112,46 @@ Please find your proposal for {{project_name}} attached.
 Total: {{amount}}
 Valid for 14 days.
 
-— The BuildWithLami team',
+— The Buildwith_lami team',
      '["client_name", "project_name", "amount"]'::jsonb),
-    ('Invoice Sent', 'Invoice {{invoice_number}} from BuildWithLami',
+    ('Invoice Sent', 'Invoice {{invoice_number}} from Buildwith_lami',
      'Hi {{client_name}},
 
 Invoice {{invoice_number}} for {{amount}} is ready.
 
 Pay here: {{payment_url}}
 
-— The BuildWithLami team',
+— The Buildwith_lami team',
      '["client_name", "invoice_number", "amount", "payment_url"]'::jsonb),
     ('Project Complete', 'Your project {{project_name}} is live!',
      'Hi {{client_name}},
 
 {{project_name}} is now live at {{live_url}}.
 
-Thanks for trusting BuildWithLami.
+Thanks for trusting Buildwith_lami.
 
-— The BuildWithLami team',
+— The Buildwith_lami team',
      '["client_name", "project_name", "live_url"]'::jsonb),
-    ('Testimonial Request', 'Quick favour? Share your BuildWithLami experience',
+    ('Testimonial Request', 'Quick favour? Share your Buildwith_lami experience',
      'Hi {{client_name}},
 
 It''s been about a week since we wrapped {{project_name}}. Would you mind sharing a few lines about your experience?
 
 A reply with 2-3 sentences is all we need — thank you!
 
-— The BuildWithLami team',
+— The Buildwith_lami team',
      '["client_name", "project_name"]'::jsonb)
 ON CONFLICT (name) DO NOTHING;
+
+-- Also UPDATE any rows that were already inserted by a prior run,
+-- so the brand rename is reflected regardless of when v12 first ran.
+UPDATE email_templates
+   SET body = REPLACE(body, 'BuildWithLami', 'Buildwith_lami')
+ WHERE body LIKE '%BuildWithLami%';
+
+UPDATE email_templates
+   SET subject = REPLACE(subject, 'BuildWithLami', 'Buildwith_lami')
+ WHERE subject LIKE '%BuildWithLami%';
 
 -- ── 6. contracts (Zoho Sign PDF archive) ─────────────────
 CREATE TABLE IF NOT EXISTS contracts (

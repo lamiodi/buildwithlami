@@ -20,7 +20,7 @@ router.get('/', getProjects);
 router.get('/slug/:slug', getProjectBySlug);
 router.get('/:id', getProjectById);
 
-// Protected routes — Owner only. BuildWithLami is a one-man studio,
+// Protected routes — Owner only. Buildwith_lami is a one-man studio,
 // so the only admin identity is the studio owner.
 router.use(verifyToken);
 router.use(requireRole('Owner'));

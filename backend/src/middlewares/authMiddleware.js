@@ -66,7 +66,7 @@ export function verifyToken(req, res, next) {
  * `'ADMIN'` and the canonical `'Owner'` interchangeably so any
  * un-migrated JWT or DB row still passes.
  *
- * In BuildWithLami's one-man studio the only admin role is `'Owner'`,
+ * In Buildwith_lami's one-man studio the only admin role is `'Owner'`,
  * and clients authenticate into the separate `/portal` surface via
  * `verifyClientToken` instead of this middleware. New routes should
  * always call `requireRole('Owner')` (or `requireRole('Owner', 'Client')`
@@ -93,7 +93,7 @@ export function requireRole(...allowed) {
  * Restrict to roles that have access to one of the given divisions.
  * `Owner` always passes (granted `'*'` in `ROLE_DIVISIONS`).
  *
- * NOTE: BuildWithLami is a one-man studio, so in practice the only
+ * NOTE: Buildwith_lami is a one-man studio, so in practice the only
  * role that can reach this middleware is `Owner`, and `Owner` always
  * passes. The per-division router in `routes/divisionRoutes.js`
  * is still useful for keeping the URL surface clean — the gate is

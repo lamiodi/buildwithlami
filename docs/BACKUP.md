@@ -1,4 +1,4 @@
-# Backup & Recovery — BuildWithLami
+# Backup & Recovery — Buildwith_lami
 
 > Phase 2 / Phase 9 deliverable. Documents the production database
 > backup strategy, the quick "Backup Now" check used by the CEO,

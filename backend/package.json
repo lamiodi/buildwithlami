@@ -1,7 +1,7 @@
 {
   "name": "buildwithlami",
   "version": "1.0.0",
-  "description": "BuildWithLami (buildwithlami.com) — Backend API",
+  "description": "Buildwith_lami (buildwithlami.com) — Backend API",
   "type": "module",
   "main": "src/index.js",
   "scripts": {

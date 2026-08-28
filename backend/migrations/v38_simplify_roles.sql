@@ -3,7 +3,7 @@
 -- ═══════════════════════════════════════════════════════════
 -- One-man studio simplification.
 --
--- BuildWithLami is operated by a single owner. The historical
+-- Buildwith_lami is operated by a single owner. The historical
 -- 10-role RBAC table (`v7_roles_rbac.sql`) and the v22 normalisation
 -- pass were written for a multi-user agency that never materialised.
 -- This migration:

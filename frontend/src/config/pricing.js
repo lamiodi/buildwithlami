@@ -1,5 +1,5 @@
 /**
- * BuildWithLami — Centralized Pricing & Commercial Configuration
+ * Buildwith_lami — Centralized Pricing & Commercial Configuration
  * Single source of truth for all public rates, care retainers, and commercial terms.
  */
 

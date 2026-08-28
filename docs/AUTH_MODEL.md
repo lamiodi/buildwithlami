@@ -1,7 +1,7 @@
-# BuildWithLami — Authentication Model
+# Buildwith_lami — Authentication Model
 
 This document is the **single source of truth** for how authentication
-and authorization work across the BuildWithLami stack. It was written
+and authorization work across the Buildwith_lami stack. It was written
 during the production-readiness remediation (see
 `PRODUCTION_READINESS_AUDIT.md`) to make the model explicit and to
 prevent two contradictory auth schemes (cookie + JWT + CSRF token)
@@ -199,7 +199,7 @@ cookie fails. The CORS allowlist should be tightened in that case.
 * Refresh-token rotation — not needed at this scale; the 30-minute
   sliding window with `/auth/refresh` is sufficient.
 * Server-side session store — the JWT is the session.
-* Multi-role RBAC — BuildWithLami is a one-man studio; the only
+* Multi-role RBAC — Buildwith_lami is a one-man studio; the only
   admin role is `Owner`.
 * Account-level "logout everywhere" — rotating `JWT_SECRET` is the
   blunt instrument. Not currently exposed in the UI.

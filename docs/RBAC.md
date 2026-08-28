@@ -1,6 +1,6 @@
-# BuildWithLami — Role-Based Access Control (RBAC)
+# Buildwith_lami — Role-Based Access Control (RBAC)
 
-> **TL;DR:** BuildWithLami is a one-man studio. There is exactly one admin
+> **TL;DR:** Buildwith_lami is a one-man studio. There is exactly one admin
 > identity: `Owner`. Clients authenticate into a separate portal surface via
 > a `Client` JWT. There is no role hierarchy, no division gating, no admin
 > tier, no manager tier. Every admin route uses `requireRole('Owner')`.

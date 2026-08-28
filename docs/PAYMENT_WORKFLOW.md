@@ -1,4 +1,4 @@
-# Payment Workflow — BuildWithLami
+# Payment Workflow — Buildwith_lami
 
 > Phase 10 deliverable. How a client gets from "I got an invoice"
 > to "payment confirmed" — and what the admin sees in between.
@@ -13,7 +13,7 @@
    1. Admin creates invoice             Admin → Invoices → New
                        │
                        ▼
-   2. Client receives email              Subject: "Your BuildWithLami invoice"
+   2. Client receives email              Subject: "Your Buildwith_lami invoice"
                        │                  Body: branded HTML + "Pay Securely Online" button
                        ▼
    3. Client opens /pay/:token           Unique, unguessable UUID
@@ -70,7 +70,7 @@ All 4 emails are built in [services/paymentEmailService.js](../backend/src/servi
 
 | # | When | Who | Subject |
 |---|---|---|---|
-| 1 | Right after `createInvoice` | Client | "Your BuildWithLami invoice — ₦X" |
+| 1 | Right after `createInvoice` | Client | "Your Buildwith_lami invoice — ₦X" |
 | 2 | Right after client submits proof | Client | "We received your payment proof — reviewing now" |
 | 3 | Right after client submits proof | Admin | "💰 New payment proof to review — $X" |
 | 4 | Right after admin confirms | Client | "Payment confirmed — your project is activated" |

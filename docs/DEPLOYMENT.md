@@ -1,4 +1,4 @@
-# Deployment — BuildWithLami
+# Deployment — Buildwith_lami
 
 > How a code change on your laptop becomes a live site for the
 > world. Two services, two dashboards, ~10 minutes from push to

@@ -1,4 +1,4 @@
-# CEO Quick Reference — BuildWithLami
+# CEO Quick Reference — Buildwith_lami
 
 > **Print this. Laminate it. Pin it to the wall.**
 > If the system is on fire at 2am, this is the only doc you need.
@@ -62,7 +62,7 @@ See [BACKUP.md](./BACKUP.md) §3. TL;DR:
 
 ## 🔐 2FA recovery codes
 
-- **Stored:** in your 1Password, tag `BuildWithLami`.
+- **Stored:** in your 1Password, tag `Buildwith_lami`.
 - **Backup copy:** printed in the safe.
 - **Out of codes?** Contact the database admin (Eugene) to reset via SQL: `UPDATE users SET two_factor_enabled = false, two_factor_secret = NULL WHERE email = '...';`
 
@@ -79,5 +79,5 @@ See [BACKUP.md](./BACKUP.md) §3. TL;DR:
 - **Name:** Odibenuah Eugene
 - **Role:** CEO
 - **Email:** EUGENEODIBENUAH@GMAIL.COM
-- **Backup calendar reminder:** "BuildWithLami — pg_dump + S3" (every Sunday, 6pm WAT)
-- **Vault:** 1Password → BuildWithLami
+- **Backup calendar reminder:** "Buildwith_lami — pg_dump + S3" (every Sunday, 6pm WAT)
+- **Vault:** 1Password → Buildwith_lami

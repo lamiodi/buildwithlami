@@ -1,4 +1,4 @@
-# BuildWithLami · Complete Nigerian Studio Pricing Guide (NGN ₦)
+# Buildwith_lami · Complete Nigerian Studio Pricing Guide (NGN ₦)
 
 > **Document Version**: 4.1 (Commercial QA Finalized & Care Tiers Aligned)  
 > **Currency**: Nigerian Naira (₦ NGN)  
@@ -12,7 +12,7 @@
 
 ## 1. The Commercial Model: BUILD → RUN → MAINTAIN
 
-BuildWithLami enforces a strict, transparent separation between **software engineering**, **production cloud infrastructure**, and **ongoing maintenance** so clients always understand exactly what they are paying for.
+Buildwith_lami enforces a strict, transparent separation between **software engineering**, **production cloud infrastructure**, and **ongoing maintenance** so clients always understand exactly what they are paying for.
 
 ```
 ┌────────────────────────────────┐    ┌─────────────────────────────────┐    ┌─────────────────────────────────┐
@@ -35,8 +35,8 @@ BuildWithLami enforces a strict, transparent separation between **software engin
 
 2. **RUN (Production Cloud Infrastructure)**:
    - The hosting, database, storage, transactional email, CDN, and domain required to operate your live application.
-   - **Client-Owned Infrastructure (Recommended)**: The client pays hosting and cloud providers directly (Vercel, Supabase, AWS, DigitalOcean, cPanel, Namecheap). BuildWithLami configures and deploys where included in scope with **0% markup** on third-party infrastructure.
-   - **BuildWithLami-Managed Infrastructure**: Custom infrastructure quote per stack. Our Essential Care retainer manages and monitors your infrastructure — it does not absorb third-party hosting bills.
+   - **Client-Owned Infrastructure (Recommended)**: The client pays hosting and cloud providers directly (Vercel, Supabase, AWS, DigitalOcean, cPanel, Namecheap). Buildwith_lami configures and deploys where included in scope with **0% markup** on third-party infrastructure.
+   - **Buildwith_lami-Managed Infrastructure**: Custom infrastructure quote per stack. Our Essential Care retainer manages and monitors your infrastructure — it does not absorb third-party hosting bills.
    - *Note*: Free hosting tiers are not equivalent to production infrastructure.
 
 3. **MAINTAIN (Website Care & Retainers)**:
@@ -51,11 +51,11 @@ BuildWithLami enforces a strict, transparent separation between **software engin
 ## 2. Technical Performance & Responsibility Boundaries
 
 ### Concise Performance Boundary:
-> *"Website performance depends on application architecture, hosting infrastructure, traffic volume, third-party services, media assets, and network conditions. BuildWithLami targets 90+ Lighthouse scores on delivered code, while specific uptime or performance guarantees require an appropriate infrastructure tier."*
+> *"Website performance depends on application architecture, hosting infrastructure, traffic volume, third-party services, media assets, and network conditions. Buildwith_lami targets 90+ Lighthouse scores on delivered code, while specific uptime or performance guarantees require an appropriate infrastructure tier."*
 
-### Client Responsibility vs. BuildWithLami Responsibility:
+### Client Responsibility vs. Buildwith_lami Responsibility:
 
-| Domain | BuildWithLami Responsibility | Infrastructure / Client Boundaries |
+| Domain | Buildwith_lami Responsibility | Infrastructure / Client Boundaries |
 | :--- | :--- | :--- |
 | **Application Code** | Bespoke UI/UX, responsive code, database schemas, and business workflows within agreed scope. | Client-added plugins, custom scripts, or unsupported server-level edits. |
 | **Performance** | Code-level optimization, asset minification, caching setup, and Lighthouse performance tuning on delivered code. | Network conditions, extreme unpredicted traffic surges exceeding the chosen hosting tier. |
@@ -192,4 +192,4 @@ Proactive security patches, automated uptime health checks, cloud backups, and o
 5. **Post-Launch Warranty & Care**: Included post-launch warranty commences automatically upon cutover. Ongoing maintenance begins if subscribed.
 
 ---
-*BuildWithLami Studio · Lagos, Nigeria · [hello@buildwithlami.com](mailto:hello@buildwithlami.com)*
+*Buildwith_lami Studio · Lagos, Nigeria · [hello@buildwithlami.com](mailto:hello@buildwithlami.com)*

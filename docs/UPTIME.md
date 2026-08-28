@@ -19,7 +19,7 @@ This project uses a standard health check system for integration with external m
 1. Log in to [UptimeRobot](https://uptimerobot.com/).
 2. Click **Add New Monitor**.
 3. **Monitor Type:** HTTP(s)
-4. **Friendly Name:** BuildWithLami - API
+4. **Friendly Name:** Buildwith_lami - API
 5. **URL (or IP):** `https://buildwithlami.onrender.com/api/ping` (Replace with your actual production URL)
 6. **Monitoring Interval:** 5 minutes
 7. **Select Alert Contacts:** Choose your email/SMS.

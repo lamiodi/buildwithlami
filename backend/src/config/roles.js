@@ -1,7 +1,7 @@
 /**
- * Role configuration for BuildWithLami.
+ * Role configuration for Buildwith_lami.
  *
- * BuildWithLami is a one-man studio operated by a single owner. There is no
+ * Buildwith_lami is a one-man studio operated by a single owner. There is no
  * team, no department heads, no per-division role gating. Every authenticated
  * admin user is `Owner` and has full access to every division.
  *

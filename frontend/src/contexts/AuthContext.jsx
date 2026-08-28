@@ -256,7 +256,7 @@ export function useAuth() {
  * silently swaps to a "forbidden" stub so non-Owners don't see a
  * flash of admin-only UI.
  *
- * BuildWithLami is a one-man studio — the Owner role is the only
+ * Buildwith_lami is a one-man studio — the Owner role is the only
  * admin role after v38_simplify_roles. We intentionally do NOT
  * accept the legacy 'Administrator' label here; any stale token
  * holding that role is normalised to 'Owner' by the auth middleware

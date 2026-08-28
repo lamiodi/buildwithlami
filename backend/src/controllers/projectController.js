@@ -128,7 +128,7 @@ export async function getProjects(req, res) {
         const vals = [];
         const conditions = [];
 
-        // BuildWithLami is a one-man studio: any authenticated user
+        // Buildwith_lami is a one-man studio: any authenticated user
         // is privileged (the only admin identity is `Owner`). Public
         // (un-authenticated) callers only see PUBLISHED rows.
         const isPrivileged = Boolean(req.user);

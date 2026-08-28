@@ -1,4 +1,4 @@
-# Environment Variables — BuildWithLami
+# Environment Variables — Buildwith_lami
 
 > Every env var the backend and frontend read, what it does, and
 > what to set it to. If you're adding a new integration, copy the
@@ -34,7 +34,7 @@ required.
 | Var | Default | Purpose |
 |---|---|---|
 | `JWT_EXPIRES_IN` | `30m` | Token lifetime. The session-timeout modal warns at 25 min. |
-| `TOTP_ISSUER` | `BuildWithLami` | Issuer name shown in authenticator apps. |
+| `TOTP_ISSUER` | `Buildwith_lami` | Issuer name shown in authenticator apps. |
 | `ADMIN_WRITE_LIMIT` | `60` | Max admin writes per 15 min per user (uploads, bulk actions). |
 
 ### Optional — Email (Nodemailer)

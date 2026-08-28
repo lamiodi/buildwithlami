@@ -1,4 +1,4 @@
-# Troubleshooting — BuildWithLami
+# Troubleshooting — Buildwith_lami
 
 > Common errors, what they mean, and how to fix them. Sorted by
 > how often you actually hit them.

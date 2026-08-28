@@ -1,4 +1,4 @@
-# BuildWithLami — Production-Readiness Audit
+# Buildwith_lami — Production-Readiness Audit
 
 **Date:** 2026-08-28
 **Scope:** Entire infrastructure — backend, database, frontend, business workflows, DevOps, security.
@@ -133,7 +133,7 @@
 ### H-11 ❌ `requireRole('Owner')` everywhere — implicit over-grant
 - **Where:** All `backend/src/routes/*` after v38
 - **Symptom:** Because the only admin role is Owner, every admin endpoint is reachable by every admin. There is no "viewer" or "accountant" role for an external bookkeeper. Not a security bug for a one-man studio, but blocks the future.
-- **Fix:** Either add a `readonly_admin` role, or document explicitly that BuildWithLami is single-user and the v38 simplification is final.
+- **Fix:** Either add a `readonly_admin` role, or document explicitly that Buildwith_lami is single-user and the v38 simplification is final.
 
 ### H-12 ❌ `package-lock.json` not committed in a verifiable state
 - **Where:** Repo root

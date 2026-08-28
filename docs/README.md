@@ -1,4 +1,4 @@
-# BuildWithLami — Documentation Index
+# Buildwith_lami — Documentation Index
 
 > Phase 9 deliverable. This folder is the **operating manual** for
 > the project. When something is wrong at 11pm and you can't
