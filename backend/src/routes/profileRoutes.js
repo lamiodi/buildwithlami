@@ -8,6 +8,6 @@ const router = express.Router();
 router.get('/', getProfile);
 
 // Protected route to update profile
-router.put('/', verifyToken, requireRole('ADMIN', 'OWNER'), updateProfile);
+router.put('/', verifyToken, requireRole('Owner'), updateProfile);
 
 export default router;

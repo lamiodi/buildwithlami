@@ -1,11 +1,21 @@
 import pool from '../config/db.js';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
+import { z } from 'zod';
 import { decrypt } from '../utils/crypto.js';
 import cloudinary from '../utils/cloudinary.js';
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const isUuid = (s) => typeof s === 'string' && UUID_REGEX.test(s);
+
+const authClientPortalSchema = z.object({
+    email: z.string().email().max(254),
+});
+
+const uploadFileSchema = z.object({
+    category: z.string().max(100).optional().nullable(),
+    fileName: z.string().max(255).optional().nullable(),
+});
 
 // Allow-list of columns that admins are permitted to mutate on client_projects.
 // Anything else in the body is silently dropped.
@@ -171,8 +181,10 @@ export const createClientProject = async (req, res) => {
             `INSERT INTO client_projects
             (client_id, project_name, progress, status, notes,
              domain_name, domain_expiration, amount_due, payment_type, monthly_fee, payment_status, stages,
-             intake_form_id, intake_completed, assets_url, training_video_url, maintenance_plan_url)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17) RETURNING *`,
+             intake_form_id, intake_completed, assets_url, training_video_url, maintenance_plan_url,
+             tracking_id)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17,
+                    encode(gen_random_bytes(16), 'hex')) RETURNING *`,
             [client_id, project_name, calculatedProgress, status || 'PLANNING', notes,
              domain_name, domain_expiration || null, amount_due || 0, payment_type || 'ONE_TIME', monthly_fee || 0, payment_status || 'PENDING', JSON.stringify(stages || []),
              isUuid(intake_form_id) ? intake_form_id : null, !!intake_completed, assets_url, training_video_url, maintenance_plan_url]
@@ -299,7 +311,11 @@ export const regenerateTrackingId = async (req, res) => {
 
 export const authClientPortal = async (req, res) => {
     const { trackingId } = req.params;
-    const { email } = req.body;
+    const parsed = authClientPortalSchema.safeParse(req.body);
+    if (!parsed.success) {
+        return res.status(400).json({ error: 'A valid email is required.' });
+    }
+    const { email } = parsed.data;
 
     if (!email) {
         // Don't distinguish "missing field" from "bad credentials" — both leak
@@ -391,7 +407,11 @@ export const generatePortalLink = async (req, res) => {
 
 export const uploadProjectFile = async (req, res) => {
     const { id } = req.params;
-    const { category, fileName } = req.body;
+    const parsed = uploadFileSchema.safeParse(req.body);
+    if (!parsed.success) {
+        return res.status(400).json({ error: 'Invalid upload payload.' });
+    }
+    const { category, fileName } = parsed.data;
 
     if (!isUuid(id)) return res.status(400).json({ error: 'Invalid project ID format.' });
     if (!req.file) return res.status(400).json({ error: 'No file provided.' });

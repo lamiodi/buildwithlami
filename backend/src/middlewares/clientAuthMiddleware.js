@@ -18,14 +18,17 @@ export async function verifyClientToken(req, res, next) {
         return res.status(401).json({ error: 'Missing or malformed Authorization header.' });
     }
 
-    const baseSecret = process.env.JWT_SECRET;
-    if (!baseSecret) {
-        console.error('[ClientAuth] JWT_SECRET is not configured.');
+    // Use the dedicated CLIENT_JWT_SECRET so admin tokens (signed
+    // with JWT_SECRET) cannot be replayed against the client portal.
+    // Falls back to JWT_SECRET in dev for backwards compatibility.
+    const clientSecret = process.env.CLIENT_JWT_SECRET || process.env.JWT_SECRET;
+    if (!clientSecret) {
+        console.error('[ClientAuth] CLIENT_JWT_SECRET / JWT_SECRET is not configured.');
         return res.status(500).json({ error: 'Internal server error.' });
     }
 
     try {
-        const verified = jwt.verify(token, baseSecret);
+        const verified = jwt.verify(token, clientSecret);
 
         if (verified.role !== 'CLIENT_PORTAL' || !verified.id) {
             return res.status(401).json({ error: 'Invalid client token.' });

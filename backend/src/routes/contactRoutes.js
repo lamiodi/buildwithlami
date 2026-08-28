@@ -9,7 +9,7 @@ router.post('/', submitContactForm);
 
 // Protected routes for admin
 router.use(verifyToken);
-router.use(requireRole('ADMIN', 'OWNER'));
+router.use(requireRole('Owner'));
 
 router.get('/', getMessages);
 router.put('/:id/read', markMessageRead);

@@ -70,7 +70,9 @@ const AdminDashboard = () => {
             if (saved && ['software', 'survey', 'drone'].includes(saved)) {
                 return saved.toUpperCase();
             }
-        } catch {}
+        } catch (_err) {
+            // localStorage may be disabled (private mode, quota, etc.) — fall through to default.
+        }
         return 'ALL';
     });
     const [paletteOpen, setPaletteOpen] = useState(false);

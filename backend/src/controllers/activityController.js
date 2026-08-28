@@ -1,8 +1,19 @@
 import pool from '../config/db.js';
+import { z } from 'zod';
+
+const logActivitySchema = z.object({
+    action: z.string().min(1).max(100),
+    resource_id: z.string().max(200).optional().nullable(),
+    details: z.unknown().optional().nullable(),
+});
 
 // Log an admin action (used by middleware)
 export const logActivity = async (req, res) => {
-    const { action, resource_id, details } = req.body;
+    const parsed = logActivitySchema.safeParse(req.body);
+    if (!parsed.success) {
+        return res.status(400).json({ error: 'Invalid payload.', details: parsed.error.flatten() });
+    }
+    const { action, resource_id, details } = parsed.data;
     const userId = req.user?.id;
     const userName = req.user?.name || 'Admin';
 

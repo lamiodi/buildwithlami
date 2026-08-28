@@ -4,15 +4,33 @@ import { z } from 'zod';
 import pool from '../config/db.js';
 import { canonicalRole, divisionsForRole } from '../config/roles.js';
 
-// Cookie options for HttpOnly JWT cookie
-// sameSite: 'none' + secure: true required for cross-origin cookies (Vercel → Render)
+// Cookie options for the HttpOnly JWT cookie.
+//
+// Security model (see docs/AUTH_MODEL.md):
+//   * httpOnly        → JS cannot read the token, defeating XSS exfil.
+//   * secure          → only sent over HTTPS in production.
+//   * sameSite=Strict → browser refuses to send this cookie on any
+//                       cross-site navigation, which is the modern
+//                       defence against CSRF. The frontend is
+//                       same-origin (Vite dev proxy / Vercel rewrite)
+//                       so Strict does not break the happy path.
 export const COOKIE_OPTIONS = {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
-    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    sameSite: 'strict',
     maxAge: 30 * 60 * 1000, // 30 minutes (matches JWT_EXPIRES_IN)
-    path: '/'
+    path: '/',
 };
+
+// ── Account lockout thresholds ───────────────────────────
+// Defends against distributed brute-force that bypasses the
+// per-IP `authLimiter`. The two are complementary: authLimiter
+// blocks a single IP after 20 attempts/15min, while the
+// account-level lockout blocks the email itself after
+// MAX_FAILED_LOGINS failures inside LOCKOUT_WINDOW_MINUTES.
+const MAX_FAILED_LOGINS = 10;
+const LOCKOUT_WINDOW_MINUTES = 15;
+const LOCKOUT_DURATION_MINUTES = 15;
 
 // ── Validation Schemas ───────────────────────────────────
 const loginSchema = z.object({
@@ -33,25 +51,78 @@ export async function login(req, res) {
         }
 
         const { rows } = await pool.query(
-            `SELECT id, email, password, role, two_factor_enabled
+            `SELECT id, email, password, role, two_factor_enabled,
+                    failed_login_count, first_failed_at, locked_until
                FROM users WHERE email = $1`,
             [email.toLowerCase().trim()],
         );
 
         if (rows.length === 0) {
+            // Constant-time-ish: still call bcrypt against a dummy hash
+            // so the response time is comparable to a known-user
+            // failure. Defends against user-enumeration via timing.
+            await bcrypt.compare(password, '$2b$12$invalidinvalidinvalidinvalidinvalidinvalidinvalidinvalidi');
             return res.status(401).json({ error: 'Invalid credentials.' });
         }
 
         const user = rows[0];
-        // Normalise legacy casings (e.g. 'ADMIN' → 'Administrator',
-        // 'OWNER' → 'Owner') so a token issued today works against
+
+        // Account lockout check (P2-1). The lockout window is
+        // bounded by `locked_until`; the rolling counter is reset
+        // on a successful login or after the first_failed_at
+        // window has elapsed.
+        const now = new Date();
+        if (user.locked_until && new Date(user.locked_until) > now) {
+            return res.status(423).json({
+                error: 'Account temporarily locked due to too many failed attempts. Try again later.',
+            });
+        }
+
+        // Normalise the role so a token issued today works against
         // every role-gated route, even if the DB row still has a
-        // legacy value. Mirrors v22_normalize_admin_roles.sql.
+        // legacy value. In the one-man studio, every admin-shaped
+        // alias collapses to 'Owner' and every client-shaped alias
+        // collapses to 'Client' / 'CLIENT_PORTAL'. Mirrors
+        // v38_simplify_roles.sql on the data side.
         user.role = canonicalRole(user.role);
 
         const passwordMatch = await bcrypt.compare(password, user.password);
         if (!passwordMatch) {
+            // Bump the rolling failure counter. If the counter
+            // exceeds MAX_FAILED_LOGINS within the window, set
+            // locked_until. The counter resets when the first
+            // failure was longer than the window ago.
+            const firstFailedAt = user.first_failed_at ? new Date(user.first_failed_at) : null;
+            const windowExpired = !firstFailedAt ||
+                (now - firstFailedAt) > LOCKOUT_WINDOW_MINUTES * 60 * 1000;
+
+            const newCount = windowExpired ? 1 : (user.failed_login_count || 0) + 1;
+            const lockUntil = newCount >= MAX_FAILED_LOGINS
+                ? new Date(now.getTime() + LOCKOUT_DURATION_MINUTES * 60 * 1000)
+                : null;
+
+            await pool.query(
+                `UPDATE users
+                    SET failed_login_count = $1,
+                        first_failed_at    = $2,
+                        locked_until       = $3
+                  WHERE id = $4`,
+                [newCount, windowExpired ? now : firstFailedAt, lockUntil, user.id]
+            );
+
             return res.status(401).json({ error: 'Invalid credentials.' });
+        }
+
+        // Successful login: reset the failure counters.
+        if (user.failed_login_count > 0 || user.locked_until) {
+            await pool.query(
+                `UPDATE users
+                    SET failed_login_count = 0,
+                        first_failed_at    = NULL,
+                        locked_until       = NULL
+                  WHERE id = $1`,
+                [user.id]
+            );
         }
 
         // 2FA is enabled → mint a short-lived challenge token instead
@@ -132,10 +203,8 @@ export async function changePassword(req, res) {
 // Called by the frontend ProtectedRoute to check if the
 // admin's JWT is still valid before rendering admin pages.
 // Also returns `divisions` so the workspace switcher / nav
-// gating in `data/adminNavItems.js` knows which divisions
-// the user can act on. The list is derived from the role
-// (mirrors `authMiddleware.js#ROLE_DIVISIONS`) so the
-// frontend can stay in sync without a separate API call.
+// gating in `data/adminNavItems.js` stays in sync — in a
+// one-man studio the admin always gets `['*']`.
 
 export async function getMe(req, res) {
     // req.user is set by the verifyToken middleware (which already

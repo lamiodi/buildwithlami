@@ -10,7 +10,7 @@ export default function ClientContracts() {
 
     const fetchContracts = async () => {
         try {
-            const res = await api.get('/client-portal/contracts');
+            const res = await api.get('/client-portal/contracts', {}, 'client');
             if (res.ok && res.data) {
                 setContracts(res.data);
             } else {

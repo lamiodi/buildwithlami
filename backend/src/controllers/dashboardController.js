@@ -22,7 +22,7 @@ const dateFilter = (start, end, params) => {
 // projects, clients, templates, feedback, invoices, recentActivities.
 export async function getDashboardOverview(req, res) {
     try {
-        const [projects, clients, templates, feedback, invoices, recentActivities, financialSummary, pipelineStats] = await Promise.all([
+        const [projects, clients, templates, feedback, invoices, recentActivities, financialSummary, pipelineStats, missingFxCurrencies] = await Promise.all([
             pool.query(`
                 SELECT id, project_name, division, status, progress, amount_due, payment_status,
                        client_id, created_at, updated_at
@@ -56,33 +56,63 @@ export async function getDashboardOverview(req, res) {
                 ORDER BY created_at DESC
                 LIMIT 10
             `),
+            // P2-5: revenue calculation now only counts invoices whose
+            // currency has an FX rate. Currencies with no rate (other
+            // than the base NGN) are returned separately so the UI
+            // can surface a "missing FX rate" warning.
             pool.query(`
-                SELECT 
-                    (SELECT COALESCE(SUM(i.amount * COALESCE(r.rate, 0)), 0) 
-                     FROM invoices i 
-                     LEFT JOIN fx_rates r ON r.target_currency = i.currency AND r.base_currency = $1
-                     WHERE i.status = 'PAID') AS total_revenue,
-                     
-                    (SELECT COALESCE(SUM(i.amount * COALESCE(r.rate, 0)), 0) 
-                     FROM invoices i 
-                     LEFT JOIN fx_rates r ON r.target_currency = i.currency AND r.base_currency = $1
-                     WHERE i.status = 'PAID' AND DATE_TRUNC('month', i.created_at) = DATE_TRUNC('month', CURRENT_DATE)) AS revenue_this_month,
-                     
+                SELECT
+                    (SELECT COALESCE(SUM(conv), 0)
+                       FROM (
+                         SELECT i.amount * r.rate AS conv
+                           FROM invoices i
+                           JOIN fx_rates r
+                             ON r.base_currency = $1 AND r.target_currency = i.currency
+                          WHERE i.status = 'PAID'
+                       ) rev
+                    ) AS total_revenue,
+
+                    (SELECT COALESCE(SUM(conv), 0)
+                       FROM (
+                         SELECT i.amount * r.rate AS conv
+                           FROM invoices i
+                           JOIN fx_rates r
+                             ON r.base_currency = $1 AND r.target_currency = i.currency
+                          WHERE i.status = 'PAID'
+                            AND DATE_TRUNC('month', i.created_at) = DATE_TRUNC('month', CURRENT_DATE)
+                       ) rev
+                    ) AS revenue_this_month,
+
                     (SELECT COALESCE(SUM(amount), 0) FROM expenses) AS total_expenses,
-                    
-                    (SELECT COALESCE(SUM(amount), 0) 
-                     FROM expenses 
+
+                    (SELECT COALESCE(SUM(amount), 0)
+                     FROM expenses
                      WHERE DATE_TRUNC('month', expense_date) = DATE_TRUNC('month', CURRENT_DATE)) AS expenses_this_month
             `, [BASE_CURRENCY]),
             pool.query(`
-                SELECT 
+                SELECT
                     (SELECT COUNT(*)::int FROM leads WHERE stage NOT IN ('COMPLETED', 'RETENTION')) AS active_leads,
                     (SELECT COUNT(*)::int FROM quotations WHERE status IN ('DRAFT', 'SENT', 'ACCEPTED')) AS active_quotations,
                     (SELECT COUNT(*)::int FROM bookings WHERE status = 'PENDING') AS pending_bookings,
                     (SELECT COUNT(*)::int FROM contracts WHERE status = 'SENT') AS pending_contracts
             `),
+            // P2-5: distinct currencies on PAID invoices that have no
+            // matching fx_rate row. Returned to the UI so the dashboard
+            // can warn "X PAID invoices in {USD,EUR} are not counted in
+            // total revenue because no FX rate is configured".
+            pool.query(`
+                SELECT DISTINCT i.currency
+                  FROM invoices i
+             LEFT JOIN fx_rates r
+                    ON r.base_currency = $1 AND r.target_currency = i.currency
+                 WHERE i.status = 'PAID'
+                   AND i.currency <> $1
+                   AND r.rate IS NULL
+            `, [BASE_CURRENCY]),
         ]);
 
+        const missingFxList = missingFxCurrencies.rows.map((r) => r.currency);
+        const baseCurrency = BASE_CURRENCY;
         res.json({
             projects: projects.rows,
             clients: clients.rows,
@@ -90,8 +120,26 @@ export async function getDashboardOverview(req, res) {
             feedback: feedback.rows,
             invoices: invoices.rows,
             recentActivities: recentActivities.rows,
-            financialSummary: financialSummary.rows[0],
+            financialSummary: {
+                ...financialSummary.rows[0],
+                // Convert Decimal string → number so the JSON consumer
+                // can sum without juggling types.
+                total_revenue: Number(financialSummary.rows[0]?.total_revenue || 0),
+                revenue_this_month: Number(financialSummary.rows[0]?.revenue_this_month || 0),
+                total_expenses: Number(financialSummary.rows[0]?.total_expenses || 0),
+                expenses_this_month: Number(financialSummary.rows[0]?.expenses_this_month || 0),
+            },
             pipelineStats: pipelineStats.rows[0],
+            // P2-5: surface missing FX rates so the admin can fix them
+            // instead of seeing revenue silently drop to zero for
+            // affected currencies.
+            fxWarning: missingFxList.length > 0
+                ? {
+                    missingCurrencies: missingFxList,
+                    message: `${missingFxList.join(', ')} invoice revenue is not included in totals because no FX rate is configured. Add rates in Settings → FX Rates.`,
+                    baseCurrency,
+                }
+                : null,
         });
     } catch (err) {
         console.error('[Dashboard] Error:', err.message);

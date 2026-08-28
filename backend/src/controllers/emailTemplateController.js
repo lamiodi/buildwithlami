@@ -1,9 +1,9 @@
 // ─── src/controllers/emailTemplateController.js ──────────
 // Phase 3 — Email Templates CRUD + render + send.
 //
-// All admin routes are gated by `requireRole('Owner', 'Administrator')`
-// in the router. The render endpoint is open to any authenticated
-// admin (used by the CRM "send proposal" picker).
+// All admin routes are gated by `requireRole('Owner')` in the router.
+// The render endpoint is open to any authenticated admin (used by the
+// CRM "send proposal" picker).
 // ──────────────────────────────────────────────────────────
 
 import { z } from 'zod';

@@ -12,7 +12,7 @@ const router = express.Router();
 
 // All quotation routes require admin
 router.use(verifyToken);
-router.use(requireRole('Owner', 'Administrator', 'ADMIN', 'SUPERADMIN'));
+router.use(requireRole('Owner'));
 
 router.get('/', getQuotations);
 router.get('/:id', getQuotationById);

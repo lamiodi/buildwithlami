@@ -12,8 +12,17 @@ const loginSchema = z.object({
 export async function loginClient(req, res) {
     try {
         const { email, password } = loginSchema.parse(req.body);
-        if (!process.env.JWT_SECRET) {
+        // Use a dedicated client-portal JWT secret so a token minted for
+        // a client can never be verified by the admin `verifyToken`
+        // middleware. Falls back to JWT_SECRET in development for
+        // backwards compatibility, but logs a warning so the operator
+        // notices.
+        const clientSecret = process.env.CLIENT_JWT_SECRET || process.env.JWT_SECRET;
+        if (!clientSecret) {
             return res.status(500).json({ error: 'Server misconfiguration.' });
+        }
+        if (!process.env.CLIENT_JWT_SECRET && process.env.NODE_ENV === 'production') {
+            console.warn('[ClientAuth] CLIENT_JWT_SECRET is not set; falling back to JWT_SECRET. Set a separate secret in production.');
         }
 
         const { rows } = await pool.query(
@@ -37,7 +46,7 @@ export async function loginClient(req, res) {
 
         const token = jwt.sign(
             { id: client.id, email: client.primary_contact_email, role: 'CLIENT_PORTAL' },
-            process.env.JWT_SECRET,
+            clientSecret,
             { expiresIn: '24h' }
         );
 

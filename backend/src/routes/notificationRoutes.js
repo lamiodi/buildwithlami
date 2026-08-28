@@ -12,7 +12,7 @@ const router = express.Router();
 
 // All notification routes require authentication
 router.use(verifyToken);
-router.use(requireRole('Owner', 'Administrator'));
+router.use(requireRole('Owner'));
 
 router.get('/', getNotifications);
 router.get('/count', getUnreadCount);

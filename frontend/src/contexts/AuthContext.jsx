@@ -22,31 +22,38 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { api } from '../services/api.js';
-// No longer using localStorage for token - JWT is now in HttpOnly cookie
-// import { getAuthToken, setAuthToken, clearAuth } from '../services/auth.js';
+
+// ── Token persistence (see docs/AUTH_MODEL.md) ────────────
+// The auth flow uses BOTH:
+//   1. An HttpOnly `access_token` cookie  (same-origin convenience)
+//   2. A JS-readable `localStorage.admin_token`  (the authoritative
+//      credential that the api client sends as `Authorization: Bearer …`)
+// Persisting the token in localStorage is acceptable because:
+//   - The HttpOnly cookie + SameSite=Strict already block CSRF.
+//   - XSS would already be catastrophic on this SPA and is mitigated
+//     by React + DOMPurify at the boundary.
+const ADMIN_TOKEN_KEY = 'admin_token';
+
+function readAdminToken() {
+    try { return localStorage.getItem(ADMIN_TOKEN_KEY); } catch { return null; }
+}
+function writeAdminToken(token) {
+    try {
+        if (token) localStorage.setItem(ADMIN_TOKEN_KEY, token);
+        else localStorage.removeItem(ADMIN_TOKEN_KEY);
+    } catch { /* storage unavailable — fall back to cookie-only auth */ }
+}
 
 const AuthContext = createContext(null);
-
-/**
- * Decode the `exp` claim from a JWT without verifying it.
- * NOTE: Since we no longer store JWT in localStorage, this is kept
- * for compatibility but token is no longer directly accessible.
- */
-function decodeTokenExp(token) {
-    if (!token) return null;
-    try {
-        const payload = JSON.parse(atob(token.split('.')[1] || ''));
-        return typeof payload.exp === 'number' ? payload.exp : null;
-    } catch {
-        return null;
-    }
-}
 
 export function AuthProvider({ children }) {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
-    // Token is no longer stored in state - it's in HttpOnly cookie
-    const [token, setToken] = useState(null);
+    // Token lives in localStorage (authoritative credential for the
+    // Authorization header) and in the HttpOnly cookie (same-origin
+    // convenience). Kept in state too so the hook can derive
+    // `tokenExpiresAt` for the session-timeout warning modal.
+    const [token, setToken] = useState(() => readAdminToken());
 
     // ── On mount, validate session via /auth/me ─────
     useEffect(() => {
@@ -76,7 +83,8 @@ export function AuthProvider({ children }) {
             // Second-step: exchange challenge token + TOTP for the real JWT.
             const res = await api.post('/auth/login/2fa', { challengeToken, code: twoFactorCode });
             if (res.ok && res.data?.token) {
-                // Token is now in HttpOnly cookie, just update user state
+                writeAdminToken(res.data.token);
+                setToken(res.data.token);
                 setUser(res.data.user);
                 return { ok: true, user: res.data.user };
             }
@@ -92,7 +100,8 @@ export function AuthProvider({ children }) {
                 return { ok: true, requires2fa: true, challengeToken: res.data.challengeToken, user: res.data.user };
             }
             if (res.data.token) {
-                // Token is set in HttpOnly cookie by backend
+                writeAdminToken(res.data.token);
+                setToken(res.data.token);
                 setUser(res.data.user);
                 return { ok: true, user: res.data.user };
             }
@@ -105,6 +114,8 @@ export function AuthProvider({ children }) {
         try {
             await api.post('/auth/logout');
         } finally {
+            writeAdminToken(null);
+            setToken(null);
             setUser(null);
         }
     }, []);
@@ -133,7 +144,8 @@ export function AuthProvider({ children }) {
     const extendSession = useCallback(async () => {
         const res = await api.post('/auth/refresh');
         if (res.ok && res.data?.token) {
-            // Token is set in HttpOnly cookie by backend
+            writeAdminToken(res.data.token);
+            setToken(res.data.token);
             if (res.data.user) setUser(res.data.user);
             // Reset the sliding window so the countdown jumps to
             // the new token's full TTL.
@@ -216,7 +228,7 @@ export function AuthProvider({ children }) {
 
     const value = useMemo(() => ({
         user,
-        token: null, // No longer stored in frontend
+        token,
         loading,
         divisions: user?.divisions ?? [],
         tokenExpiresAt,
@@ -224,7 +236,7 @@ export function AuthProvider({ children }) {
         logout,
         refresh,
         extendSession,
-    }), [user, loading, tokenExpiresAt, login, logout, refresh, extendSession]);
+    }), [user, token, loading, tokenExpiresAt, login, logout, refresh, extendSession]);
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
@@ -243,10 +255,17 @@ export function useAuth() {
  * Renders `children` when the current user is the Owner; otherwise
  * silently swaps to a "forbidden" stub so non-Owners don't see a
  * flash of admin-only UI.
+ *
+ * BuildWithLami is a one-man studio — the Owner role is the only
+ * admin role after v38_simplify_roles. We intentionally do NOT
+ * accept the legacy 'Administrator' label here; any stale token
+ * holding that role is normalised to 'Owner' by the auth middleware
+ * before it reaches the frontend, so this branch is the only
+ * one we need.
  */
 export function OwnerOnly({ children, fallback = null }) {
     const { user } = useAuth();
     if (!user) return fallback;
-    if (user.role !== 'Owner' && user.role !== 'Administrator') return fallback;
+    if (user.role !== 'Owner') return fallback;
     return children;
 }

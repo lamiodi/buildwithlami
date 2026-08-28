@@ -20,11 +20,10 @@ router.get('/', getProjects);
 router.get('/slug/:slug', getProjectBySlug);
 router.get('/:id', getProjectById);
 
-// Protected routes — any admin-level role (Owner, Administrator,
-// Project Manager, Finance). requireRole is case-insensitive so
-// legacy 'ADMIN' / 'OWNER' tokens still pass.
+// Protected routes — Owner only. BuildWithLami is a one-man studio,
+// so the only admin identity is the studio owner.
 router.use(verifyToken);
-router.use(requireRole('Owner', 'Administrator', 'Project Manager', 'Finance'));
+router.use(requireRole('Owner'));
 
 router.post('/', createProject);
 router.put('/:id', updateProject);

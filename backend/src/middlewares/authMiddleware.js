@@ -63,12 +63,17 @@ export function verifyToken(req, res, next) {
 
 /**
  * Restrict to specific roles. Case-insensitive — accepts legacy
- * `'ADMIN'` and new `'Administrator'` interchangeably so we can
- * migrate route files in stages without breaking logins.
+ * `'ADMIN'` and the canonical `'Owner'` interchangeably so any
+ * un-migrated JWT or DB row still passes.
+ *
+ * In BuildWithLami's one-man studio the only admin role is `'Owner'`,
+ * and clients authenticate into the separate `/portal` surface via
+ * `verifyClientToken` instead of this middleware. New routes should
+ * always call `requireRole('Owner')` (or `requireRole('Owner', 'Client')`
+ * if a client is also allowed to hit the endpoint).
  *
  * Usage: requireRole('Owner')
- *        requireRole('Owner', 'Administrator')
- *        requireRole('Survey Manager', 'Surveyor')
+ *        requireRole('Owner', 'Client')
  */
 export function requireRole(...allowed) {
     const flatAllowed = allowed.flat();
@@ -86,7 +91,13 @@ export function requireRole(...allowed) {
 
 /**
  * Restrict to roles that have access to one of the given divisions.
- * Owners and Administrators always pass (they have '*').
+ * `Owner` always passes (granted `'*'` in `ROLE_DIVISIONS`).
+ *
+ * NOTE: BuildWithLami is a one-man studio, so in practice the only
+ * role that can reach this middleware is `Owner`, and `Owner` always
+ * passes. The per-division router in `routes/divisionRoutes.js`
+ * is still useful for keeping the URL surface clean — the gate is
+ * defence-in-depth, not a hard restriction.
  *
  * Usage: requireDivision('SURVEY')
  *        requireDivision('SOFTWARE', 'SURVEY')

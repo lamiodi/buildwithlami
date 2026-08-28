@@ -9,7 +9,6 @@ import cors from 'cors';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
-import csrf from 'csurf';
 
 // ── Route modules ────────────────────────────────────────
 import authRoutes from './routes/authRoutes.js';
@@ -48,23 +47,14 @@ const app = express();
 app.set('trust proxy', 1);
 const PORT = process.env.PORT || 4000;
 
-// ── CSRF Protection ──────────────────────────────────────
-// Double-submit cookie pattern: CSRF token sent in cookie + header
-// sameSite: 'none' + secure: true required for cross-origin cookies (Vercel → Render)
-const csrfProtection = csrf({
-    cookie: {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-        key: 'csrf-token'
-    }
-});
-
-// Helper to set CSRF token in response locals for templates
-app.use((req, res, next) => {
-    res.locals.csrfToken = req.csrfToken ? req.csrfToken() : null;
-    next();
-});
+// ── Authentication model ─────────────────────────────────
+// JWT-only. The access_token / client_token cookies are
+// HttpOnly + SameSite=Strict, which is the modern browser
+// defense against cross-site request forgery. We do NOT
+// need a separate CSRF token system: a third-party site
+// cannot read or replay our cookies, and the CORS allowlist
+// below blocks credentialed cross-origin requests outright.
+// See docs/AUTH_MODEL.md for the full design.
 
 // ── Rate limiters ────────────────────────────────────────
 const authLimiter = rateLimit({
@@ -80,10 +70,31 @@ const contactLimiter = rateLimit({
 });
 
 // General API limiter — protects all mutating routes from abuse.
+// Skip third-party webhooks (Paystack, Zoho, etc.) so a burst of legitimate
+// webhook deliveries doesn't exhaust the public API rate-limit window
+// for real API consumers. These webhooks have their own signature
+// verification (HMAC) as the primary defence.
+//
+// IMPORTANT: skip must inspect the FULL request path. When this limiter
+// is mounted via `app.use('/api/invoices', apiLimiter, router)`, the
+// inner middleware sees `req.path` as the path *relative to the
+// mount*, not the full URL. Using `req.originalUrl` ensures the
+// comparison works no matter how the limiter is mounted.
+const isThirdPartyWebhook = (req) => {
+    const url = req.originalUrl || req.url || '';
+    return (
+        url.startsWith('/api/invoices/webhook/') ||
+        url === '/api/invoices/webhook' ||
+        url.startsWith('/api/contracts/webhook/') ||
+        url === '/api/contracts/webhook'
+    );
+};
+
 const apiLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
     max: 100,
     message: { error: 'Too many requests. Please slow down.' },
+    skip: isThirdPartyWebhook,
 });
 
 // Stricter limiter for admin write endpoints (uploads, bulk actions).
@@ -116,29 +127,7 @@ app.use(express.json({
         }
     }
 }));
-app.use(cookieParser()); // Parse cookies for JWT + CSRF
-
-// Apply CSRF protection to all routes except auth login/refresh/logout, third-party webhooks, and token-authenticated public payment endpoints
-app.use((req, res, next) => {
-    // Skip CSRF for safe methods, auth endpoints, third-party webhooks, and public token-based payment routes
-    const skipPaths = [
-        '/api/auth/login',
-        '/api/auth/refresh',
-        '/api/auth/logout',
-        '/api/auth/2fa',
-        '/api/client-auth/login',
-        '/api/client-auth/logout',
-        '/api/invoices/webhook/paystack',
-        '/api/payments/public'
-    ];
-    const isSkippedPath = skipPaths.some(path => req.path.startsWith(path));
-    const isSafeMethod = ['GET', 'HEAD', 'OPTIONS'].includes(req.method);
-    
-    if (isSkippedPath || isSafeMethod) {
-        return next();
-    }
-    csrfProtection(req, res, next);
-});
+app.use(cookieParser()); // Parse cookies for JWT auth
 
 // ── Health-check (legacy, no DB) ─────────────────────────
 app.get('/api/health', (_req, res) => {
@@ -209,11 +198,6 @@ app.use('/api/client-auth', apiLimiter, clientAuthRoutes);
 app.use('/api/client-portal', apiLimiter, clientPortalRoutes);
 app.use('/api/quotations', apiLimiter, quotationRoutes);
 
-// ── CSRF token endpoint for frontend ─────────────────────
-app.get('/api/csrf-token', (req, res) => {
-    res.json({ csrfToken: req.csrfToken ? req.csrfToken() : null });
-});
-
 // ── 404 fallback ─────────────────────────────────────────
 app.use((_req, res) => {
     res.status(404).json({ error: 'Route not found.' });
@@ -221,10 +205,6 @@ app.use((_req, res) => {
 
 // ── Global error handler ─────────────────────────────────
 app.use((err, _req, res, _next) => {
-    // CSRF error handling
-    if (err.code === 'EBADCSRFTOKEN') {
-        return res.status(403).json({ error: 'Invalid CSRF token. Please refresh the page.' });
-    }
     console.error('[Server] Unhandled error:', err);
     res.status(500).json({ error: 'Internal server error.' });
 });

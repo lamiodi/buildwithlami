@@ -308,11 +308,11 @@ export const reviewProof = async (req, res) => {
                 const updatedInvoice = invRes.rows[0];
                 if (updatedInvoice && !updatedInvoice.project_id) {
                     const projRes = await client.query(`
-                        INSERT INTO client_projects (client_id, project_name, status, division, payment_status, offboarding_status)
-                        VALUES ($1, $2, 'ACTIVE', 'SOFTWARE', 'PAID', 'PENDING')
+                        INSERT INTO client_projects (client_id, project_name, status, division, payment_status, offboarding_status, tracking_id)
+                        VALUES ($1, $2, 'ACTIVE', 'SOFTWARE', 'PAID', 'PENDING', encode(gen_random_bytes(16), 'hex'))
                         RETURNING id
                     `, [updatedInvoice.client_id, `Project for ${updatedInvoice.invoice_number}`]);
-                    
+
                     await client.query(`UPDATE invoices SET project_id = $1 WHERE id = $2`, [projRes.rows[0].id, row.invoice_id]);
                 }
             }

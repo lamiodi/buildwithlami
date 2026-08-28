@@ -32,11 +32,11 @@ router.get('/public/:token', getInvoiceByToken);
 router.post('/public/:token/proof', upload.single('proof_file'), submitProof);
 
 // ── Admin (auth required) ───────────────────────────────
-router.get('/proofs', verifyToken, requireRole('Administrator', 'Owner', 'Finance'), listProofs);
-router.post('/proofs/:id/review', verifyToken, requireRole('Administrator', 'Owner', 'Finance'), reviewProof);
+router.get('/proofs', verifyToken, requireRole('Owner'), listProofs);
+router.post('/proofs/:id/review', verifyToken, requireRole('Owner'), reviewProof);
 
-router.get('/bank-accounts', verifyToken, requireRole('Administrator', 'Owner', 'Finance'), listBankAccounts);
-router.post('/bank-accounts', verifyToken, requireRole('Administrator', 'Owner', 'Finance'), upsertBankAccount);
-router.delete('/bank-accounts/:id', verifyToken, requireRole('Administrator', 'Owner', 'Finance'), deactivateBankAccount);
+router.get('/bank-accounts', verifyToken, requireRole('Owner'), listBankAccounts);
+router.post('/bank-accounts', verifyToken, requireRole('Owner'), upsertBankAccount);
+router.delete('/bank-accounts/:id', verifyToken, requireRole('Owner'), deactivateBankAccount);
 
 export default router;

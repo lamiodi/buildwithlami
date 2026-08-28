@@ -171,12 +171,13 @@ function App() {
     currentPath.startsWith('/portal') ||
     currentPath === '/login';
 
-  const RouteSuspenseFallback = () => {
-    if (location.pathname === '/' || location.pathname === '') {
-      return <HomePageSkeleton />;
-    }
-    return <PageSkeleton />;
-  };
+  // Suspend fallback is decided outside of render so its identity is stable
+  // across renders. React would otherwise recreate the component on every
+  // parent render, resetting any internal state it might hold.
+  const suspenseFallback =
+    location.pathname === '/' || location.pathname === ''
+      ? <HomePageSkeleton />
+      : <PageSkeleton />;
 
   return (
     <AuthProvider>
@@ -185,7 +186,7 @@ function App() {
       <ErrorBoundary>
         {!hideGlobalLayout && <Navbar isDark={isDark} toggleTheme={toggleTheme} />}
         <main>
-          <Suspense fallback={<RouteSuspenseFallback />}>
+          <Suspense fallback={suspenseFallback}>
             <AnimatePresence mode="wait">
               <Routes location={location} key={location.pathname}>
                 <Route path="/" element={<PageWrapper><HomePage /></PageWrapper>} />

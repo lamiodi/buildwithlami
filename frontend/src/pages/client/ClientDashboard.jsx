@@ -10,7 +10,7 @@ export default function ClientDashboard() {
 
     const fetchDashboard = async () => {
         try {
-            const res = await api.get('/client-portal/dashboard');
+            const res = await api.get('/client-portal/dashboard', {}, 'client');
             if (res.ok && res.data) {
                 setData(res.data);
             }

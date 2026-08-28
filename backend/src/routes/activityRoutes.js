@@ -5,10 +5,10 @@ import { verifyToken, requireRole } from '../middlewares/authMiddleware.js';
 const router = express.Router();
 
 // Log action (used by controllers/middleware)
-router.post('/log', verifyToken, requireRole('ADMIN', 'OWNER'), logActivity);
+router.post('/log', verifyToken, requireRole('Owner'), logActivity);
 
 // Get all or recent activity logs (admin only)
-router.get('/', verifyToken, requireRole('ADMIN', 'OWNER'), getActivities);
-router.get('/recent', verifyToken, requireRole('ADMIN', 'OWNER'), getRecentActivities);
+router.get('/', verifyToken, requireRole('Owner'), getActivities);
+router.get('/recent', verifyToken, requireRole('Owner'), getRecentActivities);
 
 export default router;

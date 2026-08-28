@@ -12,6 +12,7 @@
 // ──────────────────────────────────────────────────────────
 
 import pool from '../config/db.js';
+import { z } from 'zod';
 import { canonicalRole, divisionsForRole } from '../config/roles.js';
 import {
     generateSecret,
@@ -20,6 +21,8 @@ import {
     enableTwoFactor,
     disableTwoFactor,
     consumeTwoFactorCredential,
+    stageTwoFactorSecret,
+    resolveTwoFactorSecret,
 } from '../services/twoFactorService.js';
 import { writeAuditLog, getClientIp } from '../utils/auditLog.js';
 import { COOKIE_OPTIONS } from './authController.js';
@@ -27,6 +30,17 @@ import { COOKIE_OPTIONS } from './authController.js';
 // ── Helpers ──────────────────────────────────────────────
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const isUuid = (s) => typeof s === 'string' && UUID_REGEX.test(s);
+
+const otpCodeSchema = z.object({
+    code: z.string().regex(/^\d{6}$/, 'Code must be 6 digits.'),
+});
+const disableSchema = z.object({
+    password: z.string().min(1).max(200),
+});
+const verifyLoginSchema = z.object({
+    challengeToken: z.string().min(10).max(4096),
+    code: z.string().regex(/^\d{6}$/, 'Code must be 6 digits.'),
+});
 
 // ── GET /api/auth/2fa/status ─────────────────────────────
 export async function getTwoFactorStatus(req, res) {
@@ -53,16 +67,14 @@ export async function getTwoFactorStatus(req, res) {
 // ── POST /api/auth/2fa/setup ────────────────────────────
 // Generates a fresh secret + QR for the caller. Does NOT
 // enable 2FA — that only happens after /confirm succeeds.
+//
+// The unconfirmed secret is stored encrypted at rest via
+// stageTwoFactorSecret so a database dump does not leak
+// pending 2FA setups.
 export async function setupTwoFactor(req, res) {
     try {
         const { secret, otpauth, qrDataUrl } = await generateSecret(req.user.email);
-        // Stash the unconfirmed secret in a column so the next
-        // /confirm can read it back. The `enable` flag is still
-        // false until the user proves they scanned the right QR.
-        await pool.query(
-            `UPDATE users SET two_factor_secret = $1 WHERE id = $2`,
-            [secret, req.user.id]
-        );
+        await stageTwoFactorSecret(req.user.id, secret);
         return res.json({ secret, otpauth, qrDataUrl });
     } catch (err) {
         console.error('[2FA] setup error:', err.message);
@@ -72,26 +84,26 @@ export async function setupTwoFactor(req, res) {
 
 // ── POST /api/auth/2fa/confirm ───────────────────────────
 // First successful TOTP code → 2FA is enabled.
-function parseConfirmBody(req) {
-    const code = typeof req.body?.code === 'string' ? req.body.code.trim() : '';
-    if (!/^\d{6}$/.test(code)) return { error: 'Code must be 6 digits.' };
-    return { code };
-}
-
 export async function confirmTwoFactor(req, res) {
-    const parsed = parseConfirmBody(req);
-    if (parsed.error) return res.status(400).json({ error: parsed.error });
+    const parsed = otpCodeSchema.safeParse(req.body);
+    if (!parsed.success) {
+        return res.status(400).json({ error: 'Code must be 6 digits.' });
+    }
 
     try {
-        const { rows } = await pool.query(
-            `SELECT two_factor_secret, two_factor_enabled FROM users WHERE id = $1`,
+        const secret = await resolveTwoFactorSecret(req.user.id);
+        if (!secret) {
+            return res.status(400).json({ error: 'No 2FA setup in progress. Call /setup first.' });
+        }
+
+        const { rows: meta } = await pool.query(
+            `SELECT two_factor_enabled FROM users WHERE id = $1`,
             [req.user.id]
         );
-        if (rows.length === 0) return res.status(404).json({ error: 'User not found.' });
-        const { two_factor_secret: secret, two_factor_enabled: alreadyEnabled } = rows[0];
-
-        if (!secret) return res.status(400).json({ error: 'No 2FA setup in progress. Call /setup first.' });
-        if (alreadyEnabled) return res.status(409).json({ error: '2FA is already enabled.' });
+        if (meta.length === 0) return res.status(404).json({ error: 'User not found.' });
+        if (meta[0].two_factor_enabled) {
+            return res.status(409).json({ error: '2FA is already enabled.' });
+        }
 
         if (!verifyCode(secret, parsed.code)) {
             return res.status(401).json({ error: 'Invalid code. Please try again.' });
@@ -117,8 +129,11 @@ export async function confirmTwoFactor(req, res) {
 
 // ── POST /api/auth/2fa/disable ───────────────────────────
 export async function disableTwoFactorController(req, res) {
-    const password = typeof req.body?.password === 'string' ? req.body.password : '';
-    if (password.length === 0) return res.status(400).json({ error: 'Password required to disable 2FA.' });
+    const parsed = disableSchema.safeParse(req.body);
+    if (!parsed.success) {
+        return res.status(400).json({ error: 'Password required to disable 2FA.' });
+    }
+    const { password } = parsed.data;
 
     try {
         const { rows } = await pool.query(
@@ -182,11 +197,11 @@ export async function regenerateRecoveryCodes(req, res) {
 // token only carries `{ id, purpose: '2fa' }` and expires in
 // 5 minutes (see authController for the signing path).
 export async function verifyLoginTwoFactor(req, res) {
-    const challengeToken = typeof req.body?.challengeToken === 'string' ? req.body.challengeToken : '';
-    const code = typeof req.body?.code === 'string' ? req.body.code.trim() : '';
-    if (!challengeToken || !code) {
+    const parsed = verifyLoginSchema.safeParse(req.body);
+    if (!parsed.success) {
         return res.status(400).json({ error: 'challengeToken and code are required.' });
     }
+    const { challengeToken, code } = parsed.data;
 
     const jwt = (await import('jsonwebtoken')).default;
     let payload;

@@ -17,9 +17,9 @@ export async function getDashboard(req, res) {
         const completedProjects = projects.filter(p => p.status === 'COMPLETED' || p.status === 'LAUNCHED');
 
         const { rows: invoices } = await pool.query(
-            `SELECT id, invoice_number, status, total, currency, created_at 
-             FROM invoices 
-             WHERE client_id = $1 
+            `SELECT id, invoice_number, status, amount AS total, currency, created_at
+             FROM invoices
+             WHERE client_id = $1
              ORDER BY created_at DESC LIMIT 5`,
             [clientId]
         );

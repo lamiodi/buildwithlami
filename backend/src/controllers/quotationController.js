@@ -1,7 +1,21 @@
 import pool from '../config/db.js';
+import { z } from 'zod';
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const isUuid = (s) => typeof s === 'string' && UUID_REGEX.test(s);
+
+// Validation schema for new quotations. Amount must be a positive
+// number — a zero-amount quotation is almost always an admin error
+// and could be sent to clients inadvertently.
+const createQuotationSchema = z.object({
+    lead_id: z.string().optional().nullable(),
+    client_id: z.string().optional().nullable(),
+    title: z.string().optional(),
+    amount: z.number().positive('Amount must be greater than 0.'),
+    line_items: z.array(z.any()).optional(),
+    notes: z.string().optional().nullable(),
+    valid_until: z.string().optional().nullable(),
+}).strict().passthrough();
 
 export const getQuotations = async (req, res) => {
     try {
@@ -47,8 +61,17 @@ export const getQuotationById = async (req, res) => {
 };
 
 export const createQuotation = async (req, res) => {
-    const { lead_id, client_id, title, amount, line_items, notes, valid_until } = req.body;
-    
+    let parsed;
+    try {
+        parsed = createQuotationSchema.parse(req.body || {});
+    } catch (err) {
+        if (err instanceof z.ZodError) {
+            return res.status(400).json({ error: err.errors });
+        }
+        throw err;
+    }
+    const { lead_id, client_id, title, amount, line_items, notes, valid_until } = parsed;
+
     try {
         const { rows } = await pool.query(`
             INSERT INTO quotations (lead_id, client_id, title, amount, line_items, notes, valid_until, status)
@@ -58,17 +81,17 @@ export const createQuotation = async (req, res) => {
             isUuid(lead_id) ? lead_id : null,
             isUuid(client_id) ? client_id : null,
             title || 'Standard Quotation',
-            amount || 0,
+            amount,
             JSON.stringify(line_items || []),
             notes || '',
             valid_until || null
         ]);
-        
+
         // Auto-update lead stage if applicable
         if (isUuid(lead_id)) {
             await pool.query(`UPDATE leads SET stage = 'PROPOSAL', updated_at = NOW() WHERE id = $1`, [lead_id]);
         }
-        
+
         res.status(201).json(rows[0]);
     } catch (err) {
         console.error('[Quotations] createQuotation error:', err.message);

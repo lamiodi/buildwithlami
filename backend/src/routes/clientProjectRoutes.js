@@ -15,6 +15,7 @@ import {
     deleteProjectFile
 } from '../controllers/clientProjectController.js';
 import { verifyToken, requireRole } from '../middlewares/authMiddleware.js';
+import { logActivity } from '../middlewares/activityMiddleware.js';
 import multer from 'multer';
 
 const router = express.Router();
@@ -37,19 +38,19 @@ router.get('/track/:trackingId', getProjectByTrackingId);
 router.post('/track/:trackingId/auth', portalAuthLimiter, authClientPortal);
 
 // Protected admin routes
-const adminRole = requireRole('Owner', 'Administrator', 'Project Manager');
+const adminRole = requireRole('Owner');
 router.get('/', verifyToken, adminRole, getClientProjects);
 router.get('/:id/dashboard', verifyToken, adminRole, getProjectDashboard);
 router.get('/:id', verifyToken, adminRole, getClientProjectById);
-router.post('/', verifyToken, adminRole, createClientProject);
+router.post('/', verifyToken, adminRole, logActivity('CREATE_PROJECT', 'client_project'), createClientProject);
 router.put('/:id', verifyToken, adminRole, updateClientProject);
 router.patch('/:id', verifyToken, adminRole, updateClientProject);
-router.delete('/:id', verifyToken, requireRole('Owner', 'Administrator'), deleteClientProject);
-router.post('/:id/regenerate-tracking', verifyToken, requireRole('Owner', 'Administrator'), regenerateTrackingId);
+router.delete('/:id', verifyToken, requireRole('Owner'), deleteClientProject);
+router.post('/:id/regenerate-tracking', verifyToken, requireRole('Owner'), regenerateTrackingId);
 router.get('/:id/portal-link', verifyToken, adminRole, generatePortalLink);
 
 // Project Files (Phase 5)
 router.post('/:id/files', verifyToken, adminRole, upload.single('file'), uploadProjectFile);
-router.delete('/:id/files/:fileId', verifyToken, requireRole('Owner', 'Administrator'), deleteProjectFile);
+router.delete('/:id/files/:fileId', verifyToken, requireRole('Owner'), deleteProjectFile);
 
 export default router;

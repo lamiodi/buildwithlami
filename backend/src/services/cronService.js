@@ -14,23 +14,46 @@ if (!ADMIN_EMAIL) {
     console.warn('[Cron] ADMIN_EMAIL / EMAIL_TO not set; admin alerts will be skipped.');
 }
 
-// Track which (project, threshold) combinations we've already alerted on
-// during this process lifetime, so a re-run (e.g. after a restart) doesn't
-// spam the same client within a 6-day window. State is in-memory only;
-// restart resets the dedupe window, which is acceptable for a single-node
-// Render deployment. If we ever scale horizontally, revisit this with a
-// shared store (e.g. a notifications table or Redis).
-const recentNotifications = new Map(); // key: `${projectId}:${days}` -> timestamp
-
-const wasNotifiedRecently = (projectId, days) => {
-    const key = `${projectId}:${days}`;
-    const last = recentNotifications.get(key);
-    if (!last) return false;
-    return Date.now() - last < 6 * 24 * 60 * 60 * 1000; // 6 days
+// Persistent dedup for cron-sent notifications. Replaces the previous
+// in-memory Map (which reset on every restart and would re-fire the
+// same domain-expiration alert immediately after a deploy). Backed
+// by the `notification_dedup` table (see migration v36). The 6-day
+// window matches the previous in-memory behaviour and is a deliberate
+// "don't spam the same client within a week" guard.
+const DEDUP_WINDOW_DAYS = 6;
+const wasNotifiedRecently = async (projectId, days) => {
+    try {
+        const { rows } = await pool.query(
+            `SELECT 1 FROM notification_dedup
+              WHERE entity_type = 'domain_expiration'
+                AND entity_id   = $1
+                AND bucket      = $2
+                AND sent_at     > NOW() - ($3 || ' days')::interval
+              LIMIT 1`,
+            [String(projectId), String(days), String(DEDUP_WINDOW_DAYS)]
+        );
+        return rows.length > 0;
+    } catch (err) {
+        // If the table doesn't exist (migration not run yet) or DB is
+        // unavailable, fail open — we'd rather risk a duplicate alert
+        // than silently swallow the email.
+        console.error('[Cron] dedup lookup failed:', err.message);
+        return false;
+    }
 };
 
-const markNotified = (projectId, days) => {
-    recentNotifications.set(`${projectId}:${days}`, Date.now());
+const markNotified = async (projectId, days) => {
+    try {
+        await pool.query(
+            `INSERT INTO notification_dedup (entity_type, entity_id, bucket, sent_at)
+             VALUES ('domain_expiration', $1, $2, NOW())
+             ON CONFLICT (entity_type, entity_id, bucket)
+             DO UPDATE SET sent_at = EXCLUDED.sent_at`,
+            [String(projectId), String(days)]
+        );
+    } catch (err) {
+        console.error('[Cron] dedup insert failed:', err.message);
+    }
 };
 
 export const startCronJobs = () => {
@@ -95,8 +118,8 @@ const checkDomainExpirations = async () => {
                 (new Date(project.domain_expiration) - new Date()) / (1000 * 60 * 60 * 24)
             );
 
-            if (wasNotifiedRecently(project.project_id, days)) continue;
-            markNotified(project.project_id, days);
+            if (await wasNotifiedRecently(project.project_id, days)) continue;
+            await markNotified(project.project_id, days);
 
             console.log(`[Cron] Sending domain expiration alert for: ${project.domain_name} (T-${days}d)`);
 
@@ -127,6 +150,16 @@ const checkDomainExpirations = async () => {
 
 const generateMonthlyInvoices = async () => {
     try {
+        // Use the FIRST day of the current month in UTC as the canonical
+        // "billing month" reference. This avoids any drift from the
+        // server's local timezone and makes the period stable for the
+        // entire run.
+        const periodDate = await pool.query(`SELECT DATE_TRUNC('month', NOW() AT TIME ZONE 'UTC')::date AS period_start`);
+        const periodStart = periodDate.rows[0].period_start; // e.g. 2026-08-01
+        // CHAR(7) "YYYY-MM" derived from the same canonical period.
+        const retainerPeriod = `${periodStart.getUTCFullYear()}-${String(periodStart.getUTCMonth() + 1).padStart(2, '0')}`;
+        const monthName = periodStart.toLocaleString('en-US', { month: 'long', year: 'numeric', timeZone: 'UTC' });
+
         const query = `
             SELECT id, project_name, monthly_fee, client_id
             FROM client_projects
@@ -136,36 +169,46 @@ const generateMonthlyInvoices = async () => {
         const { rows } = await pool.query(query);
 
         for (const project of rows) {
-            const invoiceCheckQuery = `
-                SELECT id FROM invoices
-                WHERE project_id = $1
-                AND description LIKE 'Monthly Retainer%'
-                AND EXTRACT(MONTH FROM created_at) = EXTRACT(MONTH FROM CURRENT_DATE)
-                AND EXTRACT(YEAR FROM created_at) = EXTRACT(YEAR FROM CURRENT_DATE)
-            `;
-            const invoiceCheck = await pool.query(invoiceCheckQuery, [project.id]);
-
-            if (invoiceCheck.rows.length === 0) {
-                const monthName = new Date().toLocaleString('default', { month: 'long', year: 'numeric' });
-
+            // The DB-enforced uniqueness is via the partial unique index
+            // `uq_invoices_project_retainer_period` (see migration v41).
+            // We rely on the INSERT to fail on conflict rather than doing
+            // a fragile pre-check, which closes the race window between
+            // two concurrent cron runs.
+            let insertedRow;
+            try {
                 const insertResult = await pool.query(
-                    `INSERT INTO invoices (project_id, amount, description, status, due_date)
-                     VALUES ($1, $2, $3, 'PENDING', CURRENT_DATE + INTERVAL '7 days')
+                    `INSERT INTO invoices
+                        (project_id, amount, description, status, due_date, retainer_period)
+                     VALUES ($1, $2, $3, 'PENDING', $4::date + INTERVAL '7 days', $5)
                      RETURNING id`,
-                    [project.id, project.monthly_fee, `Monthly Retainer - ${monthName}`]
+                    [
+                        project.id,
+                        project.monthly_fee,
+                        `Monthly Retainer - ${monthName}`,
+                        periodStart,
+                        retainerPeriod,
+                    ]
                 );
-
-                console.log(`[Cron] Generated Monthly Invoice for ${project.project_name}`);
-
-                if (ADMIN_EMAIL) {
-                    await sendNotificationEmail({
-                        name: 'System Alert',
-                        email: 'no-reply@buildwithlami.com',
-                        toEmail: ADMIN_EMAIL,
-                        subject: `💰 Monthly Invoice Generated: ${project.project_name}`,
-                        message: `A monthly retainer invoice of $${project.monthly_fee} was automatically generated for ${project.project_name} (id: ${insertResult.rows[0].id}).\n\nLog in to generate the Paystack link and send it to the client.`
-                    });
+                insertedRow = insertResult.rows[0];
+            } catch (err) {
+                // 23505 = unique_violation in PostgreSQL.
+                if (err && err.code === '23505') {
+                    // Already generated for this period — expected on retries.
+                    continue;
                 }
+                throw err;
+            }
+
+            console.log(`[Cron] Generated Monthly Invoice for ${project.project_name} (period ${retainerPeriod})`);
+
+            if (ADMIN_EMAIL) {
+                await sendNotificationEmail({
+                    name: 'System Alert',
+                    email: 'no-reply@buildwithlami.com',
+                    toEmail: ADMIN_EMAIL,
+                    subject: `💰 Monthly Invoice Generated: ${project.project_name}`,
+                    message: `A monthly retainer invoice of $${project.monthly_fee} was automatically generated for ${project.project_name} (id: ${insertedRow.id}, period ${retainerPeriod}).\n\nLog in to generate the Paystack link and send it to the client.`
+                });
             }
         }
     } catch (error) {

@@ -1,13 +1,10 @@
 // ─── src/routes/divisionRoutes.js ────────────────────────
 // Phase 6 — Division-scoped admin reads.
 //
-// Two route groups, one per division. Each applies
-// `requireDivision` with the division baked in, so a Survey
-// Manager can't accidentally fetch the DRONE list, and a
-// Drone Pilot can't see SURVEY projects.
-//
-// Owner / Administrator always pass (their role grants
-// `'*'` access inside `requireDivision`).
+// One route group per division. Each applies `requireDivision` with the
+// division baked in. In a one-man studio the owner has access to every
+// division, but the per-division router is still useful for keeping the
+// URL surface clean and the data scoping obvious in the route file.
 // ──────────────────────────────────────────────────────────
 
 import express from 'express';

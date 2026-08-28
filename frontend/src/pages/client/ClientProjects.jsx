@@ -10,7 +10,7 @@ export default function ClientProjects() {
 
     const fetchProjects = async () => {
         try {
-            const res = await api.get('/client-portal/projects');
+            const res = await api.get('/client-portal/projects', {}, 'client');
             if (res.ok && res.data) {
                 setProjects(res.data);
             }

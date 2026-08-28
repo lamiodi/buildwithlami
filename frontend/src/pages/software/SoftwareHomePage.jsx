@@ -243,10 +243,10 @@ const SoftwareHomePage = () => {
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
             <Link
-              to={`/contact?service=${encodeURIComponent(selectedType.name)}&budget=${encodeURIComponent(calculatedEstimate.cost)}`}
+              to="/contact?service=software"
               className="btn-primary w-full sm:w-auto"
             >
-              Submit Project Brief with Selected Scope ({calculatedEstimate.cost}) →
+              Submit Project Brief →
             </Link>
             <Link
               to="/pricing"

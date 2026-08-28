@@ -13,7 +13,7 @@ export default function ClientQuotations() {
 
     const fetchQuotations = async () => {
         try {
-            const res = await api.get('/client-portal/quotations');
+            const res = await api.get('/client-portal/quotations', {}, 'client');
             if (res.ok && res.data) {
                 setQuotations(res.data);
             } else {

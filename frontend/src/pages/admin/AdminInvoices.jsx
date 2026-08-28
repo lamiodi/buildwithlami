@@ -156,9 +156,47 @@ const AdminInvoices = () => {
     };
 
     const handleMarkPaid = async (id) => {
-        const res = await api.patch(`/invoices/${id}/pay`);
+        // CRIT-4 — manual /pay now requires a payment reference
+        // (transaction id, wire ref, etc.) before the backend
+        // will flip the status. For high-value invoices the
+        // server will additionally demand a fresh 2FA code.
+        const reference = window.prompt(
+            'Enter the payment reference (transaction id / wire reference / proof note).\n' +
+            'This is required and will be recorded in the audit log.',
+            ''
+        );
+        if (reference === null) return; // user cancelled
+        const trimmedRef = reference.trim();
+        if (trimmedRef.length < 3) {
+            notify.error('Payment reference is required (min 3 characters).');
+            return;
+        }
+        const paidViaRaw = window.prompt(
+            'Paid via? (optional, e.g. "Bank Transfer — GTBank", "Wise USD", "Cash")',
+            ''
+        );
+        const paidVia = paidViaRaw ? paidViaRaw.trim() : '';
+
+        // First attempt: no 2FA. If the server returns 401 with
+        // `two_factor_required`, prompt for a code and retry.
+        let body = { paymentReference: trimmedRef };
+        if (paidVia) body.paidVia = paidVia;
+
+        let res = await api.patch(`/invoices/${id}/pay`, body);
+        if (res.status === 401 && res.data && (res.data.reason === 'two_factor_required' || /2FA/.test(res.error || ''))) {
+            const code = window.prompt(
+                'A fresh 2FA code is required for invoices at or above the manual-confirmation threshold. Enter your current 6-digit TOTP code:',
+                ''
+            );
+            if (!code) {
+                notify.error('Cancelled — 2FA code required to confirm this payment.');
+                return;
+            }
+            body = { ...body, twoFactorCode: code.trim() };
+            res = await api.patch(`/invoices/${id}/pay`, body);
+        }
         if (res.ok) {
-            notify.success('Invoice marked as paid');
+            notify.success(res.data?.message || 'Invoice marked as paid');
             fetchInvoices();
         } else {
             notify.error(res.error || 'Failed to mark invoice as paid');

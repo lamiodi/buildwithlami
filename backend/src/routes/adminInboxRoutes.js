@@ -23,7 +23,7 @@ import {
 
 const router = express.Router();
 router.use(verifyToken);
-router.use(requireRole('Owner', 'Administrator'));
+router.use(requireRole('Owner'));
 
 // ── Search-specific rate limiter ────────────────────────
 // Search is read-only but expensive (5 ILIKE queries with
@@ -69,8 +69,11 @@ const search = async (req, res) => {
     try {
         const [leads, clients, projects, invoices, messages, quotations, contracts, bookings, expenses] = await Promise.all([
             pool.query(
-                `SELECT id, name, email, stage, created_at FROM leads
-                  WHERE name ILIKE $1 OR email ILIKE $1
+                // P2-8: leads table uses `full_name` (not `name`) per
+                // the v9_leads migration. The previous query crashed
+                // at runtime with "column 'name' does not exist".
+                `SELECT id, full_name AS name, email, stage, created_at FROM leads
+                  WHERE full_name ILIKE $1 OR email ILIKE $1
                   ORDER BY created_at DESC LIMIT 5`,
                 [needle]
             ),

@@ -91,10 +91,11 @@ export async function ensureOnboardingProject(client, division, txClient) {
     const { rows } = await runner.query(
         `INSERT INTO client_projects (
              client_id, project_name, status, division, payment_status,
-             offboarding_status, offboarding_checklist, notes
+             offboarding_status, offboarding_checklist, notes, tracking_id
          ) VALUES (
              $1, $2, 'WON', $3, 'PENDING',
-             'IN_PROGRESS', $4::jsonb, $5
+             'IN_PROGRESS', $4::jsonb, $5,
+             encode(gen_random_bytes(16), 'hex')
          ) RETURNING *`,
         [
             client.id,

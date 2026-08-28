@@ -23,7 +23,17 @@ const createBookingSchema = z.object({
     division: z.enum(['SOFTWARE', 'SURVEY', 'DRONE']).default('SOFTWARE'),
     service: z.string().min(1),
     location: z.string().optional().nullable(),
-    preferred_date: z.string().optional().nullable(),
+    // P2-7: preferred_date must be a parseable date string. Without
+    // this guard a typo like "next tuesday" would reach the DB and
+    // throw a Postgres DATE parse error, returning a generic 500
+    // instead of a friendly 400.
+    preferred_date: z.string()
+        .optional()
+        .nullable()
+        .refine(
+            (val) => !val || !Number.isNaN(Date.parse(val)),
+            { message: 'preferred_date must be a valid date (YYYY-MM-DD or ISO 8601).' }
+        ),
     notes: z.string().optional().nullable(),
 });
 

@@ -12,8 +12,16 @@
 // party cookie protections, which surfaced as 401s on every admin
 // endpoint after a successful login.
 //
-// Cookies (JWT + CSRF) are sent automatically with credentials: 'include'.
-// CSRF token is fetched from /api/csrf-token on app init and cached.
+// Authentication model (see docs/AUTH_MODEL.md):
+//   * Admin  → Authorization: Bearer <adminToken>  (primary)
+//              + `access_token`  HttpOnly cookie  (same-origin helper)
+//   * Client → Authorization: Bearer <clientToken> (primary, REQUIRED)
+//              + `client_token`  HttpOnly cookie  (same-origin helper)
+//
+// We send BOTH the Bearer header and the cookie. The header is the
+// authoritative credential; the cookie is a same-origin convenience so
+// direct browser navigation to /admin/... still works. Cross-origin
+// callers (none expected) would need the Bearer header.
 // ────────────────────────────────────────────────────────────
 
 // Only honour VITE_API_URL if it points to the same origin (relative
@@ -41,9 +49,22 @@ const API_BASE = (() => {
 // Default request timeout (ms). Avoids hanging the UI on a dead connection.
 const DEFAULT_TIMEOUT_MS = 15_000;
 
-// Cache for CSRF token
-let csrfTokenCache = null;
-let csrfTokenPromise = null;
+// ── Token storage ─────────────────────────────────────────
+// We deliberately read tokens from localStorage (set by the
+// AuthContext / ClientAuthContext). They are returned in JSON
+// responses by /auth/login and /client-auth/login respectively.
+// localStorage is acceptable here because:
+//   1. The cookie + SameSite=Strict already defends against CSRF.
+//   2. The frontend is a single-page app; XSS would already be
+//      catastrophic and is mitigated by React + DOMPurify.
+//   3. Keeping a JS-accessible token lets us send it in the
+//      Authorization header (the authoritative credential).
+const getAdminToken = () => {
+    try { return localStorage.getItem('admin_token') || null; } catch { return null; }
+};
+const getClientToken = () => {
+    try { return localStorage.getItem('client_token') || null; } catch { return null; }
+};
 
 function formatEndpoint(path) {
     if (!path) return API_BASE;
@@ -53,57 +74,18 @@ function formatEndpoint(path) {
 }
 
 /**
- * Fetch CSRF token from backend. Called on app initialization.
- * Token is cached and refreshed on 403 errors.
+ * Build request config with timeout, credentials, and the appropriate
+ * Bearer token. `auth` controls which token is attached:
+ *   'admin'  → admin token (default)
+ *   'client' → client token
+ *   'none'   → public endpoint, no token
  */
-async function getCsrfToken() {
-    if (csrfTokenCache) return csrfTokenCache;
-    
-    if (csrfTokenPromise) return csrfTokenPromise;
-    
-    csrfTokenPromise = (async () => {
-        try {
-            const res = await fetch(formatEndpoint('/csrf-token'), {
-                method: 'GET',
-                credentials: 'include', // Important: send/receive cookies
-            });
-            if (res.ok) {
-                const data = await res.json();
-                csrfTokenCache = data.csrfToken;
-                return csrfTokenCache;
-            }
-        } catch (err) {
-            console.warn('[API] Failed to fetch CSRF token:', err.message);
-        }
-        return null;
-    })();
-    
-    return csrfTokenPromise;
-}
-
-/**
- * Clear cached CSRF token (e.g., after logout or 403)
- */
-function clearCsrfToken() {
-    csrfTokenCache = null;
-    csrfTokenPromise = null;
-}
-
-/**
- * Build request config with timeout, credentials, and CSRF token
- */
-function buildConfig(options, needsCsrf = false) {
-    // The client may pass its own AbortController (for request
-    // cancellation on every-new-keystroke search inputs). Chain
-    // the caller's signal with the timeout signal so aborting
-    // either side still cancels the request.
+function buildConfig(options, { auth = 'admin' } = {}) {
     const internalController = new AbortController();
     const timeout = options.timeout ?? DEFAULT_TIMEOUT_MS;
     const timer = setTimeout(() => internalController.abort(), timeout);
 
     if (options.signal) {
-        // If the caller already aborted before we even got here,
-        // propagate immediately.
         if (options.signal.aborted) {
             internalController.abort();
         } else {
@@ -120,15 +102,18 @@ function buildConfig(options, needsCsrf = false) {
         delete headers['Content-Type']; // Let browser set multipart boundary
     }
 
-    // Add CSRF token for mutating requests
-    if (needsCsrf && csrfTokenCache) {
-        headers['X-CSRF-Token'] = csrfTokenCache;
+    if (auth === 'admin') {
+        const token = getAdminToken();
+        if (token) headers.Authorization = `Bearer ${token}`;
+    } else if (auth === 'client') {
+        const token = getClientToken();
+        if (token) headers.Authorization = `Bearer ${token}`;
     }
 
     const config = {
         ...options,
         headers,
-        credentials: 'include', // Send cookies with every request
+        credentials: 'include', // Send the HttpOnly cookie too
         signal: internalController.signal,
     };
 
@@ -155,21 +140,19 @@ async function parse(res) {
         }
     }
     if (res.ok) return { ok: true, status: res.status, data };
-    const message = (data && (data.error?.message || data.message)) || res.statusText || 'Request failed';
+    let message = (data && (data.error?.message || data.message)) || res.statusText || 'Request failed';
+    // 413 — Payload Too Large. Express' built-in body parser emits a
+    // generic "request entity too large" message. Replace it with an
+    // explicit, human-readable string the UI can show verbatim.
+    if (res.status === 413) {
+        message = 'The file you selected is too large. Please pick a smaller file (max 25 MB) and try again.';
+    }
     return { ok: false, status: res.status, error: message, data };
 }
 
-async function request(path, options = {}) {
+async function request(path, options = {}, { auth = 'admin' } = {}) {
     const url = formatEndpoint(path);
-    const method = (options.method || 'GET').toUpperCase();
-    const needsCsrf = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method);
-    
-    // Ensure CSRF token is available for mutating requests
-    if (needsCsrf && !csrfTokenCache) {
-        await getCsrfToken();
-    }
-
-    const { config, timer } = buildConfig(options, needsCsrf);
+    const { config, timer } = buildConfig(options, { auth });
 
     try {
         return await fetch(url, config);
@@ -179,15 +162,13 @@ async function request(path, options = {}) {
 }
 
 export const api = {
-    /** Initialize API client - fetch CSRF token on app start */
-    async init() {
-        await getCsrfToken();
-    },
+    /** Initialize API client — kept for backwards compatibility. */
+    async init() { return; },
 
     /** GET — returns the parsed result envelope. */
-    get: async (path, opts = {}) => {
+    get: async (path, opts = {}, auth = 'admin') => {
         try {
-            const res = await request(path, { method: 'GET', ...opts });
+            const res = await request(path, { method: 'GET', ...opts }, { auth });
             return parse(res);
         } catch (err) {
             console.error(`[API] GET ${path} failed:`, err.message);
@@ -196,24 +177,13 @@ export const api = {
     },
 
     /** POST — returns the parsed result envelope. */
-    post: async (path, body, opts = {}) => {
+    post: async (path, body, opts = {}, auth = 'admin') => {
         try {
             const res = await request(path, {
                 method: 'POST',
                 body: prepareBody(body),
                 ...opts,
-            });
-            // If 403, clear CSRF token and retry once
-            if (res.status === 403) {
-                clearCsrfToken();
-                await getCsrfToken();
-                const retryRes = await request(path, {
-                    method: 'POST',
-                    body: prepareBody(body),
-                    ...opts,
-                });
-                return parse(retryRes);
-            }
+            }, { auth });
             return parse(res);
         } catch (err) {
             console.error(`[API] POST ${path} failed:`, err.message);
@@ -221,23 +191,13 @@ export const api = {
         }
     },
 
-    put: async (path, body, opts = {}) => {
+    put: async (path, body, opts = {}, auth = 'admin') => {
         try {
             const res = await request(path, {
                 method: 'PUT',
                 body: prepareBody(body),
                 ...opts,
-            });
-            if (res.status === 403) {
-                clearCsrfToken();
-                await getCsrfToken();
-                const retryRes = await request(path, {
-                    method: 'PUT',
-                    body: prepareBody(body),
-                    ...opts,
-                });
-                return parse(retryRes);
-            }
+            }, { auth });
             return parse(res);
         } catch (err) {
             console.error(`[API] PUT ${path} failed:`, err.message);
@@ -245,23 +205,13 @@ export const api = {
         }
     },
 
-    patch: async (path, body, opts = {}) => {
+    patch: async (path, body, opts = {}, auth = 'admin') => {
         try {
             const res = await request(path, {
                 method: 'PATCH',
                 body: prepareBody(body),
                 ...opts,
-            });
-            if (res.status === 403) {
-                clearCsrfToken();
-                await getCsrfToken();
-                const retryRes = await request(path, {
-                    method: 'PATCH',
-                    body: prepareBody(body),
-                    ...opts,
-                });
-                return parse(retryRes);
-            }
+            }, { auth });
             return parse(res);
         } catch (err) {
             console.error(`[API] PATCH ${path} failed:`, err.message);
@@ -269,15 +219,9 @@ export const api = {
         }
     },
 
-    delete: async (path, opts = {}) => {
+    delete: async (path, opts = {}, auth = 'admin') => {
         try {
-            const res = await request(path, { method: 'DELETE', ...opts });
-            if (res.status === 403) {
-                clearCsrfToken();
-                await getCsrfToken();
-                const retryRes = await request(path, { method: 'DELETE', ...opts });
-                return parse(retryRes);
-            }
+            const res = await request(path, { method: 'DELETE', ...opts }, { auth });
             return parse(res);
         } catch (err) {
             console.error(`[API] DELETE ${path} failed:`, err.message);
@@ -290,32 +234,30 @@ export const api = {
      * portfolio image picker and the admin upload route.
      * The Content-Type header is intentionally left unset so the browser
      * generates the correct multipart boundary.
+     *
+     * Recognises HTTP 413 (Payload Too Large) so the UI can show a
+     * clear, actionable error instead of a generic failure.
      */
-    upload: async (path, file) => {
+    upload: async (path, file, { auth = 'admin' } = {}) => {
         try {
             const form = new FormData();
             form.append('image', file);
-            
-            // Get CSRF token for upload
-            if (!csrfTokenCache) await getCsrfToken();
-            
-            let res = await fetch(formatEndpoint(path), {
+
+            const headers = {};
+            if (auth === 'admin') {
+                const token = getAdminToken();
+                if (token) headers.Authorization = `Bearer ${token}`;
+            } else if (auth === 'client') {
+                const token = getClientToken();
+                if (token) headers.Authorization = `Bearer ${token}`;
+            }
+
+            const res = await fetch(formatEndpoint(path), {
                 method: 'POST',
-                credentials: 'include', // Send cookies
-                headers: csrfTokenCache ? { 'X-CSRF-Token': csrfTokenCache } : {},
+                credentials: 'include',
+                headers,
                 body: form,
             });
-
-            if (res.status === 403) {
-                clearCsrfToken();
-                await getCsrfToken();
-                res = await fetch(formatEndpoint(path), {
-                    method: 'POST',
-                    credentials: 'include',
-                    headers: csrfTokenCache ? { 'X-CSRF-Token': csrfTokenCache } : {},
-                    body: form,
-                });
-            }
 
             return parse(res);
         } catch (err) {

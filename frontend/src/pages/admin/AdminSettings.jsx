@@ -430,7 +430,7 @@ const FxRatesSection = () => {
 };
 
 // ── BankAccountsSection — edit Grey / Paystack settlement accounts ──
-// Saves via POST /api/payments/bank-accounts (Owner / Administrator / Finance).
+// Saves via POST /api/payments/bank-accounts (Owner only — single-admin model).
 // Only the user's actual Grey accounts live here. NEVER publish these.
 const BankAccountsSection = () => {
     const [accounts, setAccounts] = useState([]);

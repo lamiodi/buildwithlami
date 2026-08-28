@@ -4,7 +4,7 @@
 // Public:
 //   POST   /api/crm/leads                — submit a lead (rate-limited at the app level)
 //
-// Admin (requireRole 'Owner' / 'Administrator'):
+// Admin (requireRole 'Owner'):
 //   GET    /api/crm/leads                — list, filtered
 //   GET    /api/crm/leads/:id            — one
 //   PATCH  /api/crm/leads/:id/stage      — drag-and-drop transition
@@ -42,7 +42,7 @@ router.post('/leads', publicLeadLimiter, createLead);
 
 // Admin routes below — all need a valid token.
 router.use(verifyToken);
-router.use(requireRole('Owner', 'Administrator', 'Project Manager', 'Survey Manager', 'Drone Manager'));
+router.use(requireRole('Owner'));
 
 router.get('/stages', getStages);
 router.get('/leads', getLeads);

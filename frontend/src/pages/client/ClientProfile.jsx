@@ -20,7 +20,7 @@ export default function ClientProfile() {
                 name: name || undefined,
                 phone: phone || undefined,
                 password: password || undefined
-            });
+            }, {}, 'client');
 
             if (res.ok) {
                 notify.success('Profile updated successfully');

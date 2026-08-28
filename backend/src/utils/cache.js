@@ -1,19 +1,60 @@
 // ─── src/utils/cache.js ───────────────────────────────────
-// Tiny in-memory TTL cache for the public, low-mutation
+// Tiny bounded in-memory LRU + TTL cache for the public, low-mutation
 // marketing reads. State is per-process.
+//
+// Hard caps are enforced so a pathological query distribution
+// (unique keys, e.g. attacker scanning with random params) cannot
+// grow the map without limit:
+//   - MAX_ENTRIES:   1000 entries  (oldest evicted on insert)
+//   - DEFAULT_TTL:   60_000 ms     (overridable per cacheSet)
 //
 // If the backend ever scales to multiple nodes, swap this for
 // a shared store (Redis or a small `cache` table). For a
-// single Render instance, the in-memory map is the right
+// single Render instance, the in-memory LRU is the right
 // trade-off — no new infra, no network hops.
 // ──────────────────────────────────────────────────────────
 
+const MAX_ENTRIES = 1000;
+const DEFAULT_TTL_MS = 60_000;
+
+/**
+ * Internal entry: { value, expiresAt }.
+ * Map iteration order is insertion order, so the first key is
+ * the oldest — perfect for LRU eviction on overflow.
+ */
 const store = new Map();
 
 /**
+ * Insert an entry, enforcing the size cap. If we are at capacity,
+ * evict the oldest (first-inserted) entry. Newly inserted entries
+ * are moved to the "most recent" end by re-setting the same key.
+ */
+function setEntry(key, entry) {
+    if (store.has(key)) {
+        store.delete(key);
+    } else if (store.size >= MAX_ENTRIES) {
+        // Evict oldest — first key returned by iterator.
+        const oldestKey = store.keys().next().value;
+        if (oldestKey !== undefined) store.delete(oldestKey);
+    }
+    store.set(key, entry);
+}
+
+/**
+ * Lazily prune expired entries on every read so the map
+ * cannot slowly fill with stale items.
+ */
+function pruneExpired() {
+    const now = Date.now();
+    for (const [key, entry] of store) {
+        if (now > entry.expiresAt) store.delete(key);
+    }
+}
+
+/**
  * Read a cached value if it's still fresh.
+ * Returns { hit: true, value } or { hit: false }.
  * @param {string} key
- * @returns {{hit: true, value: any} | {hit: false}}
  */
 export function cacheGet(key) {
     const entry = store.get(key);
@@ -22,25 +63,52 @@ export function cacheGet(key) {
         store.delete(key);
         return { hit: false };
     }
+    // LRU touch: re-insert so this key is the most recent.
+    setEntry(key, entry);
     return { hit: true, value: entry.value };
 }
 
 /**
  * Store a value with a time-to-live in milliseconds.
+ * @param {string} key
+ * @param {*} value
+ * @param {number} [ttlMs] defaults to DEFAULT_TTL_MS
  */
-export function cacheSet(key, value, ttlMs) {
-    store.set(key, { value, expiresAt: Date.now() + ttlMs });
+export function cacheSet(key, value, ttlMs = DEFAULT_TTL_MS) {
+    if (ttlMs <= 0) return; // ttl <= 0 means "do not cache"
+    setEntry(key, { value, expiresAt: Date.now() + ttlMs });
 }
 
 /**
  * Drop every cache entry whose key starts with the given prefix.
  * Called by admin write endpoints so a fresh publish is visible
  * to the next public read.
+ * @param {string} prefix
  */
 export function cacheInvalidatePrefix(prefix) {
     for (const key of store.keys()) {
         if (key.startsWith(prefix)) store.delete(key);
     }
+}
+
+/**
+ * Drop every cache entry. Use sparingly — primarily for tests.
+ */
+export function cacheClear() {
+    store.clear();
+}
+
+/**
+ * Cache stats for diagnostics / tests.
+ * @returns {{ size: number, maxEntries: number, defaultTtlMs: number }}
+ */
+export function cacheStats() {
+    pruneExpired();
+    return {
+        size: store.size,
+        maxEntries: MAX_ENTRIES,
+        defaultTtlMs: DEFAULT_TTL_MS,
+    };
 }
 
 /**

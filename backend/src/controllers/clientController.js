@@ -1,7 +1,15 @@
 import { z } from 'zod';
+import bcrypt from 'bcrypt';
 import pool from '../config/db.js';
 import { writeAuditLog, getClientIp } from '../utils/auditLog.js';
 
+const BCRYPT_ROUNDS = Number(process.env.BCRYPT_ROUNDS || 12);
+
+// Client creation schema. `password` is optional so an
+// invitation / setup-link flow can create the row first
+// and finish credential setup later. When a password IS
+// supplied it is bcrypt-hashed (12 rounds, matching the
+// admin path) before persistence — never stored in clear.
 const clientSchema = z.object({
     name: z.string().min(1, "Name is required"),
     primary_contact_email: z.string().email("Valid primary email is required"),
@@ -9,24 +17,26 @@ const clientSchema = z.object({
     phone: z.string().max(32, "Phone too long").optional().or(z.literal('')),
     stripe_customer_id: z.string().optional().or(z.literal('')),
     division: z.enum(['SOFTWARE', 'SURVEY', 'DRONE']).optional().default('SOFTWARE'),
-    notes: z.string().optional().or(z.literal(''))
+    notes: z.string().optional().or(z.literal('')),
+    // Optional. When provided must be 8-128 chars.
+    password: z.string().min(8, "Password must be at least 8 characters").max(128).optional().or(z.literal('')),
 });
 
 export const getClients = async (req, res) => {
     try {
         const conditions = [];
         const params = [];
-        
+
         // Add division filter if provided
         if (req.query.division && ['SOFTWARE', 'SURVEY', 'DRONE'].includes(req.query.division)) {
             params.push(req.query.division);
             conditions.push(`c.division = $${params.length}`);
         }
-        
+
         const where = conditions.length > 0 ? ' WHERE ' + conditions.join(' AND ') : '';
-        
+
         const { rows } = await pool.query(`
-            SELECT 
+            SELECT
                 c.*,
                 (SELECT COUNT(*) FROM client_projects cp WHERE cp.client_id = c.id) as projects_count,
                 (SELECT COALESCE(SUM(amount), 0) FROM invoices i WHERE i.client_id = c.id AND i.status = 'PAID') as total_billed
@@ -59,16 +69,37 @@ export const getClientById = async (req, res) => {
 export const createClient = async (req, res) => {
     try {
         const data = clientSchema.parse(req.body);
+
+        // If a password was supplied, hash it before persistence.
+        // We NEVER store plaintext passwords.
+        const passwordHash = data.password && data.password.length > 0
+            ? await bcrypt.hash(data.password, BCRYPT_ROUNDS)
+            : null;
+
         const { rows } = await pool.query(
-            `INSERT INTO clients (name, primary_contact_email, billing_email, phone, stripe_customer_id, division, notes)
-             VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
-            [data.name, data.primary_contact_email, data.billing_email || null, data.phone || null, data.stripe_customer_id || null, data.division || 'SOFTWARE', data.notes || null]
+            `INSERT INTO clients
+                (name, primary_contact_email, billing_email, phone,
+                 stripe_customer_id, division, notes, password_hash)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+             RETURNING id, name, primary_contact_email, billing_email, phone,
+                       stripe_customer_id, division, notes, created_at, updated_at,
+                       last_login_at`,
+            [
+                data.name,
+                data.primary_contact_email,
+                data.billing_email || null,
+                data.phone || null,
+                data.stripe_customer_id || null,
+                data.division || 'SOFTWARE',
+                data.notes || null,
+                passwordHash,
+            ]
         );
         writeAuditLog({
             action: 'CLIENT_CREATED',
             entityType: 'clients',
             entityId: rows[0].id,
-            details: { name: data.name, division: data.division },
+            details: { name: data.name, division: data.division, credentialInitialized: !!passwordHash },
             user: req.user,
             ipAddress: getClientIp(req),
         }).catch(() => {});

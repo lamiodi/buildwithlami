@@ -128,13 +128,10 @@ export async function getProjects(req, res) {
         const vals = [];
         const conditions = [];
 
-        // Auth middleware normalises the role to the canonical titlecase
-        // name from ROLE_DIVISIONS (e.g. 'Owner', 'Administrator'). For
-        // backwards compatibility we also accept any of the privilege
-        // roles that can see all projects (Owner / Administrator / Project
-        // Manager / Finance — anyone above 'client').
-        const privRoles = ['Owner', 'Administrator', 'Project Manager', 'Finance'];
-        const isPrivileged = req.user && privRoles.includes(req.user.role);
+        // BuildWithLami is a one-man studio: any authenticated user
+        // is privileged (the only admin identity is `Owner`). Public
+        // (un-authenticated) callers only see PUBLISHED rows.
+        const isPrivileged = Boolean(req.user);
         if (!isPrivileged) {
             conditions.push(`status = 'PUBLISHED'`);
         }
@@ -195,13 +192,11 @@ export async function getProjectById(req, res) {
     try {
         if (!validateUUID(req.params.id, res)) return;
 
-        // Public read: only PUBLISHED rows. Admins (Owner /
-        // Administrator / Project Manager / Finance) can read
-        // any status — the route layer enforces auth before
-        // hitting this branch, so unauthenticated callers can
-        // only see PUBLISHED content.
-        const privRoles = ['Owner', 'Administrator', 'Project Manager', 'Finance'];
-        const isPrivileged = req.user && privRoles.includes(req.user.role);
+        // Public read: only PUBLISHED rows. Authenticated admins
+        // (Owner) can read any status — the route layer enforces
+        // auth before hitting this branch, so unauthenticated
+        // callers only see PUBLISHED content.
+        const isPrivileged = Boolean(req.user);
         const whereStatus = isPrivileged ? '' : `AND status = 'PUBLISHED'`;
 
         const { rows } = await pool.query(

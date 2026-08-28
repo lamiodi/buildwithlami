@@ -10,11 +10,11 @@ import {
 
 const router = express.Router();
 
-const financeRoles = ['Owner', 'Administrator', 'Finance'];
+const ownerRole = requireRole('Owner');
 
-router.get('/', verifyToken, requireRole(...financeRoles), getExpenses);
-router.post('/', verifyToken, requireRole(...financeRoles), logActivity('CREATE_EXPENSE', 'expenses'), createExpense);
-router.put('/:id', verifyToken, requireRole(...financeRoles), logActivity('UPDATE_EXPENSE', 'expenses'), updateExpense);
-router.delete('/:id', verifyToken, requireRole(...financeRoles), logActivity('DELETE_EXPENSE', 'expenses'), deleteExpense);
+router.get('/', verifyToken, ownerRole, getExpenses);
+router.post('/', verifyToken, ownerRole, logActivity('CREATE_EXPENSE', 'expenses'), createExpense);
+router.put('/:id', verifyToken, ownerRole, logActivity('UPDATE_EXPENSE', 'expenses'), updateExpense);
+router.delete('/:id', verifyToken, ownerRole, logActivity('DELETE_EXPENSE', 'expenses'), deleteExpense);
 
 export default router;

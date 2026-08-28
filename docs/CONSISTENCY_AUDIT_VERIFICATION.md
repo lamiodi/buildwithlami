@@ -91,9 +91,10 @@
 
 ### C11. Wrong role strings in contactRoutes.js
 - **Original claim:** Contact routes use legacy `'ADMIN', 'OWNER'` instead of canonical `'Owner', 'Administrator'`.
-- **Verified status:** ✅ **CONFIRMED**
-- **Evidence:** [contactRoutes.js:12](file:///c:/Users/nuke/Documents/buildwithlami/backend/src/routes/contactRoutes.js#L12) — `router.use(requireRole('ADMIN', 'OWNER'))`. The canonical roles in [roles.js:8-19](file:///c:/Users/nuke/Documents/buildwithlami/backend/src/config/roles.js#L8) are `'Owner', 'Administrator'`. The `canonicalRole()` helper in [roles.js:47-57](file:///c:/Users/nuke/Documents/buildwithlami/backend/src/config/roles.js#L47) WOULD resolve `'ADMIN'` → `'Owner'`, but `requireRole()` may not be running through `canonicalRole()`.
-- **Recommendation:** Replace with canonical title-case strings. The legacy aliases are only meant for **incoming** JWTs/DB values, not for declaring role requirements.
+- **Verified status:** ✅ **CONFIRMED** (now also **SUPERSEDED by v38**)
+- **Evidence:** [contactRoutes.js:12](file:///c:/Users/nuke/Documents/buildwithlami/backend/src/routes/contactRoutes.js#L12) — `router.use(requireRole('ADMIN', 'OWNER'))`. The canonical roles in [roles.js:8-19](file:///c:/Users/nuke/Documents/buildwithlami/backend/src/config/roles.js#L8) were `'Owner', 'Administrator'`. The `canonicalRole()` helper in [roles.js:47-57](file:///c:/Users/nuke/Documents/buildwithlami/backend/src/config/roles.js#L47) WOULD resolve `'ADMIN'` → `'Owner'`, but `requireRole()` may not be running through `canonicalRole()`.
+- **Recommendation (original):** Replace with canonical title-case strings. The legacy aliases are only meant for **incoming** JWTs/DB values, not for declaring role requirements.
+- **Resolution (Phase 19, v38_simplify_roles.sql):** BuildWithLami is a one-man studio. Every admin route is now gated by `requireRole('Owner')` only; the `Administrator` (and every other specialist) role was removed from `ROLE_DIVISIONS` and deleted from the `roles` table. `requireRole()` accepts the legacy `'ADMIN'` / `'OWNER'` strings only for backward compatibility with un-migrated JWTs/DB rows. See [roles.js](file:///c:/Users/nuke/Documents/buildwithlami/backend/src/config/roles.js) and [v38_simplify_roles.sql](file:///c:/Users/nuke/Documents/buildwithlami/backend/migrations/v38_simplify_roles.sql).
 
 ### C12. Survey page copy claims "9 disciplines" but lists 6
 - **Original claim:** Survey page says "Nine specialised disciplines" in copy but services array has 6.

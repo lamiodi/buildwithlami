@@ -35,7 +35,7 @@ export const coreNav = [
 /**
  * Software-workspace items: developer + project management
  * surface. Visible to roles with `divisions: ['SOFTWARE']`
- * or `divisions: '*'` (Owner / Administrator).
+ * or `divisions: '*'` (Owner — the only admin role).
  */
 export const softwareNav = [
     { to: '/admin/clients', label: 'Clients', icon: Icon.Users },

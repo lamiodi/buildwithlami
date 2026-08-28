@@ -691,6 +691,9 @@ The following columns were also dropped (in earlier migrations) for the same rea
 | 4 | `v5_division.sql` | Phase 0 | `division` columns + contact-form fields + drop `messages.subject` |
 | 5 | `v6_offboarding.sql` | Phase 1 | Offboarding columns + drop `client_projects.last_notified_at` |
 | 6 | `v7_roles_rbac.sql` | Phase 1 | `roles` table, `users.role_id` FK, 10 RBAC roles seeded |
+| 28 | `v36_notification_dedup.sql` | Phase 19 | `notification_dedup` table — DB-backed cron dedupe |
+| 29 | `v37_login_lockout.sql` | Phase 19 | Account-lockout columns on `users` |
+| 30 | `v38_simplify_roles.sql` | Phase 19 | One-man studio: collapse every admin-shaped role to `Owner`, drop the eight specialist `roles` rows |
 | 7 | `v8_bookings.sql` | Phase 2 | `bookings` table (Survey + Drone) |
 | 8 | `v9_leads.sql` | Phase 3 | `leads` table (8-stage CRM pipeline) |
 | 9 | `v10_notifications.sql` | Phase 3 | `notifications` table (in-app bell) |

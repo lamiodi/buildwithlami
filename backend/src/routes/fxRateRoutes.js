@@ -11,7 +11,7 @@ import { listFxRates, upsertFxRates, refreshFxRates } from '../controllers/fxRat
 const router = express.Router();
 
 router.get('/', verifyToken, listFxRates);
-router.put('/', verifyToken, requireRole('Administrator', 'Owner'), upsertFxRates);
-router.post('/refresh', verifyToken, requireRole('Administrator', 'Owner'), refreshFxRates);
+router.put('/', verifyToken, requireRole('Owner'), upsertFxRates);
+router.post('/refresh', verifyToken, requireRole('Owner'), refreshFxRates);
 
 export default router;

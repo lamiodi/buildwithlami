@@ -46,11 +46,11 @@ const SECTIONS = [
         steps: [
             'Currently user creation is a SQL operation — there\'s no in-app "Add User" form yet.',
             'SSH into the database or use the Supabase SQL editor.',
-            'Insert a row: INSERT INTO users (email, password_hash, full_name, role, divisions) VALUES (..., ...);',
-            'Or use the seed script: `cd backend && node src/scripts/seedAdmin.js <email> <password> <role> <divisions>`.',
+            'Insert a row: INSERT INTO users (email, password_hash, full_name, role) VALUES (..., ...);',
+            'Or use the seed script: `cd backend && node src/scripts/seedAdmin.js <email> <password>`.',
             'Tell the new user to log in and immediately enable 2FA at /admin/security/2fa.',
         ],
-        tip: 'Roles: Owner, Administrator, Project Manager, Developer, Survey Manager, Surveyor, Drone Manager, Drone Pilot, Finance, Client.',
+        tip: 'Roles: Owner (admin) and Client (portal). The studio is a one-man operation — there is only one admin role.',
     },
     {
         id: 'change-role',
@@ -58,10 +58,10 @@ const SECTIONS = [
         tag: 'Admin',
         steps: [
             'There\'s no in-app role editor yet — same as adding a user.',
-            'UPDATE users SET role = \'Administrator\' WHERE email = \'user@example.com\';',
+            "UPDATE users SET role = 'Owner' WHERE email = 'user@example.com';",
             'The change takes effect on the user\'s next API call (no logout needed for role upgrade; downgrade may require re-login).',
         ],
-        tip: 'Role names are case-insensitive in the middleware. "Administrator" and "ADMIN" both work.',
+        tip: "The only admin role is 'Owner'. Legacy strings like 'Administrator' or 'ADMIN' are still accepted for backward compatibility but are normalised to 'Owner' before any route guard runs.",
     },
     {
         id: 'deploy',

@@ -4,20 +4,33 @@ dotenv.config();
 const ZOHO_SIGN_TOKEN = process.env.ZOHO_SIGN_TOKEN || '';
 const ZOHO_SIGN_API_BASE = process.env.ZOHO_SIGN_API_BASE || 'https://sign.zoho.com/api/v1';
 
+// `stub` mode is the default — the project ships without a
+// real Zoho account configured. It must NEVER simulate a
+// signature on its own. If you want to advance a contract to
+// `SIGNED` in dev, do it explicitly through the manual
+// `forceSign` controller (which is itself 2FA-gated).
+export function isZohoStubMode() {
+    return !ZOHO_SIGN_TOKEN;
+}
+
 /**
  * Creates an agreement from a template and sends it to the signer.
  * @param {string} templateId - Zoho Sign template ID
  * @param {object} signer - { email: string, name: string }
  * @param {object} customFields - Key-value pairs for template placeholders
- * @returns {object} - { agreementId: string, status: string }
+ * @returns {object} - { agreementId: string, status: 'SENT' }
  */
 export async function createAgreement(templateId, signer, customFields = {}) {
-    if (!ZOHO_SIGN_TOKEN) {
-        // Stub mode
+    if (isZohoStubMode()) {
+        // Stub mode: create a unique envelope ID, status starts as
+        // SENT. We deliberately do NOT mark it signed here — the
+        // /webhook endpoint stays the only entry point that can
+        // advance a contract to SIGNED, and it requires a valid
+        // HMAC signature.
         console.log('[ZohoSignService] STUB MODE: createAgreement called with:', { templateId, signer, customFields });
         return {
-            agreementId: 'stub-agreement-' + Date.now(),
-            status: 'SENT'
+            agreementId: 'stub-agreement-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8),
+            status: 'SENT',
         };
     }
 
@@ -68,15 +81,20 @@ export async function createAgreement(templateId, signer, customFields = {}) {
 }
 
 /**
- * Gets the current status of an agreement
- * @param {string} agreementId 
- * @returns {string} - Status (e.g., SIGNED, SENT, DECLINED)
+ * Gets the current status of an agreement. Stub mode always
+ * reports SENT — the previous behaviour of returning SIGNED
+ * caused the dev server to auto-complete contracts the moment
+ * they were fetched, which silently disabled the post-sign
+ * workflow tests. Use the explicit `forceSign` endpoint to
+ * advance a contract in dev.
+ *
+ * @param {string} agreementId
+ * @returns {string} - Status (e.g., SENT, SIGNED, DECLINED)
  */
 export async function getStatus(agreementId) {
-    if (!ZOHO_SIGN_TOKEN) {
-        // Stub mode - simulate that it's signed after 10 seconds? No, just return SENT to avoid complex stub logic
+    if (isZohoStubMode()) {
         console.log('[ZohoSignService] STUB MODE: getStatus called for:', agreementId);
-        return 'SIGNED'; // Always return SIGNED in stub mode to test full flow
+        return 'SENT';
     }
 
     try {
@@ -99,15 +117,17 @@ export async function getStatus(agreementId) {
 
 /**
  * Downloads the completed PDF
- * @param {string} agreementId 
+ * @param {string} agreementId
  * @returns {Buffer} - PDF file buffer
  */
 export async function downloadPDF(agreementId) {
-    if (!ZOHO_SIGN_TOKEN) {
-        // Stub mode
+    if (isZohoStubMode()) {
         console.log('[ZohoSignService] STUB MODE: downloadPDF called for:', agreementId);
-        // Return a dummy buffer
-        return Buffer.from('%PDF-1.4 Dummy PDF Content', 'utf-8');
+        // Return a small placeholder so downstream code paths
+        // (e.g. file upload to Cloudinary) have something to
+        // attach without crashing. The bytes are NOT a real
+        // contract PDF.
+        return Buffer.from('%PDF-1.4\n% BuildWithLami STUB MODE\n% This is a placeholder. Force-sign via the admin dev tool to generate a real PDF.\n', 'utf-8');
     }
 
     try {

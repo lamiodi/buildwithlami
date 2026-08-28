@@ -4,6 +4,7 @@ import crypto from 'crypto';
 import { writeAuditLog, getClientIp } from '../utils/auditLog.js';
 import { SUPPORTED_CURRENCIES } from '../utils/fx.js';
 import { sendInvoiceEmail } from './paymentController.js';
+import { confirmManualPayment } from '../utils/paymentConfirmation.js';
 
 const invoiceSchema = z.object({
     clientId: z.string().uuid(),
@@ -242,29 +243,74 @@ export const deleteInvoice = async (req, res) => {
     }
 };
 
-// Admin: Mark invoice as paid manually
+// Admin: Mark invoice as paid manually.
+//
+// CRIT-4 — This used to be a one-line PATCH that flipped the
+// status with no evidence, no reference, and no 2FA. Now the
+// body MUST contain at least `paymentReference` (a free-text
+// transaction reference, wire ID, etc.). `proofId` is
+// strongly recommended: when supplied, the helper verifies the
+// proof row exists for this invoice, is not REJECTED, and
+// matches the invoice currency. If the amount is above
+// `MANUAL_PAYMENT_THRESHOLD_MINOR` and the calling user has
+// 2FA enabled, a fresh TOTP code is required.
+//
+// The Paystack webhook flow (below) is unchanged and continues
+// to be the authoritative path for card payments.
+const markPaidSchema = z.object({
+    paymentReference: z.string().trim().min(3).max(200),
+    proofId: z.string().uuid().optional().nullable(),
+    paidVia: z.string().trim().min(2).max(60).optional().nullable(),
+    twoFactorCode: z.string().trim().min(6).max(10).optional().nullable(),
+});
+
+const MARK_PAID_REASON_MESSAGES = {
+    already_paid:        { http: 200, message: 'Invoice is already paid.' },
+    paid:                { http: 200, message: 'Invoice marked as paid.' },
+    invalid_invoice_id:  { http: 400, message: 'Invalid invoice id.' },
+    invoice_not_found:   { http: 404, message: 'Invoice not found.' },
+    invalid_state:       { http: 409, message: 'Invoice is not in a confirmable state.' },
+    reference_required:  { http: 400, message: 'paymentReference is required.' },
+    invalid_proof_id:    { http: 400, message: 'Invalid proof id.' },
+    proof_not_found:     { http: 404, message: 'Referenced payment proof was not found.' },
+    proof_mismatch:      { http: 400, message: 'Proof does not belong to this invoice.' },
+    proof_rejected:      { http: 409, message: 'Referenced proof was rejected.' },
+    amount_mismatch:     { http: 400, message: 'Proof currency does not match invoice currency.' },
+    two_factor_required: { http: 401, message: '2FA step-up required for this amount. Re-submit with a fresh twoFactorCode.' },
+    two_factor_invalid:  { http: 401, message: 'Invalid 2FA code.' },
+    threshold:           { http: 500, message: 'Server misconfiguration. Contact admin.' },
+};
+
 export const markInvoicePaid = async (req, res) => {
     const { id } = req.params;
     if (!isUuid(id)) return res.status(400).json({ error: 'Invalid ID format.' });
+
+    let body;
     try {
-        const { rows } = await pool.query(
-            `UPDATE invoices SET status = 'PAID', paid_at = NOW() WHERE id = $1 AND status <> 'PAID' RETURNING *`,
-            [id]
-        );
-        if (rows.length === 0) return res.status(404).json({ error: 'Invoice not found or already paid.' });
-        await writeAuditLog({
-            action: 'INVOICE_MARKED_PAID',
-            entityType: 'invoices',
-            entityId: id,
-            details: {
-                amount: rows[0].amount,
-                clientId: rows[0].client_id,
-                projectId: rows[0].project_id,
-            },
+        body = markPaidSchema.parse(req.body || {});
+    } catch (err) {
+        if (err instanceof z.ZodError) {
+            return res.status(400).json({ error: err.errors });
+        }
+        throw err;
+    }
+
+    try {
+        const result = await confirmManualPayment({
+            invoiceId: id,
+            userId: req.user.id,
             user: req.user,
             ipAddress: getClientIp(req),
+            paymentReference: body.paymentReference,
+            proofId: body.proofId || null,
+            paidVia: body.paidVia || null,
+            twoFactorCode: body.twoFactorCode || null,
         });
-        res.json(rows[0]);
+        const meta = MARK_PAID_REASON_MESSAGES[result.reason] || { http: 500, message: 'Internal server error.' };
+        if (!result.ok) {
+            return res.status(meta.http).json({ error: meta.message, reason: result.reason });
+        }
+        return res.status(meta.http).json({ invoice: result.invoice, message: meta.message });
     } catch (err) {
         console.error('[Invoices] markInvoicePaid error:', err.message);
         res.status(500).json({ error: 'Internal server error' });
@@ -346,11 +392,11 @@ export const paystackWebhook = async (req, res) => {
             // 3.4 Invoice to Project: Ensure payment confirmation spins up a project if none exists.
             if (!invoice.project_id) {
                 const projRes = await pool.query(`
-                    INSERT INTO client_projects (client_id, project_name, status, division, payment_status, offboarding_status)
-                    VALUES ($1, $2, 'ACTIVE', 'SOFTWARE', 'PAID', 'PENDING')
+                    INSERT INTO client_projects (client_id, project_name, status, division, payment_status, offboarding_status, tracking_id)
+                    VALUES ($1, $2, 'ACTIVE', 'SOFTWARE', 'PAID', 'PENDING', encode(gen_random_bytes(16), 'hex'))
                     RETURNING id
                 `, [invoice.client_id, `Project for ${invoice.invoice_number}`]);
-                
+
                 await pool.query(`UPDATE invoices SET project_id = $1 WHERE id = $2`, [projRes.rows[0].id, invoice.id]);
                 invoice.project_id = projRes.rows[0].id;
             }

@@ -9,7 +9,7 @@ export default function ClientDocuments() {
 
     const fetchDocuments = async () => {
         try {
-            const res = await api.get('/client-portal/documents');
+            const res = await api.get('/client-portal/documents', {}, 'client');
             if (res.ok && res.data) {
                 setDocuments(res.data);
             }

@@ -95,7 +95,7 @@ export async function submitSecretByTrackingId(req, res) {
         // the trackingId baked into their JWT. This prevents a client
         // logged in for project A from submitting a secret to project B.
         const role = req.user?.role;
-        const isStaff = role && ['Owner', 'Administrator'].includes(role);
+        const isStaff = role === 'Owner';
         if (!isStaff) {
             if (!req.user?.trackingId || req.user.trackingId !== trackingId) {
                 return res.status(403).json({ error: 'Forbidden — you may only submit to your own project.' });

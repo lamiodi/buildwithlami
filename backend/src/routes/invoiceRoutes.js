@@ -18,12 +18,12 @@ const paystackRawBody = express.json({
 router.post('/webhook/paystack', paystackRawBody, paystackWebhook);
 
 // Protected Routes
-router.get('/', verifyToken, requireRole('Administrator', 'Owner'), getAllInvoices);
-router.post('/', verifyToken, requireRole('Administrator', 'Owner'), createInvoice);
-router.delete('/:id', verifyToken, requireRole('Administrator', 'Owner'), deleteInvoice);
-router.patch('/:id/pay', verifyToken, requireRole('Administrator', 'Owner'), markInvoicePaid);
-router.patch('/:id/refund', verifyToken, requireRole('Administrator', 'Owner'), refundInvoice);
+router.get('/', verifyToken, requireRole('Owner'), getAllInvoices);
+router.post('/', verifyToken, requireRole('Owner'), createInvoice);
+router.delete('/:id', verifyToken, requireRole('Owner'), deleteInvoice);
+router.patch('/:id/pay', verifyToken, requireRole('Owner'), markInvoicePaid);
+router.patch('/:id/refund', verifyToken, requireRole('Owner'), refundInvoice);
 // Both Admin and Client can view invoices (Clients use JWT bound to trackingId)
-router.get('/project/:projectId', verifyToken, requireRole('Client', 'Administrator', 'Owner'), getInvoicesByProject);
+router.get('/project/:projectId', verifyToken, requireRole('Client', 'Owner'), getInvoicesByProject);
 
 export default router;

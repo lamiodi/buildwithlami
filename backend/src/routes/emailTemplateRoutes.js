@@ -21,7 +21,7 @@ import {
 const router = express.Router();
 
 router.use(verifyToken);
-router.use(requireRole('Owner', 'Administrator'));
+router.use(requireRole('Owner'));
 
 router.get('/', getTemplates);
 router.get('/:id', getTemplateById);

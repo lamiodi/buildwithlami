@@ -24,7 +24,8 @@ required.
 | Var | Example | Purpose |
 |---|---|---|
 | `DATABASE_URL` | `postgresql://user:pass@host:6543/db?pgbouncer=true` | Postgres connection string. Use the **Transaction** (port 6543) URL if using Supabase with serverless, **Internal** URL if using Render Postgres. |
-| `JWT_SECRET` | (64+ random chars) | Signs the auth tokens. **Rotate = all users logged out.** |
+| `JWT_SECRET` | (64+ random chars) | Signs the admin auth tokens. **Rotate = all admins logged out.** |
+| `CLIENT_JWT_SECRET` | (64+ random chars, different from `JWT_SECRET`) | Signs the **client portal** tokens. Defence-in-depth: a client token cannot be replayed against admin routes. |
 | `FRONTEND_URL` | `https://buildwithlami.vercel.app` | Used for CORS + Paystack callback URLs. |
 | `PORT` | `4000` | What port the Express server listens on. Render sets this automatically. |
 

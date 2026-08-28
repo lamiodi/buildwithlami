@@ -28,8 +28,8 @@ async function authorizeProjectAccess(req, res, requestedProjectId) {
         return null;
     }
     const role = req.user?.role;
-    // Admin / Owner are unrestricted.
-    const isStaff = role && ['Owner', 'Administrator'].includes(role);
+    // Owner is unrestricted.
+    const isStaff = role === 'Owner';
     if (!isStaff) {
         // For CLIENT, enforce that the projectId matches the JWT's trackingId.
         const jwtTrackingId = req.user?.trackingId;
