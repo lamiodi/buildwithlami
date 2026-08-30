@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, useReducedMotion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { 
@@ -38,6 +38,19 @@ const Pricing = ({ isHomepage = false }) => {
 
   // Category Selector as Primary Navigation (defaults to 'websites')
   const [activeCategory, setActiveCategory] = useState('websites');
+  const mobileTabsRef = useRef(null);
+
+  // Auto-center the active tab in the mobile horizontal scroller
+  // when the category changes (e.g. from a URL param or a tier click).
+  useEffect(() => {
+    if (typeof window === 'undefined' || window.innerWidth >= 640) return;
+    const el = mobileTabsRef.current;
+    if (!el) return;
+    const active = el.querySelector('[aria-selected="true"]');
+    if (!active) return;
+    const targetLeft = active.offsetLeft - (el.clientWidth / 2) + (active.clientWidth / 2);
+    el.scrollTo({ left: targetLeft, behavior: 'smooth' });
+  }, [activeCategory]);
 
   // Get active category object and tiers
   const currentCategoryData = BUILD_PRICING[activeCategory] || BUILD_PRICING.websites;
@@ -240,71 +253,49 @@ const Pricing = ({ isHomepage = false }) => {
                 </div>
               </div>
 
-              {/* Mobile (< sm): premium segmented selector.
-                   Top strip: index chip "03 / 10" + active label.
-                   Body: large active category with description.
-                   Footer: two-column Prev / Next pager so the user
-                   flips through all 10 disciplines. */}
+              {/* Mobile (< sm): horizontally scrollable category tabs.
+                   Shows all 10 disciplines so the user can see and
+                   tap any of them — no hidden prev/next. The active
+                   tab auto-centers in the scroll view. */}
               <div className="sm:hidden pt-2">
-                {(() => {
-                  const cats = Object.values(BUILD_PRICING);
-                  const idx = cats.findIndex(c => c.id === activeCategory);
-                  const active = cats[idx];
-                  const prev = cats[(idx - 1 + cats.length) % cats.length];
-                  const next = cats[(idx + 1) % cats.length];
-                  return (
-                    <div className="rounded-2xl border border-gray-300 dark:border-white/15 bg-white dark:bg-[#141414] shadow-sm overflow-hidden">
-                      {/* Header strip: index + label */}
-                      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-white/10 bg-gray-50 dark:bg-white/5">
-                        <div className="flex items-center gap-2">
-                          <span className="px-2 py-0.5 rounded-md bg-accent text-white font-mono text-[10px] font-bold tracking-widest">
-                            {String(idx + 1).padStart(2, '0')} / {String(cats.length).padStart(2, '0')}
-                          </span>
-                          <span className="text-[10px] font-mono uppercase tracking-[0.18em] text-gray-500 dark:text-gray-400">
-                            Discipline
-                          </span>
-                        </div>
-                        <span className="text-[10px] font-mono uppercase tracking-[0.18em] text-gray-400 dark:text-gray-500">
-                          Tap ← / → to switch
-                        </span>
-                      </div>
-
-                      {/* Active category display */}
-                      <div className="px-4 py-4">
-                        <span className="block text-base font-heading font-bold text-gray-900 dark:text-white truncate">
-                          {active.label}
-                        </span>
-                        <span className="block text-[11px] text-gray-500 dark:text-gray-400 truncate mt-0.5">
-                          {active.title.replace(/^\d+\.\s*/, '')}
-                        </span>
-                      </div>
-
-                      {/* Prev / Next pager */}
-                      <div className="grid grid-cols-2 border-t border-gray-100 dark:border-white/10 divide-x divide-gray-100 dark:divide-white/10">
-                        <button
-                          type="button"
-                          onClick={() => setActiveCategory(prev.id)}
-                          className="flex items-center justify-between gap-2 px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-white/5 transition-colors"
-                        >
-                          <ChevronLeft className="w-4 h-4 text-gray-500 dark:text-gray-400 shrink-0" />
-                          <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300 truncate">
-                            {prev.label}
-                          </span>
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setActiveCategory(next.id)}
-                          className="flex items-center justify-between gap-2 px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-white/5 transition-colors"
-                        >
-                          <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300 truncate">
-                            {next.label}
-                          </span>
-                          <ChevronRight className="w-4 h-4 text-gray-500 dark:text-gray-400 shrink-0" />
-                        </button>
-                      </div>
-                    </div>
-                  );
-                })()}
+                <div className="flex items-center justify-between mb-2 px-1">
+                  <span className="text-[10px] font-mono uppercase tracking-[0.18em] text-gray-500 dark:text-gray-400">
+                    Swipe or tap any discipline
+                  </span>
+                  <span className="text-[10px] font-mono uppercase tracking-[0.18em] text-gray-400 dark:text-gray-500">
+                    {(() => {
+                      const cats = Object.values(BUILD_PRICING);
+                      const idx = cats.findIndex(c => c.id === activeCategory);
+                      return `${String(idx + 1).padStart(2, '0')} / ${String(cats.length).padStart(2, '0')}`;
+                    })()}
+                  </span>
+                </div>
+                <div
+                  ref={mobileTabsRef}
+                  className="flex gap-2 overflow-x-auto pb-3 -mx-4 px-4 snap-x snap-mandatory scroll-smooth [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+                  role="tablist"
+                  aria-label="Pricing disciplines"
+                >
+                  {Object.values(BUILD_PRICING).map((cat) => {
+                    const isActive = activeCategory === cat.id;
+                    return (
+                      <button
+                        key={cat.id}
+                        type="button"
+                        role="tab"
+                        aria-selected={isActive}
+                        onClick={() => setActiveCategory(cat.id)}
+                        className={`snap-center shrink-0 px-4 py-2.5 rounded-xl text-xs font-mono font-bold uppercase tracking-wider transition-all duration-200 flex items-center gap-2 cursor-pointer ${
+                          isActive
+                            ? 'bg-black text-white dark:bg-white dark:text-black shadow-lg ring-2 ring-accent border-transparent scale-[1.02]'
+                            : 'bg-white dark:bg-[#141414] text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-white/15 hover:border-accent hover:text-accent dark:hover:text-accent shadow-sm'
+                        }`}
+                      >
+                        <span className="whitespace-nowrap">{cat.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
 
               {/* Desktop (>= sm): pill buttons, wrap onto rows as needed */}
