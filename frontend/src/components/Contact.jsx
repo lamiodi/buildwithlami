@@ -69,8 +69,8 @@ const Contact = () => {
   };
 
   return (
-    <section id="contact" className="py-24 px-4 sm:px-6 md:px-10 w-full">
-      <div className="bg-gradient-to-br from-[#161616] via-[#141414] to-black border border-white/10 rounded-3xl p-8 sm:p-12 md:p-16 shadow-2xl relative overflow-hidden">
+    <section id="contact" className="py-16 sm:py-20 md:py-24 w-full">
+      <div className="bg-gradient-to-br from-[#161616] via-[#141414] to-black border-y border-white/10 sm:border sm:border-white/10 sm:rounded-3xl p-6 sm:p-10 md:p-12 lg:p-16 shadow-2xl relative overflow-hidden">
         {/* Top Accent Glow Bar */}
         <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-transparent via-accent to-transparent" />
 
@@ -128,9 +128,13 @@ const Contact = () => {
             </motion.div>
           </div>
 
-          {/* Right Column: Interactive Intake Form */}
-          <motion.div className="w-full lg:w-7/12" variants={item}>
-            <form onSubmit={handleSubmit} className="space-y-5 bg-white/5 border border-white/10 p-6 sm:p-8 rounded-2xl backdrop-blur-sm">
+          {/* Right Column: Interactive Intake Form
+              NOTE: no motion wrapper here — iOS Safari has a known bug where
+              backdrop-filter inside an opacity-transitioning element swallows
+              the first tap on form controls. Keeping this plain keeps the
+              form fully interactive from the first frame on mobile. */}
+          <div className="w-full lg:w-7/12">
+            <form onSubmit={handleSubmit} className="space-y-5 bg-white/[0.04] border border-white/10 p-6 sm:p-8 rounded-2xl">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-[10px] font-mono font-bold text-gray-400 uppercase tracking-widest mb-1.5">
@@ -253,7 +257,7 @@ const Contact = () => {
                 * Direct founder-to-engineer review. Typical response within 24 hours.
               </p>
             </form>
-          </motion.div>
+          </div>
         </motion.div>
       </div>
     </section>

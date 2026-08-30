@@ -69,7 +69,7 @@ const Navbar = ({ isDark, toggleTheme }) => {
 
   return (
     <>
-      <header className="sticky top-0 z-40 bg-white/80 dark:bg-background/80 backdrop-blur-md border-b border-gray-200/50 dark:border-white/5 transition-colors duration-300">
+      <header className="sticky top-0 z-40 bg-white/95 dark:bg-[#0a0a0a]/95 supports-[backdrop-filter]:bg-white/80 supports-[backdrop-filter]:dark:bg-[#0a0a0a]/80 supports-[backdrop-filter]:backdrop-blur-md border-b border-gray-200/50 dark:border-white/5 transition-colors duration-300">
         <nav className="flex items-center justify-between px-6 py-3.5 md:px-12 max-w-7xl mx-auto">
           {/* Brand Logo */}
           <Link

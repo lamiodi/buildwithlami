@@ -1,20 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { motion, useReducedMotion } from 'framer-motion';
-import { 
-  Code, 
-  Layers, 
-  Cpu, 
-  Zap, 
-  Server, 
-  CheckCircle, 
-  ArrowRight, 
-  Sparkles, 
-  Check, 
-  FolderGit2,
+import {
+  Cpu,
+  ArrowRight,
   ChevronDown,
   Monitor,
-  Workflow
+  Workflow,
+  Server
 } from 'lucide-react';
 import { api } from '../../services/api';
 import fallbackProjects from '../../data/fallbackProjects';
@@ -66,7 +58,6 @@ const FAQS = [
 ];
 
 const SoftwareHomePage = () => {
-  const shouldReduce = useReducedMotion();
   const [activeFaq, setActiveFaq] = useState(null);
 
   // Live projects from API
