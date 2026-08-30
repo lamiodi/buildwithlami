@@ -82,12 +82,16 @@ const Navbar = ({ isDark, toggleTheme }) => {
             className="flex items-center gap-2.5 group active:scale-95 transition-all"
             aria-label="Buildwith_lami Home"
           >
-            <div className="w-9 h-9 rounded-xl bg-black text-white dark:bg-white dark:text-black flex items-center justify-center font-heading font-extrabold text-sm tracking-tight shadow-sm group-hover:bg-accent group-hover:text-white dark:group-hover:bg-accent dark:group-hover:text-white transition-colors">
-              BWL
-            </div>
-            <span className="font-heading font-bold text-base tracking-tight text-black dark:text-white group-hover:text-accent transition-colors">
-              Buildwith_lami
-            </span>
+            <img
+              src="/2.png"
+              alt="Buildwith_lami"
+              className="h-9 w-auto block dark:hidden group-hover:opacity-90 transition-opacity"
+            />
+            <img
+              src="/1.png"
+              alt="Buildwith_lami"
+              className="h-9 w-auto hidden dark:block group-hover:opacity-90 transition-opacity"
+            />
           </Link>
           
           {/* Desktop Navigation Links */}
@@ -181,12 +185,16 @@ const Navbar = ({ isDark, toggleTheme }) => {
                 onClick={closeMenu}
                 className="flex items-center gap-2"
               >
-                <div className="w-8 h-8 rounded-lg bg-black text-white dark:bg-white dark:text-black flex items-center justify-center font-heading font-extrabold text-xs">
-                  BWL
-                </div>
-                <span className="font-heading font-bold text-sm tracking-tight text-black dark:text-white">
-                  Buildwith_lami
-                </span>
+                <img
+                  src="/2.png"
+                  alt="Buildwith_lami"
+                  className="h-8 w-auto block dark:hidden"
+                />
+                <img
+                  src="/1.png"
+                  alt="Buildwith_lami"
+                  className="h-8 w-auto hidden dark:block"
+                />
               </Link>
               
               <div className="flex items-center space-x-2">

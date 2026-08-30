@@ -86,14 +86,26 @@ const Preloader = ({ onComplete }) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: shouldReduce ? 0 : 0.6, ease: 'easeOut' }}
           >
-            {/* Logo square */}
+            {/* Logo motion video — picks the variant that matches the current theme.
+                Preloader bg is dark (#161616), so on a light page we show the dark-bg video,
+                and on a dark page we show the light-bg video. */}
             <motion.div
-              className="w-16 h-16 bg-[#222] flex items-center justify-center mb-8"
+              className="mb-8"
               initial={shouldReduce ? {} : { scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ duration: shouldReduce ? 0 : 0.5, delay: shouldReduce ? 0 : 0.1 }}
             >
-              <span className="text-white font-heading font-bold text-xl tracking-widest">Ob</span>
+              <video
+                src={typeof document !== 'undefined' && document.documentElement.classList.contains('dark')
+                  ? '/_BUILDWITH_LAMI.lightvideo.mp4'
+                  : '/_BUILDWITH_LAMI.darkvideo.mp4'}
+                autoPlay
+                loop
+                muted
+                playsInline
+                aria-label="Buildwith_lami"
+                className="h-16 w-auto"
+              />
             </motion.div>
 
             {/* Brand name */}
@@ -103,7 +115,7 @@ const Preloader = ({ onComplete }) => {
               animate={{ opacity: 1 }}
               transition={{ duration: shouldReduce ? 0 : 0.4, delay: shouldReduce ? 0 : 0.3 }}
             >
-              BuildWith_Lami
+              Buildwith_lami
             </motion.p>
 
             {/* Progress bar */}
