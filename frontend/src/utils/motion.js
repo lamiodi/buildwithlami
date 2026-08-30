@@ -4,11 +4,13 @@
  */
 
 // ── Stagger container: wrap children for sequential fade-up ──
+// Container starts visible so LCP elements paint immediately. Each
+// child still staggers its own opacity/y animation in.
 export const staggerContainer = {
-  hidden: { opacity: 0 },
+  hidden: { opacity: 1 },
   visible: {
     opacity: 1,
-    transition: { staggerChildren: 0.12 },
+    transition: { staggerChildren: 0.08 },
   },
 };
 

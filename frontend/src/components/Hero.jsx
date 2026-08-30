@@ -12,24 +12,30 @@ const Hero = () => {
   return (
     <section id="home" className="px-6 md:px-12 max-w-7xl mx-auto pt-10 pb-20 md:pt-16 md:pb-28 flex flex-col md:flex-row items-center justify-between relative">
       <motion.div
-        className="w-full md:w-2/3 z-10"
-        variants={container}
-        initial="hidden"
-        animate="visible"
-      >
+      className="w-full md:w-2/3 z-10"
+      variants={container}
+      initial="hidden"
+      animate="visible"
+    >
         <motion.div variants={item} className="bwl-eyebrow mb-6">
           <span className="w-2 h-2 bg-accent inline-block" />
-          <span>Digital Product Studio · Design & Engineering</span>
+          <span>Software Studio · Web, Commerce & Custom Platforms</span>
         </motion.div>
 
-        <motion.h1 variants={item} className="text-4xl sm:text-6xl md:text-7xl lg:text-[84px] font-heading font-extrabold leading-[1.02] tracking-tight mb-6 text-black dark:text-white">
-          I build web apps <br className="hidden sm:block" />
-          that <span className="italic font-normal text-accent">grow</span> your <br className="hidden sm:block" />
-          revenue.
+        <motion.h1
+          variants={{
+            hidden: { opacity: 1, y: 0 },
+            visible: { opacity: 1, y: 0, transition: { duration: 0.0001 } },
+          }}
+          className="text-4xl sm:text-6xl md:text-7xl lg:text-[80px] font-heading font-extrabold leading-[1.05] tracking-tight mb-6 text-black dark:text-white"
+        >
+          I design, build, <br className="hidden sm:block" />
+          and ship products <br className="hidden sm:block" />
+          that <span className="italic font-normal text-accent">grow</span> revenue.
         </motion.h1>
 
         <motion.p variants={item} className="text-gray-700 dark:text-gray-300 text-base sm:text-lg md:text-xl max-w-xl leading-relaxed mb-8 font-light">
-          From idea to production launch: I design, build, and deploy high-converting websites, e-commerce engines, and custom software for founders and growing businesses.
+          From idea to production launch, I design, build, and deploy websites, e-commerce stores, business portals, and custom software for founders, operators, and growing teams.
         </motion.p>
 
         {/* Reassurance Chips */}

@@ -3,7 +3,6 @@ import { motion, useReducedMotion } from 'framer-motion';
 import { api } from '../services/api';
 import { staggerContainer, fadeUpItem, sectionViewport, reducedMotionVariants } from '../utils/motion';
 import { CONTACT } from '../config/contact';
-import { BUDGET_RANGES } from '../config/pricing';
 import {
   Select,
   SelectContent,
@@ -28,8 +27,6 @@ const projectTypes = [
   'Other',
 ];
 
-const budgetRanges = BUDGET_RANGES;
-
 const timelines = [
   'ASAP (under 2 weeks)',
   '2 – 4 weeks',
@@ -38,9 +35,9 @@ const timelines = [
 ];
 
 const Contact = () => {
-  const [formData, setFormData] = useState({ 
+  const [formData, setFormData] = useState({
     name: '', email: '', message: '',
-    project_type: '', budget: '', timeline: ''
+    project_type: '', timeline: ''
   });
   const [status, setStatus] = useState('idle'); // idle, submitting, success, error
   const shouldReduce = useReducedMotion();
@@ -56,7 +53,6 @@ const Contact = () => {
       email: formData.email,
       message: formData.message,
       project_type: formData.project_type || null,
-      budget: formData.budget || null,
       timeline: formData.timeline || null,
       service: null,
       tier: null,
@@ -65,7 +61,7 @@ const Contact = () => {
 
     if (res.ok) {
       setStatus('success');
-      setFormData({ name: '', email: '', message: '', project_type: '', budget: '', timeline: '' });
+      setFormData({ name: '', email: '', message: '', project_type: '', timeline: '' });
       setTimeout(() => setStatus('idle'), 4000);
     } else {
       setStatus('error');
@@ -73,7 +69,7 @@ const Contact = () => {
   };
 
   return (
-    <section id="contact" className="py-24 px-6 md:px-12 max-w-7xl mx-auto">
+    <section id="contact" className="py-24 px-4 sm:px-6 md:px-10 w-full">
       <div className="bg-gradient-to-br from-[#161616] via-[#141414] to-black border border-white/10 rounded-3xl p-8 sm:p-12 md:p-16 shadow-2xl relative overflow-hidden">
         {/* Top Accent Glow Bar */}
         <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-transparent via-accent to-transparent" />
@@ -140,9 +136,9 @@ const Contact = () => {
                   <label className="block text-[10px] font-mono font-bold text-gray-400 uppercase tracking-widest mb-1.5">
                     Your Name *
                   </label>
-                  <input 
-                    type="text" 
-                    placeholder="e.g. Alex Morgan" 
+                  <input
+                    type="text"
+                    placeholder="e.g. Alex Morgan"
                     required
                     value={formData.name}
                     onChange={(e) => setFormData({...formData, name: e.target.value})}
@@ -153,9 +149,9 @@ const Contact = () => {
                   <label className="block text-[10px] font-mono font-bold text-gray-400 uppercase tracking-widest mb-1.5">
                     Email Address *
                   </label>
-                  <input 
-                    type="email" 
-                    placeholder="alex@company.com" 
+                  <input
+                    type="email"
+                    placeholder="alex@company.com"
                     required
                     value={formData.email}
                     onChange={(e) => setFormData({...formData, email: e.target.value})}
@@ -165,7 +161,7 @@ const Contact = () => {
               </div>
 
               {/* Pre-qualification Selects */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-[10px] font-mono font-bold text-gray-400 uppercase tracking-widest mb-1.5">
                     Project Type
@@ -182,29 +178,6 @@ const Contact = () => {
                         {projectTypes.map(pt => (
                           <SelectItem key={pt} value={pt} className="focus:bg-accent focus:text-white cursor-pointer text-xs">
                             {pt}
-                          </SelectItem>
-                        ))}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <label className="block text-[10px] font-mono font-bold text-gray-400 uppercase tracking-widest mb-1.5">
-                    Budget Range
-                  </label>
-                  <Select
-                    value={formData.budget}
-                    onValueChange={(val) => setFormData({...formData, budget: val})}
-                  >
-                    <SelectTrigger className="w-full bg-white/5 hover:bg-white/10 border-white/15 text-white rounded-xl h-11 text-xs focus:outline-none focus:border-accent dark:focus:border-accent focus:ring-0 transition-colors">
-                      <SelectValue placeholder="Select budget" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-zinc-900 border-zinc-700 text-white shadow-2xl">
-                      <SelectGroup>
-                        {budgetRanges.map(b => (
-                          <SelectItem key={b} value={b} className="focus:bg-accent focus:text-white cursor-pointer text-xs">
-                            {b}
                           </SelectItem>
                         ))}
                       </SelectGroup>

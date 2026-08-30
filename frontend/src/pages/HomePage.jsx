@@ -11,10 +11,10 @@ import Contact from '../components/Contact';
 
 const HomePage = () => {
   useEffect(() => {
-    document.title = "Buildwith_lami — Software, Survey & Drone Services";
+    document.title = "Buildwith_lami — Software Studio for Web, Commerce & Custom Platforms";
     const metaDesc = document.querySelector('meta[name="description"]');
     if (metaDesc) {
-      metaDesc.setAttribute("content", "Buildwith_lami is the official platform of Eugene Odibenuah — software development, land surveying, and drone services for ambitious teams.");
+      metaDesc.setAttribute("content", "Buildwith_lami is the software studio of Eugene Odibenuah — designing, building, and shipping websites, e-commerce stores, business portals, and custom software for founders and growing teams.");
     }
   }, []);
 
