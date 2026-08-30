@@ -26,15 +26,65 @@ import { staggerContainer, fadeUpItem, cardHover, sectionViewport, reducedMotion
 import { 
   COMMERCIAL_TERMS, 
   CARE_PLANS, 
-  BUILD_PRICING 
+  BUILD_PRICING,
+  formatDualCurrency,
+  FALLBACK_USD_RATE
 } from '../config/pricing';
+import { useAutomatedCurrency } from '../utils/currency';
 
 const Pricing = ({ isHomepage = false }) => {
   const shouldReduce = useReducedMotion();
   const container = shouldReduce ? reducedMotionVariants : staggerContainer;
   const item = shouldReduce ? reducedMotionVariants : fadeUpItem;
 
-  const symbol = COMMERCIAL_TERMS.currencySymbol;
+  // Auto-detect visitor currency (NGN for Nigeria/Africa, USD otherwise)
+  // via timezone + geolocation. No toggle — fully automatic.
+  const detectedCurrency = useAutomatedCurrency();
+
+  // Try to fetch the live FX rate from the backend; fall back to the
+  // static rate defined in pricing.js if the request fails.
+  const [liveRate, setLiveRate] = useState(FALLBACK_USD_RATE);
+  useEffect(() => {
+    let cancelled = false;
+    const apiBase = import.meta.env.VITE_API_URL || '';
+    if (!apiBase) return; // backend not configured — keep fallback
+    fetch(`${apiBase}/api/fx-rates`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (cancelled || !data?.rates?.USD) return;
+        const rate = Number(data.rates.USD.rate);
+        if (Number.isFinite(rate) && rate > 0) setLiveRate(rate);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // Helper: render a price string with auto-detected currency.
+  // Returns the primary (local) value plus a small secondary (USD) hint
+  // for NGN visitors, OR the primary (USD) value plus the NGN hint for
+  // international visitors. Custom-quote tiers display verbatim.
+  const renderPrice = (amountNgn, formatted, forceCustom = false) => {
+    if (forceCustom || formatted === 'Custom Quote') return formatted;
+    // Preserve any cadence suffix (" / yr", " / mo", "+ starting") from the
+    // authored priceFormatted so maintenance retainers and Pro tiers keep
+    // their natural rhythm in the display.
+    const suffixMatch = String(formatted || '').match(/(\s*\/\s*(yr|mo)\b|\s*\+\s*starting|\s*starting\s*)$/i);
+    const suffix = suffixMatch ? suffixMatch[0] : '';
+    const { primary, secondary } = formatDualCurrency(amountNgn, liveRate, detectedCurrency);
+    const numPart = primary.replace(/^[₦$]/, '');
+    return (
+      <>
+        <span>{detectedCurrency === 'USD' ? '$' : '₦'}{numPart}{suffix}</span>
+        <span className="ml-1 text-[10px] font-mono font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+          ≈ {detectedCurrency === 'USD' ? `₦${secondary.replace(/^[₦$]/, '')}` : secondary}
+        </span>
+      </>
+    );
+  };
+
+  const symbol = detectedCurrency === 'USD' ? '$' : COMMERCIAL_TERMS.currencySymbol;
 
   // Category Selector as Primary Navigation (defaults to 'websites')
   const [activeCategory, setActiveCategory] = useState('websites');
@@ -150,7 +200,9 @@ const Pricing = ({ isHomepage = false }) => {
                   </p>
                   <div className="p-4 rounded-2xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5 mb-6">
                     <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 block mb-1">Starting from</span>
-                    <span className="text-3xl font-heading font-extrabold text-gray-900 dark:text-white">{symbol}{BUILD_PRICING.websites.startingPriceFormatted}</span>
+                    <span className="text-3xl font-heading font-extrabold text-gray-900 dark:text-white">
+                      {renderPrice(BUILD_PRICING.websites.startingPriceNGN, BUILD_PRICING.websites.startingPriceFormatted)}
+                    </span>
                     <span className="text-xs text-gray-500 dark:text-gray-400 block mt-1">Starter · Growth (Best Value) · Pro Custom</span>
                   </div>
                   <ul className="space-y-2.5 text-xs text-gray-700 dark:text-gray-300 mb-6">
@@ -180,7 +232,9 @@ const Pricing = ({ isHomepage = false }) => {
                   </p>
                   <div className="p-4 rounded-2xl bg-accent/5 dark:bg-accent/10 border border-accent/20 mb-6">
                     <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-accent block mb-1">Starting from</span>
-                    <span className="text-3xl font-heading font-extrabold text-gray-900 dark:text-white">{symbol}{BUILD_PRICING.ecommerce.startingPriceFormatted}</span>
+                    <span className="text-3xl font-heading font-extrabold text-gray-900 dark:text-white">
+                      {renderPrice(BUILD_PRICING.ecommerce.startingPriceNGN, BUILD_PRICING.ecommerce.startingPriceFormatted)}
+                    </span>
                     <span className="text-xs text-gray-600 dark:text-gray-400 block mt-1 font-medium">Starter · Growth (Best Value) · Pro Custom</span>
                   </div>
                   <ul className="space-y-2.5 text-xs text-gray-700 dark:text-gray-300 mb-6">
@@ -207,7 +261,9 @@ const Pricing = ({ isHomepage = false }) => {
                   </p>
                   <div className="p-4 rounded-2xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5 mb-6">
                     <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 block mb-1">Starting from</span>
-                    <span className="text-3xl font-heading font-extrabold text-gray-900 dark:text-white">{symbol}{BUILD_PRICING.software.startingPriceFormatted}</span>
+                    <span className="text-3xl font-heading font-extrabold text-gray-900 dark:text-white">
+                      {renderPrice(BUILD_PRICING.software.startingPriceNGN, BUILD_PRICING.software.startingPriceFormatted)}
+                    </span>
                     <span className="text-xs text-gray-500 dark:text-gray-400 block mt-1">MVP · Growth Platform · Enterprise</span>
                   </div>
                   <ul className="space-y-2.5 text-xs text-gray-700 dark:text-gray-300 mb-6">
@@ -330,7 +386,9 @@ const Pricing = ({ isHomepage = false }) => {
                 </div>
                 <div className="shrink-0 p-3 sm:p-4 rounded-xl bg-accent/5 dark:bg-accent/10 border border-accent/20 text-left md:text-right">
                   <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-accent block">Starting Investment</span>
-                  <span className="text-2xl font-bold font-heading text-gray-900 dark:text-white">{symbol}{currentCategoryData.startingPriceFormatted}</span>
+                  <span className="text-2xl font-bold font-heading text-gray-900 dark:text-white">
+                    {renderPrice(currentCategoryData.startingPriceNGN, currentCategoryData.startingPriceFormatted)}
+                  </span>
                 </div>
               </div>
 
@@ -388,7 +446,7 @@ const Pricing = ({ isHomepage = false }) => {
                             <>
                               <span className="text-xs text-gray-500 font-semibold">starting at</span>
                               <span className="text-3xl sm:text-4xl font-heading font-extrabold text-black dark:text-white tracking-tight leading-none">
-                                {symbol}{tier.priceFormatted}
+                                {renderPrice(tier.priceNGN, tier.priceFormatted)}
                               </span>
                             </>
                           )}

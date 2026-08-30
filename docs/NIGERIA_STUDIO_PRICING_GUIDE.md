@@ -69,7 +69,7 @@ Buildwith_lami enforces a strict, transparent separation between **software engi
 ### 01. 🌐 Web Development (Marketing & Corporate Sites)
 
 * **Starting Investment**: `₦270,000`
-* **Starter (`₦270,000`)**: 1–3 pages (Home, About, Services/Contact), responsive mobile layout, WhatsApp lead capture, 14-day warranty. Free hosting config or client cPanel.
+* **Starter (`₦270,000`)**: 1–3 pages (Home, About, Services/Contact), responsive mobile layout, WhatsApp lead capture, 14-day warranty. Client cPanel hosting configuration included.
 * **Growth (`₦520,000`) ★ Popular**: 5–10 pages, CMS integration, lead capture CRM pipeline, Google Search Console & GA4, 30-day warranty. Requires client-owned or managed hosting.
 * **Pro Platform (`₦950,000+`)**: Custom multi-page portal, staff directories, interactive scoping tools, 60-day warranty.
 

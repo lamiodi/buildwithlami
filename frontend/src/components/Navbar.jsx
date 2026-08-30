@@ -85,12 +85,12 @@ const Navbar = ({ isDark, toggleTheme }) => {
             <img
               src="/2.png"
               alt="Buildwith_lami"
-              className="h-9 w-auto block dark:hidden group-hover:opacity-90 transition-opacity"
+              className="h-12 sm:h-14 md:h-12 w-auto block dark:hidden group-hover:opacity-90 transition-opacity object-contain"
             />
             <img
               src="/1.png"
               alt="Buildwith_lami"
-              className="h-9 w-auto hidden dark:block group-hover:opacity-90 transition-opacity"
+              className="h-12 sm:h-14 md:h-12 w-auto hidden dark:block group-hover:opacity-90 transition-opacity object-contain"
             />
           </Link>
           
@@ -188,12 +188,12 @@ const Navbar = ({ isDark, toggleTheme }) => {
                 <img
                   src="/2.png"
                   alt="Buildwith_lami"
-                  className="h-8 w-auto block dark:hidden"
+                  className="h-10 w-auto block dark:hidden object-contain"
                 />
                 <img
                   src="/1.png"
                   alt="Buildwith_lami"
-                  className="h-8 w-auto hidden dark:block"
+                  className="h-10 w-auto hidden dark:block object-contain"
                 />
               </Link>
               
