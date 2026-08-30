@@ -88,42 +88,31 @@ const Pricing = ({ isHomepage = false }) => {
 
   // Category Selector as Primary Navigation (defaults to 'websites')
   const [activeCategory, setActiveCategory] = useState('websites');
-  const mobileTabsRef = useRef(null);
   const [mobileDropdownOpen, setMobileDropdownOpen] = useState(false);
   const mobileDropdownRef = useRef(null);
 
-  // Auto-center the active tab in the mobile horizontal scroller
-  // when the category changes (e.g. from a URL param or a tier click).
+  // Close the dropdown when clicking outside or pressing Escape.
+  // Listeners are attached for the lifetime of the component so the dropdown
+  // never gets stuck open. The handler ignores clicks inside the dropdown ref.
   useEffect(() => {
-    if (typeof window === 'undefined' || window.innerWidth >= 640) return;
-    const el = mobileTabsRef.current;
-    if (!el) return;
-    const active = el.querySelector('[aria-selected="true"]');
-    if (!active) return;
-    const targetLeft = active.offsetLeft - (el.clientWidth / 2) + (active.clientWidth / 2);
-    el.scrollTo({ left: targetLeft, behavior: 'smooth' });
-  }, [activeCategory]);
-
-  // Close the dropdown when clicking outside or pressing Escape
-  useEffect(() => {
-    if (!mobileDropdownOpen) return;
-    const handleClickOutside = (event) => {
-      if (mobileDropdownRef.current && !mobileDropdownRef.current.contains(event.target)) {
+    const handlePointerDown = (event) => {
+      if (!mobileDropdownRef.current) return;
+      if (!mobileDropdownRef.current.contains(event.target)) {
         setMobileDropdownOpen(false);
       }
     };
     const handleEscape = (event) => {
       if (event.key === 'Escape') setMobileDropdownOpen(false);
     };
-    document.addEventListener('mousedown', handleClickOutside);
-    document.addEventListener('touchstart', handleClickOutside);
+    document.addEventListener('mousedown', handlePointerDown);
+    document.addEventListener('touchstart', handlePointerDown);
     document.addEventListener('keydown', handleEscape);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-      document.removeEventListener('touchstart', handleClickOutside);
+      document.removeEventListener('mousedown', handlePointerDown);
+      document.removeEventListener('touchstart', handlePointerDown);
       document.removeEventListener('keydown', handleEscape);
     };
-  }, [mobileDropdownOpen]);
+  }, []);
 
   // Get active category object and tiers
   const currentCategoryData = BUILD_PRICING[activeCategory] || BUILD_PRICING.websites;
@@ -384,7 +373,7 @@ const Pricing = ({ isHomepage = false }) => {
                       animate={{ opacity: 1, y: 0 }}
                       exit={shouldReduce ? { opacity: 1 } : { opacity: 0, y: -6 }}
                       transition={{ duration: shouldReduce ? 0 : 0.18, ease: 'easeOut' }}
-                      className="absolute z-30 mt-2 w-full max-h-72 overflow-y-auto rounded-xl bg-white dark:bg-[#141414] border border-gray-200 dark:border-white/10 shadow-xl py-1.5"
+                      className="absolute z-50 mt-2 w-full max-h-72 overflow-y-auto rounded-xl bg-white dark:bg-[#141414] border border-gray-200 dark:border-white/10 shadow-xl py-1.5"
                     >
                       {Object.values(BUILD_PRICING).map((cat) => {
                         const isActive = activeCategory === cat.id;

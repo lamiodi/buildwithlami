@@ -72,8 +72,8 @@ const Navbar = ({ isDark, toggleTheme }) => {
       <header className="sticky top-0 z-40 bg-white/80 dark:bg-background/80 backdrop-blur-md border-b border-gray-200/50 dark:border-white/5 transition-colors duration-300">
         <nav className="flex items-center justify-between px-6 py-3.5 md:px-12 max-w-7xl mx-auto">
           {/* Brand Logo */}
-          <Link 
-            to="/" 
+          <Link
+            to="/"
             onClick={() => {
               if (location.pathname === '/') {
                 window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -92,6 +92,9 @@ const Navbar = ({ isDark, toggleTheme }) => {
               alt="Buildwith_lami"
               className="h-12 sm:h-14 md:h-12 w-auto hidden dark:block group-hover:opacity-90 transition-opacity object-contain"
             />
+            <span className="font-heading font-bold text-base sm:text-lg tracking-tight text-black dark:text-white group-hover:text-accent transition-colors whitespace-nowrap">
+              BuildWithLami
+            </span>
           </Link>
           
           {/* Desktop Navigation Links */}
