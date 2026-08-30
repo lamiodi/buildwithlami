@@ -5,7 +5,7 @@ import CheckIcon from './CheckIcon';
 import { api } from '../services/api';
 import fallbackProjects from '../data/fallbackProjects';
 import { ProjectCardSkeleton, SkeletonTransition } from './Skeleton';
-import { staggerContainer, fadeUpItem, cardHover, cardHoverTransition, buttonHover, buttonTap, sectionViewport, reducedMotionVariants } from '../utils/motion';
+import { staggerContainer, fadeUpItem, sectionViewport } from '../utils/motion';
 
 const Projects = () => {
   const [projects, setProjects] = useState([]);
@@ -109,10 +109,7 @@ const Projects = () => {
         {/* Main Featured Project Card */}
         <motion.div
           className="mb-16 bg-white dark:bg-[#141414] border border-gray-200 dark:border-white/10 rounded-2xl overflow-hidden shadow-xl"
-          variants={container}
-          initial="hidden"
-          whileInView="visible"
-          viewport={sectionViewport}
+          initial={false}
         >
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-0 items-stretch">
             {/* Image Preview */}
@@ -129,7 +126,7 @@ const Projects = () => {
                 loading="lazy"
                 decoding="async"
               />
-              <div className="absolute top-4 left-4 bg-black/80 backdrop-blur-md text-white text-[10px] font-mono uppercase tracking-[0.18em] font-bold px-3 py-1.5 border border-white/10">
+              <div className="absolute top-4 left-4 bg-black/85 text-white text-[10px] font-mono uppercase tracking-[0.18em] font-bold px-3 py-1.5 border border-white/10 pointer-events-none">
                 Featured Case Study · {featuredProject.year || '2024'}
               </div>
             </div>
@@ -175,20 +172,19 @@ const Projects = () => {
               </div>
 
               {/* Action Buttons */}
-              <div className="flex flex-wrap items-center gap-3 pt-6 border-t border-gray-100 dark:border-white/10">
-                <button
-                  type="button"
-                  onClick={() => navigate(`/projects/${featuredProject.slug || featuredProject.id}`)}
-                  className="btn-primary !px-8 !py-3.5"
+              <div className="flex flex-wrap items-center gap-3 pt-6 border-t border-gray-100 dark:border-white/10 relative z-10">
+                <Link
+                  to={`/projects/${featuredProject.slug || featuredProject.id}`}
+                  className="btn-primary !px-8 !py-3.5 relative z-10"
                 >
                   View Case Study →
-                </button>
+                </Link>
                 {featuredProject.live_url && featuredProject.live_url !== '#' && (
                   <a
                     href={featuredProject.live_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="btn-secondary !px-6 !py-3.5"
+                    className="btn-secondary !px-6 !py-3.5 relative z-10"
                   >
                     Live Demo ↗
                   </a>
@@ -199,21 +195,12 @@ const Projects = () => {
         </motion.div>
 
         {/* Supporting Projects 3-Column Grid */}
-        <motion.div
-          className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12"
-          variants={container}
-          initial="hidden"
-          whileInView="visible"
-          viewport={sectionViewport}
-        >
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
           {moreProjects.map((p, idx) => (
-            <motion.div
+            <Link
               key={idx}
-              variants={item}
-              whileHover={shouldReduce ? {} : cardHover}
-              transition={cardHoverTransition}
-              className="bg-white dark:bg-[#141414] border border-gray-200 dark:border-white/10 rounded-2xl overflow-hidden flex flex-col justify-between shadow-sm hover:shadow-xl hover:border-accent/40 transition-all group cursor-pointer"
-              onClick={() => navigate(`/projects/${p.slug || p.id}`)}
+              to={`/projects/${p.slug || p.id}`}
+              className="bg-white dark:bg-[#141414] border border-gray-200 dark:border-white/10 rounded-2xl overflow-hidden flex flex-col justify-between shadow-sm hover:shadow-xl hover:border-accent/40 transition-all group no-underline"
             >
               <div>
                 <div className="w-full h-48 sm:h-56 bg-gray-900 overflow-hidden relative">
@@ -225,7 +212,7 @@ const Projects = () => {
                     height="350"
                     loading="lazy"
                   />
-                  <div className="absolute top-3 right-3 bg-black/80 backdrop-blur-md text-white text-[9px] font-mono uppercase tracking-widest font-bold px-2.5 py-1 border border-white/10">
+                  <div className="absolute top-3 right-3 bg-black/85 text-white text-[9px] font-mono uppercase tracking-widest font-bold px-2.5 py-1 border border-white/10 pointer-events-none">
                     {p.year || '2024'}
                   </div>
                 </div>
@@ -254,25 +241,19 @@ const Projects = () => {
                 <span>View Case Study</span>
                 <span className="group-hover:translate-x-1 transition-transform">→</span>
               </div>
-            </motion.div>
+            </Link>
           ))}
-        </motion.div>
+        </div>
 
         {/* View All Projects Footer CTA */}
-        <motion.div
-          className="text-center pt-6"
-          initial={shouldReduce ? {} : { opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={sectionViewport}
-          transition={{ duration: shouldReduce ? 0 : 0.5 }}
-        >
+        <div className="text-center pt-6">
           <Link
             to="/projects"
-            className="border border-gray-300 dark:border-white/15 text-gray-900 dark:text-gray-100 font-heading font-bold text-[11px] uppercase tracking-[0.15em] hover:border-accent hover:text-accent transition-all duration-300 inline-flex items-center justify-center text-center py-4 px-10 active:scale-[0.98] bg-transparent"
+            className="border border-gray-300 dark:border-white/15 text-gray-900 dark:text-gray-100 font-heading font-bold text-[11px] uppercase tracking-[0.15em] hover:border-accent hover:text-accent transition-all duration-300 inline-flex items-center justify-center text-center py-4 px-10 active:scale-[0.98] bg-transparent relative z-10"
           >
             Explore All Case Studies & Projects →
           </Link>
-        </motion.div>
+        </div>
       </SkeletonTransition>
     </section>
   );
