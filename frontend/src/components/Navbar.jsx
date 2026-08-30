@@ -79,7 +79,7 @@ const Navbar = ({ isDark, toggleTheme }) => {
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }
             }}
-            className="flex items-center gap-2.5 group active:scale-95 transition-all"
+            className="flex items-center gap-2 sm:gap-2.5 group active:scale-95 transition-all"
             aria-label="Buildwith_lami Home"
           >
             <img
@@ -92,8 +92,9 @@ const Navbar = ({ isDark, toggleTheme }) => {
               alt="Buildwith_lami"
               className="h-12 sm:h-14 md:h-12 w-auto hidden dark:block group-hover:opacity-90 transition-opacity object-contain"
             />
-            <span className="font-heading font-bold text-base sm:text-lg tracking-tight text-black dark:text-white group-hover:text-accent transition-colors whitespace-nowrap">
-              BuildWithLami
+            <span className="font-heading font-extrabold text-base sm:text-lg tracking-[-0.01em] whitespace-nowrap leading-none">
+              <span className="text-accent">BuildWith</span>
+              <span className="text-gray-900 dark:text-white">_Lami</span>
             </span>
           </Link>
           
