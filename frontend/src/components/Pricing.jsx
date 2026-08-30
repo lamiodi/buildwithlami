@@ -89,6 +89,8 @@ const Pricing = ({ isHomepage = false }) => {
   // Category Selector as Primary Navigation (defaults to 'websites')
   const [activeCategory, setActiveCategory] = useState('websites');
   const mobileTabsRef = useRef(null);
+  const [mobileDropdownOpen, setMobileDropdownOpen] = useState(false);
+  const mobileDropdownRef = useRef(null);
 
   // Auto-center the active tab in the mobile horizontal scroller
   // when the category changes (e.g. from a URL param or a tier click).
@@ -101,6 +103,27 @@ const Pricing = ({ isHomepage = false }) => {
     const targetLeft = active.offsetLeft - (el.clientWidth / 2) + (active.clientWidth / 2);
     el.scrollTo({ left: targetLeft, behavior: 'smooth' });
   }, [activeCategory]);
+
+  // Close the dropdown when clicking outside or pressing Escape
+  useEffect(() => {
+    if (!mobileDropdownOpen) return;
+    const handleClickOutside = (event) => {
+      if (mobileDropdownRef.current && !mobileDropdownRef.current.contains(event.target)) {
+        setMobileDropdownOpen(false);
+      }
+    };
+    const handleEscape = (event) => {
+      if (event.key === 'Escape') setMobileDropdownOpen(false);
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('touchstart', handleClickOutside);
+    document.addEventListener('keydown', handleEscape);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [mobileDropdownOpen]);
 
   // Get active category object and tiers
   const currentCategoryData = BUILD_PRICING[activeCategory] || BUILD_PRICING.websites;
@@ -309,14 +332,13 @@ const Pricing = ({ isHomepage = false }) => {
                 </div>
               </div>
 
-              {/* Mobile (< sm): horizontally scrollable category tabs.
-                   Shows all 10 disciplines so the user can see and
-                   tap any of them — no hidden prev/next. The active
-                   tab auto-centers in the scroll view. */}
-              <div className="sm:hidden pt-2">
+              {/* Discipline dropdown — works on all screen sizes so users can
+                   pick the website/service category they want to explore.
+                   Closes on outside-click, on selection, and on Escape. */}
+              <div className="pt-2 relative" ref={mobileDropdownRef}>
                 <div className="flex items-center justify-between mb-2 px-1">
                   <span className="text-[10px] font-mono uppercase tracking-[0.18em] text-gray-500 dark:text-gray-400">
-                    Swipe or tap any discipline
+                    Choose the website you want
                   </span>
                   <span className="text-[10px] font-mono uppercase tracking-[0.18em] text-gray-400 dark:text-gray-500">
                     {(() => {
@@ -326,49 +348,73 @@ const Pricing = ({ isHomepage = false }) => {
                     })()}
                   </span>
                 </div>
-                <div
-                  ref={mobileTabsRef}
-                  className="flex gap-2 overflow-x-auto pb-3 -mx-4 px-4 snap-x snap-mandatory scroll-smooth [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
-                  role="tablist"
-                  aria-label="Pricing disciplines"
-                >
-                  {Object.values(BUILD_PRICING).map((cat) => {
-                    const isActive = activeCategory === cat.id;
-                    return (
-                      <button
-                        key={cat.id}
-                        type="button"
-                        role="tab"
-                        aria-selected={isActive}
-                        onClick={() => setActiveCategory(cat.id)}
-                        className={`snap-center shrink-0 px-4 py-2.5 rounded-xl text-xs font-mono font-bold uppercase tracking-wider transition-all duration-200 flex items-center gap-2 cursor-pointer ${
-                          isActive
-                            ? 'bg-black text-white dark:bg-white dark:text-black shadow-lg ring-2 ring-accent border-transparent scale-[1.02]'
-                            : 'bg-white dark:bg-[#141414] text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-white/15 hover:border-accent hover:text-accent dark:hover:text-accent shadow-sm'
-                        }`}
-                      >
-                        <span className="whitespace-nowrap">{cat.label}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
 
-              {/* Desktop (>= sm): pill buttons, wrap onto rows as needed */}
-              <div className="hidden sm:flex flex-wrap items-center gap-2.5 sm:gap-3 w-full pt-2">
-                {Object.values(BUILD_PRICING).map(cat => (
-                  <button
-                    key={cat.id}
-                    onClick={() => setActiveCategory(cat.id)}
-                    className={`px-4 py-2.5 sm:px-5 sm:py-3 rounded-xl text-xs font-mono font-bold uppercase tracking-wider transition-all duration-200 flex items-center gap-2 cursor-pointer ${
-                      activeCategory === cat.id
-                        ? 'bg-black text-white dark:bg-white dark:text-black shadow-lg ring-2 ring-accent border-transparent scale-[1.02]'
-                        : 'bg-white dark:bg-[#141414] text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-white/15 hover:border-accent hover:text-accent dark:hover:text-accent shadow-sm'
-                    }`}
+                <button
+                  type="button"
+                  onClick={() => setMobileDropdownOpen((o) => !o)}
+                  aria-haspopup="listbox"
+                  aria-expanded={mobileDropdownOpen}
+                  aria-label="Select pricing discipline"
+                  className="w-full flex items-center justify-between gap-3 px-4 py-3 rounded-xl bg-white dark:bg-[#141414] border border-gray-300 dark:border-white/15 shadow-sm text-sm font-semibold text-gray-900 dark:text-white active:scale-[0.99] transition-transform"
+                >
+                  <span className="flex items-center gap-2 truncate">
+                    <span className="font-mono text-accent">▾</span>
+                    <span className="truncate">
+                      {(() => {
+                        const cat = Object.values(BUILD_PRICING).find(c => c.id === activeCategory);
+                        return cat ? cat.label : 'Select discipline';
+                      })()}
+                    </span>
+                  </span>
+                  <svg
+                    className={`w-4 h-4 shrink-0 transition-transform duration-200 ${mobileDropdownOpen ? 'rotate-180' : ''}`}
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                    aria-hidden="true"
                   >
-                    <span>{cat.label}</span>
-                  </button>
-                ))}
+                    <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                  </svg>
+                </button>
+
+                <AnimatePresence>
+                  {mobileDropdownOpen && (
+                    <motion.ul
+                      role="listbox"
+                      initial={shouldReduce ? { opacity: 1 } : { opacity: 0, y: -6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={shouldReduce ? { opacity: 1 } : { opacity: 0, y: -6 }}
+                      transition={{ duration: shouldReduce ? 0 : 0.18, ease: 'easeOut' }}
+                      className="absolute z-30 mt-2 w-full max-h-72 overflow-y-auto rounded-xl bg-white dark:bg-[#141414] border border-gray-200 dark:border-white/10 shadow-xl py-1.5"
+                    >
+                      {Object.values(BUILD_PRICING).map((cat) => {
+                        const isActive = activeCategory === cat.id;
+                        return (
+                          <li key={cat.id} role="option" aria-selected={isActive}>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setActiveCategory(cat.id);
+                                setMobileDropdownOpen(false);
+                              }}
+                              className={`w-full text-left px-4 py-2.5 text-sm font-medium flex items-center justify-between gap-3 transition-colors ${
+                                isActive
+                                  ? 'bg-accent/10 text-accent'
+                                  : 'text-gray-800 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-white/5'
+                              }`}
+                            >
+                              <span className="truncate">{cat.label}</span>
+                              {isActive && (
+                                <svg className="w-4 h-4 shrink-0 text-accent" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                </svg>
+                              )}
+                            </button>
+                          </li>
+                        );
+                      })}
+                    </motion.ul>
+                  )}
+                </AnimatePresence>
               </div>
             </div>
 
