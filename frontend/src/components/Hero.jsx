@@ -39,7 +39,13 @@ const Hero = () => {
         </motion.p>
 
         {/* Reassurance Chips */}
-        <motion.div variants={item} className="flex flex-wrap items-center gap-x-6 gap-y-2 mb-10 text-xs text-gray-600 dark:text-gray-400 font-medium">
+        <motion.div
+          variants={{
+            hidden: { opacity: 1, y: 0 },
+            visible: { opacity: 1, y: 0, transition: { duration: 0.0001 } },
+          }}
+          className="flex flex-wrap items-center gap-x-6 gap-y-2 mb-10 text-xs text-gray-600 dark:text-gray-400 font-medium"
+        >
           <div className="flex items-center gap-1.5">
             <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
             <span>50/50 Milestone Invoicing</span>
@@ -55,7 +61,13 @@ const Hero = () => {
         </motion.div>
 
         {/* Button Pair - Exact Architectural Standard */}
-        <motion.div variants={item} className="flex flex-col sm:flex-row sm:items-center gap-4">
+        <motion.div
+          variants={{
+            hidden: { opacity: 1, y: 0 },
+            visible: { opacity: 1, y: 0, transition: { duration: 0.0001 } },
+          }}
+          className="flex flex-col sm:flex-row sm:items-center gap-4"
+        >
           <Link
             to="/contact"
             className="btn-primary w-full sm:w-auto"
