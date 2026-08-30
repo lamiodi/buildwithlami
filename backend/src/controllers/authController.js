@@ -155,8 +155,8 @@ export async function login(req, res) {
         if (err instanceof z.ZodError) {
             return res.status(400).json({ error: err.errors });
         }
-        console.error('[Auth] Login error:', err.message);
-        return res.status(500).json({ error: 'Internal server error.' });
+        console.error('[Auth] Login error:', err.message, err.stack);
+        return res.status(500).json({ error: 'Internal server error.', detail: err.message });
     }
 }
 
