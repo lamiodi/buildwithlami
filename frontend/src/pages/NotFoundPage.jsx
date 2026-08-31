@@ -124,13 +124,9 @@ const NotFoundPage = () => {
                 <p className="text-xs text-gray-700 dark:text-gray-300 uppercase tracking-widest mb-1 font-bold">Navigate</p>
                 <h4 className="text-xl font-heading font-bold">Site Map</h4>
               </div>
-              <motion.div
-                whileHover={shouldReduce ? {} : buttonHover}
-              >
-                <Link to="/" className="w-10 h-10 rounded-full border border-gray-200 dark:border-white/10 flex items-center justify-center group-hover:bg-accent group-hover:border-accent group-hover:text-white dark:group-hover:bg-white dark:group-hover:text-black transition-colors active:scale-[0.98]">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-                </Link>
-              </motion.div>
+              <Link to="/" className="w-10 h-10 rounded-full border border-gray-200 dark:border-white/10 flex items-center justify-center group-hover:bg-accent group-hover:border-accent group-hover:text-white dark:group-hover:bg-white dark:group-hover:text-black transition-colors active:scale-[0.98]">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+              </Link>
             </div>
           </motion.div>
 
@@ -151,14 +147,9 @@ const NotFoundPage = () => {
                 reach out and let's make it happen.
               </p>
             </div>
-            <motion.div
-              whileHover={shouldReduce ? {} : buttonHover}
-              className="absolute bottom-8 right-8"
-            >
-              <Link to="/contact" className="w-10 h-10 rounded-full border border-gray-200 dark:border-white/10 flex items-center justify-center group-hover:bg-accent group-hover:border-accent group-hover:text-white dark:group-hover:bg-white dark:group-hover:text-black transition-colors active:scale-[0.98]">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-              </Link>
-            </motion.div>
+            <Link to="/contact" className="absolute bottom-8 right-8 w-10 h-10 rounded-full border border-gray-200 dark:border-white/10 flex items-center justify-center group-hover:bg-accent group-hover:border-accent group-hover:text-white dark:group-hover:bg-white dark:group-hover:text-black transition-colors active:scale-[0.98]">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+            </Link>
           </motion.div>
 
         </motion.div>

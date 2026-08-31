@@ -217,14 +217,13 @@ const ClientProjectTracker = () => {
               />
             </div>
             {authError && <p className="text-red-500 text-xs font-semibold">{authError}</p>}
-            <motion.button 
+            <button 
               type="submit" 
               disabled={authSubmitting}
-              whileHover={shouldReduce || authSubmitting ? {} : buttonHover}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition-all shadow-lg hover:shadow-blue-500/30 disabled:opacity-50 active:scale-[0.98]"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition-all shadow-lg hover:shadow-blue-500/30 disabled:opacity-50 active:scale-[0.98] cursor-pointer"
             >
               {authSubmitting ? 'Verifying...' : 'Access Portal'}
-            </motion.button>
+            </button>
           </form>
         </motion.div>
       </div>
@@ -248,16 +247,12 @@ const ClientProjectTracker = () => {
           <p className="text-gray-700 dark:text-gray-300 mb-8 leading-relaxed font-medium">
             I'm excited to start working on <strong>{project.project_name}</strong>. Before we dive into the creative process, I need a few details from you.
           </p>
-          <motion.div
-            whileHover={shouldReduce ? {} : buttonHover}
+          <Link 
+            to={`/form/${project.intake_form_id}?track=${trackingId}`}
+            className="block text-center w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl transition-all shadow-lg hover:shadow-blue-500/30 active:scale-[0.98]"
           >
-            <Link 
-              to={`/form/${project.intake_form_id}?track=${trackingId}`}
-              className="block text-center w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl transition-all shadow-lg hover:shadow-blue-500/30 active:scale-[0.98]"
-            >
-              Start Project Intake →
-            </Link>
-          </motion.div>
+            Start Project Intake →
+          </Link>
         </motion.div>
       </div>
     );
@@ -610,14 +605,13 @@ const ClientProjectTracker = () => {
                         required
                         className="w-full p-2.5 text-sm border border-blue-200 dark:border-blue-700/50 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800 text-black dark:text-white"
                       />
-                      <motion.button 
+                      <button 
                         type="submit" 
                         disabled={secretSubmitting}
-                        whileHover={shouldReduce || secretSubmitting ? {} : buttonHover}
-                        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-xl transition-all shadow-md hover:shadow-blue-500/30 text-sm disabled:opacity-50 active:scale-[0.98]"
+                        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-xl transition-all shadow-md hover:shadow-blue-500/30 text-sm disabled:opacity-50 active:scale-[0.98] cursor-pointer"
                       >
                         {secretSubmitting ? 'Encrypting...' : 'Secure Submit'}
-                      </motion.button>
+                      </button>
                     </form>
                   )}
                 </motion.div>
@@ -629,16 +623,12 @@ const ClientProjectTracker = () => {
                     <p className="text-xs text-gray-700 dark:text-gray-300 mb-4 leading-relaxed font-medium">
                       Need to update your requirements or fix a typo in your submission?
                     </p>
-                    <motion.div
-                      whileHover={shouldReduce ? {} : buttonHover}
-                    >
                       <Link 
                         to={`/form/${project.intake_form_id}?track=${trackingId}`}
                         className="block text-center w-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white font-bold py-2.5 rounded-xl transition-all shadow-sm text-sm active:scale-[0.98]"
                       >
                         Edit Submission
                       </Link>
-                    </motion.div>
                   </motion.div>
                 )}
 
@@ -679,14 +669,13 @@ const ClientProjectTracker = () => {
                           className="w-full p-2.5 text-sm border border-gray-200 dark:border-gray-700 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 dark:bg-gray-900 text-black dark:text-white"
                         />
                       </div>
-                      <motion.button 
+                      <button 
                         type="submit" 
                         disabled={secretSubmitting}
-                        whileHover={shouldReduce || secretSubmitting ? {} : buttonHover}
-                        className="w-full bg-slate-900 hover:bg-slate-800 dark:bg-blue-600 dark:hover:bg-blue-700 text-white font-bold py-2.5 rounded-xl transition-all shadow-md text-sm disabled:opacity-50 active:scale-[0.98]"
+                        className="w-full bg-slate-900 hover:bg-slate-800 dark:bg-blue-600 dark:hover:bg-blue-700 text-white font-bold py-2.5 rounded-xl transition-all shadow-md text-sm disabled:opacity-50 active:scale-[0.98] cursor-pointer"
                       >
                         {secretSubmitting ? 'Encrypting...' : 'Securely Send Key'}
-                      </motion.button>
+                      </button>
                     </form>
                   )}
                 </motion.div>

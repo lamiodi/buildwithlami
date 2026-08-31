@@ -168,16 +168,12 @@ const ClientIntakeForm = () => {
             Your intake details have been securely submitted and encrypted. I will review them and begin setting up your staging environment.
           </p>
           {trackingId && (
-            <motion.div
-              whileHover={shouldReduce ? {} : buttonHover}
+            <Link 
+              to={`/track/${trackingId}`}
+              className="block text-center w-full bg-slate-900 hover:bg-slate-800 dark:bg-blue-600 dark:hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg active:scale-[0.98]"
             >
-              <Link 
-                to={`/track/${trackingId}`}
-                className="block text-center w-full bg-slate-900 hover:bg-slate-800 dark:bg-blue-600 dark:hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg active:scale-[0.98]"
-              >
-                Go to Project Tracker
-              </Link>
-            </motion.div>
+              Go to Project Tracker
+            </Link>
           )}
         </div>
       </div>
@@ -288,14 +284,13 @@ const ClientIntakeForm = () => {
                 )})}
               </div>
 
-              <motion.button 
+              <button 
                 type="submit" 
                 disabled={submitting}
-                whileHover={shouldReduce || submitting ? {} : buttonHover}
-                className="w-full mt-8 bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl transition-all shadow-md hover:shadow-blue-500/20 disabled:opacity-50 active:scale-[0.98]"
+                className="w-full mt-8 bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl transition-all shadow-md hover:shadow-blue-500/20 disabled:opacity-50 active:scale-[0.98] cursor-pointer"
               >
                 {submitting ? 'Submitting Responses...' : 'Submit Answers'}
-              </motion.button>
+              </button>
             </form>
           </div>
         )}

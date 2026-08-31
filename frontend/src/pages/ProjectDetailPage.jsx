@@ -674,38 +674,35 @@ const ProjectDetailPage = () => {
 
                   <div className="mt-8 flex flex-col sm:flex-row gap-3">
                     {project.live_url && (
-                      <motion.a
+                      <a
                         href={project.live_url}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center justify-center bg-accent text-white font-bold uppercase tracking-[0.2em] text-xs px-6 py-3.5 hover:bg-black dark:hover:bg-white dark:hover:text-black active:scale-[0.98] transition-all"
-                        whileHover={shouldReduce ? {} : buttonHover}
                       >
                         Visit Live Site
                         <Icon name="arrow-up-right" className="w-4 h-4 ml-2" />
-                      </motion.a>
+                      </a>
                     )}
                     {project.github_url ? (
-                      <motion.a
+                      <a
                         href={project.github_url}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center justify-center border border-gray-300 dark:border-white/10 text-black dark:text-white font-bold uppercase tracking-[0.2em] text-xs px-6 py-3.5 hover:border-accent hover:text-accent active:scale-[0.98] transition-all"
-                        whileHover={shouldReduce ? {} : buttonHover}
                       >
                         <Icon name="github" className="w-4 h-4 mr-2" />
                         View Source
-                      </motion.a>
+                      </a>
                     ) : (
-                      <motion.button
+                      <button
                         type="button"
                         onClick={() => setShowSecurityPopup(true)}
                         className="inline-flex items-center justify-center border border-gray-300 dark:border-white/10 text-black dark:text-white font-bold uppercase tracking-[0.2em] text-xs px-6 py-3.5 hover:border-accent hover:text-accent active:scale-[0.98] transition-all cursor-pointer"
-                        whileHover={shouldReduce ? {} : buttonHover}
                       >
                         <Icon name="github" className="w-4 h-4 mr-2" />
                         Source Code
-                      </motion.button>
+                      </button>
                     )}
                   </div>
                 </motion.div>
@@ -1444,31 +1441,22 @@ const ProjectDetailPage = () => {
                 >
                   Tell me what you're building, what you're trying to achieve, and where you're stuck. I'll help you determine the right technical approach.
                 </motion.p>
-                <motion.div
-                  variants={item}
+                <div
                   className="flex flex-col sm:flex-row items-center justify-center gap-4"
                 >
-                  <motion.div
-                    whileHover={shouldReduce ? {} : buttonHover}
+                  <Link
+                    to="/contact"
+                    className="inline-flex items-center justify-center bg-accent text-white font-bold uppercase tracking-[0.2em] text-xs px-8 py-4 rounded-xl shadow-lg hover:bg-black dark:hover:bg-white dark:hover:text-black active:scale-[0.98] transition-all"
                   >
-                    <Link
-                      to="/contact"
-                      className="inline-flex items-center justify-center bg-accent text-white font-bold uppercase tracking-[0.2em] text-xs px-8 py-4 rounded-xl shadow-lg hover:bg-black dark:hover:bg-white dark:hover:text-black transition-colors"
-                    >
-                      Start a Project →
-                    </Link>
-                  </motion.div>
-                  <motion.div
-                    whileHover={shouldReduce ? {} : buttonHover}
+                    Start a Project →
+                  </Link>
+                  <Link
+                    to="/projects"
+                    className="inline-flex items-center justify-center border border-gray-300 dark:border-white/20 text-black dark:text-white font-bold uppercase tracking-[0.2em] text-xs px-8 py-4 rounded-xl hover:border-accent hover:text-accent active:scale-[0.98] transition-all"
                   >
-                    <Link
-                      to="/projects"
-                      className="inline-flex items-center justify-center border border-gray-300 dark:border-white/20 text-black dark:text-white font-bold uppercase tracking-[0.2em] text-xs px-8 py-4 rounded-xl hover:border-accent hover:text-accent transition-colors"
-                    >
-                      View More Projects
-                    </Link>
-                  </motion.div>
-                </motion.div>
+                    View More Projects
+                  </Link>
+                </div>
                 <div className="mt-8">
                   <a
                     href={`https://wa.me/${CONTACT.phoneE164}`}

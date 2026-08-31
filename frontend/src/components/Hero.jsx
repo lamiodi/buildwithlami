@@ -62,28 +62,20 @@ const Hero = () => {
         </motion.div>
 
         {/* Button Pair - Exact Architectural Standard */}
-        <motion.div
-          variants={{
-            hidden: { opacity: 1, y: 0 },
-            visible: { opacity: 1, y: 0, transition: { duration: 0.0001 } },
-          }}
-          className="flex flex-col sm:flex-row sm:items-center gap-4 relative z-10"
-        >
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4 relative z-20">
           <Link
             to="/contact"
-            className="btn-primary w-full sm:w-auto"
-            style={{ touchAction: 'manipulation' }}
+            className="btn-primary w-full sm:w-auto text-center"
           >
             Start a Project
           </Link>
           <Link
             to="/projects"
-            className="btn-secondary w-full sm:w-auto"
-            style={{ touchAction: 'manipulation' }}
+            className="btn-secondary w-full sm:w-auto text-center"
           >
             See My Work
           </Link>
-        </motion.div>
+        </div>
       </motion.div>
       
       {/* Founder Image Card */}

@@ -651,25 +651,23 @@ const DroneProjectDetailPage = () => {
             transition={{ duration: shouldReduce ? 0 : 0.5, delay: shouldReduce ? 0 : 0.4, ease: 'easeOut' }}
             className="mt-10 flex flex-wrap items-center gap-3"
           >
-            <motion.button
+            <button
               type="button"
               onClick={scrollToGallery}
-              className="inline-flex items-center gap-2 bg-white text-black px-6 py-3.5 rounded-full text-xs md:text-sm font-bold uppercase tracking-[0.2em] hover:bg-[#F44A22] hover:text-white transition-colors active:scale-[0.98]"
-              whileHover={shouldReduce ? {} : { scale: 1.04 }}
+              className="inline-flex items-center gap-2 bg-white text-black px-6 py-3.5 rounded-full text-xs md:text-sm font-bold uppercase tracking-[0.2em] hover:bg-[#F44A22] hover:text-white transition-colors active:scale-[0.98] cursor-pointer"
             >
               <PlayCircle className="w-4 h-4" aria-hidden="true" />
               View Gallery
-            </motion.button>
-            <motion.a
+            </button>
+            <a
               href={project.live_url || '#'}
               target={project.live_url ? '_blank' : undefined}
               rel="noreferrer"
               className="inline-flex items-center gap-2 bg-white/5 backdrop-blur-md border border-white/15 text-white px-6 py-3.5 rounded-full text-xs md:text-sm font-bold uppercase tracking-[0.2em] hover:border-white/40 transition-colors active:scale-[0.98]"
-              whileHover={shouldReduce ? {} : { scale: 1.04 }}
             >
               <Download className="w-4 h-4" aria-hidden="true" />
               Download Report
-            </motion.a>
+            </a>
             <Link
               to="/drone"
               className="inline-flex items-center gap-2 text-white/70 hover:text-white px-4 py-3.5 text-xs md:text-sm font-bold uppercase tracking-[0.2em] transition-colors"
@@ -1139,40 +1137,30 @@ const DroneProjectDetailPage = () => {
             >
               Aerial photography, videography, mapping, and inspection — delivered on time, on brief, and to cinematic standard.
             </motion.p>
-            <motion.div
-              variants={fadeUp}
+            <div
               className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3 md:gap-4"
             >
-              <motion.div
-                whileHover={shouldReduce ? {} : { scale: 1.04 }}
+              <Link
+                to="/drone#contact"
+                className="inline-flex items-center gap-2 bg-white text-black px-7 py-4 rounded-full text-xs md:text-sm font-bold uppercase tracking-[0.2em] hover:bg-[#F44A22] hover:text-white transition-colors active:scale-[0.98]"
               >
-                <Link
-                  to="/drone#contact"
-                  className="inline-flex items-center gap-2 bg-white text-black px-7 py-4 rounded-full text-xs md:text-sm font-bold uppercase tracking-[0.2em] hover:bg-[#F44A22] hover:text-white transition-colors active:scale-[0.98]"
-                >
-                  Book Drone Inspection
-                  <ArrowRight className="w-4 h-4" aria-hidden="true" />
-                </Link>
-              </motion.div>
-              <motion.div
-                whileHover={shouldReduce ? {} : { scale: 1.04 }}
+                Book Drone Inspection
+                <ArrowRight className="w-4 h-4" aria-hidden="true" />
+              </Link>
+              <Link
+                to="/drone#contact"
+                className="inline-flex items-center gap-2 bg-white/5 backdrop-blur-md border border-white/15 text-white px-7 py-4 rounded-full text-xs md:text-sm font-bold uppercase tracking-[0.2em] hover:border-white/40 transition-colors active:scale-[0.98]"
               >
-                <Link
-                  to="/drone#contact"
-                  className="inline-flex items-center gap-2 bg-white/5 backdrop-blur-md border border-white/15 text-white px-7 py-4 rounded-full text-xs md:text-sm font-bold uppercase tracking-[0.2em] hover:border-white/40 transition-colors active:scale-[0.98]"
-                >
-                  Request Quote
-                </Link>
-              </motion.div>
-              <motion.a
+                Request Quote
+              </Link>
+              <a
                 href={`tel:${CONTACT.phoneE164}`}
                 className="inline-flex items-center gap-2 text-white/70 hover:text-white px-5 py-4 text-xs md:text-sm font-bold uppercase tracking-[0.2em] transition-colors active:scale-[0.98]"
-                whileHover={shouldReduce ? {} : { scale: 1.04 }}
               >
                 Call Now
                 <ArrowUpRight className="w-4 h-4" aria-hidden="true" />
-              </motion.a>
-            </motion.div>
+              </a>
+            </div>
           </div>
         </motion.div>
       </section>
