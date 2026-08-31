@@ -673,6 +673,7 @@ const ProjectDetailPage = () => {
                   </div>
 
                   <div className="mt-8 flex flex-col sm:flex-row gap-3">
+                    {project.live_url && (
                       <motion.a
                         href={project.live_url}
                         target="_blank"
