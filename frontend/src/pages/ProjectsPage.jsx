@@ -137,18 +137,7 @@ const ProjectsPage = () => {
 
       {/* Main Content Area */}
       <section className="px-6 md:px-12 max-w-7xl mx-auto space-y-16">
-        <SkeletonTransition
-          isLoading={loading}
-          skeleton={
-            <div className="space-y-12">
-              <ProjectCardSkeleton />
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <ProjectCardSkeleton />
-                <ProjectCardSkeleton />
-              </div>
-            </div>
-          }
-        >
+        <div>
           {filteredProjects.length === 0 ? (
             <div className="text-center py-24 border border-dashed border-gray-300 dark:border-white/10 bg-white dark:bg-[#141414] p-8">
               <p className="text-lg text-gray-600 dark:text-gray-400 mb-4 font-medium">
@@ -385,7 +374,7 @@ const ProjectsPage = () => {
 
             </div>
           )}
-        </SkeletonTransition>
+        </div>
       </section>
 
       {/* CTA Section */}

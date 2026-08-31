@@ -447,7 +447,6 @@ const Pricing = ({ isHomepage = false }) => {
                     <motion.div
                       key={tier.id}
                       id={`pricing-card-${tier.id}`}
-                      layout
                       whileHover={shouldReduce ? {} : cardHover}
                       className={`relative p-6 sm:p-8 border ${
                         tier.popular

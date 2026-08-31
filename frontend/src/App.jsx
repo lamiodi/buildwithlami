@@ -200,7 +200,7 @@ function App() {
         {!hideGlobalLayout && <Navbar isDark={isDark} toggleTheme={toggleTheme} />}
         <main>
           <Suspense fallback={suspenseFallback}>
-            <AnimatePresence mode="wait">
+            <AnimatePresence initial={false}>
               <Routes location={location} key={location.pathname}>
                 <Route path="/" element={<PageWrapper><HomePage /></PageWrapper>} />
                 <Route path="/projects" element={<PageWrapper><ProjectsPage /></PageWrapper>} />

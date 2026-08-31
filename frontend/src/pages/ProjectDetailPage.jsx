@@ -434,8 +434,13 @@ const Lightbox = ({ images, index, onClose, onPrev, onNext }) => {
 const ProjectDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [project, setProject] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [project, setProject] = useState(() => {
+    const found = fallbackProjects.find(
+      (p) => p.id.toString() === id || p.slug === id
+    );
+    return found || fallbackProjects[0];
+  });
+  const [loading, setLoading] = useState(false);
   const [showSecurityPopup, setShowSecurityPopup] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(null);
   const heroImageRef = useRef(null);
@@ -443,24 +448,25 @@ const ProjectDetailPage = () => {
   const container = shouldReduce ? reducedMotionVariants : centralStaggerContainer;
   const item = shouldReduce ? reducedMotionVariants : fadeUpItem;
 
-  // ── Data fetch — same shape as before, no breaking changes ──
+  // ── Background Data fetch (non-blocking) ──
   useEffect(() => {
     window.scrollTo(0, 0);
+    let isMounted = true;
     const fetchProject = async () => {
-      const res = await api.get(`/projects/${id}`);
-      if (res.ok && res.data) {
-        setProject(res.data);
-        setLoading(false);
-        return;
+      try {
+        const res = await Promise.race([
+          api.get(`/projects/${id}`),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 3000))
+        ]);
+        if (isMounted && res && res.ok && res.data) {
+          setProject(res.data);
+        }
+      } catch {
+        // Fallback already rendered
       }
-      // Fallback — locate by id or slug so the route stays stable.
-      const found = fallbackProjects.find(
-        (p) => p.id.toString() === id || p.slug === id
-      );
-      setProject(found || fallbackProjects[0]);
-      setLoading(false);
     };
     fetchProject();
+    return () => { isMounted = false; };
   }, [id]);
 
   // ── SEO + document title ──

@@ -74,19 +74,7 @@ const Projects = () => {
         </motion.p>
       </div>
 
-      <SkeletonTransition
-        isLoading={loading}
-        skeleton={
-          <div className="space-y-16">
-            <ProjectCardSkeleton />
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <ProjectCardSkeleton />
-              <ProjectCardSkeleton />
-              <ProjectCardSkeleton />
-            </div>
-          </div>
-        }
-      >
+      <div>
         {/* Main Featured Project Card */}
         <motion.div
           className="mb-16 bg-white dark:bg-[#141414] border border-gray-200 dark:border-white/10 rounded-2xl overflow-hidden shadow-xl"
@@ -237,7 +225,7 @@ const Projects = () => {
             Explore All Case Studies & Projects →
           </Link>
         </div>
-      </SkeletonTransition>
+      </div>
     </section>
   );
 };
