@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion, useReducedMotion } from 'framer-motion';
 import { staggerContainer, fadeUpItem, cardHover, cardHoverTransition, buttonHover, buttonTap, sectionViewport, reducedMotionVariants } from '../utils/motion';
 import { BUILD_PRICING, COMMERCIAL_TERMS } from '../config/pricing';
@@ -8,6 +8,7 @@ const ServicesPage = () => {
   const shouldReduce = useReducedMotion();
   const container = shouldReduce ? reducedMotionVariants : staggerContainer;
   const item = shouldReduce ? reducedMotionVariants : fadeUpItem;
+  const navigate = useNavigate();
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -269,6 +270,8 @@ const ServicesPage = () => {
                     <Link
                       to={`/contact?service=${encodeURIComponent(service.title)}`}
                       className="btn-primary w-full"
+                      onTouchEnd={(e) => { e.preventDefault(); navigate(`/contact?service=${encodeURIComponent(service.title)}`); }}
+                      style={{ touchAction: 'manipulation' }}
                     >
                       Start a Project with this Service →
                     </Link>
@@ -367,6 +370,8 @@ const ServicesPage = () => {
               <Link
                 to="/pricing"
                 className="btn-primary w-full sm:w-auto"
+                onTouchEnd={(e) => { e.preventDefault(); navigate('/pricing'); }}
+                style={{ touchAction: 'manipulation' }}
               >
                 View Transparent Pricing →
               </Link>
@@ -389,6 +394,8 @@ const ServicesPage = () => {
             <Link 
               to="/contact" 
               className="btn-primary"
+              onTouchEnd={(e) => { e.preventDefault(); navigate('/contact'); }}
+              style={{ touchAction: 'manipulation' }}
             >
               Start a Project →
             </Link>

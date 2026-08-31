@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   Cpu,
   ArrowRight,
@@ -59,6 +59,7 @@ const FAQS = [
 
 const SoftwareHomePage = () => {
   const [activeFaq, setActiveFaq] = useState(null);
+  const navigate = useNavigate();
 
   // Live projects from API
   const [projects, setProjects] = useState([]);
@@ -130,10 +131,20 @@ const SoftwareHomePage = () => {
           </div>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-            <Link to="/pricing" className="btn-primary w-full sm:w-auto">
+            <Link
+              to="/pricing"
+              className="btn-primary w-full sm:w-auto"
+              onTouchEnd={(e) => { e.preventDefault(); navigate('/pricing'); }}
+              style={{ touchAction: 'manipulation' }}
+            >
               View Transparent Pricing <ArrowRight className="w-4 h-4 ml-2" />
             </Link>
-            <Link to="/contact" className="btn-secondary w-full sm:w-auto">
+            <Link
+              to="/contact"
+              className="btn-secondary w-full sm:w-auto"
+              onTouchEnd={(e) => { e.preventDefault(); navigate('/contact'); }}
+              style={{ touchAction: 'manipulation' }}
+            >
               Book Architecture Consultation →
             </Link>
           </div>
@@ -236,12 +247,16 @@ const SoftwareHomePage = () => {
             <Link
               to="/contact?service=software"
               className="btn-primary w-full sm:w-auto"
+              onTouchEnd={(e) => { e.preventDefault(); navigate('/contact?service=software'); }}
+              style={{ touchAction: 'manipulation' }}
             >
               Submit Project Brief →
             </Link>
             <Link
               to="/pricing"
               className="btn-secondary w-full sm:w-auto"
+              onTouchEnd={(e) => { e.preventDefault(); navigate('/pricing'); }}
+              style={{ touchAction: 'manipulation' }}
             >
               Open Full Pricing Matrix ↗
             </Link>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, useReducedMotion, AnimatePresence } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { 
   Check, 
   ArrowRight, 
@@ -34,6 +34,7 @@ import { useAutomatedCurrency } from '../utils/currency';
 
 const Pricing = ({ isHomepage = false }) => {
   const shouldReduce = useReducedMotion();
+  const navigate = useNavigate();
   const container = shouldReduce ? reducedMotionVariants : staggerContainer;
   const item = shouldReduce ? reducedMotionVariants : fadeUpItem;
 
@@ -223,7 +224,10 @@ const Pricing = ({ isHomepage = false }) => {
                     <li className="flex items-center gap-2.5"><CheckIcon className="text-accent" /> <span>Up to 30 days post-launch support</span></li>
                   </ul>
                 </div>
-                <Link to="/pricing#websites" className="btn-dark w-full text-center">
+                <Link to="/pricing#websites" className="btn-dark w-full text-center"
+                  onTouchEnd={(e) => { e.preventDefault(); navigate('/pricing#websites'); }}
+                  style={{ touchAction: 'manipulation' }}
+                >
                   View Web Tiers <ArrowRight className="w-3.5 h-3.5 ml-2" />
                 </Link>
               </div>
@@ -255,7 +259,10 @@ const Pricing = ({ isHomepage = false }) => {
                     <li className="flex items-center gap-2.5"><CheckIcon className="text-accent" /> <span>30 days priority bug-fix support</span></li>
                   </ul>
                 </div>
-                <Link to="/pricing#ecommerce" className="btn-primary w-full text-center">
+                <Link to="/pricing#ecommerce" className="btn-primary w-full text-center"
+                  onTouchEnd={(e) => { e.preventDefault(); navigate('/pricing#ecommerce'); }}
+                  style={{ touchAction: 'manipulation' }}
+                >
                   Compare E-Commerce Tiers <ArrowRight className="w-3.5 h-3.5 ml-2" />
                 </Link>
               </div>
@@ -284,7 +291,10 @@ const Pricing = ({ isHomepage = false }) => {
                     <li className="flex items-center gap-2.5"><CheckIcon className="text-accent" /> <span>90 days warranty support</span></li>
                   </ul>
                 </div>
-                <Link to="/pricing#software" className="btn-dark w-full text-center">
+                <Link to="/pricing#software" className="btn-dark w-full text-center"
+                  onTouchEnd={(e) => { e.preventDefault(); navigate('/pricing#software'); }}
+                  style={{ touchAction: 'manipulation' }}
+                >
                   View Software Scope <ArrowRight className="w-3.5 h-3.5 ml-2" />
                 </Link>
               </div>
@@ -300,6 +310,8 @@ const Pricing = ({ isHomepage = false }) => {
               <Link 
                 to="/pricing" 
                 className="shrink-0 px-6 py-3.5 rounded-full bg-accent text-white font-extrabold text-xs uppercase tracking-wider hover:bg-accent/90 transition-all flex items-center gap-2 shadow-lg"
+                onTouchEnd={(e) => { e.preventDefault(); navigate('/pricing'); }}
+                style={{ touchAction: 'manipulation' }}
               >
                 Open Full Pricing Page <ChevronRight className="w-4 h-4" />
               </Link>
@@ -544,6 +556,8 @@ const Pricing = ({ isHomepage = false }) => {
                         <Link
                           to={`/contact?service=${encodeURIComponent(activeCategory)}&tier=${encodeURIComponent(tier.id)}`}
                           className={tier.popular ? 'btn-primary w-full' : 'btn-dark w-full'}
+                          onTouchEnd={(e) => { e.preventDefault(); navigate(`/contact?service=${encodeURIComponent(activeCategory)}&tier=${encodeURIComponent(tier.id)}`); }}
+                          style={{ touchAction: 'manipulation' }}
                         >
                           Start with {tier.name} <ArrowRight className="w-3.5 h-3.5 ml-2" />
                         </Link>

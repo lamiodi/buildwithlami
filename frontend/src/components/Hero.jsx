@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { CheckCircle2 } from 'lucide-react';
 import { staggerContainer, fadeUpItem, buttonHover, buttonTap, reducedMotionVariants } from '../utils/motion';
 
@@ -8,6 +8,7 @@ const Hero = () => {
   const shouldReduce = useReducedMotion();
   const container = shouldReduce ? reducedMotionVariants : staggerContainer;
   const item = shouldReduce ? reducedMotionVariants : fadeUpItem;
+  const navigate = useNavigate();
 
   return (
     <section id="home" className="px-6 md:px-12 max-w-7xl mx-auto pt-10 pb-20 md:pt-16 md:pb-28 flex flex-col md:flex-row items-center justify-between relative">
@@ -71,12 +72,16 @@ const Hero = () => {
           <Link
             to="/contact"
             className="btn-primary w-full sm:w-auto"
+            onTouchEnd={(e) => { e.preventDefault(); navigate('/contact'); }}
+            style={{ touchAction: 'manipulation' }}
           >
             Start a Project
           </Link>
           <Link
             to="/projects"
             className="btn-secondary w-full sm:w-auto"
+            onTouchEnd={(e) => { e.preventDefault(); navigate('/projects'); }}
+            style={{ touchAction: 'manipulation' }}
           >
             See My Work
           </Link>

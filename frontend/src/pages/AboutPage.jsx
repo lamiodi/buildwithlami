@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion, useReducedMotion, AnimatePresence } from 'framer-motion';
 import {
   staggerContainer,
@@ -235,6 +235,7 @@ const PillIcon = ({ name, className = 'w-5 h-5 text-accent' }) => {
 
 const AboutPage = () => {
   const shouldReduce = useReducedMotion();
+  const navigate = useNavigate();
   const [activeCategory, setActiveCategory] = useState('all');
 
   // Resolved motion variants
@@ -691,6 +692,8 @@ const AboutPage = () => {
             <Link
               to="/contact"
               className="btn-primary w-full sm:w-auto"
+              onTouchEnd={(e) => { e.preventDefault(); navigate('/contact'); }}
+              style={{ touchAction: 'manipulation' }}
             >
               Start a Project
               <ArrowIcon className="w-4 h-4 ml-2" />

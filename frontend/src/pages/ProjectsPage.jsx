@@ -246,6 +246,8 @@ const ProjectsPage = () => {
                         <Link
                           to={`/projects/${featuredProject.slug || featuredProject.id}`}
                           className="btn-dark flex-1"
+                          onTouchEnd={(e) => { e.preventDefault(); navigate(`/projects/${featuredProject.slug || featuredProject.id}`); }}
+                          style={{ touchAction: 'manipulation' }}
                         >
                           View Case Study →
                         </Link>
@@ -255,6 +257,7 @@ const ProjectsPage = () => {
                             target="_blank"
                             rel="noopener noreferrer"
                             className="btn-secondary !px-5 !py-3.5"
+                            style={{ touchAction: 'manipulation' }}
                           >
                             Live Demo ↗
                           </a>
@@ -354,6 +357,8 @@ const ProjectsPage = () => {
                                 <Link
                                   to={`/projects/${projKey}`}
                                   className="btn-dark flex-1 !py-3"
+                                  onTouchEnd={(e) => { e.preventDefault(); navigate(`/projects/${projKey}`); }}
+                                  style={{ touchAction: 'manipulation' }}
                                 >
                                   View Case Study →
                                 </Link>
@@ -363,6 +368,7 @@ const ProjectsPage = () => {
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="btn-secondary !px-4 !py-3"
+                                    style={{ touchAction: 'manipulation' }}
                                   >
                                     Live Demo ↗
                                   </a>
@@ -407,6 +413,8 @@ const ProjectsPage = () => {
             <Link
               to="/contact"
               className="btn-primary w-full sm:w-auto"
+              onTouchEnd={(e) => { e.preventDefault(); navigate('/contact'); }}
+              style={{ touchAction: 'manipulation' }}
             >
               Start a Project →
             </Link>
@@ -415,6 +423,7 @@ const ProjectsPage = () => {
               target="_blank"
               rel="noopener noreferrer"
               className="btn-secondary w-full sm:w-auto"
+              style={{ touchAction: 'manipulation' }}
             >
               WhatsApp Me ↗
             </a>

@@ -182,6 +182,7 @@ const HowItWorks = () => {
             <a 
               href="#contact"
               className="btn-primary shrink-0"
+              style={{ touchAction: 'manipulation' }}
             >
               Start a Project
             </a>

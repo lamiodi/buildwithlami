@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion, useReducedMotion } from 'framer-motion';
 import { staggerContainer, fadeUpItem, cardHover, cardHoverTransition, buttonHover, buttonTap, reducedMotionVariants } from '../utils/motion';
 
@@ -7,6 +7,7 @@ const NotFoundPage = () => {
   const shouldReduce = useReducedMotion();
   const container = shouldReduce ? reducedMotionVariants : staggerContainer;
   const item = shouldReduce ? reducedMotionVariants : fadeUpItem;
+  const navigate = useNavigate();
 
   useEffect(() => {
     document.title = "404 — Page Not Found | Buildwith_lami";
@@ -78,6 +79,8 @@ const NotFoundPage = () => {
               <Link
                 to="/"
                 className="btn-dark"
+                onTouchEnd={(e) => { e.preventDefault(); navigate('/'); }}
+                style={{ touchAction: 'manipulation' }}
               >
                 Back to Home
                 <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
@@ -85,6 +88,8 @@ const NotFoundPage = () => {
               <Link
                 to="/projects"
                 className="btn-secondary"
+                onTouchEnd={(e) => { e.preventDefault(); navigate('/projects'); }}
+                style={{ touchAction: 'manipulation' }}
               >
                 View Projects
               </Link>
