@@ -8,8 +8,8 @@ import { ProjectCardSkeleton, SkeletonTransition } from './Skeleton';
 import { staggerContainer, fadeUpItem, sectionViewport, reducedMotionVariants } from '../utils/motion';
 
 const Projects = () => {
-  const [projects, setProjects] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [projects, setProjects] = useState(fallbackProjects);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const shouldReduce = useReducedMotion();
   const container = shouldReduce ? reducedMotionVariants : staggerContainer;
@@ -19,41 +19,22 @@ const Projects = () => {
     let cancelled = false;
     const fetchProjects = async () => {
       try {
-        // Software-division scoped feed — keeps the homepage
-        // showcase isolated from the Survey and Drone divisions.
-        const res = await api.get('/projects/division/SOFTWARE');
+        // Software-division scoped feed with short 3s timeout
+        const res = await api.get('/projects/division/SOFTWARE', { timeout: 3000 });
 
         if (cancelled) return;
 
-        // /api/projects/division/:division returns
-        // { data: rows, pagination: {…} } — unwrap before storing so
-        // map() / image_url lookups below resolve correctly.
-        // Fall back to the seed list when the array is actually
-        // empty so the strip never goes blank.
         const list = res.data?.data ?? [];
         if (res.ok && Array.isArray(list) && list.length > 0) {
           setProjects(list);
-        } else if (!res.ok) {
-          setProjects(fallbackProjects);
-        } else {
-          // API ok but empty array — show fallback so the section is
-          // never presented as empty while admin data isn't shipped.
-          setProjects(fallbackProjects);
         }
-
-        if (!cancelled) setLoading(false);
       } catch (error) {
-        if (!cancelled) {
-          // CRITICAL: Show fallback data on any network error
-          console.error('Projects API error, using fallback:', error);
-          setProjects(fallbackProjects);
-          setLoading(false);
-        }
+        // Silently retain fallback projects
       }
     };
 
     fetchProjects();
-    return () => { cancelled = true; }; // Cleanup to prevent state updates on unmount
+    return () => { cancelled = true; };
   }, []);
 
   // Ensure VonneX2X is always the featured project

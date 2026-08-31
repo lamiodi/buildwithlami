@@ -9,8 +9,8 @@ import { staggerContainer, fadeUpItem, cardHover, cardHoverTransition, buttonHov
 
 const ProjectsPage = () => {
   const navigate = useNavigate();
-  const [projects, setProjects] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [projects, setProjects] = useState(fallbackProjects);
+  const [loading, setLoading] = useState(false);
   const [activeFilter, setActiveFilter] = useState('All');
   const shouldReduce = useReducedMotion();
   const container = shouldReduce ? reducedMotionVariants : staggerContainer;
@@ -24,14 +24,15 @@ const ProjectsPage = () => {
       metaDesc.setAttribute("content", "Explore selected software engineering works by Eugene Odibenuah (Buildwith_lami) — from custom business ERPs and SaaS platforms to luxury e-commerce and regulatory web portals.");
     }
     const fetchProjects = async () => {
-      const res = await api.get('/projects/division/SOFTWARE');
-      const list = res.data?.data ?? [];
-      if (res.ok && list.length > 0) {
-        setProjects(list);
-      } else {
-        setProjects(fallbackProjects);
+      try {
+        const res = await api.get('/projects/division/SOFTWARE', { timeout: 3000 });
+        const list = res.data?.data ?? [];
+        if (res.ok && list.length > 0) {
+          setProjects(list);
+        }
+      } catch {
+        // Retain fallback
       }
-      setLoading(false);
     };
     fetchProjects();
   }, []);

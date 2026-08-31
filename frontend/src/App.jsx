@@ -13,14 +13,18 @@ import SoundEffects from './components/SoundEffects';
 import { lazyWithRetry } from './utils/lazyWithRetry';
 import { HomePageSkeleton, PageSkeleton } from './components/Skeleton';
 
-const HomePage = lazyWithRetry(() => import('./pages/HomePage'));
-const ProjectsPage = lazyWithRetry(() => import('./pages/ProjectsPage'));
-const ContactPage = lazyWithRetry(() => import('./pages/ContactPage'));
-const AboutPage = lazyWithRetry(() => import('./pages/AboutPage'));
-const ServicesPage = lazyWithRetry(() => import('./pages/ServicesPage'));
-const ProjectDetailPage = lazyWithRetry(() => import('./pages/ProjectDetailPage'));
-const NotFoundPage = lazyWithRetry(() => import('./pages/NotFoundPage'));
-const SoftwareHomePage = lazyWithRetry(() => import('./pages/software/SoftwareHomePage'));
+// Statically import core public pages for zero-latency instant transitions
+import HomePage from './pages/HomePage';
+import ProjectsPage from './pages/ProjectsPage';
+import ContactPage from './pages/ContactPage';
+import AboutPage from './pages/AboutPage';
+import ServicesPage from './pages/ServicesPage';
+import PricingPage from './pages/PricingPage';
+import ProjectDetailPage from './pages/ProjectDetailPage';
+import NotFoundPage from './pages/NotFoundPage';
+import SoftwareHomePage from './pages/software/SoftwareHomePage';
+
+// Lazy-loaded divisions and admin pages
 const SurveyHomePage = lazyWithRetry(() => import('./pages/survey/SurveyHomePage'));
 const DroneHomePage = lazyWithRetry(() => import('./pages/drone/DroneHomePage'));
 const SurveyProjectDetailPage = lazyWithRetry(() => import('./pages/survey/SurveyProjectDetailPage'));
@@ -47,7 +51,6 @@ const AdminHelp = lazyWithRetry(() => import('./pages/admin/AdminHelp'));
 const AdminPaymentQueue = lazyWithRetry(() => import('./pages/admin/AdminPaymentQueue'));
 const PaymentPage = lazyWithRetry(() => import('./pages/PaymentPage'));
 
-const PricingPage = lazyWithRetry(() => import('./pages/PricingPage'));
 const AdminSurveyBookings = lazyWithRetry(() => import('./pages/admin/survey/AdminSurveyBookings'));
 const AdminSurveyProjects = lazyWithRetry(() => import('./pages/admin/survey/AdminSurveyProjects'));
 const AdminDroneBookings = lazyWithRetry(() => import('./pages/admin/drone/AdminDroneBookings'));
@@ -75,6 +78,15 @@ const ClientTimeline = lazyWithRetry(() => import('./pages/client/ClientTimeline
 const ClientProtectedRoute = lazyWithRetry(() => import('./components/ClientProtectedRoute'));
 import { ClientAuthProvider } from './contexts/ClientAuthContext';
 
+// Scroll to top automatically on route changes
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  }, [pathname]);
+  return null;
+}
+
 // Page transition wrapper
 const PageWrapper = ({ children }) => {
   const shouldReduce = useReducedMotion();
@@ -83,7 +95,7 @@ const PageWrapper = ({ children }) => {
       initial={{ opacity: shouldReduce ? 1 : 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: shouldReduce ? 1 : 0 }}
-      transition={{ duration: shouldReduce ? 0 : 0.3 }}
+      transition={{ duration: shouldReduce ? 0 : 0.2 }}
     >
       {children}
     </motion.div>
@@ -184,6 +196,7 @@ function App() {
     <ClientAuthProvider>
     <div className="min-h-screen bg-gray-50 text-gray-900 dark:bg-background dark:text-white font-body selection:bg-accent selection:text-white transition-colors duration-500">
       <ErrorBoundary>
+        <ScrollToTop />
         {!hideGlobalLayout && <Navbar isDark={isDark} toggleTheme={toggleTheme} />}
         <main>
           <Suspense fallback={suspenseFallback}>
