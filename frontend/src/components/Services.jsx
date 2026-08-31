@@ -193,6 +193,8 @@ const Services = () => {
             whileHover={shouldReduce ? {} : cardHover}
             transition={cardHoverTransition}
             onClick={() => handleOpenModal(service)}
+            onTouchEnd={(e) => { e.preventDefault(); handleOpenModal(service); }}
+            style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
             className="w-full bg-white dark:bg-[#141414] border border-gray-200 dark:border-white/10 hover:border-accent dark:hover:border-accent transition-all p-6 sm:p-7 rounded-2xl relative overflow-hidden group cursor-pointer shadow-sm flex flex-col justify-between"
           >
             {/* Orange gradient accent on hover */}

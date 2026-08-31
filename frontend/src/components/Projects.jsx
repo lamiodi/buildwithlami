@@ -5,7 +5,7 @@ import CheckIcon from './CheckIcon';
 import { api } from '../services/api';
 import fallbackProjects from '../data/fallbackProjects';
 import { ProjectCardSkeleton, SkeletonTransition } from './Skeleton';
-import { staggerContainer, fadeUpItem, sectionViewport } from '../utils/motion';
+import { staggerContainer, fadeUpItem, sectionViewport, reducedMotionVariants } from '../utils/motion';
 
 const Projects = () => {
   const [projects, setProjects] = useState([]);
