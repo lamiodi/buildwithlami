@@ -165,9 +165,9 @@ const ProjectsPage = () => {
                   <div className="grid grid-cols-1 lg:grid-cols-12 gap-0">
                     
                     {/* Left: Large Visual Mockup (7 cols) */}
-                    <div 
-                      className="lg:col-span-7 relative h-72 sm:h-96 lg:h-[480px] bg-gray-900 overflow-hidden cursor-pointer"
-                      onClick={() => navigate(`/projects/${featuredProject.slug || featuredProject.id}`)}
+                    <Link 
+                      to={`/projects/${featuredProject.slug || featuredProject.id}`}
+                      className="lg:col-span-7 relative h-72 sm:h-96 lg:h-[480px] bg-gray-900 overflow-hidden cursor-pointer block"
                     >
                       <img
                         src={featuredProject.image_url || featuredProject.image}
@@ -190,7 +190,7 @@ const ProjectsPage = () => {
                           </h2>
                         </div>
                       </div>
-                    </div>
+                    </Link>
 
                     {/* Right: Case Study Context & Outcomes (5 cols) */}
                     <div className="lg:col-span-5 p-8 md:p-10 flex flex-col justify-between space-y-6">
@@ -296,9 +296,9 @@ const ProjectsPage = () => {
                           className="bwl-card overflow-hidden shadow-sm hover:shadow-xl hover:border-accent/40 group flex flex-col justify-between"
                         >
                           {/* Image Header */}
-                          <div 
-                            className="relative h-60 sm:h-72 bg-gray-100 dark:bg-gray-900 overflow-hidden cursor-pointer"
-                            onClick={() => navigate(`/projects/${projKey}`)}
+                          <Link 
+                            to={`/projects/${projKey}`}
+                            className="relative h-60 sm:h-72 bg-gray-100 dark:bg-gray-900 overflow-hidden cursor-pointer block"
                           >
                             <img
                               src={project.image_url || project.image}
@@ -315,17 +315,17 @@ const ProjectsPage = () => {
                                 {project.year || '2024'} · {project.project_status || 'Client Project'}
                               </span>
                             </div>
-                          </div>
+                          </Link>
 
                           {/* Content Body */}
                           <div className="p-6 md:p-8 flex-1 flex flex-col justify-between space-y-6">
                             <div className="space-y-3">
-                              <h4 
-                                onClick={() => navigate(`/projects/${projKey}`)}
-                                className="text-xl md:text-2xl font-heading font-bold text-black dark:text-white group-hover:text-accent transition-colors cursor-pointer"
+                              <Link 
+                                to={`/projects/${projKey}`}
+                                className="text-xl md:text-2xl font-heading font-bold text-black dark:text-white group-hover:text-accent transition-colors cursor-pointer block"
                               >
                                 {project.title}
-                              </h4>
+                              </Link>
                               <p className="text-gray-600 dark:text-gray-300 text-sm font-light leading-relaxed">
                                 {project.summary || project.description}
                               </p>

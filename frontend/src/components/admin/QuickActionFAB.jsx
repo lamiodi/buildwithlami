@@ -119,10 +119,9 @@ const QuickActionFAB = () => {
             </AnimatePresence>
 
             <motion.button
-                whileTap={{ scale: 0.92 }}
                 onClick={() => setOpen((o) => !o)}
                 aria-label="Quick actions"
-                className="cursor-pointer w-14 h-14 rounded-full bg-accent hover:bg-orange-600 text-white shadow-2xl shadow-accent/40 flex items-center justify-center"
+                className="cursor-pointer w-14 h-14 rounded-full bg-accent hover:bg-orange-600 text-white shadow-2xl shadow-accent/40 flex items-center justify-center active:scale-[0.92] transition-transform"
             >
                 <motion.span animate={{ rotate: open ? 45 : 0 }} transition={{ duration: 0.2 }}>
                     <Icon.Plus className="w-6 h-6" />

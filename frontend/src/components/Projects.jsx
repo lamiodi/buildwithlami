@@ -82,9 +82,9 @@ const Projects = () => {
         >
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-0 items-stretch">
             {/* Image Preview */}
-            <div
-              className="lg:col-span-7 bg-gray-900 relative overflow-hidden group cursor-pointer min-h-[320px] md:min-h-[440px]"
-              onClick={() => navigate(`/projects/${featuredProject.slug || featuredProject.id}`)}
+            <Link
+              to={`/projects/${featuredProject.slug || featuredProject.id}`}
+              className="lg:col-span-7 bg-gray-900 relative overflow-hidden group cursor-pointer min-h-[320px] md:min-h-[440px] block"
             >
               <img
                 src={featuredProject.image_url || featuredProject.image}
@@ -98,7 +98,7 @@ const Projects = () => {
               <div className="absolute top-4 left-4 bg-black/85 text-white text-[10px] font-mono uppercase tracking-[0.18em] font-bold px-3 py-1.5 border border-white/10 pointer-events-none">
                 Featured Case Study · {featuredProject.year || '2024'}
               </div>
-            </div>
+            </Link>
 
             {/* Content Details */}
             <div className="lg:col-span-5 p-8 md:p-10 flex flex-col justify-between">
@@ -114,12 +114,12 @@ const Projects = () => {
                   ))}
                 </div>
 
-                <h3
-                  onClick={() => navigate(`/projects/${featuredProject.slug || featuredProject.id}`)}
-                  className="text-2xl md:text-3xl font-heading font-bold text-black dark:text-white hover:text-accent transition-colors cursor-pointer mb-3"
+                <Link
+                  to={`/projects/${featuredProject.slug || featuredProject.id}`}
+                  className="text-2xl md:text-3xl font-heading font-bold text-black dark:text-white hover:text-accent transition-colors cursor-pointer mb-3 block"
                 >
                   {featuredProject.title}
-                </h3>
+                </Link>
 
                 <p className="text-gray-600 dark:text-gray-300 text-sm md:text-base leading-relaxed mb-6 font-light">
                   {featuredProject.summary}

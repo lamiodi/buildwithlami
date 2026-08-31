@@ -673,14 +673,12 @@ const ProjectDetailPage = () => {
                   </div>
 
                   <div className="mt-8 flex flex-col sm:flex-row gap-3">
-                    {project.live_url && project.live_url !== '#' && (
                       <motion.a
                         href={project.live_url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center justify-center bg-accent text-white font-bold uppercase tracking-[0.2em] text-xs px-6 py-3.5 hover:bg-black dark:hover:bg-white dark:hover:text-black transition-colors"
+                        className="inline-flex items-center justify-center bg-accent text-white font-bold uppercase tracking-[0.2em] text-xs px-6 py-3.5 hover:bg-black dark:hover:bg-white dark:hover:text-black active:scale-[0.98] transition-all"
                         whileHover={shouldReduce ? {} : buttonHover}
-                        whileTap={shouldReduce ? {} : buttonTap}
                       >
                         Visit Live Site
                         <Icon name="arrow-up-right" className="w-4 h-4 ml-2" />
@@ -691,9 +689,8 @@ const ProjectDetailPage = () => {
                         href={project.github_url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center justify-center border border-gray-300 dark:border-white/10 text-black dark:text-white font-bold uppercase tracking-[0.2em] text-xs px-6 py-3.5 hover:border-accent hover:text-accent transition-colors"
+                        className="inline-flex items-center justify-center border border-gray-300 dark:border-white/10 text-black dark:text-white font-bold uppercase tracking-[0.2em] text-xs px-6 py-3.5 hover:border-accent hover:text-accent active:scale-[0.98] transition-all"
                         whileHover={shouldReduce ? {} : buttonHover}
-                        whileTap={shouldReduce ? {} : buttonTap}
                       >
                         <Icon name="github" className="w-4 h-4 mr-2" />
                         View Source
@@ -702,9 +699,8 @@ const ProjectDetailPage = () => {
                       <motion.button
                         type="button"
                         onClick={() => setShowSecurityPopup(true)}
-                        className="inline-flex items-center justify-center border border-gray-300 dark:border-white/10 text-black dark:text-white font-bold uppercase tracking-[0.2em] text-xs px-6 py-3.5 hover:border-accent hover:text-accent transition-colors cursor-pointer"
+                        className="inline-flex items-center justify-center border border-gray-300 dark:border-white/10 text-black dark:text-white font-bold uppercase tracking-[0.2em] text-xs px-6 py-3.5 hover:border-accent hover:text-accent active:scale-[0.98] transition-all cursor-pointer"
                         whileHover={shouldReduce ? {} : buttonHover}
-                        whileTap={shouldReduce ? {} : buttonTap}
                       >
                         <Icon name="github" className="w-4 h-4 mr-2" />
                         Source Code
@@ -1370,19 +1366,14 @@ const ProjectDetailPage = () => {
                       variants={item}
                       whileHover={shouldReduce ? {} : cardHover}
                       transition={cardHoverTransition}
-                      onClick={() => navigate(`/projects/${rp.slug || rp.id}`)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                          e.preventDefault();
-                          navigate(`/projects/${rp.slug || rp.id}`);
-                        }
-                      }}
-                      role="link"
-                      tabIndex={0}
-                      className="group cursor-pointer bg-white dark:bg-gradient-to-br dark:from-[#1e1e1e] dark:to-[#151515] border border-gray-200 dark:border-white/5 rounded-2xl overflow-hidden shadow-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                      className="group bg-white dark:bg-gradient-to-br dark:from-[#1e1e1e] dark:to-[#151515] border border-gray-200 dark:border-white/5 rounded-2xl overflow-hidden shadow-xl focus-within:ring-2 focus-within:ring-accent"
                     >
-                      <div className="relative aspect-[16/10] overflow-hidden">
-                        <img
+                      <Link 
+                        to={`/projects/${rp.slug || rp.id}`}
+                        className="block h-full cursor-pointer focus:outline-none"
+                      >
+                        <div className="relative aspect-[16/10] overflow-hidden">
+                          <img
                           src={rp.image_url || rp.image}
                           alt={rp.title}
                           loading="lazy"
@@ -1414,6 +1405,7 @@ const ProjectDetailPage = () => {
                           <Icon name="arrow-up-right" className="w-4 h-4" />
                         </span>
                       </div>
+                      </Link>
                     </motion.div>
                   ))}
                 </div>
@@ -1457,7 +1449,6 @@ const ProjectDetailPage = () => {
                 >
                   <motion.div
                     whileHover={shouldReduce ? {} : buttonHover}
-                    whileTap={shouldReduce ? {} : buttonTap}
                   >
                     <Link
                       to="/contact"
@@ -1468,7 +1459,6 @@ const ProjectDetailPage = () => {
                   </motion.div>
                   <motion.div
                     whileHover={shouldReduce ? {} : buttonHover}
-                    whileTap={shouldReduce ? {} : buttonTap}
                   >
                     <Link
                       to="/projects"

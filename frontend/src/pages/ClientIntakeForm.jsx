@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
+import { useParams, useSearchParams, useNavigate, Link } from 'react-router-dom';
 import { motion, useReducedMotion } from 'framer-motion';
 import { Skeleton, SkeletonTransition } from '../components/Skeleton';
 import { buttonHover, buttonTap } from '../utils/motion';
@@ -168,14 +168,16 @@ const ClientIntakeForm = () => {
             Your intake details have been securely submitted and encrypted. I will review them and begin setting up your staging environment.
           </p>
           {trackingId && (
-            <motion.button 
-              onClick={() => navigate(`/track/${trackingId}`)}
+            <motion.div
               whileHover={shouldReduce ? {} : buttonHover}
-              whileTap={shouldReduce ? {} : buttonTap}
-              className="w-full bg-slate-900 hover:bg-slate-800 dark:bg-blue-600 dark:hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg"
             >
-              Go to Project Tracker
-            </motion.button>
+              <Link 
+                to={`/track/${trackingId}`}
+                className="block text-center w-full bg-slate-900 hover:bg-slate-800 dark:bg-blue-600 dark:hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg active:scale-[0.98]"
+              >
+                Go to Project Tracker
+              </Link>
+            </motion.div>
           )}
         </div>
       </div>
@@ -290,8 +292,7 @@ const ClientIntakeForm = () => {
                 type="submit" 
                 disabled={submitting}
                 whileHover={shouldReduce || submitting ? {} : buttonHover}
-                whileTap={shouldReduce || submitting ? {} : buttonTap}
-                className="w-full mt-8 bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl transition-all shadow-md hover:shadow-blue-500/20 disabled:opacity-50"
+                className="w-full mt-8 bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl transition-all shadow-md hover:shadow-blue-500/20 disabled:opacity-50 active:scale-[0.98]"
               >
                 {submitting ? 'Submitting Responses...' : 'Submit Answers'}
               </motion.button>

@@ -813,9 +813,8 @@ const SurveyProjectDetailPage = () => {
             <motion.button
               type="button"
               onClick={scrollToGallery}
-              className="inline-flex items-center gap-2 bg-black text-white px-6 py-3.5 rounded-none text-xs md:text-sm font-bold uppercase tracking-[0.2em] hover:bg-[#F44A22] transition-colors"
+              className="inline-flex items-center gap-2 bg-black text-white px-6 py-3.5 rounded-none text-xs md:text-sm font-bold uppercase tracking-[0.2em] hover:bg-[#F44A22] transition-colors active:scale-[0.98]"
               whileHover={shouldReduce ? {} : { scale: 1.03 }}
-              whileTap={shouldReduce ? {} : { scale: 0.97 }}
             >
               <PlayCircle className="w-4 h-4" aria-hidden="true" />
               View Gallery
@@ -824,9 +823,8 @@ const SurveyProjectDetailPage = () => {
               href={project.live_url || '#'}
               target={project.live_url ? '_blank' : undefined}
               rel="noreferrer"
-              className="inline-flex items-center gap-2 border border-black text-black px-6 py-3.5 rounded-none text-xs md:text-sm font-bold uppercase tracking-[0.2em] hover:bg-black hover:text-white transition-colors"
+              className="inline-flex items-center gap-2 border border-black text-black px-6 py-3.5 rounded-none text-xs md:text-sm font-bold uppercase tracking-[0.2em] hover:bg-black hover:text-white transition-colors active:scale-[0.98]"
               whileHover={shouldReduce ? {} : { scale: 1.03 }}
-              whileTap={shouldReduce ? {} : { scale: 0.97 }}
             >
               <Download className="w-4 h-4" aria-hidden="true" />
               Download Survey Plan
@@ -1277,9 +1275,8 @@ const SurveyProjectDetailPage = () => {
                   </p>
                   <motion.button
                     type="button"
-                    className="inline-flex items-center justify-center gap-2 w-full border border-black text-black hover:bg-black hover:text-white px-4 py-3 text-[10px] md:text-xs font-bold uppercase tracking-[0.25em] transition-colors"
+                    className="inline-flex items-center justify-center gap-2 w-full border border-black text-black hover:bg-black hover:text-white px-4 py-3 text-[10px] md:text-xs font-bold uppercase tracking-[0.25em] transition-colors active:scale-[0.98]"
                     whileHover={shouldReduce ? {} : { scale: 1.02 }}
-                    whileTap={shouldReduce ? {} : { scale: 0.98 }}
                   >
                     <Download className="w-3.5 h-3.5" aria-hidden="true" />
                     Download
@@ -1423,11 +1420,10 @@ const SurveyProjectDetailPage = () => {
             >
               <motion.div
                 whileHover={shouldReduce ? {} : { scale: 1.03 }}
-                whileTap={shouldReduce ? {} : { scale: 0.97 }}
               >
                 <Link
                   to="/survey#contact"
-                  className="inline-flex items-center gap-2 bg-black text-white px-7 py-4 text-xs md:text-sm font-bold uppercase tracking-[0.2em] hover:bg-[#F44A22] transition-colors"
+                  className="inline-flex items-center gap-2 bg-black text-white px-7 py-4 text-xs md:text-sm font-bold uppercase tracking-[0.2em] hover:bg-[#F44A22] transition-colors active:scale-[0.98]"
                 >
                   Book a Survey
                   <ArrowRight className="w-4 h-4" aria-hidden="true" />
@@ -1435,20 +1431,18 @@ const SurveyProjectDetailPage = () => {
               </motion.div>
               <motion.div
                 whileHover={shouldReduce ? {} : { scale: 1.03 }}
-                whileTap={shouldReduce ? {} : { scale: 0.97 }}
               >
                 <Link
                   to="/survey#contact"
-                  className="inline-flex items-center gap-2 border border-black text-black px-7 py-4 text-xs md:text-sm font-bold uppercase tracking-[0.2em] hover:bg-black hover:text-white transition-colors"
+                  className="inline-flex items-center gap-2 border border-black text-black px-7 py-4 text-xs md:text-sm font-bold uppercase tracking-[0.2em] hover:bg-black hover:text-white transition-colors active:scale-[0.98]"
                 >
                   Request Quotation
                 </Link>
               </motion.div>
               <motion.a
                 href={`tel:${CONTACT.phoneE164}`}
-                className="inline-flex items-center gap-2 text-black/70 hover:text-black px-5 py-4 text-xs md:text-sm font-bold uppercase tracking-[0.2em] transition-colors"
+                className="inline-flex items-center gap-2 text-black/70 hover:text-black px-5 py-4 text-xs md:text-sm font-bold uppercase tracking-[0.2em] transition-colors active:scale-[0.98]"
                 whileHover={shouldReduce ? {} : { scale: 1.03 }}
-                whileTap={shouldReduce ? {} : { scale: 0.97 }}
               >
                 Contact Me
                 <ArrowUpRight className="w-4 h-4" aria-hidden="true" />
