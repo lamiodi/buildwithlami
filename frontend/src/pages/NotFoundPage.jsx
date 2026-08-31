@@ -75,11 +75,10 @@ const NotFoundPage = () => {
             </div>
 
             {/* Action Buttons */}
-            <div className="flex flex-wrap gap-4 mt-10">
+            <div className="flex flex-wrap gap-4 mt-10 relative z-10">
               <Link
                 to="/"
                 className="btn-dark"
-                onTouchEnd={(e) => { e.preventDefault(); navigate('/'); }}
                 style={{ touchAction: 'manipulation' }}
               >
                 Back to Home
@@ -88,7 +87,6 @@ const NotFoundPage = () => {
               <Link
                 to="/projects"
                 className="btn-secondary"
-                onTouchEnd={(e) => { e.preventDefault(); navigate('/projects'); }}
                 style={{ touchAction: 'manipulation' }}
               >
                 View Projects

@@ -130,11 +130,10 @@ const SoftwareHomePage = () => {
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4 relative z-10">
             <Link
               to="/pricing"
               className="btn-primary w-full sm:w-auto"
-              onTouchEnd={(e) => { e.preventDefault(); navigate('/pricing'); }}
               style={{ touchAction: 'manipulation' }}
             >
               View Transparent Pricing <ArrowRight className="w-4 h-4 ml-2" />
@@ -142,7 +141,6 @@ const SoftwareHomePage = () => {
             <Link
               to="/contact"
               className="btn-secondary w-full sm:w-auto"
-              onTouchEnd={(e) => { e.preventDefault(); navigate('/contact'); }}
               style={{ touchAction: 'manipulation' }}
             >
               Book Architecture Consultation →
@@ -243,11 +241,10 @@ const SoftwareHomePage = () => {
             Tell me about your product requirements, target deadlines, and user workflows. I'll personally review your architecture and return a concrete plan.
           </p>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2 relative z-10">
             <Link
               to="/contact?service=software"
               className="btn-primary w-full sm:w-auto"
-              onTouchEnd={(e) => { e.preventDefault(); navigate('/contact?service=software'); }}
               style={{ touchAction: 'manipulation' }}
             >
               Submit Project Brief →
@@ -255,7 +252,6 @@ const SoftwareHomePage = () => {
             <Link
               to="/pricing"
               className="btn-secondary w-full sm:w-auto"
-              onTouchEnd={(e) => { e.preventDefault(); navigate('/pricing'); }}
               style={{ touchAction: 'manipulation' }}
             >
               Open Full Pricing Matrix ↗

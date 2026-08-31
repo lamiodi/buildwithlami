@@ -67,12 +67,11 @@ const Hero = () => {
             hidden: { opacity: 1, y: 0 },
             visible: { opacity: 1, y: 0, transition: { duration: 0.0001 } },
           }}
-          className="flex flex-col sm:flex-row sm:items-center gap-4"
+          className="flex flex-col sm:flex-row sm:items-center gap-4 relative z-10"
         >
           <Link
             to="/contact"
             className="btn-primary w-full sm:w-auto"
-            onTouchEnd={(e) => { e.preventDefault(); navigate('/contact'); }}
             style={{ touchAction: 'manipulation' }}
           >
             Start a Project
@@ -80,7 +79,6 @@ const Hero = () => {
           <Link
             to="/projects"
             className="btn-secondary w-full sm:w-auto"
-            onTouchEnd={(e) => { e.preventDefault(); navigate('/projects'); }}
             style={{ touchAction: 'manipulation' }}
           >
             See My Work

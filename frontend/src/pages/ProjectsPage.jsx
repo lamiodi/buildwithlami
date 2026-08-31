@@ -242,11 +242,10 @@ const ProjectsPage = () => {
                       </div>
 
                       {/* Direct Action */}
-                      <div className="pt-4 border-t border-gray-200 dark:border-white/10 flex flex-wrap items-center gap-3">
+                      <div className="pt-4 border-t border-gray-200 dark:border-white/10 flex flex-wrap items-center gap-3 relative z-10">
                         <Link
                           to={`/projects/${featuredProject.slug || featuredProject.id}`}
                           className="btn-dark flex-1"
-                          onTouchEnd={(e) => { e.preventDefault(); navigate(`/projects/${featuredProject.slug || featuredProject.id}`); }}
                           style={{ touchAction: 'manipulation' }}
                         >
                           View Case Study →
@@ -353,11 +352,10 @@ const ProjectsPage = () => {
                               </div>
 
                               {/* Action Buttons */}
-                              <div className="flex items-center gap-3 pt-2">
+                              <div className="flex items-center gap-3 pt-2 relative z-10">
                                 <Link
                                   to={`/projects/${projKey}`}
                                   className="btn-dark flex-1 !py-3"
-                                  onTouchEnd={(e) => { e.preventDefault(); navigate(`/projects/${projKey}`); }}
                                   style={{ touchAction: 'manipulation' }}
                                 >
                                   View Case Study →
@@ -409,11 +407,10 @@ const ProjectsPage = () => {
           <p className="text-gray-700 dark:text-gray-300 text-base md:text-lg max-w-2xl mx-auto mb-10 font-light leading-relaxed">
             Tell me what you're building, what you're trying to achieve, and where you're stuck. I'll help you determine the right technical approach.
           </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 relative z-10">
             <Link
               to="/contact"
               className="btn-primary w-full sm:w-auto"
-              onTouchEnd={(e) => { e.preventDefault(); navigate('/contact'); }}
               style={{ touchAction: 'manipulation' }}
             >
               Start a Project →

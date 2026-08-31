@@ -34,11 +34,20 @@ export const scrollReveal = {
   },
 };
 
+// ── Capability-aware hover variants ──
+// On touch devices (smartphones/tablets), applying transforms on hover causes
+// elements to shift under the finger on tap, which cancels click events on mobile WebKit/Blink.
+// We only enable spring hover transforms on devices with true fine-pointer hover support (mice/trackpads).
+const canHover =
+  typeof window !== 'undefined' &&
+  typeof window.matchMedia === 'function' &&
+  window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
 // ── Card hover spring ──
-export const cardHover = {
-  scale: 1.02,
-  y: -4,
-};
+export const cardHover = canHover
+  ? { scale: 1.02, y: -4 }
+  : {};
+
 export const cardHoverTransition = {
   type: 'spring',
   stiffness: 300,
@@ -46,7 +55,7 @@ export const cardHoverTransition = {
 };
 
 // ── Button hover / tap ──
-export const buttonHover = { scale: 1.02 };
+export const buttonHover = canHover ? { scale: 1.02 } : {};
 export const buttonTap = { scale: 0.98 };
 
 // ── Viewport settings for scroll-triggered sections ──

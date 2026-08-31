@@ -176,7 +176,6 @@ const Projects = () => {
                 <Link
                   to={`/projects/${featuredProject.slug || featuredProject.id}`}
                   className="btn-primary !px-8 !py-3.5 relative z-10"
-                  onTouchEnd={(e) => { e.preventDefault(); navigate(`/projects/${featuredProject.slug || featuredProject.id}`); }}
                   style={{ touchAction: 'manipulation' }}
                 >
                   View Case Study →
@@ -187,6 +186,7 @@ const Projects = () => {
                     target="_blank"
                     rel="noopener noreferrer"
                     className="btn-secondary !px-6 !py-3.5 relative z-10"
+                    style={{ touchAction: 'manipulation' }}
                   >
                     Live Demo ↗
                   </a>

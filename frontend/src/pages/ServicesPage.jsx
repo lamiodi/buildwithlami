@@ -266,11 +266,10 @@ const ServicesPage = () => {
                     </ul>
                   </div>
 
-                  <div className="pt-4 border-t border-gray-200 dark:border-white/10">
+                  <div className="pt-4 border-t border-gray-200 dark:border-white/10 relative z-10">
                     <Link
                       to={`/contact?service=${encodeURIComponent(service.title)}`}
                       className="btn-primary w-full"
-                      onTouchEnd={(e) => { e.preventDefault(); navigate(`/contact?service=${encodeURIComponent(service.title)}`); }}
                       style={{ touchAction: 'manipulation' }}
                     >
                       Start a Project with this Service →
@@ -366,11 +365,10 @@ const ServicesPage = () => {
               </div>
             </div>
 
-            <div className="lg:col-span-5 flex flex-col items-center lg:items-end justify-center space-y-4">
+            <div className="lg:col-span-5 flex flex-col items-center lg:items-end justify-center space-y-4 relative z-10">
               <Link
                 to="/pricing"
                 className="btn-primary w-full sm:w-auto"
-                onTouchEnd={(e) => { e.preventDefault(); navigate('/pricing'); }}
                 style={{ touchAction: 'manipulation' }}
               >
                 View Transparent Pricing →
@@ -390,11 +388,10 @@ const ServicesPage = () => {
           <p className="text-gray-700 dark:text-gray-300 text-sm sm:text-base md:text-lg max-w-2xl mx-auto font-light leading-relaxed">
             Tell me what you're building, key constraints, and your target timeline. I'll personally review your brief and return a concrete next step within 24 hours.
           </p>
-          <div className="pt-2">
+          <div className="pt-2 relative z-10">
             <Link 
               to="/contact" 
               className="btn-primary"
-              onTouchEnd={(e) => { e.preventDefault(); navigate('/contact'); }}
               style={{ touchAction: 'manipulation' }}
             >
               Start a Project →

@@ -688,11 +688,10 @@ const AboutPage = () => {
             </p>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2 relative z-10">
             <Link
               to="/contact"
               className="btn-primary w-full sm:w-auto"
-              onTouchEnd={(e) => { e.preventDefault(); navigate('/contact'); }}
               style={{ touchAction: 'manipulation' }}
             >
               Start a Project
@@ -703,6 +702,7 @@ const AboutPage = () => {
               target="_blank"
               rel="noopener noreferrer"
               className="btn-secondary w-full sm:w-auto"
+              style={{ touchAction: 'manipulation' }}
             >
               WhatsApp Direct ↗
             </a>
