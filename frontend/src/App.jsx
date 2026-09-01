@@ -104,16 +104,7 @@ const PageWrapper = ({ children }) => {
 
 function App() {
   const [toastMessage, setToastMessage] = useState(null);
-  const [showPreloader, setShowPreloader] = useState(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        return sessionStorage.getItem('bwl_preloader_complete') !== 'true';
-      } catch {
-        return true;
-      }
-    }
-    return true;
-  });
+  const [showPreloader, setShowPreloader] = useState(true);
   const location = useLocation();
 
   // Initialize API client: fetch CSRF token on app start

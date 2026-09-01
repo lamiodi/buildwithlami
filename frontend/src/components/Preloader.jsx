@@ -8,27 +8,10 @@ const Preloader = ({ onComplete }) => {
   const shouldReduce = useReducedMotion();
 
   useEffect(() => {
-    // Skip only if we have ALREADY finished the preloader in this tab.
-    // Note: we check sessionStorage AFTER mount, and only skip if the
-    // preloader completed on a previous render — not on first ever load.
-    // (Previously this checked unconditionally, which meant a refresh
-    // during the preloader animation or a HMR reload would skip the
-    // animation entirely.)
-    if (typeof window !== 'undefined') {
-      try {
-        if (sessionStorage.getItem('bwl_preloader_complete') === 'true') {
-          if (onComplete) onComplete();
-          return;
-        }
-      } catch {
-        // ignore private mode
-      }
-    }
-
-    // Total visible duration tuned to feel deliberate but not slow.
+    // Total visible duration tuned to feel deliberate and premium (~1.2s).
     // Reduced motion users get a near-instant snap.
-    const duration = shouldReduce ? 350 : 1600;
-    const interval = 30;
+    const duration = shouldReduce ? 300 : 1200;
+    const interval = 25;
     const steps = Math.max(1, Math.round(duration / interval));
     let current = 0;
 
@@ -43,11 +26,6 @@ const Preloader = ({ onComplete }) => {
 
       if (current >= steps) {
         clearInterval(timer);
-        try {
-          sessionStorage.setItem('bwl_preloader_complete', 'true');
-        } catch {
-          // ignore storage errors
-        }
         setTimeout(() => {
           setIsExiting(true);
           setTimeout(() => {
