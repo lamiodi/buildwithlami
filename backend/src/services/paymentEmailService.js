@@ -1,22 +1,18 @@
 // ── services/paymentEmailService.js ──────────────────────
-// Phase 10 — The 4 payment-workflow emails.
+// Payment workflow transactional emails with branded visual layout.
 //
 //   1. sendInvoiceEmail           → client (link to /pay/:token)
-//   2. sendProofReceivedEmail     → client (we got it, reviewing)
-//   3. sendAdminProofNotification → admin (queue alert)
+//   2. sendProofReceivedEmail     → client (proof received, reviewing)
+//   3. sendAdminProofNotification → admin (queue review alert)
 //   4. sendPaymentConfirmedEmail  → client (project activated)
-//
-// Each function builds a fresh Nodemailer transport per call
-// (matches the existing pattern in services/emailService.js).
-// When SMTP_USER is unset, the email is **logged to stdout**
-// instead of sent — same dev-friendly behaviour as before.
+// ──────────────────────────────────────────────────────────
 
-import nodemailer from 'nodemailer';
-
-const escapeHtml = (str) =>
-    String(str ?? '').replace(/[&<>"']/g, (c) =>
-        ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])
-    );
+import {
+    escapeHtml,
+    renderEmailShell,
+    createTransporter,
+    getLogoAttachments,
+} from './emailLayout.js';
 
 const fmtAmount = (amount, currency) => {
     try {
@@ -26,29 +22,21 @@ const fmtAmount = (amount, currency) => {
     }
 };
 
-const buildTransport = () =>
-    nodemailer.createTransport({
-        host: process.env.SMTP_HOST || 'smtp.ethereal.email',
-        port: process.env.SMTP_PORT || 587,
-        auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
-    });
-
 const sendOrLog = async (mailOptions) => {
     if (!process.env.SMTP_USER) {
         if (process.env.NODE_ENV === 'production') {
-            // In production we REFUSE to silently drop customer-critical emails.
-            // The caller (invoice/payment controller) will see the throw and
-            // return 500, which surfaces the misconfiguration to the admin
-            // instead of telling the customer their invoice is on the way
-            // when it actually never went out.
-            console.error(`[PaymentEmail] ❌ PRODUCTION ERROR: SMTP_USER not configured. Refusing to silently drop email: "${mailOptions.subject}"`);
+            console.error(`[PaymentEmail] ❌ PRODUCTION ERROR: SMTP_USER not configured. Refusing to drop email: "${mailOptions.subject}"`);
             throw new Error('SMTP credentials not configured on server');
         }
         console.log(`[PaymentEmail] 📧 (mock — no SMTP_USER) to=${mailOptions.to} subject="${mailOptions.subject}"`);
         return { success: true, mocked: true };
     }
     try {
-        const info = await buildTransport().sendMail(mailOptions);
+        const transporter = createTransporter();
+        const info = await transporter.sendMail({
+            ...mailOptions,
+            attachments: getLogoAttachments(),
+        });
         return { success: true, messageId: info.messageId };
     } catch (err) {
         console.error('[PaymentEmail] send failed:', err.message);
@@ -56,134 +44,181 @@ const sendOrLog = async (mailOptions) => {
     }
 };
 
-const fromAddress = () => process.env.EMAIL_FROM || '"Buildwith_lami" <no-reply@buildwithlami.com>';
-const adminAddress = () => process.env.ADMIN_EMAIL || process.env.EMAIL_TO;
+const fromAddress = () =>
+    process.env.EMAIL_FROM || '"BuildWith_Lami" <tygaodibenuah@gmail.com>';
+
+const adminAddress = () =>
+    process.env.ADMIN_EMAIL || process.env.EMAIL_TO || 'tygaodibenuah@gmail.com';
 
 /**
  * 1. Invoice email — sent right after `createInvoice`.
- * Includes the secure /pay/:token link.
  */
 export const sendInvoiceEmail = async ({ clientEmail, clientName, invoiceId: _invoiceId, amount, currency, payToken, dueDate, projectName }) => {
     if (!clientEmail) return { success: false, error: 'No client email' };
     const safeName = escapeHtml(clientName || 'there');
-    const payUrl = `${process.env.FRONTEND_URL || 'https://buildwithlami.com'}/pay/${payToken}`;
-    const subject = `Your Buildwith_lami invoice — ${fmtAmount(amount, currency)}`;
-    const text = `Hi ${clientName || 'there'},
+    const safeProject = projectName ? escapeHtml(projectName) : 'your project';
+    const formattedAmount = fmtAmount(amount, currency);
+    const payUrl = `${(process.env.FRONTEND_URL || 'https://buildwithlami.com').replace(/\/+$/, '')}/pay/${payToken}`;
+    const subject = `Your Invoice for ${projectName || 'Project'} is Ready (${formattedAmount})`;
 
-Your invoice for ${projectName ? `the project "${projectName}"` : 'your project'} is ready.
+    const text = `Hi ${clientName || 'there'},\n\nYour invoice for ${projectName ? `"${projectName}"` : 'your project'} is ready.\n\nAmount: ${formattedAmount}\n${dueDate ? `Due: ${dueDate}\n` : ''}\nPay securely online: ${payUrl}\n\nBank transfer details (USD, EUR, GBP, NGN) are also available on that page.\n\nThanks,\nBuildWith_Lami`;
 
-Amount: ${fmtAmount(amount, currency)}
-${dueDate ? `Due: ${dueDate}\n` : ''}
-Pay securely online: ${payUrl}
+    const bodyHtml = `
+        <p style="margin:0 0 16px 0; font-size:15px; color:#334155;">Hi ${safeName},</p>
+        <p style="margin:0 0 20px 0; font-size:15px; color:#334155;">
+            Your project invoice for <strong>${safeProject}</strong> has been generated and is ready for payment.
+        </p>
 
-If you'd prefer to pay by bank transfer, that page also shows our USD/GBP account details via Grey.
+        <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:24px; margin:24px 0; text-align:center;">
+            <div style="font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:6px;">Total Amount Due</div>
+            <div style="font-size:32px; font-weight:800; color:#0f172a; letter-spacing:-0.03em;">${formattedAmount}</div>
+            ${dueDate ? `<div style="font-size:13px; color:#64748b; margin-top:8px;">Payment due by <strong>${escapeHtml(dueDate)}</strong></div>` : ''}
+        </div>
 
-Thanks,
-Buildwith_lami`;
+        <p style="margin:0 0 12px 0; font-size:14px; color:#475569;">
+            Click below to complete your payment securely online via Card or review international wire details (USD, EUR, GBP via Grey):
+        </p>
+    `;
 
-    const html = `<div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:560px;margin:0 auto;padding:24px;background:#fafafa;">
-  <div style="background:white;padding:32px;border-radius:8px;border:1px solid #eee;">
-    <h2 style="margin:0 0 8px 0;color:#0a0a0a;font-size:22px;">Your invoice is ready</h2>
-    <p style="color:#555;font-size:14px;line-height:1.6;margin:0 0 24px 0;">Hi ${safeName},</p>
-    <p style="color:#555;font-size:14px;line-height:1.6;margin:0 0 24px 0;">Your invoice${projectName ? ` for <strong>${escapeHtml(projectName)}</strong>` : ''} is ready.</p>
-    <div style="background:#f5f5f5;padding:20px;border-radius:6px;margin:0 0 24px 0;">
-      <div style="font-size:12px;color:#888;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px;">Amount due</div>
-      <div style="font-size:28px;font-weight:700;color:#0a0a0a;">${fmtAmount(amount, currency)}</div>
-      ${dueDate ? `<div style="font-size:13px;color:#555;margin-top:6px;">Due by ${escapeHtml(dueDate)}</div>` : ''}
-    </div>
-    <a href="${payUrl}" style="display:inline-block;background:#E94E1B;color:white;padding:14px 28px;border-radius:4px;text-decoration:none;font-weight:700;font-size:14px;letter-spacing:0.02em;">Pay Securely Online</a>
-    <p style="color:#888;font-size:12px;line-height:1.6;margin:24px 0 0 0;">The payment page also shows our US Dollar, Euro, and British Pound bank transfer details if you prefer to pay via Grey.</p>
-    <hr style="border:none;border-top:1px solid #eee;margin:24px 0;"/>
-    <p style="color:#888;font-size:12px;margin:0;">Buildwith_lami · Lagos, Nigeria</p>
-  </div>
-</div>`;
+    const html = renderEmailShell({
+        title: 'Invoice Ready for Payment',
+        preheader: `Invoice for ${safeProject} — Amount: ${formattedAmount}`,
+        badgeText: 'Invoice',
+        badgeType: 'accent',
+        bodyHtml,
+        ctaText: 'Pay Invoice Securely',
+        ctaUrl: payUrl,
+        footerNote: 'All payments are encrypted and processed through certified PCI-DSS compliant financial providers.',
+    });
 
     return sendOrLog({ from: fromAddress(), to: clientEmail, subject, text, html });
 };
 
 /**
- * 2. Proof received — sent to the client the moment they
- * submit transaction details on the payment page.
+ * 2. Proof received — sent to the client when they submit transaction details.
  */
 export const sendProofReceivedEmail = async ({ clientEmail, clientName, invoiceId: _invoiceId, amount, currency, transactionReference }) => {
     if (!clientEmail) return { success: false, error: 'No client email' };
     const safeName = escapeHtml(clientName || 'there');
-    const subject = `We received your payment proof — reviewing now`;
-    const text = `Hi ${clientName || 'there'},
+    const formattedAmount = fmtAmount(amount, currency);
+    const subject = `Payment Proof Received (${formattedAmount}) — Under Review`;
 
-We received your payment proof for ${fmtAmount(amount, currency)} (reference: ${transactionReference}).
+    const text = `Hi ${clientName || 'there'},\n\nWe have received your payment proof for ${formattedAmount} (reference: ${transactionReference}).\n\nOur operations desk is reviewing the transfer. We will confirm your activation within 1 business hour.\n\nThanks,\nBuildWith_Lami`;
 
-Our team will review and confirm within 1 business hour. You'll get a separate email when it's confirmed.
+    const bodyHtml = `
+        <p style="margin:0 0 16px 0; font-size:15px; color:#334155;">Hi ${safeName},</p>
+        <p style="margin:0 0 20px 0; font-size:15px; color:#334155;">
+            We received your transfer submission for <strong>${formattedAmount}</strong>.
+        </p>
 
-Thanks,
-Buildwith_lami`;
-    const html = `<div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:560px;margin:0 auto;padding:24px;background:#fafafa;">
-  <div style="background:white;padding:32px;border-radius:8px;border:1px solid #eee;">
-    <h2 style="margin:0 0 8px 0;color:#0a0a0a;font-size:22px;">Proof received ✓</h2>
-    <p style="color:#555;font-size:14px;line-height:1.6;margin:0 0 16px 0;">Hi ${safeName},</p>
-    <p style="color:#555;font-size:14px;line-height:1.6;margin:0 0 16px 0;">We received your payment proof for <strong>${fmtAmount(amount, currency)}</strong>.</p>
-    <div style="background:#fff7ed;padding:12px 16px;border-left:3px solid #E94E1B;border-radius:4px;font-size:13px;color:#555;margin:0 0 16px 0;">
-      <strong>Reference:</strong> ${escapeHtml(transactionReference)}
-    </div>
-    <p style="color:#555;font-size:14px;line-height:1.6;margin:0 0 0 0;">Our team will review and confirm within <strong>1 business hour</strong>. You'll get a separate email when it's confirmed and your project is activated.</p>
-  </div>
-</div>`;
+        <div style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:12px; padding:20px; margin:20px 0;">
+            <div style="font-size:13px; color:#166534; line-height:1.6;">
+                <strong>Transaction Reference:</strong> <span style="font-family:monospace; font-weight:700;">${escapeHtml(transactionReference)}</span><br/>
+                <strong>Amount:</strong> ${formattedAmount}<br/>
+                <strong>Status:</strong> <span style="font-weight:700;">Verification in progress</span>
+            </div>
+        </div>
+
+        <p style="margin:0; font-size:14px; color:#64748b; line-height:1.6;">
+            Our finance desk will reconcile the deposit and activate your project milestone within <strong>1 business hour</strong>. You will receive an official activation confirmation once approved.
+        </p>
+    `;
+
+    const html = renderEmailShell({
+        title: 'Payment Proof Received',
+        preheader: `We're reviewing your payment of ${formattedAmount}`,
+        badgeText: 'Under Review',
+        badgeType: 'info',
+        bodyHtml,
+        footerNote: 'If you have any questions regarding your transfer, please reply to this email.',
+    });
+
     return sendOrLog({ from: fromAddress(), to: clientEmail, subject, text, html });
 };
 
 /**
- * 3. Admin notification — someone just submitted a proof.
+ * 3. Admin notification — someone just submitted a payment proof.
  */
 export const sendAdminProofNotification = async ({ clientName, invoiceId, amount, currency, transactionReference }) => {
     const to = adminAddress();
     if (!to) return { success: false, error: 'No admin email configured' };
-    const subject = `💰 New payment proof to review — ${fmtAmount(amount, currency)}`;
-    const text = `${clientName || 'A client'} submitted a payment proof.\n\nAmount: ${fmtAmount(amount, currency)}\nReference: ${transactionReference}\nInvoice: ${invoiceId}\n\nReview at: ${process.env.FRONTEND_URL || 'https://buildwithlami.com'}/admin/payments`;
-    const html = `<div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:560px;margin:0 auto;padding:24px;background:#fafafa;">
-  <div style="background:white;padding:24px;border-radius:8px;border:1px solid #eee;">
-    <h2 style="margin:0 0 8px 0;font-size:18px;">💰 New payment proof to review</h2>
-    <p style="color:#555;font-size:14px;line-height:1.6;margin:0 0 12px 0;"><strong>${escapeHtml(clientName || 'A client')}</strong> submitted a payment proof.</p>
-    <table style="font-size:13px;color:#555;margin:0 0 16px 0;">
-      <tr><td style="padding:4px 12px 4px 0;color:#888;">Amount</td><td><strong>${fmtAmount(amount, currency)}</strong></td></tr>
-      <tr><td style="padding:4px 12px 4px 0;color:#888;">Reference</td><td>${escapeHtml(transactionReference)}</td></tr>
-      <tr><td style="padding:4px 12px 4px 0;color:#888;">Invoice</td><td>${escapeHtml(invoiceId)}</td></tr>
-    </table>
-    <a href="${process.env.FRONTEND_URL || 'https://buildwithlami.com'}/admin/payments" style="display:inline-block;background:#0a0a0a;color:white;padding:10px 20px;border-radius:4px;text-decoration:none;font-weight:600;font-size:13px;">Review in Admin →</a>
-  </div>
-</div>`;
+    const formattedAmount = fmtAmount(amount, currency);
+    const subject = `New Payment Proof Submitted: ${formattedAmount} (${clientName || 'Client'})`;
+    const adminUrl = `${(process.env.FRONTEND_URL || 'https://buildwithlami.com').replace(/\/+$/, '')}/admin/payments`;
+
+    const text = `New payment proof submitted.\n\nClient: ${clientName || 'A client'}\nAmount: ${formattedAmount}\nReference: ${transactionReference}\nInvoice: ${invoiceId}\n\nReview at: ${adminUrl}`;
+
+    const bodyHtml = `
+        <p style="margin:0 0 16px 0; font-size:15px; color:#334155;">
+            A client has uploaded payment proof for an outstanding invoice.
+        </p>
+
+        <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:20px; margin:20px 0;">
+            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="font-size:14px;">
+                <tr><td style="padding:6px 0; color:#64748b; width:120px;">Client:</td><td style="padding:6px 0; font-weight:700; color:#0f172a;">${escapeHtml(clientName || 'A client')}</td></tr>
+                <tr><td style="padding:6px 0; color:#64748b;">Amount:</td><td style="padding:6px 0; font-weight:700; color:#ff5500;">${formattedAmount}</td></tr>
+                <tr><td style="padding:6px 0; color:#64748b;">Reference:</td><td style="padding:6px 0; font-family:monospace; color:#0f172a;">${escapeHtml(transactionReference)}</td></tr>
+                <tr><td style="padding:6px 0; color:#64748b;">Invoice ID:</td><td style="padding:6px 0; color:#0f172a;">${escapeHtml(invoiceId)}</td></tr>
+            </table>
+        </div>
+    `;
+
+    const html = renderEmailShell({
+        title: 'Action Required: Verify Payment Proof',
+        preheader: `Payment proof uploaded by ${clientName || 'Client'} (${formattedAmount})`,
+        badgeText: 'Review Queue',
+        badgeType: 'accent',
+        bodyHtml,
+        ctaText: 'Review in Admin Queue',
+        ctaUrl: adminUrl,
+    });
+
     return sendOrLog({ from: fromAddress(), to, subject, text, html });
 };
 
 /**
- * 4. Payment confirmed — sent after the admin confirms the
- * proof. The big one: this is the "your project is starting"
- * moment.
+ * 4. Payment confirmed — project milestone officially activated.
  */
 export const sendPaymentConfirmedEmail = async ({ clientEmail, clientName, invoiceId: _invoiceId, projectName, amount, currency }) => {
     if (!clientEmail) return { success: false, error: 'No client email' };
     const safeName = escapeHtml(clientName || 'there');
-    const subject = `Payment confirmed — your project is activated`;
-    const text = `Hi ${clientName || 'there'},
+    const safeProject = projectName ? escapeHtml(projectName) : 'your project';
+    const formattedAmount = fmtAmount(amount, currency);
+    const subject = `Payment Confirmed — ${safeProject} is Activated!`;
+    const portalUrl = `${(process.env.FRONTEND_URL || 'https://buildwithlami.com').replace(/\/+$/, '')}/portal/projects`;
 
-Payment confirmed: ${fmtAmount(amount, currency)} for ${projectName || 'your project'}.
+    const text = `Hi ${clientName || 'there'},\n\nPayment of ${formattedAmount} for "${safeProject}" has been confirmed.\n\nYour project is now officially active. We will reach out within 1 business day with next steps.\n\nTrack progress: ${portalUrl}\n\nThanks for trusting BuildWith_Lami!`;
 
-Your project is now active. We'll be in touch within 1 business day with next steps and the kickoff schedule.
+    const bodyHtml = `
+        <p style="margin:0 0 16px 0; font-size:15px; color:#334155;">Hi ${safeName},</p>
+        <p style="margin:0 0 20px 0; font-size:15px; color:#334155;">
+            We have confirmed receipt of your payment for <strong>${formattedAmount}</strong>.
+        </p>
 
-Thanks for trusting Buildwith_lami.`;
-    const html = `<div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:560px;margin:0 auto;padding:24px;background:#fafafa;">
-  <div style="background:white;padding:32px;border-radius:8px;border:1px solid #eee;">
-    <h2 style="margin:0 0 8px 0;color:#0a0a0a;font-size:22px;">Payment confirmed ✓</h2>
-    <p style="color:#555;font-size:14px;line-height:1.6;margin:0 0 16px 0;">Hi ${safeName},</p>
-    <p style="color:#555;font-size:14px;line-height:1.6;margin:0 0 24px 0;">We've received and confirmed your payment of <strong>${fmtAmount(amount, currency)}</strong>${projectName ? ` for <strong>${escapeHtml(projectName)}</strong>` : ''}.</p>
-    <div style="background:#f0fdf4;border:1px solid #bbf7d0;padding:16px 20px;border-radius:6px;margin:0 0 24px 0;">
-      <div style="font-size:13px;color:#166534;line-height:1.6;">
-        ✅ <strong>Payment received</strong><br/>
-        ✅ <strong>Project activated</strong><br/>
-        📅 We'll be in touch within <strong>1 business day</strong> with next steps.
-      </div>
-    </div>
-    <p style="color:#555;font-size:14px;line-height:1.6;margin:0 0 0 0;">Thanks for trusting Buildwith_lami.</p>
-  </div>
-</div>`;
+        <div style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:12px; padding:20px; margin:20px 0;">
+            <div style="font-size:14px; color:#166534; line-height:1.7;">
+                <div style="font-weight:700; font-size:16px; margin-bottom:8px;">Project Phase Activated</div>
+                <div>Payment Received: <strong>${formattedAmount}</strong></div>
+                <div>Project: <strong>${safeProject}</strong></div>
+                <div style="margin-top:6px; color:#15803d; font-size:13px;">Our engineering and field operations teams have commenced scheduled execution.</div>
+            </div>
+        </div>
+
+        <p style="margin:0; font-size:14px; color:#475569; line-height:1.6;">
+            You can monitor real-time delivery milestones, view documents, and download receipts in your client portal:
+        </p>
+    `;
+
+    const html = renderEmailShell({
+        title: 'Payment Confirmed & Project Activated',
+        preheader: `Payment confirmed for ${safeProject} (${formattedAmount})`,
+        badgeText: 'Payment Confirmed',
+        badgeType: 'success',
+        bodyHtml,
+        ctaText: 'Access Client Portal',
+        ctaUrl: portalUrl,
+        footerNote: 'Thank you for partnering with BuildWith_Lami.',
+    });
+
     return sendOrLog({ from: fromAddress(), to: clientEmail, subject, text, html });
 };

@@ -105,29 +105,29 @@ Legend: `[x]` shipped · `[~]` in progress · `[ ]` planned
   `clients`, plus a UI confirmation that lists how many
   `client_projects` and `invoices` will be affected.
 
-### Ticket #16 — Forgot-password flow
-- `LoginPage.jsx` has no "forgot password" link. Add
-  `POST /api/auth/forgot-password` (sends a one-time token
-  email) and `POST /api/auth/reset-password` (consumes the
-  token + sets a new password). Frontend: new
-  `ForgotPasswordPage` + `ResetPasswordPage`.
+### Ticket #16 — Forgot-password flow [x] (Shipped)
+- `POST /api/auth/forgot-password` (sends a 1-hour secure crypto token email) and `POST /api/auth/reset-password` (consumes the token + sets a new 12-round bcrypt password).
+- Table `password_reset_tokens` added via migration `v44_password_reset_tokens.sql`.
+- Frontend: `ForgotPasswordPage.jsx` and `ResetPasswordPage.jsx` with routes `/forgot-password` and `/reset-password/:token`.
+- "Forgot password?" links added to `LoginPage.jsx` and `ClientLogin.jsx`.
 
-### Ticket #17 — Honeypot + rate-limit on `/api/contact`
-- `contactController.submitContactForm` has no Zod validation
-  and no rate limit (the global `contactLimiter` is mounted
-  but the contract is: 10/hour per IP, which is fine). Add a
-  hidden honeypot field (`website` is the classic) to drop
-  bot submissions before they reach the DB.
+### Ticket #17 — Honeypot on `/api/contact` [x] (Shipped)
+- Added hidden off-screen honeypot input (`b_website`) in `Contact.jsx` and `ContactPage.jsx`.
+- In `contactController.js`, submissions with `b_website` populated are silently dropped with 201 OK without writing to the database or triggering notification emails.
 
-### Ticket #18 — Transactional email at every client milestone
-- Currently the client receives email on payment proof received
-  / confirmed. Add:
-  - Intake-form submission confirmation
-  - New invoice issued
-  - Contract ready for signature (Zoho handles its own; we just
-    mirror a courtesy email)
-  - Offboarding completed
-  - Project milestones transitioning (optional, but high signal)
+### Ticket #18 — Professional Branded Emails with Brevo & Inline Logo [x] (Shipped)
+- Migrated emailing engine to Brevo SMTP (`smtp-relay.brevo.com:587`, `SMTP_SECURE=false`).
+- Built `emailLayout.js` providing a unified responsive HTML template shell with embedded MIME Content-ID (`cid:buildwithlami-logo`) logo attachments.
+- Upgraded `emailService.js`, `paymentEmailService.js`, and `contractService.js` to dispatch branded emails with CTA buttons, audit badges, and studio footers.
+
+### Ticket #19 — In-House Native Contract & E-Signature System (Replacing Zoho Sign) [x] (Shipped)
+- Replaced 3rd-party Zoho Sign dependency with a 100% native in-house contract management and signing platform ($0 recurring cost).
+- Added `v45_native_contracts_and_signing.sql` with `signing_token`, `terms_content`, `signature_data`, `signer_ip`, `signer_user_agent`, `contract_hash`, and JSONB `audit_trail`.
+- Built `contractService.js` with standard legal agreements (Software Engineering, Aerial Drone Survey, Geodetic Land Survey, Custom Consulting), SHA-256 cryptographic hashing, and Brevo signing notifications.
+- Created `ContractSigningPage.jsx` (`/sign/:token`) featuring an interactive HTML5 canvas signature pad (desktop mouse + mobile touch support), terms viewer, and execution confirmation.
+- Built admin contract manager with template auto-fill, custom terms editor, "Copy Signing Link" button, and certified immutable audit trail inspector.
+- Connected Client Portal (`ClientContracts.jsx`) with direct "Review & Sign" links and PDF printing.
+- Completely removed legacy `zohoSignService.js` and Zoho environment variables.
 
 ---
 
@@ -141,4 +141,4 @@ Legend: `[x]` shipped · `[~]` in progress · `[ ]` planned
 - Leave a short note in the bullet if the change is
   non-obvious, or link the doc that explains the design choice.
 
-Last updated: 2026-07-11
+Last updated: 2026-09-02

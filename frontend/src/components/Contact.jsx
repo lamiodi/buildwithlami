@@ -37,7 +37,8 @@ const timelines = [
 const Contact = () => {
   const [formData, setFormData] = useState({
     name: '', email: '', message: '',
-    project_type: '', timeline: ''
+    project_type: '', timeline: '',
+    b_website: ''
   });
   const [status, setStatus] = useState('idle'); // idle, submitting, success, error
   const shouldReduce = useReducedMotion();
@@ -57,11 +58,12 @@ const Contact = () => {
       service: null,
       tier: null,
       currency: null,
+      b_website: formData.b_website || null,
     });
 
     if (res.ok) {
       setStatus('success');
-      setFormData({ name: '', email: '', message: '', project_type: '', timeline: '' });
+      setFormData({ name: '', email: '', message: '', project_type: '', timeline: '', b_website: '' });
       setTimeout(() => setStatus('idle'), 4000);
     } else {
       setStatus('error');
@@ -135,6 +137,20 @@ const Contact = () => {
               form fully interactive from the first frame on mobile. */}
           <div className="w-full lg:w-7/12">
             <form onSubmit={handleSubmit} className="space-y-5 bg-white/[0.04] border border-white/10 p-6 sm:p-8 rounded-2xl">
+              {/* Spam Honeypot Field — Hidden from humans, traps automated spam bots */}
+              <div className="absolute -left-[9999px] top-auto w-px h-px overflow-hidden opacity-0" aria-hidden="true">
+                <label htmlFor="b_website">Leave this field blank</label>
+                <input
+                  type="text"
+                  id="b_website"
+                  name="b_website"
+                  tabIndex="-1"
+                  autoComplete="off"
+                  value={formData.b_website}
+                  onChange={(e) => setFormData({ ...formData, b_website: e.target.value })}
+                />
+              </div>
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-[10px] font-mono font-bold text-gray-400 uppercase tracking-widest mb-1.5">

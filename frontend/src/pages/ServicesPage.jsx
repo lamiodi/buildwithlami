@@ -340,7 +340,7 @@ const ServicesPage = () => {
                 Predictable Scope & <span className="text-accent">Milestone Invoicing</span>
               </h2>
               <p className="text-gray-300 text-sm sm:text-base font-light leading-relaxed">
-                All projects are billed on standard 50/50 milestone terms with post-launch warranty support and 100% intellectual property transfer. Use our interactive quotation builder to calculate your exact project scope.
+                All projects are billed on standard 50/50 milestone terms with post-launch warranty support and 100% intellectual property transfer. Review our transparent fixed tiers or contact us directly for custom architecture.
               </p>
               
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">

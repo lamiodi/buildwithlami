@@ -41,7 +41,6 @@ const discoverMigrations = (dir) => {
         .filter((f) => f.toLowerCase().endsWith('.sql'));
 
     const seen = new Map();
-    const unordered = [];
 
     for (const file of files) {
         const match = file.match(MIGRATION_PREFIX);

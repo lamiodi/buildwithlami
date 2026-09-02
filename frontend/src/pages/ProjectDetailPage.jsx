@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { motion, useReducedMotion, AnimatePresence } from 'framer-motion';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import SecurityPopup from '../components/SecurityPopup';
 import { api } from '../services/api';
 import fallbackProjects from '../data/fallbackProjects';
 import { Skeleton, SkeletonTransition } from '../components/Skeleton';
@@ -441,7 +440,6 @@ const ProjectDetailPage = () => {
     return found || fallbackProjects[0];
   });
   const [loading, setLoading] = useState(false);
-  const [showSecurityPopup, setShowSecurityPopup] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(null);
   const heroImageRef = useRef(null);
   const shouldReduce = useReducedMotion();
@@ -649,15 +647,15 @@ const ProjectDetailPage = () => {
 
                 <motion.div
                   className="lg:col-span-4"
-                  initial={shouldReduce ? {} : { opacity: 0, y: 30 }}
+                  initial={shouldReduce ? false : { opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: shouldReduce ? 0 : 0.6, delay: shouldReduce ? 0 : 0.15, ease: 'easeOut' }}
+                  transition={{ duration: shouldReduce ? 0 : 0.4, delay: shouldReduce ? 0 : 0.1, ease: 'easeOut' }}
                 >
                   <div className="space-y-5 border-t border-gray-200 dark:border-gray-800 pt-6">
                     {[
                       { label: 'Industry', value: project.industry || project.category || 'Software' },
-                      { label: 'Client', value: project.client || 'Personal Project' },
-                      { label: 'Status', value: project.status || 'Live' },
+                      { label: 'Client', value: project.client || (project.division === 'SOFTWARE' ? 'Confidential Client' : 'Private Client') },
+                      { label: 'Status', value: project.status || 'Completed & Delivered' },
                       { label: 'Duration', value: project.duration || '—' },
                       { label: 'Role', value: project.role || 'Lead Engineer' },
                     ].map((row) => (
@@ -672,8 +670,8 @@ const ProjectDetailPage = () => {
                     ))}
                   </div>
 
-                  <div className="mt-8 flex flex-col sm:flex-row gap-3">
-                    {project.live_url && (
+                  {project.live_url && typeof project.live_url === 'string' && project.live_url.startsWith('http') && (
+                    <div className="mt-8 flex flex-col sm:flex-row gap-3">
                       <a
                         href={project.live_url}
                         target="_blank"
@@ -683,28 +681,8 @@ const ProjectDetailPage = () => {
                         Visit Live Site
                         <Icon name="arrow-up-right" className="w-4 h-4 ml-2" />
                       </a>
-                    )}
-                    {project.github_url ? (
-                      <a
-                        href={project.github_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center justify-center border border-gray-300 dark:border-white/10 text-black dark:text-white font-bold uppercase tracking-[0.2em] text-xs px-6 py-3.5 hover:border-accent hover:text-accent active:scale-[0.98] transition-all"
-                      >
-                        <Icon name="github" className="w-4 h-4 mr-2" />
-                        View Source
-                      </a>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={() => setShowSecurityPopup(true)}
-                        className="inline-flex items-center justify-center border border-gray-300 dark:border-white/10 text-black dark:text-white font-bold uppercase tracking-[0.2em] text-xs px-6 py-3.5 hover:border-accent hover:text-accent active:scale-[0.98] transition-all cursor-pointer"
-                      >
-                        <Icon name="github" className="w-4 h-4 mr-2" />
-                        Source Code
-                      </button>
-                    )}
-                  </div>
+                    </div>
+                  )}
                 </motion.div>
               </div>
 
@@ -1480,12 +1458,6 @@ const ProjectDetailPage = () => {
         onClose={closeLightbox}
         onPrev={prevImage}
         onNext={nextImage}
-      />
-
-      {/* Security popup */}
-      <SecurityPopup
-        isOpen={showSecurityPopup}
-        onClose={() => setShowSecurityPopup(false)}
       />
     </div>
   );

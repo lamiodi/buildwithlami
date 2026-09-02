@@ -84,9 +84,7 @@ const isThirdPartyWebhook = (req) => {
     const url = req.originalUrl || req.url || '';
     return (
         url.startsWith('/api/invoices/webhook/') ||
-        url === '/api/invoices/webhook' ||
-        url.startsWith('/api/contracts/webhook/') ||
-        url === '/api/contracts/webhook'
+        url === '/api/invoices/webhook'
     );
 };
 
@@ -176,10 +174,8 @@ app.use('/api/email-templates', apiLimiter, emailTemplateRoutes);
 // /api/divisions/drone/*.
 app.use('/api/divisions', apiLimiter, divisionRoutes);
 
-// Phase 8 — Zoho Sign & Financial. The contracts router is now
-// mounted (no longer commented out). It still operates in stub
-// mode because ZOHO_SIGN_TOKEN is not yet set — see
-// services/zohoSignService.js for the live/stub switch.
+// Contracts & Electronic Signatures — Native in-house contract system
+// with cryptographic audit trails, Brevo email dispatches, and /sign/:token routes.
 app.use('/api/contracts', apiLimiter, contractRoutes);
 
 // Phase 8 — FX rates for multi-currency invoices.

@@ -31,10 +31,17 @@ const createMessageSchema = z.object({
     service: z.string().optional().nullable(),
     tier: z.string().optional().nullable(),
     currency: z.string().optional().nullable(),
+    // Hidden honeypot field — bots fill this, real users do not
+    b_website: z.string().optional().nullable(),
 });
 
 export async function submitContactForm(req, res) {
     try {
+        // Honeypot check: If the hidden honeypot field is filled, silently drop the submission
+        if (req.body.b_website && String(req.body.b_website).trim().length > 0) {
+            return res.status(201).json({ success: true, message: 'Message sent successfully.' });
+        }
+
         const data = createMessageSchema.parse(req.body);
 
         // Sanitize the inputs before saving/sending

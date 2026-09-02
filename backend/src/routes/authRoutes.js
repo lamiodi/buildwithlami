@@ -1,11 +1,13 @@
 import express from 'express';
-import { login, getMe, changePassword, refresh } from '../controllers/authController.js';
+import { login, getMe, changePassword, refresh, forgotPassword, resetPassword } from '../controllers/authController.js';
 import { verifyToken } from '../middlewares/authMiddleware.js';
 import twoFactorRoutes from './twoFactorRoutes.js';
 
 const router = express.Router();
 
 router.post('/login', login);
+router.post('/forgot-password', forgotPassword);
+router.post('/reset-password', resetPassword);
 router.get('/me', verifyToken, getMe);
 router.post('/refresh', verifyToken, refresh);
 router.put('/password', verifyToken, changePassword);

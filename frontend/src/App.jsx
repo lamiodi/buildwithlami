@@ -59,6 +59,9 @@ const AdminLayout = lazyWithRetry(() => import('./components/AdminLayout'));
 const ClientProjectTracker = lazyWithRetry(() => import('./pages/ClientProjectTracker'));
 const ClientIntakeForm = lazyWithRetry(() => import('./pages/ClientIntakeForm'));
 const LoginPage = lazyWithRetry(() => import('./pages/LoginPage'));
+const ForgotPasswordPage = lazyWithRetry(() => import('./pages/ForgotPasswordPage'));
+const ResetPasswordPage = lazyWithRetry(() => import('./pages/ResetPasswordPage'));
+const ContractSigningPage = lazyWithRetry(() => import('./pages/ContractSigningPage'));
 import ProtectedRoute from './components/ProtectedRoute';
 import { AuthProvider } from './contexts/AuthContext';
 import { api } from './services/api.js';
@@ -181,7 +184,11 @@ function App() {
     currentPath.startsWith('/survey') ||
     currentPath.startsWith('/admin') ||
     currentPath.startsWith('/portal') ||
-    currentPath === '/login';
+    currentPath === '/login' ||
+    currentPath === '/forgot-password' ||
+    currentPath.startsWith('/reset-password') ||
+    currentPath.startsWith('/sign') ||
+    currentPath.startsWith('/contracts/sign');
 
   // Suspend fallback is decided outside of render so its identity is stable
   // across renders. React would otherwise recreate the component on every
@@ -246,13 +253,17 @@ function App() {
                   <Route path="help" element={<AdminHelp />} />
                 </Route>
                 
-                {/* Auth Route */}
+                {/* Auth Routes */}
                 <Route path="/login" element={<LoginPage />} />
+                <Route path="/forgot-password" element={<PageWrapper><ForgotPasswordPage /></PageWrapper>} />
+                <Route path="/reset-password/:token" element={<PageWrapper><ResetPasswordPage /></PageWrapper>} />
 
                 {/* Client Public Routes */}
                 <Route path="/track/:trackingId" element={<ClientProjectTracker />} />
                 <Route path="/form/:formId" element={<ClientIntakeForm />} />
                 <Route path="/pay/:token" element={<PaymentPage />} />
+                <Route path="/sign/:token" element={<PageWrapper><ContractSigningPage /></PageWrapper>} />
+                <Route path="/contracts/sign/:token" element={<PageWrapper><ContractSigningPage /></PageWrapper>} />
 
                 {/* Client Portal MVP Routes */}
                 <Route path="/portal/login" element={<ClientLogin />} />

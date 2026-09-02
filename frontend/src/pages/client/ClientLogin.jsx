@@ -64,9 +64,17 @@ export default function ClientLogin() {
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                Password (or Tracking ID)
-                            </label>
+                            <div className="flex items-center justify-between">
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                    Password (or Tracking ID)
+                                </label>
+                                <Link
+                                    to="/forgot-password"
+                                    className="text-xs font-semibold text-accent hover:underline"
+                                >
+                                    Forgot password?
+                                </Link>
+                            </div>
                             <div className="mt-1">
                                 <input
                                     type="password"

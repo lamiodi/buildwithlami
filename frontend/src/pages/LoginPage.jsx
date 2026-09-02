@@ -124,9 +124,17 @@ const LoginPage = () => {
               </div>
 
               <div>
-                <label className="block text-[10px] font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2 font-body">
-                  Password
-                </label>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-[10px] font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest font-body">
+                    Password
+                  </label>
+                  <Link
+                    to="/forgot-password"
+                    className="text-[11px] font-bold text-gray-500 hover:text-accent dark:text-gray-400 dark:hover:text-accent transition-colors font-body"
+                  >
+                    Forgot password?
+                  </Link>
+                </div>
                 <input
                   type="password"
                   required

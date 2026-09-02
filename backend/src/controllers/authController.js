@@ -1,8 +1,10 @@
+import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import { z } from 'zod';
 import pool from '../config/db.js';
 import { canonicalRole, divisionsForRole } from '../config/roles.js';
+import { sendPasswordResetEmail } from '../services/emailService.js';
 
 // Cookie options for the HttpOnly JWT cookie.
 //
@@ -242,3 +244,136 @@ export async function refresh(req, res) {
         user: { id: req.user.id, email: req.user.email, role: req.user.role, divisions: divisionsForRole(req.user.role) },
     });
 }
+
+// ── Password Reset Schemas ──────────────────────────────
+const forgotPasswordSchema = z.object({
+    email: z.string().email('Valid email is required.'),
+});
+
+const resetPasswordSchema = z.object({
+    token: z.string().min(32, 'Valid reset token is required.'),
+    password: z.string().min(8, 'Password must be at least 8 characters long.').max(128),
+});
+
+// ── POST /api/auth/forgot-password ──────────────────────
+export async function forgotPassword(req, res) {
+    try {
+        const { email } = forgotPasswordSchema.parse(req.body);
+        const normalizedEmail = email.toLowerCase().trim();
+
+        // 1. Check users (admin) table
+        let userType = null;
+        const { rows: userRows } = await pool.query(
+            `SELECT id, email FROM users WHERE email = $1`,
+            [normalizedEmail]
+        );
+
+        if (userRows.length > 0) {
+            userType = 'USER';
+        } else {
+            // 2. Check clients table
+            const { rows: clientRows } = await pool.query(
+                `SELECT id, primary_contact_email FROM clients WHERE primary_contact_email = $1`,
+                [normalizedEmail]
+            );
+            if (clientRows.length > 0) {
+                userType = 'CLIENT';
+            }
+        }
+
+        // Generic response to avoid email enumeration
+        const genericMessage = 'If an account exists with this email, a password reset link has been dispatched.';
+
+        if (!userType) {
+            return res.json({ success: true, message: genericMessage });
+        }
+
+        // Generate cryptographically secure token
+        const rawToken = crypto.randomBytes(32).toString('hex');
+        const tokenHash = crypto.createHash('sha256').update(rawToken).digest('hex');
+        const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+
+        // Invalidate any active unused tokens for this email
+        await pool.query(
+            `UPDATE password_reset_tokens SET used_at = NOW() WHERE email = $1 AND used_at IS NULL`,
+            [normalizedEmail]
+        );
+
+        // Store new token
+        await pool.query(
+            `INSERT INTO password_reset_tokens (email, user_type, token_hash, expires_at)
+             VALUES ($1, $2, $3, $4)`,
+            [normalizedEmail, userType, tokenHash, expiresAt]
+        );
+
+        const frontendUrl = process.env.FRONTEND_URL || 'https://buildwithlami.com';
+        const resetUrl = `${frontendUrl.replace(/\/+$/, '')}/reset-password/${rawToken}`;
+
+        await sendPasswordResetEmail({ toEmail: normalizedEmail, resetUrl });
+
+        return res.json({ success: true, message: genericMessage });
+    } catch (err) {
+        if (err instanceof z.ZodError) {
+            return res.status(400).json({ error: err.errors[0]?.message || 'Invalid input.' });
+        }
+        console.error('[Auth] forgotPassword error:', err.message);
+        return res.status(500).json({ error: 'Internal server error.' });
+    }
+}
+
+// ── POST /api/auth/reset-password ───────────────────────
+export async function resetPassword(req, res) {
+    try {
+        const { token, password } = resetPasswordSchema.parse(req.body);
+        const tokenHash = crypto.createHash('sha256').update(token.trim()).digest('hex');
+
+        const { rows } = await pool.query(
+            `SELECT id, email, user_type, expires_at, used_at
+             FROM password_reset_tokens
+             WHERE token_hash = $1`,
+            [tokenHash]
+        );
+
+        if (rows.length === 0 || rows[0].used_at !== null) {
+            return res.status(400).json({ error: 'This password reset link is invalid or has already been used.' });
+        }
+
+        const resetRecord = rows[0];
+        if (new Date(resetRecord.expires_at) < new Date()) {
+            return res.status(400).json({ error: 'This password reset link has expired. Please request a new one.' });
+        }
+
+        const passwordHash = await bcrypt.hash(password, 12);
+
+        if (resetRecord.user_type === 'USER') {
+            await pool.query(
+                `UPDATE users 
+                 SET password = $1, failed_login_count = 0, first_failed_at = NULL, locked_until = NULL 
+                 WHERE email = $2`,
+                [passwordHash, resetRecord.email]
+            );
+        } else if (resetRecord.user_type === 'CLIENT') {
+            await pool.query(
+                `UPDATE clients 
+                 SET password_hash = $1 
+                 WHERE primary_contact_email = $2`,
+                [passwordHash, resetRecord.email]
+            );
+        }
+
+        // Invalidate token
+        await pool.query(
+            `UPDATE password_reset_tokens SET used_at = NOW() WHERE id = $1`,
+            [resetRecord.id]
+        );
+
+        return res.json({ success: true, message: 'Password has been reset successfully. You can now log in.' });
+    } catch (err) {
+        if (err instanceof z.ZodError) {
+            return res.status(400).json({ error: err.errors[0]?.message || 'Invalid input.' });
+        }
+        console.error('[Auth] resetPassword error:', err.message);
+        return res.status(500).json({ error: 'Internal server error.' });
+    }
+}
+

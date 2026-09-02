@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { api } from '../../services/api';
 import { FileSignature, Download, ExternalLink } from 'lucide-react';
 import Skeleton from '../../components/Skeleton';
@@ -84,12 +85,19 @@ export default function ClientContracts() {
                                         </td>
                                         <td className="p-4 text-right space-x-3">
                                             {c.status === 'SIGNED' ? (
-                                                <a href={`/api/contracts/${c.id}/pdf`} target="_blank" rel="noreferrer" className="text-sm font-medium text-accent hover:text-accent-dark inline-flex items-center gap-1">
-                                                    Download PDF <Download size={14} />
+                                                <a href={`/api/contracts/${c.id}/pdf`} target="_blank" rel="noreferrer" className="text-xs font-bold text-accent hover:underline inline-flex items-center gap-1.5">
+                                                    Download PDF <Download size={13} />
                                                 </a>
-                                            ) : c.status === 'SENT' ? (
-                                                <span className="text-sm text-gray-500 italic">Check Email to Sign</span>
-                                            ) : null}
+                                            ) : c.status === 'SENT' && c.signing_token ? (
+                                                <Link
+                                                    to={`/sign/${c.signing_token}`}
+                                                    className="text-xs font-bold text-white bg-accent hover:bg-orange-600 px-3 py-1.5 rounded-lg inline-flex items-center gap-1.5 shadow-sm transition-all"
+                                                >
+                                                    Review & Sign <ExternalLink size={12} />
+                                                </Link>
+                                            ) : (
+                                                <span className="text-xs text-gray-400 italic">Processing</span>
+                                            )}
                                         </td>
                                     </tr>
                                 ))}
