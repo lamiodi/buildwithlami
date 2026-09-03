@@ -173,10 +173,6 @@ function App() {
     return () => clearTimeout(t);
   }, [showPreloader]);
 
-  if (showPreloader && !preloaderTimedOut && !location.pathname.startsWith('/admin')) {
-    return <Preloader onComplete={() => setShowPreloader(false)} />;
-  }
-
   // Determine if the current route should hide the global Navbar and Footer
   const currentPath = (location.pathname || '').toLowerCase();
   const hideGlobalLayout =
@@ -190,6 +186,22 @@ function App() {
     currentPath.startsWith('/sign') ||
     currentPath.startsWith('/contracts/sign');
 
+  // Preloader is exclusively displayed on Software Studio pages (e.g. /, /software, /projects, /services, /pricing, /about, /contact)
+  // It is omitted on other divisions (Survey, Drone) and internal flows (Admin, Portal, Auth, etc.)
+  const isSoftwareRoute =
+    !currentPath.startsWith('/drone') &&
+    !currentPath.startsWith('/survey') &&
+    !currentPath.startsWith('/admin') &&
+    !currentPath.startsWith('/portal') &&
+    currentPath !== '/login' &&
+    currentPath !== '/forgot-password' &&
+    !currentPath.startsWith('/reset-password') &&
+    !currentPath.startsWith('/sign') &&
+    !currentPath.startsWith('/contracts/sign') &&
+    !currentPath.startsWith('/pay') &&
+    !currentPath.startsWith('/track') &&
+    !currentPath.startsWith('/form');
+
   // Suspend fallback is decided outside of render so its identity is stable
   // across renders. React would otherwise recreate the component on every
   // parent render, resetting any internal state it might hold.
@@ -201,7 +213,10 @@ function App() {
   return (
     <AuthProvider>
     <ClientAuthProvider>
-    <div className="min-h-screen bg-gray-50 text-gray-900 dark:bg-background dark:text-white font-body selection:bg-accent selection:text-white transition-colors duration-500">
+    <div className="min-h-screen bg-gray-50 text-gray-900 dark:bg-background dark:text-white font-body selection:bg-accent selection:text-white transition-colors duration-500 relative">
+      {showPreloader && !preloaderTimedOut && isSoftwareRoute && (
+        <Preloader onComplete={() => setShowPreloader(false)} />
+      )}
       <ErrorBoundary>
         <ScrollToTop />
         {!hideGlobalLayout && <Navbar isDark={isDark} toggleTheme={toggleTheme} />}
