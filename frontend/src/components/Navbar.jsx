@@ -199,6 +199,10 @@ const Navbar = ({ isDark, toggleTheme }) => {
                   alt="Buildwith_lami"
                   className="h-10 w-auto hidden dark:block object-contain"
                 />
+                <span className="font-heading font-extrabold text-base tracking-[-0.01em] whitespace-nowrap leading-none">
+                  <span className="text-accent">BuildWith</span>
+                  <span className="text-gray-900 dark:text-white">_Lami</span>
+                </span>
               </Link>
               
               <div className="flex items-center space-x-2">
