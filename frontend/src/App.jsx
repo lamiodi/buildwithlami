@@ -215,7 +215,7 @@ function App() {
     <ClientAuthProvider>
     <div className="min-h-screen bg-gray-50 text-gray-900 dark:bg-background dark:text-white font-body selection:bg-accent selection:text-white transition-colors duration-500 relative">
       {showPreloader && !preloaderTimedOut && isSoftwareRoute && (
-        <Preloader onComplete={() => setShowPreloader(false)} />
+        <Preloader isDark={isDark} onComplete={() => setShowPreloader(false)} />
       )}
       <ErrorBoundary>
         <ScrollToTop />
