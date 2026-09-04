@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { motion, useReducedMotion } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { DotLoader } from '@/components/ui/dot-loader';
 import { game } from '@/components/ui/demo';
 
@@ -15,7 +15,6 @@ import { game } from '@/components/ui/demo';
 const Preloader = ({ onComplete, isDark: propIsDark }) => {
   const [progress, setProgress] = useState(0);
   const [isExiting, setIsExiting] = useState(false);
-  const shouldReduce = useReducedMotion();
 
   // Support ?preview=preloader and optional &theme=light or &theme=dark for instant verification
   const searchParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
@@ -59,8 +58,8 @@ const Preloader = ({ onComplete, isDark: propIsDark }) => {
     return () => observer.disconnect();
   }, [forcedTheme]);
 
-  // Total duration tuned to feel deliberate, responsive, and cinematic (~1.3s)
-  const duration = shouldReduce ? 250 : 1300;
+  // Unified cinematic duration across mobile and desktop (~1.3s)
+  const duration = 1300;
 
   useEffect(() => {
     if (isPreviewMode) {
@@ -84,10 +83,10 @@ const Preloader = ({ onComplete, isDark: propIsDark }) => {
       if (t < 1) {
         animationFrameId = requestAnimationFrame(step);
       } else {
-        const dwellTime = shouldReduce ? 0 : 120;
+        const dwellTime = 120;
         setTimeout(() => {
           setIsExiting(true);
-          const exitDuration = shouldReduce ? 180 : 520;
+          const exitDuration = 520;
           setTimeout(() => {
             if (onComplete) onComplete();
           }, exitDuration);
@@ -100,7 +99,7 @@ const Preloader = ({ onComplete, isDark: propIsDark }) => {
     return () => {
       if (animationFrameId) cancelAnimationFrame(animationFrameId);
     };
-  }, [onComplete, shouldReduce, isPreviewMode, duration]);
+  }, [onComplete, isPreviewMode, duration]);
 
   const shutterEase = [0.76, 0, 0.24, 1];
 
@@ -108,7 +107,7 @@ const Preloader = ({ onComplete, isDark: propIsDark }) => {
     <div
       role="status"
       aria-live="polite"
-      className="fixed inset-0 z-[9999] pointer-events-auto select-none overflow-hidden min-h-[100dvh] flex items-center justify-center"
+      className="fixed inset-0 z-[9999] pointer-events-auto select-none overflow-hidden w-full h-full min-h-[100dvh] flex items-center justify-center"
     >
       <span className="sr-only">Loading BuildWith_Lami: {progress}%</span>
 
@@ -117,38 +116,39 @@ const Preloader = ({ onComplete, isDark: propIsDark }) => {
          ───────────────────────────────────────────────────────────── */}
       {/* Top Half */}
       <motion.div
-        className={`absolute inset-x-0 top-0 h-1/2 z-10 transition-colors duration-300 ${
+        className={`absolute inset-x-0 top-0 h-1/2 z-10 will-change-transform transition-colors duration-300 ${
           isDarkMode ? 'bg-[#09090b] border-b border-white/[0.04]' : 'bg-white border-b border-gray-100'
         }`}
-        initial={{ y: 0 }}
-        animate={{ y: isExiting && !shouldReduce ? '-100%' : '0%' }}
-        transition={{ duration: 0.5, ease: shutterEase }}
+        initial={{ y: '0%' }}
+        animate={{ y: isExiting ? '-100%' : '0%' }}
+        transition={{ duration: 0.52, ease: shutterEase }}
       />
 
       {/* Bottom Half */}
       <motion.div
-        className={`absolute inset-x-0 bottom-0 h-1/2 z-10 transition-colors duration-300 ${
+        className={`absolute inset-x-0 bottom-0 h-1/2 z-10 will-change-transform transition-colors duration-300 ${
           isDarkMode ? 'bg-[#09090b] border-t border-white/[0.04]' : 'bg-white border-t border-gray-100'
         }`}
-        initial={{ y: 0 }}
-        animate={{ y: isExiting && !shouldReduce ? '100%' : '0%' }}
-        transition={{ duration: 0.5, ease: shutterEase }}
+        initial={{ y: '0%' }}
+        animate={{ y: isExiting ? '100%' : '0%' }}
+        transition={{ duration: 0.52, ease: shutterEase }}
       />
 
       {/* ─────────────────────────────────────────────────────────────
-          MINIMALIST CENTERPIECE (Theme Responsive)
+          MINIMALIST CENTERPIECE (Identical proportions & animation across mobile & desktop)
          ───────────────────────────────────────────────────────────── */}
       <motion.div
-        className="relative z-30 flex flex-col items-center px-4"
+        className="relative z-30 flex flex-col items-center px-4 will-change-transform"
+        initial={{ opacity: 0, scale: 0.96 }}
         animate={{
           opacity: isExiting ? 0 : 1,
-          scale: isExiting && !shouldReduce ? 0.98 : 1,
+          scale: isExiting ? 0.98 : 1,
         }}
-        transition={{ duration: shouldReduce ? 0.2 : 0.25, ease: 'easeOut' }}
+        transition={{ duration: isExiting ? 0.25 : 0.4, ease: 'easeOut' }}
       >
         {/* Lockup Card */}
         <div
-          className={`inline-flex items-center gap-3.5 sm:gap-4 rounded-2xl px-5 sm:px-6 py-3.5 backdrop-blur-xl transition-all duration-300 ${
+          className={`inline-flex items-center gap-4 rounded-2xl px-6 py-3.5 backdrop-blur-xl transition-all duration-300 ${
             isDarkMode
               ? 'border border-white/10 bg-[#121214]/90 shadow-lg shadow-black/40 text-white'
               : 'border border-gray-200/80 bg-white/90 shadow-lg shadow-black/[0.03] text-gray-900'
@@ -178,17 +178,17 @@ const Preloader = ({ onComplete, isDark: propIsDark }) => {
               <img
                 src="/1.png"
                 alt="BuildWith_Lami"
-                className="h-7 sm:h-8 w-auto object-contain drop-shadow-[0_2px_12px_rgba(244,74,34,0.35)]"
+                className="h-8 w-auto object-contain drop-shadow-[0_2px_12px_rgba(244,74,34,0.35)]"
               />
             ) : (
               <img
                 src="/2.png"
                 alt="BuildWith_Lami"
-                className="h-7 sm:h-8 w-auto object-contain drop-shadow-sm"
+                className="h-8 w-auto object-contain drop-shadow-sm"
               />
             )}
             <span
-              className={`font-heading font-extrabold text-base sm:text-lg tracking-tight whitespace-nowrap leading-none ${
+              className={`font-heading font-extrabold text-lg tracking-tight whitespace-nowrap leading-none ${
                 isDarkMode ? 'text-white' : 'text-gray-900'
               }`}
             >
@@ -198,8 +198,8 @@ const Preloader = ({ onComplete, isDark: propIsDark }) => {
           </div>
         </div>
 
-        {/* Buttery Smooth Hardware-Accelerated Progress Gauge */}
-        <div className="w-48 sm:w-56 mt-6 flex flex-col items-center">
+        {/* Hardware-Accelerated Progress Gauge */}
+        <div className="w-56 mt-6 flex flex-col items-center">
           <div
             className={`h-[2px] w-full rounded-full overflow-hidden relative ${
               isDarkMode ? 'bg-white/10' : 'bg-gray-200/80'
@@ -210,7 +210,7 @@ const Preloader = ({ onComplete, isDark: propIsDark }) => {
               initial={{ scaleX: 0 }}
               animate={{ scaleX: isPreviewMode ? 0.68 : 1 }}
               transition={{
-                duration: isPreviewMode ? 0 : (shouldReduce ? 0.25 : duration / 1000),
+                duration: isPreviewMode ? 0 : duration / 1000,
                 ease: [0.22, 1, 0.36, 1],
               }}
             />
