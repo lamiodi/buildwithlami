@@ -20,7 +20,7 @@ const Hero = () => {
     >
         <motion.div variants={item} className="bwl-eyebrow mb-6">
           <span className="w-2 h-2 bg-accent inline-block" />
-          <span>Software Studio · Web, Commerce & Custom Platforms</span>
+          <span>BuildWithLami — Software Studio</span>
         </motion.div>
 
         <motion.h1
@@ -30,13 +30,13 @@ const Hero = () => {
           }}
           className="text-4xl sm:text-6xl md:text-7xl lg:text-[80px] font-heading font-extrabold leading-[1.05] tracking-tight mb-6 text-black dark:text-white"
         >
-          I design, build, <br className="hidden sm:block" />
+          We design, build, <br className="hidden sm:block" />
           and ship products <br className="hidden sm:block" />
           that <span className="italic font-normal text-accent">grow</span> revenue.
         </motion.h1>
 
         <motion.p variants={item} className="text-gray-700 dark:text-gray-300 text-base sm:text-lg md:text-xl max-w-xl leading-relaxed mb-8 font-light">
-          From idea to production launch, I design, build, and deploy websites, e-commerce stores, business management systems, and custom software for founders, operators, and growing teams.
+          From concept to production launch, BuildWithLami designs, builds, and deploys high-converting websites, e-commerce stores, business management systems, and custom software for founders and ambitious teams.
         </motion.p>
 
         {/* Reassurance Chips */}
@@ -73,7 +73,7 @@ const Hero = () => {
             to="/projects"
             className="btn-secondary w-full sm:w-auto text-center"
           >
-            See My Work
+            Explore Work
           </Link>
         </div>
       </motion.div>
@@ -94,7 +94,7 @@ const Hero = () => {
             />
             <img
               src="/eugene-hero.webp"
-              alt="Eugene Odibenuah - Founder & Lead Engineer"
+              alt="Eugene Odibenuah — Founder & CTO, BuildWithLami"
               className="w-full h-full object-cover rounded-xl"
               width="800"
               height="1200"
@@ -107,7 +107,7 @@ const Hero = () => {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
             </span>
-            <span>Eugene Odibenuah · Lead Engineer</span>
+            <span>Eugene Odibenuah · Founder & CTO</span>
           </div>
         </div>
       </motion.div>

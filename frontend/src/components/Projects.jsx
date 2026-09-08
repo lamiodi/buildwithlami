@@ -50,6 +50,16 @@ const Projects = () => {
 
   const moreProjects = orderedProjects.length > 1 ? orderedProjects.slice(1, 4) : fallbackProjects.slice(1, 4);
 
+  const getFallbackImage = (proj) => {
+    if (!proj) return fallbackProjects[0].image;
+    const match = fallbackProjects.find(fp => 
+      (fp.slug && proj.slug && fp.slug === proj.slug) || 
+      fp.id === proj.id || 
+      (fp.title && proj.title && fp.title.toLowerCase() === proj.title.toLowerCase())
+    );
+    return match?.image || fallbackProjects[0].image;
+  };
+
   return (
     <section id="projects" className="px-6 md:px-12 max-w-7xl mx-auto py-24">
       {/* Section Header */}
@@ -57,7 +67,7 @@ const Projects = () => {
         <div>
           <motion.div variants={item} className="bwl-eyebrow mb-3">
             <span className="w-2 h-2 bg-accent inline-block" />
-            <span>02 · Selected Work</span>
+            <span>Selected Work</span>
           </motion.div>
           <motion.h2
             variants={item}
@@ -89,6 +99,10 @@ const Projects = () => {
               <img
                 src={featuredProject.image_url || featuredProject.image}
                 alt={featuredProject.title}
+                onError={(e) => {
+                  e.currentTarget.onerror = null;
+                  e.currentTarget.src = getFallbackImage(featuredProject);
+                }}
                 className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700 opacity-95"
                 width="800"
                 height="500"
@@ -178,6 +192,10 @@ const Projects = () => {
                   <img
                     src={p.image_url || p.image}
                     alt={p.title}
+                    onError={(e) => {
+                      e.currentTarget.onerror = null;
+                      e.currentTarget.src = getFallbackImage(p);
+                    }}
                     className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700 opacity-90 group-hover:opacity-100"
                     width="600"
                     height="350"

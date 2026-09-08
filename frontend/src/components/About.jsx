@@ -19,18 +19,13 @@ const About = () => {
       >
         <motion.div variants={item} className="bwl-eyebrow mb-3">
           <span className="w-2 h-2 bg-accent inline-block" />
-          <span>05 · Studio Leadership & Philosophy</span>
+          <span>Studio Leadership & Philosophy</span>
         </motion.div>
         <motion.h2 variants={item} className="text-4xl md:text-6xl lg:text-7xl font-heading font-bold mb-12 tracking-tight text-black dark:text-white">
-          ODIBENUAH EUGE<span className="text-accent">NE</span>
+          BUILDWITH<span className="text-accent">LAMI</span>
         </motion.h2>
 
-        {/* Main Image — aspect-ratio matches the source (1440 / 845)
-             so the <img> never zooms or letterboxes. On short viewports
-             (mobile portrait) we cap the height with max-h-[70svh] and
-             switch to object-contain so the entire photo is always
-             visible. width/height attrs on <img> prevent CLS before the
-             webfont loads. */}
+        {/* Main Image — aspect-ratio matches the source (1440 / 845) */}
         <motion.div
           variants={item}
           className="relative w-full max-w-6xl mx-auto bg-gray-950 dark:bg-[#0c0c0c] mb-16 overflow-hidden shadow-2xl rounded-2xl border border-gray-200 dark:border-white/10"
@@ -41,9 +36,12 @@ const About = () => {
           >
             <img
               src="/about-founder.webp"
-              alt="Eugene Odibenuah Desk Setup"
-              className="absolute inset-0 w-full h-full object-contain opacity-95 dark:opacity-90"
-              loading="lazy"
+              alt="BuildWithLami Engineering Workspace"
+              onError={(e) => {
+                e.currentTarget.onerror = null;
+                e.currentTarget.src = "/hero-founder.webp";
+              }}
+              className="absolute inset-0 w-full h-full object-cover sm:object-contain opacity-95 dark:opacity-90"
               decoding="async"
               width="1440"
               height="845"
@@ -51,11 +49,11 @@ const About = () => {
           </div>
           <div className="absolute bottom-3 right-3 sm:bottom-6 sm:right-6 bg-white/90 dark:bg-[#141414]/90 backdrop-blur-md border border-gray-200 dark:border-white/10 text-black dark:text-white font-mono font-bold px-3 py-1.5 sm:px-4 sm:py-2 text-[9px] sm:text-[10px] tracking-[0.2em] uppercase flex items-center shadow-lg z-10">
             <MapPin className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-accent mr-1.5 sm:mr-2" />
-            <span>LAGOS, NIGERIA</span>
+            <span>LAGOS, NIGERIA · GLOBAL DELIVERY</span>
           </div>
           <div className="absolute top-3 left-3 sm:top-6 sm:left-6 px-2.5 py-1 sm:px-3.5 sm:py-1.5 bg-black/70 backdrop-blur-md border border-white/10 text-white/90 font-mono text-[9px] sm:text-[10px] font-medium tracking-[0.2em] uppercase flex items-center gap-1.5 sm:gap-2 z-10">
             <span className="w-1.5 h-1.5 bg-accent inline-block" />
-            <span>My Setup</span>
+            <span>Studio Workstation</span>
           </div>
         </motion.div>
 
@@ -67,8 +65,14 @@ const About = () => {
             whileInView="visible"
             viewport={sectionViewport}
           >
-            <p className="text-xl md:text-2xl leading-relaxed text-black dark:text-white font-heading font-bold">
-              Hi, I'm Eugene, a full-stack engineer and digital product designer.
+            <span className="text-xs font-mono font-bold uppercase tracking-[0.2em] text-accent block mb-2">
+              Studio Leadership
+            </span>
+            <h3 className="text-2xl md:text-3xl leading-snug text-black dark:text-white font-heading font-bold mb-1">
+              Eugene Odibenuah
+            </h3>
+            <p className="text-xs font-mono text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+              Founder & CTO · Lead Systems Architect
             </p>
           </motion.div>
           <div className="md:w-1/2 flex flex-col items-start md:items-end text-left md:text-right">
@@ -79,13 +83,13 @@ const About = () => {
               transition={{ duration: shouldReduce ? 0 : 0.8, delay: shouldReduce ? 0 : 0.2 }}
               className="text-gray-700 dark:text-gray-300 leading-relaxed text-base md:text-lg font-light mb-6 opacity-90"
             >
-              I build modern web platforms, e-commerce engines, and high-performance software for businesses and founders worldwide. Fixed milestones, transparent communication, and 100% code ownership.
+              BuildWithLami operates as a specialized software studio engineering production web platforms, commerce systems, and operational backends. Fixed milestones, transparent communication, and 100% code ownership on every engagement.
             </motion.p>
             <Link
               to="/about"
               className="inline-flex items-center text-[11px] font-heading font-bold uppercase tracking-[0.15em] text-accent hover:text-black dark:hover:text-white transition-colors gap-1.5"
             >
-              <span>Learn More About My Story & Stack</span>
+              <span>Explore Founder Story & Technical Foundation</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>

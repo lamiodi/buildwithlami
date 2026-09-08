@@ -18,7 +18,7 @@
         { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=()" },
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https://images.unsplash.com https://cdn.simpleicons.org; connect-src 'self' https://buildwithlami-6qst.onrender.com https://buildwithlami.com https://*.vercel.app; frame-src 'self';"
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https://res.cloudinary.com https://images.unsplash.com https://cdn.simpleicons.org https://cdn.jsdelivr.net; connect-src 'self' https://buildwithlami-6qst.onrender.com https://buildwithlami.com https://*.vercel.app; frame-src 'self';"
         }
       ]
     },

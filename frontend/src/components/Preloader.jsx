@@ -58,8 +58,8 @@ const Preloader = ({ onComplete, isDark: propIsDark }) => {
     return () => observer.disconnect();
   }, [forcedTheme]);
 
-  // Unified cinematic duration across mobile and desktop (~1.3s)
-  const duration = 1300;
+  // Fast, punchy cinematic duration (~500ms) for snappy first-load UX
+  const duration = 500;
 
   useEffect(() => {
     if (isPreviewMode) {
@@ -83,10 +83,10 @@ const Preloader = ({ onComplete, isDark: propIsDark }) => {
       if (t < 1) {
         animationFrameId = requestAnimationFrame(step);
       } else {
-        const dwellTime = 120;
+        const dwellTime = 40;
         setTimeout(() => {
           setIsExiting(true);
-          const exitDuration = 520;
+          const exitDuration = 360;
           setTimeout(() => {
             if (onComplete) onComplete();
           }, exitDuration);
@@ -109,7 +109,7 @@ const Preloader = ({ onComplete, isDark: propIsDark }) => {
       aria-live="polite"
       className="fixed inset-0 z-[9999] pointer-events-auto select-none overflow-hidden w-full h-full min-h-[100dvh] flex items-center justify-center"
     >
-      <span className="sr-only">Loading BuildWith_Lami: {progress}%</span>
+      <span className="sr-only">Loading BuildWithLami: {progress}%</span>
 
       {/* ─────────────────────────────────────────────────────────────
           SPLIT ARCHITECTURAL SHUTTERS (Dark Mode: #09090b / Light: #ffffff)
@@ -177,13 +177,13 @@ const Preloader = ({ onComplete, isDark: propIsDark }) => {
             {isDarkMode ? (
               <img
                 src="/1.png"
-                alt="BuildWith_Lami"
+                alt="BuildWithLami"
                 className="h-8 w-auto object-contain drop-shadow-[0_2px_12px_rgba(244,74,34,0.35)]"
               />
             ) : (
               <img
                 src="/2.png"
-                alt="BuildWith_Lami"
+                alt="BuildWithLami"
                 className="h-8 w-auto object-contain drop-shadow-sm"
               />
             )}
@@ -193,7 +193,7 @@ const Preloader = ({ onComplete, isDark: propIsDark }) => {
               }`}
             >
               <span className="text-accent">BuildWith</span>
-              <span>_Lami</span>
+              <span>Lami</span>
             </span>
           </div>
         </div>

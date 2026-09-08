@@ -18,10 +18,10 @@ const ProjectsPage = () => {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    document.title = "Selected Works | Buildwith_lami — Software Portfolio";
+    document.title = "Selected Works | BuildWithLami — Software Portfolio";
     const metaDesc = document.querySelector('meta[name="description"]');
     if (metaDesc) {
-      metaDesc.setAttribute("content", "Explore selected software engineering works by Eugene Odibenuah (Buildwith_lami) — from custom business ERPs and SaaS platforms to luxury e-commerce and regulatory web portals.");
+      metaDesc.setAttribute("content", "Explore selected software engineering works by BuildWithLami — from custom business ERPs and SaaS platforms to luxury e-commerce and regulatory web portals.");
     }
     const fetchProjects = async () => {
       try {
@@ -68,6 +68,16 @@ const ProjectsPage = () => {
   const remainingProjects = featuredProject 
     ? filteredProjects.filter(p => p.id !== featuredProject.id && !(p.title || '').includes('VonneX2X'))
     : filteredProjects;
+
+  const getFallbackImage = (proj) => {
+    if (!proj) return fallbackProjects[0].image;
+    const match = fallbackProjects.find(fp => 
+      (fp.slug && proj.slug && fp.slug === proj.slug) || 
+      fp.id === proj.id || 
+      (fp.title && proj.title && fp.title.toLowerCase() === proj.title.toLowerCase())
+    );
+    return match?.image || fallbackProjects[0].image;
+  };
 
   return (
     <div className="min-h-screen pt-28 pb-32 bg-gray-50 dark:bg-background text-black dark:text-white transition-colors duration-300 font-body selection:bg-accent selection:text-white">
@@ -172,6 +182,10 @@ const ProjectsPage = () => {
                       <img
                         src={featuredProject.image_url || featuredProject.image}
                         alt={featuredProject.title}
+                        onError={(e) => {
+                          e.currentTarget.onerror = null;
+                          e.currentTarget.src = getFallbackImage(featuredProject);
+                        }}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out opacity-90 group-hover:opacity-100"
                         loading="eager"
                       />
@@ -303,6 +317,10 @@ const ProjectsPage = () => {
                             <img
                               src={project.image_url || project.image}
                               alt={project.title}
+                              onError={(e) => {
+                                e.currentTarget.onerror = null;
+                                e.currentTarget.src = getFallbackImage(project);
+                              }}
                               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out opacity-90 group-hover:opacity-100"
                               loading="lazy"
                             />
