@@ -180,7 +180,7 @@ const AdminEmailTemplates = () => {
 
     const handleSendTest = async () => {
         if (!selected) return;
-        const testEmail = window.prompt('Send a test render to which email?', 'eugeneodibenuah@gmail.com');
+        const testEmail = window.prompt('Send a test render to which email?', 'buildwithlami@gmail.com');
         if (!testEmail) return;
         const res = await api.post(`/email-templates/${selected.id}/send`, {
             to: testEmail,

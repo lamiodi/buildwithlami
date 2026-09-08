@@ -296,7 +296,7 @@ const Pricing = ({ isHomepage = false }) => {
               <div>
                 <span className="text-[10px] font-extrabold uppercase tracking-widest text-accent block mb-1">Studio Pricing Matrix</span>
                 <h4 className="text-xl font-bold font-heading">Explore all 10 service categories and transparent scope tiers</h4>
-                <p className="text-xs text-gray-400 mt-1">Includes Web Dev, E-Commerce, Custom Software, Business Portals & ERPs, UI/UX, Branding, SEO, Marketing, AI, and Maintenance.</p>
+                <p className="text-xs text-gray-400 mt-1">Includes Web Dev, E-Commerce, Custom Software, Business Management Systems & ERP, UI/UX, Branding, SEO, Marketing, AI, and Maintenance.</p>
               </div>
               <Link 
                 to="/pricing" 

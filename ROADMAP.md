@@ -93,7 +93,7 @@
    ON CONFLICT (name) DO NOTHING;
 
    ALTER TABLE users ADD COLUMN IF NOT EXISTS role_id UUID REFERENCES roles(id);
-   UPDATE users SET role = 'Owner' WHERE email = 'EUGENEODIBENUAH@GMAIL.COM';
+   UPDATE users SET role = 'Owner' WHERE email = 'buildwithlami@gmail.com';
    ```
 
 6. **Write v8 — Bookings** (`v8_bookings.sql`)

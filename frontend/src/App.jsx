@@ -81,15 +81,6 @@ const ClientTimeline = lazyWithRetry(() => import('./pages/client/ClientTimeline
 const ClientProtectedRoute = lazyWithRetry(() => import('./components/ClientProtectedRoute'));
 import { ClientAuthProvider } from './contexts/ClientAuthContext';
 
-// Scroll to top automatically on route changes
-function ScrollToTop() {
-  const { pathname } = useLocation();
-  useEffect(() => {
-    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
-  }, [pathname]);
-  return null;
-}
-
 // Page transition wrapper
 const PageWrapper = ({ children }) => {
   const shouldReduce = useReducedMotion();
@@ -184,7 +175,10 @@ function App() {
     currentPath === '/forgot-password' ||
     currentPath.startsWith('/reset-password') ||
     currentPath.startsWith('/sign') ||
-    currentPath.startsWith('/contracts/sign');
+    currentPath.startsWith('/contracts/sign') ||
+    currentPath.startsWith('/pay') ||
+    currentPath.startsWith('/form') ||
+    currentPath.startsWith('/track');
 
   // Preloader is exclusively displayed on Software Studio pages (e.g. /, /software, /projects, /services, /pricing, /about, /contact)
   // It is omitted on other divisions (Survey, Drone) and internal flows (Admin, Portal, Auth, etc.)
@@ -214,13 +208,18 @@ function App() {
     <AuthProvider>
     <ClientAuthProvider>
     <div className="min-h-screen bg-gray-50 text-gray-900 dark:bg-background dark:text-white font-body selection:bg-accent selection:text-white transition-colors duration-500 relative">
+      <a
+        href="#main"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[9999] focus:px-4 focus:py-2 focus:bg-white dark:focus:bg-gray-900 focus:text-accent focus:shadow-xl focus:ring-2 focus:ring-accent font-semibold rounded-md transition-all"
+      >
+        Skip to content
+      </a>
       {showPreloader && !preloaderTimedOut && isSoftwareRoute && (
         <Preloader isDark={isDark} onComplete={() => setShowPreloader(false)} />
       )}
       <ErrorBoundary>
-        <ScrollToTop />
         {!hideGlobalLayout && <Navbar isDark={isDark} toggleTheme={toggleTheme} />}
-        <main>
+        <main id="main" tabIndex={-1} className="focus:outline-none">
           <Suspense fallback={suspenseFallback}>
             <AnimatePresence mode="wait" initial={false}>
               <Routes location={location} key={location.pathname}>
@@ -300,7 +299,7 @@ function App() {
           </Suspense>
         </main>
         {!hideGlobalLayout && <Footer />}
-        <WhatsAppWidget />
+        {!hideGlobalLayout && <WhatsAppWidget />}
         <ThemeToast
           message={toastMessage}
           onClose={() => setToastMessage(null)}

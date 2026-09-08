@@ -59,7 +59,7 @@ const ServicesPage = () => {
   const services = [
     {
       id: "business-portals",
-      title: "Business Portals, School Systems & Operational ERPs",
+      title: "Business Management Systems & ERP",
       bestFor: "Schools, residential estates, wholesale warehouses, and supermarket retail chains",
       desc: "Turnkey operational systems: student result & tuition portals, QR gate-pass visitor apps, multi-branch warehouse inventory ledgers, and fast cashier POS stations.",
       outcome: "An automated operations engine that removes manual paperwork, prevents stock shrinkage, and speeds up daily administrative workflows.",

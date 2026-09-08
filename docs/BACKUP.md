@@ -125,7 +125,7 @@ in §2 from your laptop or from a scheduled Render Cron Job
 ## 6. Contacts
 
 - **Database owner:** Odibenuah Eugene (CEO) —
-  `EUGENEODIBENUAH@GMAIL.COM`
+  `buildwithlami@gmail.com`
 - **Render account holder:** same
 - **S3 bucket owner:** same
 

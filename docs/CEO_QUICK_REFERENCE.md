@@ -78,6 +78,6 @@ See [BACKUP.md](./BACKUP.md) §3. TL;DR:
 
 - **Name:** Odibenuah Eugene
 - **Role:** CEO
-- **Email:** EUGENEODIBENUAH@GMAIL.COM
+- **Email:** buildwithlami@gmail.com
 - **Backup calendar reminder:** "Buildwith_lami — pg_dump + S3" (every Sunday, 6pm WAT)
 - **Vault:** 1Password → Buildwith_lami

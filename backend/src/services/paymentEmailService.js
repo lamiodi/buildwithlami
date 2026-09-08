@@ -45,10 +45,10 @@ const sendOrLog = async (mailOptions) => {
 };
 
 const fromAddress = () =>
-    process.env.EMAIL_FROM || '"BuildWith_Lami" <tygaodibenuah@gmail.com>';
+    process.env.EMAIL_FROM || '"BuildWith_Lami" <buildwithlami@gmail.com>';
 
 const adminAddress = () =>
-    process.env.ADMIN_EMAIL || process.env.EMAIL_TO || 'tygaodibenuah@gmail.com';
+    process.env.ADMIN_EMAIL || process.env.EMAIL_TO || 'buildwithlami@gmail.com';
 
 /**
  * 1. Invoice email — sent right after `createInvoice`.

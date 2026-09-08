@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, useReducedMotion, AnimatePresence } from 'framer-motion';
+import FilePreviewModal from '../components/FilePreviewModal';
 import {
   staggerContainer,
   fadeUpItem,
@@ -237,6 +238,30 @@ const AboutPage = () => {
   const shouldReduce = useReducedMotion();
   const navigate = useNavigate();
   const [activeCategory, setActiveCategory] = useState('all');
+  const [previewFile, setPreviewFile] = useState(null);
+
+  // File preview targets tied to the Full-Stack Web Engineering section
+  const previewAssets = useMemo(
+    () => [
+      {
+        key: 'cert',
+        label: 'Software Certificate',
+        sublabel: 'Preview Image',
+        src: '/image.png',
+        type: 'image',
+        title: 'Software Mastery — Credential Preview',
+      },
+      {
+        key: 'cv',
+        label: 'Full-Stack CV',
+        sublabel: 'Preview PDF',
+        src: '/full-stack-developer.pdf',
+        type: 'pdf',
+        title: 'Full-Stack Developer — Resume Preview',
+      },
+    ],
+    []
+  );
 
   // Resolved motion variants
   const container = useMemo(() => (shouldReduce ? reducedMotionVariants : staggerContainer), [shouldReduce]);
@@ -468,17 +493,46 @@ const AboutPage = () => {
 
                     {/* Handwritten Signature for Eugene Odibenuah */}
                     {index === education.length - 1 && (
-                      <div className="pt-4 mt-4 border-t border-gray-100 dark:border-white/5 flex items-center justify-between">
-                        <div>
-                          <span className="text-[10px] font-mono uppercase tracking-widest text-gray-500 dark:text-gray-400 block font-semibold">
-                            Principal Engineer & Architect
-                          </span>
-                          <span className="text-3xl sm:text-4xl font-signature text-accent dark:text-accent font-bold tracking-wider select-none block transform -rotate-2 mt-1">
-                            Eugene Odibenuah
-                          </span>
+                      <div className="pt-4 mt-4 border-t border-gray-100 dark:border-white/5 space-y-5">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <span className="text-[10px] font-mono uppercase tracking-widest text-gray-500 dark:text-gray-400 block font-semibold">
+                              Principal Engineer & Architect
+                            </span>
+                            <span className="text-3xl sm:text-4xl font-signature text-accent dark:text-accent font-bold tracking-wider select-none block transform -rotate-2 mt-1">
+                              Eugene Odibenuah
+                            </span>
+                          </div>
+                          <div className="w-11 h-11 border border-accent/30 bg-accent/10 flex items-center justify-center text-accent font-mono text-xs font-extrabold shadow-inner">
+                            EO
+                          </div>
                         </div>
-                        <div className="w-11 h-11 border border-accent/30 bg-accent/10 flex items-center justify-center text-accent font-mono text-xs font-extrabold shadow-inner">
-                          EO
+
+                        {/* Credential Preview Buttons */}
+                        <div className="flex flex-wrap items-center gap-2.5 pt-1">
+                          <span className="text-[10px] font-mono uppercase tracking-widest text-gray-500 dark:text-gray-400 font-semibold">
+                            Verify Credentials →
+                          </span>
+                          {previewAssets.map((asset) => (
+                            <button
+                              key={asset.key}
+                              type="button"
+                              onClick={() => setPreviewFile(asset)}
+                              className="inline-flex items-center gap-2 px-3 py-1.5 text-[11px] font-mono font-bold uppercase tracking-wider bg-accent/10 hover:bg-accent text-accent hover:text-white border border-accent/30 hover:border-accent rounded-md transition-all cursor-pointer"
+                              aria-label={`${asset.label} — ${asset.sublabel}`}
+                            >
+                              {asset.type === 'pdf' ? (
+                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                              ) : (
+                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                              )}
+                              {asset.label}
+                            </button>
+                          ))}
                         </div>
                       </div>
                     )}
@@ -725,6 +779,12 @@ const AboutPage = () => {
         </motion.section>
 
       </div>
+
+      {/* File Preview Modal (Software / CV) */}
+      <FilePreviewModal
+        file={previewFile}
+        onClose={() => setPreviewFile(null)}
+      />
     </div>
   );
 };

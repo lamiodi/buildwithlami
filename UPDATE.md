@@ -340,7 +340,7 @@ Separate from the public `/track/:trackingId` flow. This is a logged-in client e
 
 | Role | Currently Filled By | Status |
 | :--- | :--- | :--- |
-| **Owner** | **Odibenuah Eugene (CEO)** — `EUGENEODIBENUAH@GMAIL.COM` | ✅ Active — sole account at launch |
+| **Owner** | **Odibenuah Eugene (CEO)** — `buildwithlami@gmail.com` | ✅ Active — sole account at launch |
 | Administrator | — | Open |
 | Project Manager | — | Open |
 | Developer | — | Open |
@@ -376,7 +376,7 @@ ON CONFLICT (name) DO NOTHING;
 -- Backfill: existing admin user (Odibenuah Eugene) gets the Owner role
 UPDATE users
 SET role = 'Owner'
-WHERE email = 'EUGENEODIBENUAH@GMAIL.COM';
+WHERE email = 'buildwithlami@gmail.com';
 ```
 
 > **Note:** The above hardcodes the Owner email. If you ever change your login email, re-run this UPDATE with the new address. The case-sensitive match uses the exact email you log in with.
@@ -515,7 +515,7 @@ These are listed in the v5.0/v6.0 docs but the user has indicated they may not b
 
 | Item | Status | Notes |
 | :--- | :--- | :--- |
-| 2FA for admin login | `[KEEP]` | TOTP via authenticator app — protects `EUGENEODIBENUAH@GMAIL.COM` account |
+| 2FA for admin login | `[KEEP]` | TOTP via authenticator app — protects `buildwithlami@gmail.com` account |
 | Session timeout warning | `[KEEP]` | Modal at 25 min: "Session expires in 5 min — extend?" |
 | Audit trail for sensitive actions | `[KEEP]` | Log: who deleted a lead, who marked invoice paid, who changed a role |
 | Backup automation (Supabase → Cloudinary) | `[LATER]` | Daily cron dumps `pg_dump` to a private Cloudinary folder |

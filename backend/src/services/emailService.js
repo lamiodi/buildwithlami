@@ -11,7 +11,7 @@ import {
 } from './emailLayout.js';
 
 const getFromAddress = () =>
-    process.env.EMAIL_FROM || '"BuildWith_Lami" <tygaodibenuah@gmail.com>';
+    process.env.EMAIL_FROM || '"BuildWith_Lami" <buildwithlami@gmail.com>';
 
 /**
  * Sends a contact inquiry or operational alert notification to admin,
@@ -23,7 +23,7 @@ export const sendNotificationEmail = async ({ name, email, subject, message, toE
         const safeEmail = escapeHtml(email || 'Not provided');
         const safeSubject = subject ? escapeHtml(subject) : 'New Portfolio Inquiry';
         const safeMessage = escapeHtml(message || '');
-        const targetRecipient = toEmail || process.env.ADMIN_EMAIL || process.env.EMAIL_TO || 'tygaodibenuah@gmail.com';
+        const targetRecipient = toEmail || process.env.ADMIN_EMAIL || process.env.EMAIL_TO || 'buildwithlami@gmail.com';
 
         const bodyHtml = `
             <p style="margin:0 0 16px 0; font-size:15px; color:#334155;">

@@ -14,7 +14,7 @@ const HomePage = () => {
     document.title = "Buildwith_lami — Software Studio for Web, Commerce & Custom Platforms";
     const metaDesc = document.querySelector('meta[name="description"]');
     if (metaDesc) {
-      metaDesc.setAttribute("content", "Buildwith_lami is the software studio of Eugene Odibenuah — designing, building, and shipping websites, e-commerce stores, business portals, and custom software for founders and growing teams.");
+      metaDesc.setAttribute("content", "Buildwith_lami is the software studio of Eugene Odibenuah — designing, building, and shipping websites, e-commerce stores, business management systems, and custom software for founders and growing teams.");
     }
   }, []);
 

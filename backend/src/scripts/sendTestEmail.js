@@ -9,7 +9,7 @@ dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 import { createTransporter, renderEmailShell, getLogoAttachments } from '../services/emailLayout.js';
 
 async function main() {
-    const targetEmail = process.argv[2] || 'tygaodibenuah@gmail.com';
+    const targetEmail = process.argv[2] || 'buildwithlami@gmail.com';
     console.log(`🚀 Preparing test email via Brevo SMTP to: ${targetEmail}`);
     console.log(`   SMTP Host: ${process.env.SMTP_HOST}:${process.env.SMTP_PORT}`);
     console.log(`   SMTP User: ${process.env.SMTP_USER}`);
@@ -56,7 +56,7 @@ async function main() {
     });
 
     const mailOptions = {
-        from: process.env.EMAIL_FROM || '"BuildWith_Lami" <tygaodibenuah@gmail.com>',
+        from: process.env.EMAIL_FROM || '"BuildWith_Lami" <buildwithlami@gmail.com>',
         to: targetEmail,
         subject: '🚀 BuildWith_Lami — System Verification & Test Email',
         text: `Hello Lami,\n\nThis is a verified live test of the BuildWith_Lami transactional email system powered by Brevo SMTP.\n\nAll transactional emails are active and verified.\n\nThanks,\nBuildWith_Lami Studio`,

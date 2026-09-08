@@ -17,7 +17,6 @@ import clientRoutes from './routes/clientRoutes.js';
 import contactRoutes from './routes/contactRoutes.js';
 import profileRoutes from './routes/profileRoutes.js';
 import clientProjectRoutes from './routes/clientProjectRoutes.js';
-// Removed formRoutes as it was replaced by templateRoutes
 import secretRoutes from './routes/secretRoutes.js';
 import templateRoutes from './routes/templateRoutes.js';
 import feedbackRoutes from './routes/feedbackRoutes.js';
@@ -110,10 +109,18 @@ const allowedOrigins = [
     'https://www.buildwithlami.com',
     'https://buildwithlami.vercel.app',
     'http://localhost:3000',
+    'http://localhost:5173',
 ].filter(Boolean);
 
 app.use(cors({
-    origin: allowedOrigins,
+    origin: (origin, callback) => {
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.includes(origin)) return callback(null, true);
+        if (/^https:\/\/buildwithlami.*\.vercel\.app$/.test(origin)) {
+            return callback(null, true);
+        }
+        return callback(new Error(`Origin ${origin} not allowed by CORS`));
+    },
     credentials: true,
 }));
 app.use(express.json({

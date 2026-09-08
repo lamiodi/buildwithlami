@@ -580,8 +580,8 @@ export const BUILD_PRICING = {
   },
   portals: {
     id: 'portals',
-    label: '🏢 Business Portals & ERPs',
-    title: '04. Business Portals & Operational Systems',
+    label: '🏢 Business Management Systems & ERP',
+    title: '04. Business Management Systems & ERP',
     desc: 'Turnkey operational web applications engineered for schools, residential estates, wholesale warehouses, and supermarket retail chains.',
     startingPriceNGN: 850000,
     startingPriceFormatted: '850,000',

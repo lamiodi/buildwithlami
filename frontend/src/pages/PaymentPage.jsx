@@ -138,7 +138,7 @@ const PaymentPage = () => {
     <div>
       <div class="logo">&lt;BUILDWITH_LAMI /&gt;</div>
       <div style="margin-top: 8px; color: var(--muted); font-size: 13px;">
-        123 Innovation Drive<br/>Lagos, Nigeria<br/>hello@buildwithlami.com
+        123 Innovation Drive<br/>Lagos, Nigeria<br/>buildwithlami@gmail.com
       </div>
     </div>
     <div style="text-align: right;">
@@ -193,7 +193,7 @@ const PaymentPage = () => {
   ` : ''}
 
   <div class="footer">
-    Thank you for your business. For any questions concerning this invoice, contact hello@buildwithlami.com.<br/>
+    Thank you for your business. For any questions concerning this invoice, contact buildwithlami@gmail.com.<br/>
     Buildwith_lami · Software, Survey & Drone Agency
   </div>
 </body>
@@ -503,7 +503,7 @@ const PaymentPage = () => {
                 {/* Footer reassurance */}
                 <div className="text-center mt-12 text-xs text-gray-500 font-mono">
                     <p>🔒 This page is protected by a unique, unguessable link. Your payment details are processed securely.</p>
-                    <p className="mt-2">Questions? Email <a href="mailto:eugeneodibenuah@gmail.com" className="text-accent hover:underline">eugeneodibenuah@gmail.com</a></p>
+                    <p className="mt-2">Questions? Email <a href="mailto:buildwithlami@gmail.com" className="text-accent hover:underline">buildwithlami@gmail.com</a></p>
                 </div>
             </main>
         </div>

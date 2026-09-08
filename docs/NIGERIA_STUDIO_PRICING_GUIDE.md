@@ -192,4 +192,4 @@ Proactive security patches, automated uptime health checks, cloud backups, and o
 5. **Post-Launch Warranty & Care**: Included post-launch warranty commences automatically upon cutover. Ongoing maintenance begins if subscribed.
 
 ---
-*Buildwith_lami Studio · Lagos, Nigeria · [hello@buildwithlami.com](mailto:hello@buildwithlami.com)*
+*Buildwith_lami Studio · Lagos, Nigeria · [buildwithlami@gmail.com](mailto:buildwithlami@gmail.com)*

@@ -36,7 +36,7 @@ const Hero = () => {
         </motion.h1>
 
         <motion.p variants={item} className="text-gray-700 dark:text-gray-300 text-base sm:text-lg md:text-xl max-w-xl leading-relaxed mb-8 font-light">
-          From idea to production launch, I design, build, and deploy websites, e-commerce stores, business portals, and custom software for founders, operators, and growing teams.
+          From idea to production launch, I design, build, and deploy websites, e-commerce stores, business management systems, and custom software for founders, operators, and growing teams.
         </motion.p>
 
         {/* Reassurance Chips */}

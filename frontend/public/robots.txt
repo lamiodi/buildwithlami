@@ -6,6 +6,20 @@ Disallow: /admin/
 Disallow: /admin
 Disallow: /login
 Disallow: /account/
+Disallow: /portal/
+Disallow: /portal
+Disallow: /sign/
+Disallow: /sign
+Disallow: /contracts/sign/
+Disallow: /contracts/sign
+Disallow: /pay/
+Disallow: /pay
+Disallow: /form/
+Disallow: /form
+Disallow: /track/
+Disallow: /track
+Disallow: /forgot-password
+Disallow: /reset-password
 
 # Crawl-delay polite to common bots (1s for any other crawler)
 Crawl-delay: 1

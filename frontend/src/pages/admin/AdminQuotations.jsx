@@ -95,7 +95,7 @@ const STUDIO_PRESETS = [
   },
   {
     id: "portal_gatepass",
-    category: "Business Portals",
+    category: "Business Management Systems & ERP",
     label: "Portals: Estate Gate Pass & QR Access (₦850k)",
     title: "Estate Visitor Pass & Resident Access Operations Hub",
     currency: "NGN",
@@ -108,7 +108,7 @@ const STUDIO_PRESETS = [
   },
   {
     id: "portal_school",
-    category: "Business Portals",
+    category: "Business Management Systems & ERP",
     label: "Portals: School Management & Grading (₦1.6M)",
     title: "School Management System & Academic Report Portal",
     currency: "NGN",

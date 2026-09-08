@@ -3,7 +3,7 @@
 // Usage:
 //   node src/scripts/resetPassword.js <email> <newPassword>
 // Example:
-//   node src/scripts/resetPassword.js tygaodibenuah@gmail.com 'bwlPortal2026!'
+//   node src/scripts/resetPassword.js buildwithlami@gmail.com 'bwlPortal2026!'
 //
 // Connects using DATABASE_URL from .env.
 // ─────────────────────────────────────────────────────────

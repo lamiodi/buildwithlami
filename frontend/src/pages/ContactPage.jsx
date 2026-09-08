@@ -10,7 +10,7 @@ const PROJECT_TYPES = [
   'Business Website',
   'E-Commerce Store',
   'Custom Software',
-  'Business Portal / ERP',
+  'Business Management System & ERP',
   'UI/UX Design',
   'Branding',
   'SEO & Growth',
@@ -117,7 +117,7 @@ const ContactPage = () => {
       if (serviceParam === 'websites') matchedType = 'Business Website';
       else if (serviceParam === 'ecommerce') matchedType = 'E-Commerce Store';
       else if (serviceParam === 'software') matchedType = 'Custom Software';
-      else if (serviceParam === 'portals') matchedType = 'Business Portal / ERP';
+      else if (serviceParam === 'portals') matchedType = 'Business Management System & ERP';
       else if (serviceParam === 'uiux') matchedType = 'UI/UX Design';
       else if (serviceParam === 'branding') matchedType = 'Branding';
       else if (serviceParam === 'seo') matchedType = 'SEO & Growth';
@@ -142,6 +142,11 @@ const ContactPage = () => {
     }
 
     setStatus('submitting');
+
+    const searchParams = new URLSearchParams(location.search);
+    const serviceParam = searchParams.get('service');
+    const tierParam = searchParams.get('tier');
+    const currencyParam = searchParams.get('currency');
 
     const res = await api.post('/contact', {
       full_name: formData.name.trim(),

@@ -171,7 +171,7 @@ export const sendContractSigningInvite = async ({
         });
 
         const mailOptions = {
-            from: process.env.EMAIL_FROM || '"BuildWith_Lami" <tygaodibenuah@gmail.com>',
+            from: process.env.EMAIL_FROM || '"BuildWith_Lami" <buildwithlami@gmail.com>',
             to: clientEmail,
             subject: `Action Required: Review & Sign — ${safeTitle}`,
             text: `Hi ${clientName},\n\nYour contract "${contractTitle}" is ready for signature.\n\nReview & Sign online:\n${signUrl}\n\nThanks,\nBuildWith_Lami`,
@@ -211,7 +211,7 @@ export const sendContractSignedNotification = async ({
         const safeProject = projectName ? escapeHtml(projectName) : null;
         const safeDate = new Date(signedAt).toLocaleString();
         const portalUrl = `${(process.env.FRONTEND_URL || 'https://buildwithlami.com').replace(/\/+$/, '')}/portal/contracts`;
-        const adminEmail = process.env.ADMIN_EMAIL || process.env.EMAIL_TO || 'tygaodibenuah@gmail.com';
+        const adminEmail = process.env.ADMIN_EMAIL || process.env.EMAIL_TO || 'buildwithlami@gmail.com';
 
         const bodyHtml = `
             <p style="margin:0 0 16px 0; font-size:15px; color:#334155;">Hi ${safeName},</p>
@@ -246,7 +246,7 @@ export const sendContractSignedNotification = async ({
         });
 
         const mailOptions = {
-            from: process.env.EMAIL_FROM || '"BuildWith_Lami" <tygaodibenuah@gmail.com>',
+            from: process.env.EMAIL_FROM || '"BuildWith_Lami" <buildwithlami@gmail.com>',
             to: clientEmail,
             cc: adminEmail,
             subject: `Signed: ${safeTitle} — BuildWith_Lami`,
