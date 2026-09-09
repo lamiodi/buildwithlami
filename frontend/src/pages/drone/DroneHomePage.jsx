@@ -4,11 +4,13 @@ import { motion, useReducedMotion } from 'framer-motion';
 import {
   Crosshair, ArrowRight, ArrowUpRight, Plus, Minus, Mail, Phone, MapPin, Download,
   Map as MapIcon, Building2, Home, Mountain, Calendar, TreePine, Landmark, Plane,
-  X, Check, Camera, Video, Shield, Layers, Sliders, Menu, Calculator, Clock, CheckCircle2, ShieldCheck
+  X, Check, Camera, Video, Shield, Layers, Sliders, Menu, Calculator, Clock, CheckCircle2, ShieldCheck,
+  MessageCircle
 } from 'lucide-react';
 import { api } from '../../services/api';
 import { dronePlaceholder, equipmentPlaceholder } from '../../utils/placeholders';
 import { validateBooking, validateField } from '../../utils/formValidation';
+import { CONTACT } from '../../config/contact';
 import {
   Select,
   SelectContent,
@@ -616,8 +618,8 @@ const DroneHomePage = () => {
                 className="flex items-center gap-3 mb-7"
               >
                 <span className="h-px w-10 bg-accent" aria-hidden="true" />
-                <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/65">
-                  Commercial Drone Operations
+                <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/70">
+                  Commercial Drone Operations &amp; Aerial Imaging // Lagos &amp; Nationwide
                 </span>
               </motion.div>
 
@@ -625,27 +627,52 @@ const DroneHomePage = () => {
                 initial={reduce ? false : { opacity: 0, y: 22 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 1.0, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
-                className="drone-heading tracking-[-0.025em] leading-[0.95] mb-7 text-white"
-                style={{ fontSize: 'clamp(2.6rem, 5.5vw, 5.2rem)' }}
+                className="drone-heading tracking-[-0.025em] leading-[0.95] mb-6 text-white"
+                style={{ fontSize: 'clamp(2.5rem, 5.2vw, 5rem)' }}
               >
-                See Your Project<br />
-                <span className="text-white/35">From Above.</span>
+                Elevate Your Perspective.<br />
+                <span className="text-white/35">Accelerate Property Sales.</span>
               </motion.h1>
 
               <motion.p
                 initial={reduce ? false : { opacity: 0, y: 14 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.35, ease: [0.16, 1, 0.3, 1] }}
-                className="text-sm md:text-base text-white/65 font-medium leading-relaxed max-w-md mb-10"
+                className="text-sm md:text-base text-white/75 font-medium leading-relaxed max-w-lg mb-6"
               >
-                Commercial drone services in Nigeria. HDR cinematography, photogrammetry basemaps, and inspection stills for real estate, construction, and events.
+                Broadcast-grade 4K/60fps HDR video (10-bit D-Log M), 48MP RAW stills (DNG), and photogrammetric basemaps for luxury real estate developers, construction directors, and commercial brands across Nigeria. Flown with practiced cinematic precision by Chief Pilot <span className="text-white font-bold">Eugene Odibenuah</span>.
               </motion.p>
+
+              {/* Conversion Trust Strip */}
+              <motion.div
+                initial={reduce ? false : { opacity: 0, y: 14 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.45, ease: [0.16, 1, 0.3, 1] }}
+                className="grid grid-cols-2 gap-2.5 mb-8 text-[10px] font-bold uppercase tracking-wider text-white/80 max-w-lg"
+              >
+                <div className="flex items-center gap-2 p-2 bg-white/5 border border-white/10 rounded-xl">
+                  <Check className="w-3.5 h-3.5 text-accent shrink-0" />
+                  <span>48MP RAW &amp; 4K 10-Bit D-Log M</span>
+                </div>
+                <div className="flex items-center gap-2 p-2 bg-white/5 border border-white/10 rounded-xl">
+                  <Check className="w-3.5 h-3.5 text-accent shrink-0" />
+                  <span>Repeatable Waypoint Tracking</span>
+                </div>
+                <div className="flex items-center gap-2 p-2 bg-white/5 border border-white/10 rounded-xl">
+                  <Check className="w-3.5 h-3.5 text-accent shrink-0" />
+                  <span>Sub-249g Agile NCAA Safety</span>
+                </div>
+                <div className="flex items-center gap-2 p-2 bg-white/5 border border-white/10 rounded-xl">
+                  <Check className="w-3.5 h-3.5 text-accent shrink-0" />
+                  <span>3–5 Day Delivery (24h Express)</span>
+                </div>
+              </motion.div>
 
               <motion.div
                 initial={reduce ? false : { opacity: 0, y: 14 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
-                className="flex flex-wrap items-center gap-6"
+                transition={{ duration: 0.8, delay: 0.55, ease: [0.16, 1, 0.3, 1] }}
+                className="flex flex-wrap items-center gap-4"
               >
                 <button
                   onClick={() => scrollTo('contact')}
@@ -656,9 +683,20 @@ const DroneHomePage = () => {
                     <ArrowRight className="w-3.5 h-3.5" />
                   </span>
                 </button>
+
+                <a
+                  href={`https://wa.me/${CONTACT.phoneE164}?text=${encodeURIComponent("Hello Eugene, I would like to book a commercial drone flight mission.")}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 text-white/80 hover:text-white text-xs font-bold uppercase tracking-wider py-3.5 px-5 rounded-full border border-white/20 hover:border-white/40 transition-colors bg-white/5"
+                >
+                  <MessageCircle className="w-4 h-4 text-emerald-400" />
+                  <span>WhatsApp Dispatch</span>
+                </a>
+
                 <button
                   onClick={() => scrollTo('portfolio')}
-                  className="font-bold text-sm underline decoration-2 underline-offset-[6px] decoration-white/30 text-white/85 hover:text-accent hover:decoration-accent transition-colors"
+                  className="font-bold text-sm underline decoration-2 underline-offset-[6px] decoration-white/30 text-white/85 hover:text-accent hover:decoration-accent transition-colors py-2 px-1"
                 >
                   View Portfolio
                 </button>
@@ -1318,13 +1356,13 @@ const DroneHomePage = () => {
               </p>
 
               <div className="space-y-4">
-                <a href="mailto:drone@buildwithlami.com" className="flex items-center gap-3 text-sm hover:text-accent transition-colors">
+                <a href={`mailto:${CONTACT.email}`} className="flex items-center gap-3 text-sm hover:text-accent transition-colors">
                   <div className="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center"><Mail className="w-4 h-4 text-accent" /></div>
-                  <span>drone@buildwithlami.com</span>
+                  <span>{CONTACT.email}</span>
                 </a>
-                <a href="tel:+2349064185442" className="flex items-center gap-3 text-sm hover:text-accent transition-colors">
+                <a href={`tel:${CONTACT.phoneE164}`} className="flex items-center gap-3 text-sm hover:text-accent transition-colors">
                   <div className="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center"><Phone className="w-4 h-4 text-accent" /></div>
-                  <span>+234 906 418 5442</span>
+                  <span>{CONTACT.phoneDisplay}</span>
                 </a>
                 <div className="flex items-center gap-3 text-sm text-gray-400">
                   <div className="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center"><MapPin className="w-4 h-4 text-accent" /></div>
@@ -1480,6 +1518,19 @@ const DroneHomePage = () => {
               {bookingStatus === 'error' && (
                 <p role="alert" className="text-xs text-red-300 font-medium text-center">Something went wrong. Please try again or contact us directly.</p>
               )}
+
+              <div className="pt-4 border-t border-white/10 text-center">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">Need Immediate Scoping or Rush Turnaround?</p>
+                <a
+                  href={`https://wa.me/${CONTACT.phoneE164}?text=${encodeURIComponent("Hello Lami Aerial, I would like to request an aerial drone mission quote.")}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full py-3.5 border border-emerald-500 text-emerald-400 hover:bg-emerald-500/10 rounded-full text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-colors"
+                >
+                  <MessageCircle className="w-4 h-4 text-emerald-400" />
+                  <span>Connect Directly via WhatsApp for Instant Scoping →</span>
+                </a>
+              </div>
             </form>
           </div>
         </section>

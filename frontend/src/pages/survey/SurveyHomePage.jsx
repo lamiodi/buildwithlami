@@ -28,7 +28,10 @@ import {
   Calendar,
   Activity,
   UserCheck,
-  Award
+  Award,
+  ShieldCheck,
+  AlertTriangle,
+  MessageCircle
 } from 'lucide-react';
 import { api } from '../../services/api';
 import { surveyPlaceholder, projectPlaceholder } from '../../utils/placeholders';
@@ -224,7 +227,7 @@ const SurveyHomePage = () => {
 
   // -- Booking form state --
   const [booking, setBooking] = useState({
-    full_name: '', email: '', phone: '', service: '', location: '', preferred_date: '', notes: '',
+    full_name: '', email: '', phone: '', service: '', location: '', preferred_date: '', notes: '', land_size: '', survey_purpose: '',
   });
   const [bookingStatus, setBookingStatus] = useState('idle'); // idle | submitting | success | error
   const [bookingErrors, setBookingErrors] = useState({});
@@ -262,11 +265,22 @@ const SurveyHomePage = () => {
     setBookingErrors({});
     setBookingStatus('submitting');
     
+    // Combine qualifying attributes cleanly for seamless backend receipt
+    const enrichedNotes = [
+      booking.land_size ? `Land Size: ${booking.land_size}` : '',
+      booking.survey_purpose ? `Survey Purpose: ${booking.survey_purpose}` : '',
+      booking.notes ? `Client Notes: ${booking.notes}` : ''
+    ].filter(Boolean).join('\n\n');
+
     try {
-      const res = await api.post('/bookings', { ...booking, division: 'SURVEY' });
+      const res = await api.post('/bookings', { 
+        ...booking, 
+        notes: enrichedNotes || booking.notes,
+        division: 'SURVEY' 
+      });
       if (res.ok) {
         setBookingStatus('success');
-        setBooking({ full_name: '', email: '', phone: '', service: '', location: '', preferred_date: '', notes: '' });
+        setBooking({ full_name: '', email: '', phone: '', service: '', location: '', preferred_date: '', notes: '', land_size: '', survey_purpose: '' });
         setTimeout(() => setBookingStatus('idle'), 5000);
       } else {
         setBookingStatus('error');
@@ -284,27 +298,27 @@ const SurveyHomePage = () => {
       id: 'cadastral',
       category: 'Boundary & Cadastral Demarcation',
       number: '01',
-      headline: 'Boundary & Cadastral Demarcation',
-      description: 'Perimeter boundary demarcation, physical beacon pillar monumentation, and cadastral survey plans prepared under the supervision of SURCON-registered surveyors for land title verification and statutory lodgement.',
-      deliverables: 'Survey Plan, Beacon Coordinate Register, AutoCAD (.DWG/.DXF), Deed Plan Annexure',
+      headline: 'Legal Boundary Demarcation & Title Lodgement Plans',
+      description: 'Physical perimeter beacon monumentation, boundary recovery, and cadastral survey plans prepared under the direct supervision of SURCON-registered surveyors. Fully compliant for Governor’s Consent, C of O, and title deed registration.',
+      deliverables: 'Registered Survey Plan, Beacon Coordinate Register, AutoCAD (.DWG/.DXF), Deed Plan Annexure',
       timeline: '3–5 business days',
       subItems: [
-        'Perimeter Boundary Demarcation & Beacon Monumentation',
-        'Project-Specific Coordinate Controls (Minna Datum / UTM Zone 31N/32N / WGS84)',
-        'Lodgement-Ready Cadastral Survey Plans',
-        'Title Boundary Verification & Boundary Dispute Reconciliation'
+        'Perimeter Boundary Demarcation & Reinforced Beacon Casting',
+        'Minna Datum & UTM Zone 31N/32N Cadastral Coordinate Controls',
+        'Statutory Lodgement-Ready Survey Plans (SURCON Supervised)',
+        'Boundary Dispute Resolution & Encroachment Audits'
       ]
     },
     {
       id: 'topographic',
       category: 'Topographic Baseline Surveys',
       number: '02',
-      headline: '2D & 3D Terrain, Contours & Elevation Baselines',
-      description: 'Comprehensive digital elevation models, spot heights, contour baselines, and built-asset inventories designed for architectural master planning, drainage engineering, and site feasibility studies.',
-      deliverables: '2D/3D Contour Plan, Digital Elevation Model (DEM), Spot Heights Grid, GeoTIFF Orthomosaic',
+      headline: 'High-Density 3D Terrain, Contours & Elevation Baselines',
+      description: 'Sub-centimeter digital elevation models, spot height grids, and 0.5m contour baselines essential for architectural master planning, drainage engineering, and eliminating expensive foundation flood risks.',
+      deliverables: '2D/3D Contour Plan, Digital Elevation Model (DEM/DTM), Spot Heights Grid, GeoTIFF Orthomosaic',
       timeline: '4–7 business days',
       subItems: [
-        'Custom Contour Interval Generation (0.5m / 1.0m intervals)',
+        'High-Resolution Contour Intervals (0.5m / 1.0m intervals)',
         'Digital Terrain & Surface Modeling (DTM / DSM)',
         'Natural & Built Feature Geospatial Asset Location',
         'Earthwork Cut & Fill Volumetric Computation'
@@ -314,14 +328,14 @@ const SurveyHomePage = () => {
       id: 'engineering',
       category: 'Engineering & Construction Setting Out',
       number: '03',
-      headline: 'Construction Layouts & Axis Alignment',
-      description: 'Translating structural, architectural, and civil blueprints onto physical ground with high-precision Total Station grid pegging, column axis control, and as-built deviation audits.',
+      headline: 'Construction Setting Out & Column Axis Alignment',
+      description: 'Translating structural, architectural, and civil drawings directly to physical ground with Total Station millimeter precision, column axis control, pile cap staking, and as-built QA audits.',
       deliverables: 'Setting Out Certificate, Grid Alignment Sheet, As-Built Deviation Report',
       timeline: 'Scheduled per project milestone',
       subItems: [
         'Building Footprint & Column Grid Alignment Staking',
         'Road Centerlines, Corridors & Invert Drainage Levels',
-        'Pile Position & Foundation Axis Precision Control',
+        'Pile Cap Position & Foundation Axis Precision Control',
         'As-Built Quality Assurance & Structural Tolerance Audits'
       ]
     },
@@ -329,15 +343,15 @@ const SurveyHomePage = () => {
       id: 'subdivision',
       category: 'Estate Layout & Land Subdivision',
       number: '04',
-      headline: 'Master Plan Demarcation & Plot Partitioning',
-      description: 'Partitioning large landholdings and commercial estates into demarcated units with road network alignment, utility reservations, and drainage corridors.',
-      deliverables: 'Master Subdivision Plan, Individual Plot Beacon Sheets, Road Network Layout',
+      headline: 'Master Estate Subdivision & Plot Partitioning',
+      description: 'Partitioning landholdings into demarcated residential and commercial plots with approved road right-of-way setbacks (12m/9m), utility reservation corridors, and individual buyer coordinate sheets.',
+      deliverables: 'Master Subdivision Plan, Individual Plot Beacon Sheets, Road Network Profile',
       timeline: '1–2 weeks depending on acreage',
       subItems: [
         'Master Layout Plot Demarcation & Perimeter Pillar Staking',
         'Estate Road Network Alignment & Right-of-Way Staking',
         'Utility Corridor & Drainage Reservation Planning',
-        'Commercial, Residential & Green Zone Allocation Plans'
+        'Individual Purchaser Beacon Schedules for Contract Annexure'
       ]
     }
   ];
@@ -734,33 +748,56 @@ const SurveyHomePage = () => {
             <div>
               <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-gray-100 border border-gray-200 text-[10px] font-bold uppercase tracking-widest text-gray-700 mb-8">
                 <span className="w-2 h-2 rounded-full bg-black"></span>
-                <span>GeoSurvey // Land &amp; Engineering Division</span>
+                <span>GeoSurvey // Land &amp; Engineering Division · SURCON Oversight</span>
               </div>
 
               <h1 className="survey-heading text-4xl sm:text-5xl lg:text-6xl font-black leading-[1.05] tracking-tight uppercase mb-6 text-gray-900">
-                Precision Surveying.<br />
-                <span className="text-gray-500">Reliable Field Data.</span>
+                SURCON-Supervised<br />
+                <span className="text-gray-500">Land &amp; Engineering Surveys.</span>
               </h1>
 
-              <p className="text-xs sm:text-sm font-semibold leading-relaxed text-gray-700 mb-8">
-                Professional land surveying and geospatial services for residential, commercial, and infrastructure projects across Lagos and beyond — delivered by <span className="text-black font-bold">Eugene Odibenuah</span> under the supervision of SURCON-registered surveyors.
+              <p className="text-xs sm:text-sm font-semibold leading-relaxed text-gray-700 mb-6">
+                Protect your property investment, secure statutory land title documentation, and ground your civil construction in verified sub-centimeter accuracy. Professional boundary demarcation, 3D topographic baselines, and estate subdivision across Lagos and nationwide — delivered by <span className="text-black font-bold">Eugene Odibenuah</span> under certified SURCON-registered surveyor supervision.
               </p>
 
-              <div className="flex flex-wrap items-center gap-4 mb-8">
+              {/* Conversion Trust Strip */}
+              <div className="grid grid-cols-2 gap-2 mb-6 text-[10px] font-bold uppercase tracking-wider text-gray-700">
+                <div className="flex items-center gap-2 p-2 bg-gray-50 border border-gray-200">
+                  <Check className="w-3.5 h-3.5 text-black shrink-0" />
+                  <span>SURCON Lodgement Oversight</span>
+                </div>
+                <div className="flex items-center gap-2 p-2 bg-gray-50 border border-gray-200">
+                  <Check className="w-3.5 h-3.5 text-black shrink-0" />
+                  <span>Minna Datum &amp; UTM 31N/32N</span>
+                </div>
+                <div className="flex items-center gap-2 p-2 bg-gray-50 border border-gray-200">
+                  <Check className="w-3.5 h-3.5 text-black shrink-0" />
+                  <span>Centimeter RTK GNSS Accuracy</span>
+                </div>
+                <div className="flex items-center gap-2 p-2 bg-gray-50 border border-gray-200">
+                  <Check className="w-3.5 h-3.5 text-black shrink-0" />
+                  <span>Scope &amp; Quote in 24 Hours</span>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-3.5 mb-6">
                 <button
                   onClick={() => scrollTo('contact')}
                   className="bg-black text-white px-6 py-3.5 text-xs font-bold uppercase tracking-wider flex items-center gap-2 hover:bg-gray-800 transition-colors shadow-sm active:scale-98"
                 >
-                  <span>Request a Survey</span>
+                  <span>Request Survey Quote</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
 
-                <button
-                  onClick={() => scrollTo('projects')}
-                  className="border border-black text-black px-6 py-3.5 text-xs font-bold uppercase tracking-wider hover:bg-gray-100 transition-colors"
+                <a
+                  href={`https://wa.me/${CONTACT.phoneE164}?text=${encodeURIComponent("Hello Eugene, I would like to request a land survey scope and quotation for my site.")}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="border border-black text-black px-5 py-3.5 text-xs font-bold uppercase tracking-wider hover:bg-gray-100 transition-colors flex items-center gap-2"
                 >
-                  View Portfolio
-                </button>
+                  <MessageCircle className="w-4 h-4 text-emerald-600" />
+                  <span>WhatsApp Chat</span>
+                </a>
               </div>
 
               <div className="pt-2">
@@ -769,14 +806,14 @@ const SurveyHomePage = () => {
                   download="Eugene-Odibenuah-Surveyor-CV.pdf"
                   className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-gray-600 hover:text-black transition-colors"
                 >
-                  <Download className="w-3.5 h-3.5" />
+                  <Download className="w-3.5 h-3.5 text-emerald-600" />
                   <span>Download Professional Profile (CV)</span>
                 </a>
               </div>
             </div>
 
-            <div className="pt-10 mt-auto border-t border-gray-200">
-              <p className="text-[9px] font-bold uppercase tracking-[0.25em] text-gray-400 mb-3">Core Disciplines</p>
+            <div className="pt-8 mt-auto border-t border-gray-200">
+              <p className="text-[9px] font-bold uppercase tracking-[0.25em] text-gray-400 mb-2">Core Disciplines</p>
               <p className="text-[11px] font-bold uppercase tracking-wider text-gray-800">
                 Boundary Surveys · Topographic Baselines · Setting Out · Land Subdivision
               </p>
@@ -885,6 +922,76 @@ const SurveyHomePage = () => {
             </div>
           </div>
 
+        </div>
+      </section>
+
+      {/* ==== RISK REVERSAL & HIGH-CONVERSION COMPARISON SECTION ==== */}
+      <section className="py-16 px-6 md:px-12 max-w-[1400px] mx-auto border-t border-gray-300">
+        <div className="bg-white border border-gray-300 p-8 md:p-12 shadow-sm">
+          <div className="max-w-3xl mb-10">
+            <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-500 mb-3">— Investment Protection &amp; Legal Peace of Mind</p>
+            <h2 className="survey-heading text-3xl sm:text-4xl md:text-5xl font-black uppercase tracking-tight text-gray-900 mb-4">
+              The Cost of Quack Surveys<br />
+              <span className="text-gray-500">vs. The GeoSurvey Standard</span>
+            </h2>
+            <p className="text-xs sm:text-sm text-gray-600 font-medium leading-relaxed">
+              In Nigerian real estate, saving money on an uncertified surveyor is the single most expensive error a property buyer or developer can make. Here is why serious clients insist on verified SURCON-supervised surveying:
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* Left Card: Risks of Unverified Surveys */}
+            <div className="bg-red-50/60 border border-red-200 p-6 sm:p-8 space-y-4">
+              <div className="flex items-center gap-3 text-red-700 font-bold uppercase tracking-wider text-xs">
+                <AlertTriangle className="w-5 h-5 shrink-0 text-red-600" />
+                <span>The Risks of Quack / Unverified Surveys</span>
+              </div>
+              <ul className="space-y-3 text-xs text-gray-700 font-medium">
+                <li className="flex items-start gap-2.5">
+                  <X className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+                  <span><strong>Artificial / Guessed Coordinates:</strong> Results in overlapping boundary lines, bitter neighbor disputes, and court injunctions halting building works.</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <X className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+                  <span><strong>Statutory Lodgement Rejection:</strong> Plans prepared without registered surveyor supervision are rejected at the Lands Bureau during Governor’s Consent and C of O processing.</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <X className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+                  <span><strong>Uncoordinated Beacons:</strong> Weak, unmonumented beacons easily removed, displaced, or contested by land grabbers (<em>omoonile</em>).</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <X className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+                  <span><strong>Elevation Blindspots:</strong> Uncalibrated topographic data leads to building on natural drainage paths, chronic flooding, and catastrophic civil rework costs.</span>
+                </li>
+              </ul>
+            </div>
+
+            {/* Right Card: The GeoSurvey Professional Standard */}
+            <div className="bg-emerald-50/60 border border-emerald-200 p-6 sm:p-8 space-y-4">
+              <div className="flex items-center gap-3 text-emerald-800 font-bold uppercase tracking-wider text-xs">
+                <ShieldCheck className="w-5 h-5 shrink-0 text-emerald-600" />
+                <span>The GeoSurvey Professional Standard</span>
+              </div>
+              <ul className="space-y-3 text-xs text-gray-700 font-medium">
+                <li className="flex items-start gap-2.5">
+                  <Check className="w-4 h-4 text-emerald-700 shrink-0 mt-0.5" />
+                  <span><strong>Tied to National Geodetic Framework:</strong> Multi-constellation GNSS RTK observations anchored to Minna Datum / UTM Zone 31N/32N government control beacons.</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <Check className="w-4 h-4 text-emerald-700 shrink-0 mt-0.5" />
+                  <span><strong>100% Lodgement-Ready Certification:</strong> Stamped and certified under the direct supervision of licensed SURCON-registered surveyors for seamless land titling.</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <Check className="w-4 h-4 text-emerald-700 shrink-0 mt-0.5" />
+                  <span><strong>Rigid Monumentation:</strong> Permanent concrete beacon pillars anchored directly at perimeter vertices with tabulated coordinate schedules.</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <Check className="w-4 h-4 text-emerald-700 shrink-0 mt-0.5" />
+                  <span><strong>3D Engineering CAD Vectors:</strong> Clean, layered AutoCAD (.DWG/.DXF) drawings and Digital Elevation Models compatible with Revit, Civil 3D, and ArchiCAD.</span>
+                </li>
+              </ul>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -1545,6 +1652,79 @@ const SurveyHomePage = () => {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
+                  <label htmlFor="survey_booking_land_size" className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1.5 block">Estimated Land Size / Acreage</label>
+                  <Select
+                    value={booking.land_size}
+                    onValueChange={val => handleBookingFieldChange('land_size', val)}
+                  >
+                    <SelectTrigger
+                      id="survey_booking_land_size"
+                      className="w-full bg-[#f9f9f9] border border-gray-300 rounded-none h-11 text-xs font-bold uppercase tracking-wider focus:outline-none transition-colors focus:border-black"
+                    >
+                      <SelectValue placeholder="— Select Land Size —" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-white border-gray-300 shadow-2xl">
+                      <SelectGroup>
+                        <SelectItem value="1–2 Residential Plots (< 1,500 m²)" className="cursor-pointer font-bold text-xs uppercase tracking-wider">
+                          1–2 Plots (&lt; 1,500 m²)
+                        </SelectItem>
+                        <SelectItem value="3–6 Plots / Commercial Site (Half Acre)" className="cursor-pointer font-bold text-xs uppercase tracking-wider">
+                          3–6 Plots / Half Acre
+                        </SelectItem>
+                        <SelectItem value="1–3 Hectares (15–45 Plots)" className="cursor-pointer font-bold text-xs uppercase tracking-wider">
+                          1–3 Hectares (15–45 Plots)
+                        </SelectItem>
+                        <SelectItem value="4–10 Hectares (Estate Layout)" className="cursor-pointer font-bold text-xs uppercase tracking-wider">
+                          4–10 Hectares (Estate Layout)
+                        </SelectItem>
+                        <SelectItem value="10+ Hectares (Regional / Agricultural)" className="cursor-pointer font-bold text-xs uppercase tracking-wider">
+                          10+ Hectares (Large Acreage)
+                        </SelectItem>
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <label htmlFor="survey_booking_survey_purpose" className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1.5 block">Intended Survey Purpose</label>
+                  <Select
+                    value={booking.survey_purpose}
+                    onValueChange={val => handleBookingFieldChange('survey_purpose', val)}
+                  >
+                    <SelectTrigger
+                      id="survey_booking_survey_purpose"
+                      className="w-full bg-[#f9f9f9] border border-gray-300 rounded-none h-11 text-xs font-bold uppercase tracking-wider focus:outline-none transition-colors focus:border-black"
+                    >
+                      <SelectValue placeholder="— Select Purpose —" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-white border-gray-300 shadow-2xl">
+                      <SelectGroup>
+                        <SelectItem value="Title Lodgement / Governor's Consent / C of O" className="cursor-pointer font-bold text-xs uppercase tracking-wider">
+                          Title Lodgement / C of O
+                        </SelectItem>
+                        <SelectItem value="Architectural & Engineering Planning (Topographic)" className="cursor-pointer font-bold text-xs uppercase tracking-wider">
+                          Architectural / Civil Planning
+                        </SelectItem>
+                        <SelectItem value="Boundary Demarcation & Beacon Monumentation" className="cursor-pointer font-bold text-xs uppercase tracking-wider">
+                          Boundary Beaconing
+                        </SelectItem>
+                        <SelectItem value="Construction Setting Out & Column Alignment" className="cursor-pointer font-bold text-xs uppercase tracking-wider">
+                          Construction Setting Out
+                        </SelectItem>
+                        <SelectItem value="Estate Subdivision & Plot Partitioning" className="cursor-pointer font-bold text-xs uppercase tracking-wider">
+                          Estate Subdivision
+                        </SelectItem>
+                        <SelectItem value="Purchase Due Diligence / Boundary Verification" className="cursor-pointer font-bold text-xs uppercase tracking-wider">
+                          Purchase Due Diligence
+                        </SelectItem>
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
                   <label htmlFor="survey_booking_location" className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1.5 block">Site Location / LGA</label>
                   <input
                     id="survey_booking_location"
@@ -1578,7 +1758,7 @@ const SurveyHomePage = () => {
               </div>
 
               <div>
-                <label htmlFor="survey_booking_notes" className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1.5 block">Project Notes &amp; Approximate Acreage</label>
+                <label htmlFor="survey_booking_notes" className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1.5 block">Project Notes &amp; Site Details</label>
                 <textarea
                   id="survey_booking_notes"
                   name="survey_booking_notes"
@@ -1612,6 +1792,19 @@ const SurveyHomePage = () => {
               {bookingStatus === 'error' && (
                 <p role="alert" className="text-xs text-red-600 font-bold uppercase tracking-wider text-center">Something went wrong. Please try again or email us directly.</p>
               )}
+
+              <div className="pt-4 border-t border-gray-200 text-center">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">Prefer Immediate Dialogue?</p>
+                <a
+                  href={`https://wa.me/${CONTACT.phoneE164}?text=${encodeURIComponent("Hello Eugene, I would like to request an instant land survey scope and quote.")}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full py-3 border border-emerald-600 text-emerald-800 hover:bg-emerald-50 text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-colors"
+                >
+                  <MessageCircle className="w-4 h-4 text-emerald-600" />
+                  <span>Chat Directly on WhatsApp for Instant Site Scoping →</span>
+                </a>
+              </div>
             </form>
           </div>
 
