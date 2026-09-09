@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, Suspense, lazy } from 'react';
+import { useState, useEffect, useRef, Suspense, lazy } from 'react';
 import { Link } from 'react-router-dom';
 
 const TechStack = lazy(() => import('./TechStack'));
@@ -147,4 +147,3 @@ const Footer = () => {
 };
 
 export default Footer;
-

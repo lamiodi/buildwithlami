@@ -1,274 +1,276 @@
-import React, { useEffect, useRef } from 'react';
-import Matter from 'matter-js';
+import { useEffect, useRef } from 'react';
+import TechIcon from './TechIcon';
 import './TechStack.css';
 
-// iconOnly: true = show ONLY the HD logo (no text label), renders as a square card
-// iconOnly: false or missing = show text label with accent dot, renders as a wide card
 const techStack = [
-  { name: 'React', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg', iconOnly: true },
-  { name: 'Node.js', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nodejs/nodejs-original.svg', iconOnly: true },
-  { name: 'PostgreSQL', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/postgresql/postgresql-original.svg', iconOnly: true },
-  { name: 'JavaScript', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/javascript/javascript-original.svg', iconOnly: true },
-  { name: 'Tailwind CSS', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/tailwindcss/tailwindcss-original.svg', iconOnly: true },
-  { name: 'Supabase', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/supabase/supabase-original.svg', iconOnly: true },
-  { name: 'Vite', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/vitejs/vitejs-original.svg', iconOnly: true },
-  { name: 'Express', icon: '' },
-  { name: 'Paystack', icon: '' },
-  { name: 'Framer Motion', icon: '' }
+  'React',
+  'Node.js',
+  'PostgreSQL',
+  'JavaScript',
+  'Tailwind CSS',
+  'Supabase',
+  'Vite',
+  'Express',
+  'Paystack',
+  'Framer Motion'
 ];
 
-const ICON_CARD_SIZE = 64;   // square cards for icon-only
-const TEXT_CARD_W = 180;     // wide cards for text
-const TEXT_CARD_H = 56;
+const CARD_WIDTH = 140;
+const CARD_HEIGHT = 58;
+const CARD_POSITIONS = [
+  [0.12, 0.42],
+  [0.29, 0.34],
+  [0.46, 0.44],
+  [0.63, 0.34],
+  [0.82, 0.43],
+  [0.90, 0.69],
+  [0.72, 0.73],
+  [0.53, 0.65],
+  [0.34, 0.75],
+  [0.15, 0.68]
+];
 
 const TechStack = () => {
   const sceneRef = useRef(null);
   const sectionRef = useRef(null);
-  const engineRef = useRef(null);
-  const runnerRef = useRef(null);
-  const animFrameRef = useRef(null);
-  const isVisibleRef = useRef(false);
+  const cardRefs = useRef([]);
 
   useEffect(() => {
-    if (!sceneRef.current || !sectionRef.current) return;
-
-    const {
-      Engine,
-      Bodies,
-      Composite,
-      Mouse,
-      MouseConstraint,
-      Events,
-      Runner
-    } = Matter;
-
     const scene = sceneRef.current;
     const section = sectionRef.current;
-    
-    // Clear existing scene if any
-    scene.innerHTML = '';
+    if (!scene || !section || typeof window === 'undefined') return undefined;
 
-    let width = section.offsetWidth || 600;
-    let height = section.offsetHeight || 380;
-
-    // Create engine with sleep enabled for peak performance
-    const engine = Engine.create({
-      enableSleeping: true
-    });
-    engineRef.current = engine;
-    engine.world.gravity.y = 0.02;
-
-    const wallThickness = 100;
-
-    const walls = [
-      Bodies.rectangle(width / 2, -wallThickness / 2, width * 2, wallThickness, { isStatic: true, restitution: 0.9, friction: 0.1 }),
-      Bodies.rectangle(width / 2, height + wallThickness / 2, width * 2, wallThickness, { isStatic: true, restitution: 0.9, friction: 0.1 }),
-      Bodies.rectangle(-wallThickness / 2, height / 2, wallThickness, height * 2, { isStatic: true, restitution: 0.9, friction: 0.1 }),
-      Bodies.rectangle(width + wallThickness / 2, height / 2, wallThickness, height * 2, { isStatic: true, restitution: 0.9, friction: 0.1 })
-    ];
-
-    Composite.add(engine.world, walls);
-
-    const cards = [];
-    const cardElements = [];
-    const padding = 50;
-
-    techStack.forEach((tech, index) => {
-      const label = tech.name;
-      const isIconOnly = tech.iconOnly && tech.icon;
-      const cw = isIconOnly ? ICON_CARD_SIZE : TEXT_CARD_W;
-      const ch = isIconOnly ? ICON_CARD_SIZE : TEXT_CARD_H;
-
-      const x = padding + Math.random() * Math.max(50, width - cw - padding * 2);
-      const y = padding + Math.random() * Math.max(50, height - ch - padding * 2);
-
-      const body = Bodies.rectangle(x, y, cw, ch, {
-        restitution: 0.7,
-        friction: 0.02,
-        frictionAir: 0.01,
-        angle: (Math.random() - 0.5) * 0.25,
-        label: label,
-        id: index
-      });
-
-      cards.push(body);
-
-      const cardEl = document.createElement('div');
-      cardEl.className = isIconOnly ? 'tech-card icon-only' : 'tech-card';
-      cardEl.setAttribute('role', 'button');
-      cardEl.setAttribute('aria-label', `${label} technology card - drag to interact`);
-      cardEl.setAttribute('tabindex', '0');
-
-      if (isIconOnly) {
-        cardEl.innerHTML = `<img src="${tech.icon}" alt="${label}" class="tech-logo" loading="lazy" />`;
-      } else {
-        cardEl.innerHTML = `
-          <div class="accent-dot"></div>
-          <span>${label}</span>
-        `;
-      }
-
-      scene.appendChild(cardEl);
-      cardElements.push(cardEl);
-    });
-
-    Composite.add(engine.world, cards);
-
-    const mouse = Mouse.create(scene);
-    const mouseConstraint = MouseConstraint.create(engine, {
-      mouse: mouse,
-      constraint: {
-        stiffness: 0.25,
-        render: { visible: false }
-      }
-    });
-
-    Composite.add(engine.world, mouseConstraint);
-
-    let draggedBody = null;
-
-    Events.on(mouseConstraint, 'startdrag', (event) => {
-      draggedBody = event.body;
-      const index = cards.indexOf(draggedBody);
-      if (index !== -1 && cardElements[index]) {
-        cardElements[index].classList.add('dragging');
-      }
-    });
-
-    Events.on(mouseConstraint, 'enddrag', (event) => {
-      if (draggedBody) {
-        const index = cards.indexOf(draggedBody);
-        if (index !== -1 && cardElements[index]) {
-          cardElements[index].classList.remove('dragging');
-        }
-      }
-      draggedBody = null;
-    });
-
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const isMobile = window.innerWidth < 768;
-
-    let time = 0;
-    const beforeUpdate = () => {
-      if (prefersReducedMotion || isMobile || !isVisibleRef.current) return;
-      time += 0.016;
-      cards.forEach((card, index) => {
-        if (!card.isStatic && card !== draggedBody) {
-          const floatX = Math.sin(time * 0.8 + index * 1.2) * 0.00012;
-          const floatY = Math.cos(time * 0.6 + index * 0.9) * 0.00012;
-          Matter.Body.applyForce(card, card.position, { x: floatX, y: floatY });
-          Matter.Body.setAngularVelocity(card, card.angularVelocity * 0.99);
-        }
-      });
-    };
-    Events.on(engine, 'beforeUpdate', beforeUpdate);
-
-    const updatePositions = () => {
-      if (isVisibleRef.current) {
-        cards.forEach((body, index) => {
-          const element = cardElements[index];
-          if (element) {
-            const x = body.position.x;
-            const y = body.position.y;
-            const angle = body.angle;
-            element.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%) rotate(${angle}rad)`;
-          }
-        });
-      }
-      animFrameRef.current = requestAnimationFrame(updatePositions);
-    };
-
-    const handleResize = () => {
-      if (!section) return;
-      width = section.offsetWidth;
-      height = section.offsetHeight;
-
-      Matter.Body.setPosition(walls[0], { x: width / 2, y: -wallThickness / 2 });
-      Matter.Body.setPosition(walls[1], { x: width / 2, y: height + wallThickness / 2 });
-      Matter.Body.setPosition(walls[2], { x: -wallThickness / 2, y: height / 2 });
-      Matter.Body.setPosition(walls[3], { x: width + wallThickness / 2, y: height / 2 });
-
-      cards.forEach((card) => {
-        const pos = card.position;
-        const boundedX = Math.max(40, Math.min(width - 40, pos.x));
-        const boundedY = Math.max(40, Math.min(height - 40, pos.y));
-        if (pos.x !== boundedX || pos.y !== boundedY) {
-          Matter.Body.setPosition(card, { x: boundedX, y: boundedY });
-        }
-      });
-    };
-
-    let resizeTimer;
-    const debouncedResize = () => {
-      clearTimeout(resizeTimer);
-      resizeTimer = setTimeout(handleResize, 100);
-    };
-
-    window.addEventListener('resize', debouncedResize);
-
-    const runner = Runner.create();
-    runnerRef.current = runner;
-
-    // Viewport-aware Intersection Observer: Pause physics when section is offscreen
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          isVisibleRef.current = entry.isIntersecting;
-          if (entry.isIntersecting) {
-            Runner.run(runner, engine);
-            if (!animFrameRef.current) {
-              updatePositions();
-            }
-          } else {
-            Runner.stop(runner);
-            if (animFrameRef.current) {
-              cancelAnimationFrame(animFrameRef.current);
-              animFrameRef.current = null;
-            }
-          }
-        });
-      },
-      { threshold: 0.05 }
+    const capabilityQuery = window.matchMedia(
+      '(min-width: 769px) and (pointer: fine) and (prefers-reduced-motion: no-preference)'
     );
+    const saveDataEnabled = navigator.connection?.saveData === true;
+    let disposed = false;
+    let loadObserver;
+    let cleanupPhysics;
+    let loadGeneration = 0;
 
-    observer.observe(section);
+    const stopPhysics = () => {
+      loadGeneration += 1;
+      loadObserver?.disconnect();
+      loadObserver = undefined;
+      cleanupPhysics?.();
+      cleanupPhysics = undefined;
+    };
 
-    // Initial render
-    updatePositions();
+    const initializePhysics = async (generation) => {
+      const matterModule = await import('matter-js');
+      if (disposed || generation !== loadGeneration || !capabilityQuery.matches) return;
 
-    if (prefersReducedMotion) {
-      engine.world.gravity.y = 0;
-    }
+      const Matter = matterModule.default || matterModule;
+      const {
+        Engine,
+        Bodies,
+        Body,
+        Composite,
+        Mouse,
+        MouseConstraint,
+        Events,
+        Runner
+      } = Matter;
+
+      const engine = Engine.create({ enableSleeping: true });
+      engine.world.gravity.y = 0.02;
+      const runner = Runner.create();
+      const wallThickness = 100;
+      let walls = [];
+      let isVisible = true;
+      let runnerIsActive = false;
+      let draggedBody = null;
+      let elapsed = 0;
+
+      const dimensions = () => ({
+        width: section.clientWidth || 720,
+        height: section.clientHeight || 360
+      });
+
+      const createWalls = () => {
+        if (walls.length) Composite.remove(engine.world, walls);
+        const { width, height } = dimensions();
+        walls = [
+          Bodies.rectangle(width / 2, -wallThickness / 2, width * 2, wallThickness, { isStatic: true }),
+          Bodies.rectangle(width / 2, height + wallThickness / 2, width * 2, wallThickness, { isStatic: true }),
+          Bodies.rectangle(-wallThickness / 2, height / 2, wallThickness, height * 2, { isStatic: true }),
+          Bodies.rectangle(width + wallThickness / 2, height / 2, wallThickness, height * 2, { isStatic: true })
+        ];
+        Composite.add(engine.world, walls);
+      };
+
+      createWalls();
+      const initialSize = dimensions();
+      const cards = techStack.map((name, index) => {
+        const [xRatio, yRatio] = CARD_POSITIONS[index];
+        const x = Math.max(
+          CARD_WIDTH / 2 + 16,
+          Math.min(initialSize.width - CARD_WIDTH / 2 - 16, initialSize.width * xRatio)
+        );
+        const y = Math.max(
+          112,
+          Math.min(initialSize.height - CARD_HEIGHT / 2 - 16, initialSize.height * yRatio)
+        );
+
+        return Bodies.rectangle(x, y, CARD_WIDTH, CARD_HEIGHT, {
+          restitution: 0.72,
+          friction: 0.02,
+          frictionAir: 0.012,
+          angle: ((index % 5) - 2) * 0.025,
+          label: name
+        });
+      });
+      Composite.add(engine.world, cards);
+
+      const mouse = Mouse.create(scene);
+      const mouseConstraint = MouseConstraint.create(engine, {
+        mouse,
+        constraint: { stiffness: 0.25, render: { visible: false } }
+      });
+      Composite.add(engine.world, mouseConstraint);
+
+      const syncCardPositions = () => {
+        if (!isVisible) return;
+        cards.forEach((card, index) => {
+          const element = cardRefs.current[index];
+          if (!element) return;
+          element.style.transform = `translate3d(${card.position.x}px, ${card.position.y}px, 0) translate(-50%, -50%) rotate(${card.angle}rad)`;
+        });
+      };
+
+      const addAmbientMotion = () => {
+        if (!isVisible) return;
+        elapsed += 0.016;
+        cards.forEach((card, index) => {
+          if (card === draggedBody) return;
+          Body.applyForce(card, card.position, {
+            x: Math.sin(elapsed * 0.8 + index * 1.2) * 0.0001,
+            y: Math.cos(elapsed * 0.6 + index * 0.9) * 0.0001
+          });
+        });
+      };
+
+      const handleStartDrag = ({ body }) => {
+        draggedBody = body;
+        const index = cards.indexOf(body);
+        cardRefs.current[index]?.classList.add('dragging');
+      };
+
+      const handleEndDrag = () => {
+        const index = cards.indexOf(draggedBody);
+        cardRefs.current[index]?.classList.remove('dragging');
+        draggedBody = null;
+      };
+
+      Events.on(engine, 'beforeUpdate', addAmbientMotion);
+      Events.on(engine, 'afterUpdate', syncCardPositions);
+      Events.on(mouseConstraint, 'startdrag', handleStartDrag);
+      Events.on(mouseConstraint, 'enddrag', handleEndDrag);
+
+      scene.classList.add('physics-ready');
+      syncCardPositions();
+
+      const visibilityObserver = new IntersectionObserver(
+        ([entry]) => {
+          isVisible = entry.isIntersecting;
+          if (isVisible && !runnerIsActive) {
+            Runner.run(runner, engine);
+            runnerIsActive = true;
+          } else if (!isVisible && runnerIsActive) {
+            Runner.stop(runner);
+            runnerIsActive = false;
+          }
+        },
+        { threshold: 0.05 }
+      );
+      visibilityObserver.observe(section);
+
+      let resizeFrame;
+      const resizeObserver = new ResizeObserver(() => {
+        cancelAnimationFrame(resizeFrame);
+        resizeFrame = requestAnimationFrame(() => {
+          createWalls();
+          const { width, height } = dimensions();
+          cards.forEach((card) => {
+            Body.setPosition(card, {
+              x: Math.max(CARD_WIDTH / 2 + 12, Math.min(width - CARD_WIDTH / 2 - 12, card.position.x)),
+              y: Math.max(112, Math.min(height - CARD_HEIGHT / 2 - 12, card.position.y))
+            });
+          });
+          syncCardPositions();
+        });
+      });
+      resizeObserver.observe(section);
+
+      cleanupPhysics = () => {
+        visibilityObserver.disconnect();
+        resizeObserver.disconnect();
+        cancelAnimationFrame(resizeFrame);
+        Events.off(engine, 'beforeUpdate', addAmbientMotion);
+        Events.off(engine, 'afterUpdate', syncCardPositions);
+        Events.off(mouseConstraint, 'startdrag', handleStartDrag);
+        Events.off(mouseConstraint, 'enddrag', handleEndDrag);
+        if (runnerIsActive) Runner.stop(runner);
+        Mouse.clearSourceEvents(mouse);
+        Composite.clear(engine.world, false);
+        Engine.clear(engine);
+        scene.classList.remove('physics-ready');
+        cardRefs.current.forEach((element) => {
+          if (element) {
+            element.classList.remove('dragging');
+            element.style.transform = '';
+          }
+        });
+      };
+    };
+
+    const syncCapability = () => {
+      stopPhysics();
+      if (saveDataEnabled || !capabilityQuery.matches) return;
+
+      const generation = loadGeneration;
+      loadObserver = new IntersectionObserver(
+        ([entry]) => {
+          if (!entry.isIntersecting) return;
+          loadObserver?.disconnect();
+          loadObserver = undefined;
+          initializePhysics(generation);
+        },
+        { rootMargin: '100px', threshold: 0.01 }
+      );
+      loadObserver.observe(section);
+    };
+
+    capabilityQuery.addEventListener('change', syncCapability);
+    syncCapability();
 
     return () => {
-      observer.disconnect();
-      clearTimeout(resizeTimer);
-      window.removeEventListener('resize', debouncedResize);
-      if (animFrameRef.current) {
-        cancelAnimationFrame(animFrameRef.current);
-      }
-      Events.off(engine, 'beforeUpdate', beforeUpdate);
-      Runner.stop(runner);
-      Engine.clear(engine);
-      if (engine.world) {
-        Composite.clear(engine.world);
-      }
-      if (scene) {
-        scene.innerHTML = '';
-      }
+      disposed = true;
+      capabilityQuery.removeEventListener('change', syncCapability);
+      stopPhysics();
     };
   }, []);
 
   return (
-    <section ref={sectionRef} className="tech-stack-section font-body" aria-label="Technology Stack Showcase">
-      <div className="grid-pattern"></div>
-      
-      <div className="section-header">
-        <div className="section-label">Core Stack</div>
-        <h2 className="section-title text-white">What Powers My Builds</h2>
-      </div>
+    <section ref={sectionRef} className="tech-stack-section font-body" aria-labelledby="core-stack-title">
+      <header className="stack-header">
+        <h2 id="core-stack-title" className="stack-title">What powers my builds</h2>
+        <p className="stack-summary">A focused production stack for fast, maintainable products.</p>
+      </header>
 
-      <div id="scene" ref={sceneRef}></div>
+      <ul ref={sceneRef} className="stack-scene" aria-label="Core technologies">
+        {techStack.map((name, index) => (
+          <li
+            key={name}
+            ref={(element) => { cardRefs.current[index] = element; }}
+            className="tech-card"
+          >
+            <TechIcon name={name} className="tech-logo" />
+            <span>{name}</span>
+          </li>
+        ))}
+      </ul>
     </section>
   );
 };
