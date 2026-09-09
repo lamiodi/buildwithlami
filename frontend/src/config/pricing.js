@@ -42,6 +42,46 @@ export const formatDualCurrency = (amountNgn, rate = FALLBACK_USD_RATE, currency
   return { primary: `₦${ngnFormatted}`, secondary: usdFormatted, symbol: '₦' };
 };
 
+/**
+ * Fixed U.S. regional pricing. These are market rates, not NGN conversions.
+ * Packages are scoped against a premium studio benchmark of about $150/hour
+ * for most disciplines and $90/hour for AI work. Both benchmarks are roughly
+ * 20% above the midpoint of current U.S. agency rate bands.
+ */
+export const USD_TIER_PRICING = Object.freeze({
+  web_starter: { priceUSD: 6000 },
+  web_growth: { priceUSD: 12000 },
+  web_pro: { priceUSD: 24000 },
+  ecom_starter: { priceUSD: 12000 },
+  ecom_growth: { priceUSD: 24000 },
+  ecom_pro: { priceUSD: 48000 },
+  soft_mvp: { priceUSD: 30000 },
+  soft_growth: { priceUSD: 60000 },
+  soft_enterprise: { priceUSD: 120000 },
+  portal_gatepass: { priceUSD: 24000 },
+  portal_school: { priceUSD: 48000 },
+  portal_retail: { priceUSD: 72000 },
+  uiux_starter: { priceUSD: 6000 },
+  uiux_growth: { priceUSD: 15000 },
+  uiux_pro: { priceUSD: 30000 },
+  brand_starter: { priceUSD: 6000 },
+  brand_growth: { priceUSD: 15000 },
+  brand_pro: { priceUSD: 30000 },
+  seo_starter: { priceUSD: 6000 },
+  seo_growth: { priceUSD: 12000 },
+  seo_pro: { priceUSD: 6000 },
+  mktg_starter: { priceUSD: 6000 },
+  mktg_growth: { priceUSD: 15000 },
+  mktg_pro: { priceUSD: 7500 },
+  ai_starter: { priceUSD: 7200 },
+  ai_growth: { priceUSD: 21600 },
+  ai_pro: { priceUSD: 57600 },
+  maint_essential: { priceUSD: 2400, annualPriceUSD: 2400, monthlyPriceUSD: null },
+  maint_standard: { priceUSD: 1200, annualPriceUSD: 12000, monthlyPriceUSD: 1200 },
+  maint_growth: { priceUSD: 2400, annualPriceUSD: 26000, monthlyPriceUSD: 2400 },
+  maint_pro: { priceUSD: 4800, annualPriceUSD: 52800, monthlyPriceUSD: 4800 }
+});
+
 export const INFRASTRUCTURE_LEVELS = {
   foundation: {
     id: 'foundation',
@@ -130,7 +170,7 @@ export const COMMERCIAL_TERMS = {
   disclaimer:
     'Website performance depends on application architecture, hosting infrastructure, traffic volume, third-party services, media assets, and network conditions. Buildwith_lami optimizes the application for production performance, while specific uptime or performance guarantees require an appropriate infrastructure tier.',
   footerNotice:
-    'All prices in Nigerian Naira (₦). Prices exclude 7.5% VAT where applicable. Currency auto-detected from your region. International clients see USD equivalents; final invoicing remains in NGN.'
+    'Regional pricing shown. USD rates are fixed U.S. market prices, not currency conversions. Taxes and third-party costs are excluded.'
 };
 
 export const CARE_PLANS = [

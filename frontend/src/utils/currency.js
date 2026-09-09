@@ -1,17 +1,14 @@
 import { useState, useEffect } from 'react';
 
 /**
- * Automatically detects the visitor's currency (NGN for Nigeria/Africa, USD for International).
+ * Automatically detects the visitor's currency (NGN for Nigeria, USD elsewhere).
  * Uses timezone as an instant zero-latency default, then refines via geolocation in the background.
  */
 export const getInitialCurrency = () => {
   try {
     const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
     if (tz) {
-      if (!tz.startsWith('Africa/')) {
-        return 'USD';
-      }
-      return 'NGN';
+      return tz === 'Africa/Lagos' ? 'NGN' : 'USD';
     }
   } catch (e) {
     console.warn("Timezone detection fallback hit", e);
@@ -31,8 +28,7 @@ export const useAutomatedCurrency = () => {
         if (!res.ok) throw new Error('ipapi failed');
         const data = await res.json();
         if (isMounted) {
-          const isOutsideAfrica = data.continent_code ? data.continent_code !== 'AF' : data.country_code !== 'NG';
-          const detected = isOutsideAfrica ? 'USD' : 'NGN';
+          const detected = data.country_code === 'NG' ? 'NGN' : 'USD';
           setCurrency(detected);
           return;
         }
@@ -42,8 +38,7 @@ export const useAutomatedCurrency = () => {
           if (res2.ok) {
             const data2 = await res2.json();
             if (isMounted) {
-              const isOutsideAfrica = data2.continent_code ? data2.continent_code !== 'AF' : data2.country_code !== 'NG';
-              const detected = isOutsideAfrica ? 'USD' : 'NGN';
+              const detected = data2.country_code === 'NG' ? 'NGN' : 'USD';
               setCurrency(detected);
             }
           }
