@@ -143,7 +143,7 @@ const SoftwareHomePage = () => {
               className="btn-secondary w-full sm:w-auto"
               style={{ touchAction: 'manipulation' }}
             >
-              Book Architecture Consultation →
+              Request a Scoped Proposal →
             </Link>
           </div>
         </div>
@@ -247,7 +247,7 @@ const SoftwareHomePage = () => {
               className="btn-primary w-full sm:w-auto"
               style={{ touchAction: 'manipulation' }}
             >
-              Submit Project Brief →
+              Request a Scoped Proposal →
             </Link>
             <Link
               to="/pricing"

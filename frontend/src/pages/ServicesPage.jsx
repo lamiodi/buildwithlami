@@ -272,7 +272,7 @@ const ServicesPage = () => {
                       className="btn-primary w-full"
                       style={{ touchAction: 'manipulation' }}
                     >
-                      Start a Project with this Service →
+                      Request a Scoped Proposal →
                     </Link>
                   </div>
                 </div>
@@ -394,7 +394,7 @@ const ServicesPage = () => {
               className="btn-primary"
               style={{ touchAction: 'manipulation' }}
             >
-              Start a Project →
+              Request a Scoped Proposal →
             </Link>
           </div>
         </div>

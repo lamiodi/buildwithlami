@@ -184,7 +184,7 @@ const HowItWorks = () => {
               className="btn-primary shrink-0"
               style={{ touchAction: 'manipulation' }}
             >
-              Start a Project
+              Request a Scoped Proposal
             </a>
           </div>
         </motion.div>

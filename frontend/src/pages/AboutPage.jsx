@@ -748,7 +748,7 @@ const AboutPage = () => {
               className="btn-primary w-full sm:w-auto"
               style={{ touchAction: 'manipulation' }}
             >
-              Start a Project
+              Request a Scoped Proposal
               <ArrowIcon className="w-4 h-4 ml-2" />
             </Link>
             <a

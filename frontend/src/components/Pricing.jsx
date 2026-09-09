@@ -1,46 +1,51 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { motion, useReducedMotion, AnimatePresence } from 'framer-motion';
-import { Link, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { motion, useReducedMotion } from 'framer-motion';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
-  Check, 
   ArrowRight, 
-  Sparkles, 
-  Server, 
-  Cpu, 
-  Layers, 
-  Globe, 
-  Zap, 
   Sliders, 
   ChevronRight,
-  ChevronLeft,
   ShieldCheck,
-  Package,
-  Plus,
-  X,
-  HelpCircle,
-  Lock,
-  RefreshCw
+  HelpCircle
 } from 'lucide-react';
 import CheckIcon from './CheckIcon';
 import { staggerContainer, fadeUpItem, cardHover, sectionViewport, reducedMotionVariants } from '../utils/motion';
 import { 
   COMMERCIAL_TERMS, 
-  CARE_PLANS, 
   BUILD_PRICING,
+  INFRASTRUCTURE_LEVELS,
   formatDualCurrency,
   FALLBACK_USD_RATE
 } from '../config/pricing';
 import { useAutomatedCurrency } from '../utils/currency';
 
+const CORE_PRICING_CATEGORIES = ['websites', 'ecommerce', 'software', 'portals', 'maintenance'];
+const SPECIALIST_PRICING_CATEGORIES = ['uiux', 'branding', 'seo', 'marketing', 'ai'];
+const CURRENCY_PREFERENCE_KEY = 'bwl-pricing-currency';
+
+const categoryFromHash = (hash) => {
+  const categoryId = String(hash || '').replace(/^#/, '');
+  return Object.prototype.hasOwnProperty.call(BUILD_PRICING, categoryId) ? categoryId : null;
+};
+
 const Pricing = ({ isHomepage = false }) => {
   const shouldReduce = useReducedMotion();
+  const location = useLocation();
   const navigate = useNavigate();
   const container = shouldReduce ? reducedMotionVariants : staggerContainer;
   const item = shouldReduce ? reducedMotionVariants : fadeUpItem;
 
-  // Auto-detect visitor currency (NGN for Nigeria/Africa, USD otherwise)
-  // via timezone + geolocation. No toggle — fully automatic.
-  const detectedCurrency = useAutomatedCurrency();
+  const autoDetectedCurrency = useAutomatedCurrency();
+  const [currencyPreference, setCurrencyPreference] = useState(() => {
+    if (typeof window === 'undefined') return 'AUTO';
+    try {
+      const storedPreference = window.localStorage.getItem(CURRENCY_PREFERENCE_KEY);
+      return ['AUTO', 'NGN', 'USD'].includes(storedPreference) ? storedPreference : 'AUTO';
+    } catch {
+      return 'AUTO';
+    }
+  });
+  const displayCurrency = currencyPreference === 'AUTO' ? autoDetectedCurrency : currencyPreference;
 
   // Try to fetch the live FX rate from the backend; fall back to the
   // static rate defined in pricing.js if the request fails.
@@ -73,51 +78,63 @@ const Pricing = ({ isHomepage = false }) => {
     // their natural rhythm in the display.
     const suffixMatch = String(formatted || '').match(/(\s*\/\s*(yr|mo)\b|\s*\+\s*starting|\s*starting\s*)$/i);
     const suffix = suffixMatch ? suffixMatch[0] : '';
-    const { primary, secondary } = formatDualCurrency(amountNgn, liveRate, detectedCurrency);
+    const { primary, secondary } = formatDualCurrency(amountNgn, liveRate, displayCurrency);
     const numPart = primary.replace(/^[₦$]/, '');
     return (
       <>
-        <span>{detectedCurrency === 'USD' ? '$' : '₦'}{numPart}{suffix}</span>
+        <span>{displayCurrency === 'USD' ? '$' : '₦'}{numPart}{suffix}</span>
         <span className="ml-1 text-[10px] font-mono font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-          ≈ {detectedCurrency === 'USD' ? `₦${secondary.replace(/^[₦$]/, '')}` : secondary}
+          ≈ {displayCurrency === 'USD' ? `₦${secondary.replace(/^[₦$]/, '')}` : secondary}
         </span>
       </>
     );
   };
 
-  const symbol = detectedCurrency === 'USD' ? '$' : COMMERCIAL_TERMS.currencySymbol;
+  const [activeCategory, setActiveCategory] = useState(
+    () => categoryFromHash(location.hash) || 'websites'
+  );
 
-  // Category Selector as Primary Navigation (defaults to 'websites')
-  const [activeCategory, setActiveCategory] = useState('websites');
-  const [mobileDropdownOpen, setMobileDropdownOpen] = useState(false);
-  const mobileDropdownRef = useRef(null);
-
-  // Close the dropdown when clicking outside or pressing Escape.
-  // Listeners are attached for the lifetime of the component so the dropdown
-  // never gets stuck open. The handler ignores clicks inside the dropdown ref.
   useEffect(() => {
-    const handlePointerDown = (event) => {
-      if (!mobileDropdownRef.current) return;
-      if (!mobileDropdownRef.current.contains(event.target)) {
-        setMobileDropdownOpen(false);
-      }
-    };
-    const handleEscape = (event) => {
-      if (event.key === 'Escape') setMobileDropdownOpen(false);
-    };
-    document.addEventListener('mousedown', handlePointerDown);
-    document.addEventListener('touchstart', handlePointerDown);
-    document.addEventListener('keydown', handleEscape);
-    return () => {
-      document.removeEventListener('mousedown', handlePointerDown);
-      document.removeEventListener('touchstart', handlePointerDown);
-      document.removeEventListener('keydown', handleEscape);
-    };
-  }, []);
+    const hashedCategory = categoryFromHash(location.hash);
+    if (hashedCategory) setActiveCategory(hashedCategory);
+  }, [location.hash]);
+
+  const handleCategoryChange = (categoryId) => {
+    if (!Object.prototype.hasOwnProperty.call(BUILD_PRICING, categoryId)) return;
+    setActiveCategory(categoryId);
+    navigate(
+      { pathname: location.pathname, search: location.search, hash: `#${categoryId}` },
+      { replace: true }
+    );
+  };
+
+  const handleCurrencyChange = (preference) => {
+    if (!['AUTO', 'NGN', 'USD'].includes(preference)) return;
+    setCurrencyPreference(preference);
+    try {
+      window.localStorage.setItem(CURRENCY_PREFERENCE_KEY, preference);
+    } catch {
+      // The preference still works for this visit when storage is unavailable.
+    }
+  };
 
   // Get active category object and tiers
   const currentCategoryData = BUILD_PRICING[activeCategory] || BUILD_PRICING.websites;
   const currentTiers = currentCategoryData.tiers;
+  const isCareCategory = activeCategory === 'maintenance';
+  const activeInfrastructureLevels = currentCategoryData.baseInfraIncluded
+    ? [...new Set(currentTiers.map((tier) => tier.infrastructureLevel).filter(Boolean))]
+        .map((levelId) => INFRASTRUCTURE_LEVELS[levelId])
+        .filter(Boolean)
+    : [];
+
+  const infrastructureValue = (level) => {
+    const { primary, secondary } = formatDualCurrency(level.annualNGN, liveRate, displayCurrency);
+    return {
+      primary: `${level.valuePrefix ? `${level.valuePrefix} ` : ''}${primary}/year value`,
+      secondary: `≈ ${secondary}/year`
+    };
+  };
 
 
   return (
@@ -180,7 +197,7 @@ const Pricing = ({ isHomepage = false }) => {
                 <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-gray-900 dark:text-white">RUN · Production Infrastructure</span>
               </div>
               <p className="text-xs text-gray-600 dark:text-gray-400 font-light leading-relaxed">
-                Hosting, database, CDN, SSL, and transactional email. Pay providers directly or select a Buildwith_lami-managed infrastructure plan (from ₦130k/yr).
+                The matching infrastructure level is included at no additional charge for the first 12 months of every eligible build.
               </p>
             </div>
 
@@ -190,7 +207,7 @@ const Pricing = ({ isHomepage = false }) => {
                 <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-gray-900 dark:text-white">MAINTAIN · Optional Care Plans</span>
               </div>
               <p className="text-xs text-gray-600 dark:text-gray-400 font-light leading-relaxed">
-                Optional ongoing technical care: security updates, automated uptime monitoring, backups, and active monthly developer improvement hours.
+                Optional human support for planned updates, reporting, and reserved developer improvement hours after launch.
               </p>
             </div>
           </motion.div>
@@ -280,7 +297,7 @@ const Pricing = ({ isHomepage = false }) => {
                     <span className="text-xs text-gray-500 dark:text-gray-400 block mt-1">MVP · Growth Platform · Enterprise</span>
                   </div>
                   <ul className="space-y-2.5 text-xs text-gray-700 dark:text-gray-300 mb-6">
-                    <li className="flex items-center gap-2.5"><CheckIcon className="text-accent" /> <span>Custom DB schema, RBAC Auth & APIs</span></li>
+                    <li className="flex items-center gap-2.5"><CheckIcon className="text-accent" /> <span>Secure sign-in, user roles, and business data workflows</span></li>
                     <li className="flex items-center gap-2.5"><CheckIcon className="text-accent" /> <span>100% IP & GitHub repository transfer</span></li>
                     <li className="flex items-center gap-2.5"><CheckIcon className="text-accent" /> <span>90 days warranty support</span></li>
                   </ul>
@@ -312,100 +329,50 @@ const Pricing = ({ isHomepage = false }) => {
           <div className="space-y-16">
 
             {/* ── 1. PRIMARY CATEGORY NAVIGATION (Responsive Matrix) ── */}
-            <div className="space-y-4 border-b border-gray-200 dark:border-white/10 pb-8">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                <div className="bwl-eyebrow">
-                  <span className="w-2 h-2 bg-accent inline-block" />
-                  <span>Select Studio Capability ({Object.keys(BUILD_PRICING).length} Disciplines)</span>
-                </div>
-                <div className="text-xs text-gray-500 dark:text-gray-400 font-mono font-medium">
-                  Active Region: <span className="font-bold text-gray-900 dark:text-white">Nigeria & African Region (NGN)</span>
-                </div>
+            <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_auto] gap-5 border-b border-gray-200 dark:border-white/10 pb-8">
+              <div>
+                <label htmlFor="pricing-category" className="block text-xs font-bold text-gray-900 dark:text-white mb-2">
+                  Choose the closest service
+                </label>
+                <select
+                  id="pricing-category"
+                  value={activeCategory}
+                  onChange={(event) => handleCategoryChange(event.target.value)}
+                  className="bwl-input min-h-12 text-base font-semibold"
+                >
+                  <optgroup label="Core build and support">
+                    {CORE_PRICING_CATEGORIES.map((categoryId) => (
+                      <option key={categoryId} value={categoryId}>{BUILD_PRICING[categoryId].label}</option>
+                    ))}
+                  </optgroup>
+                  <optgroup label="Specialist services and add-ons">
+                    {SPECIALIST_PRICING_CATEGORIES.map((categoryId) => (
+                      <option key={categoryId} value={categoryId}>{BUILD_PRICING[categoryId].label}</option>
+                    ))}
+                  </optgroup>
+                </select>
+                <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                  Not sure which service fits? Choose “Not sure yet” on the inquiry form and describe the outcome you need.
+                </p>
               </div>
 
-              {/* Discipline dropdown — works on all screen sizes so users can
-                   pick the website/service category they want to explore.
-                   Closes on outside-click, on selection, and on Escape. */}
-              <div className="pt-2 relative" ref={mobileDropdownRef}>
-                <div className="flex items-center justify-between mb-2 px-1">
-                  <span className="text-[10px] font-mono uppercase tracking-[0.18em] text-gray-500 dark:text-gray-400">
-                    Choose the website you want
-                  </span>
-                  <span className="text-[10px] font-mono uppercase tracking-[0.18em] text-gray-400 dark:text-gray-500">
-                    {(() => {
-                      const cats = Object.values(BUILD_PRICING);
-                      const idx = cats.findIndex(c => c.id === activeCategory);
-                      return `${String(idx + 1).padStart(2, '0')} / ${String(cats.length).padStart(2, '0')}`;
-                    })()}
-                  </span>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => setMobileDropdownOpen((o) => !o)}
-                  aria-haspopup="listbox"
-                  aria-expanded={mobileDropdownOpen}
-                  aria-label="Select pricing discipline"
-                  className="w-full flex items-center justify-between gap-3 px-4 py-3 rounded-xl bg-white dark:bg-[#141414] border border-gray-300 dark:border-white/15 shadow-sm text-sm font-semibold text-gray-900 dark:text-white active:scale-[0.99] transition-transform"
+              <div>
+                <label htmlFor="pricing-currency" className="block text-xs font-bold text-gray-900 dark:text-white mb-2">
+                  Display currency
+                </label>
+                <select
+                  id="pricing-currency"
+                  value={currencyPreference}
+                  onChange={(event) => handleCurrencyChange(event.target.value)}
+                  className="bwl-input min-h-12 min-w-52 text-base font-semibold"
                 >
-                  <span className="flex items-center gap-2 truncate">
-                    <span className="font-mono text-accent">▾</span>
-                    <span className="truncate">
-                      {(() => {
-                        const cat = Object.values(BUILD_PRICING).find(c => c.id === activeCategory);
-                        return cat ? cat.label : 'Select discipline';
-                      })()}
-                    </span>
-                  </span>
-                  <svg
-                    className={`w-4 h-4 shrink-0 transition-transform duration-200 ${mobileDropdownOpen ? 'rotate-180' : ''}`}
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                    aria-hidden="true"
-                  >
-                    <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                  </svg>
-                </button>
-
-                <AnimatePresence>
-                  {mobileDropdownOpen && (
-                    <motion.ul
-                      role="listbox"
-                      initial={shouldReduce ? { opacity: 1 } : { opacity: 0, y: -6 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={shouldReduce ? { opacity: 1 } : { opacity: 0, y: -6 }}
-                      transition={{ duration: shouldReduce ? 0 : 0.18, ease: 'easeOut' }}
-                      className="absolute z-50 mt-2 w-full max-h-72 overflow-y-auto rounded-xl bg-white dark:bg-[#141414] border border-gray-200 dark:border-white/10 shadow-xl py-1.5"
-                    >
-                      {Object.values(BUILD_PRICING).map((cat) => {
-                        const isActive = activeCategory === cat.id;
-                        return (
-                          <li key={cat.id} role="option" aria-selected={isActive}>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setActiveCategory(cat.id);
-                                setMobileDropdownOpen(false);
-                              }}
-                              className={`w-full text-left px-4 py-2.5 text-sm font-medium flex items-center justify-between gap-3 transition-colors ${
-                                isActive
-                                  ? 'bg-accent/10 text-accent'
-                                  : 'text-gray-800 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-white/5'
-                              }`}
-                            >
-                              <span className="truncate">{cat.label}</span>
-                              {isActive && (
-                                <svg className="w-4 h-4 shrink-0 text-accent" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                </svg>
-                              )}
-                            </button>
-                          </li>
-                        );
-                      })}
-                    </motion.ul>
-                  )}
-                </AnimatePresence>
+                  <option value="AUTO">Auto ({autoDetectedCurrency})</option>
+                  <option value="NGN">Nigerian Naira (NGN)</option>
+                  <option value="USD">US Dollar (USD)</option>
+                </select>
+                <p className="mt-2 text-xs text-gray-500 dark:text-gray-400" aria-live="polite">
+                  Showing {displayCurrency}. Final invoices are issued in NGN.
+                </p>
               </div>
             </div>
 
@@ -417,6 +384,9 @@ const Pricing = ({ isHomepage = false }) => {
                     <span className="w-2 h-2 bg-accent inline-block" />
                     <span>{currentCategoryData.title}</span>
                   </div>
+                  {currentCategoryData.offerStructureLabel && (
+                    <p className="mb-2 text-xs font-bold text-accent">{currentCategoryData.offerStructureLabel}</p>
+                  )}
                   <h3 className="text-2xl sm:text-3xl font-bold font-heading text-gray-900 dark:text-white">
                     {currentCategoryData.desc}
                   </h3>
@@ -442,6 +412,23 @@ const Pricing = ({ isHomepage = false }) => {
               >
                 {currentTiers.map((tier) => {
                   const isCustom = tier.priceFormatted === "Custom Quote";
+                  const infrastructure = tier.infrastructureLevel
+                    ? INFRASTRUCTURE_LEVELS[tier.infrastructureLevel]
+                    : null;
+                  const includedInfrastructureValue = infrastructure
+                    ? infrastructureValue(infrastructure)
+                    : null;
+                  const contactQuery = new URLSearchParams({
+                    service: activeCategory,
+                    tier: tier.name,
+                    currency: displayCurrency
+                  }).toString();
+                  const annualCarePrice = isCareCategory && tier.monthlyPriceNGN && tier.annualPriceNGN
+                    ? formatDualCurrency(tier.annualPriceNGN, liveRate, displayCurrency)
+                    : null;
+                  const annualCareSavings = annualCarePrice
+                    ? formatDualCurrency((tier.monthlyPriceNGN * 12) - tier.annualPriceNGN, liveRate, displayCurrency)
+                    : null;
 
                   return (
                     <motion.div
@@ -487,6 +474,34 @@ const Pricing = ({ isHomepage = false }) => {
                             </>
                           )}
                         </div>
+
+                        {annualCarePrice && (
+                          <p className="-mt-1 mb-4 text-xs font-semibold text-gray-600 dark:text-gray-300">
+                            Annual: <span className="text-gray-900 dark:text-white">{annualCarePrice.primary}/year</span>
+                            {annualCareSavings && Number(tier.monthlyPriceNGN * 12) > Number(tier.annualPriceNGN) && (
+                              <span className="ml-2 text-emerald-700 dark:text-emerald-400">Save {annualCareSavings.primary}</span>
+                            )}
+                          </p>
+                        )}
+
+                        {infrastructure && (
+                          <div className="mb-5 border-y border-blue-200 dark:border-blue-400/20 py-3">
+                            <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
+                              <span className="text-[10px] font-bold uppercase tracking-wider text-blue-700 dark:text-blue-300">
+                                {isCareCategory ? 'Included while Care is active' : 'Included for the first 12 months'}
+                              </span>
+                              <span className="text-[10px] font-semibold text-gray-500 dark:text-gray-400">
+                                {includedInfrastructureValue.primary}
+                              </span>
+                            </div>
+                            <p className="mt-1 text-sm font-bold text-gray-900 dark:text-white">
+                              {infrastructure.name}
+                            </p>
+                            <p className="mt-0.5 text-[11px] leading-relaxed text-gray-600 dark:text-gray-400">
+                              {infrastructure.summary} <span className="whitespace-nowrap">{includedInfrastructureValue.secondary}</span>
+                            </p>
+                          </div>
+                        )}
 
                         {/* Timeline, Revisions, Support Guarantees */}
                         <div className="space-y-1.5 text-xs text-gray-600 dark:text-gray-300 font-medium mb-6 bg-gray-50/70 dark:bg-white/5 p-3 rounded-xl">
@@ -543,11 +558,11 @@ const Pricing = ({ isHomepage = false }) => {
 
                       <div className="relative z-10">
                         <Link
-                          to={`/contact?service=${encodeURIComponent(activeCategory)}&tier=${encodeURIComponent(tier.id)}`}
+                          to={`/contact?${contactQuery}`}
                           className={tier.popular ? 'btn-primary w-full' : 'btn-dark w-full'}
                           style={{ touchAction: 'manipulation' }}
                         >
-                          Start with {tier.name} <ArrowRight className="w-3.5 h-3.5 ml-2" />
+                          Request a scoped proposal <ArrowRight className="w-3.5 h-3.5 ml-2" />
                         </Link>
                         <p className="text-[10px] text-center text-gray-400 mt-2 font-mono">
                           50% upfront, 50% upon delivery
@@ -582,10 +597,57 @@ const Pricing = ({ isHomepage = false }) => {
                   </p>
                   <div className="mt-3 flex items-center gap-2 text-[11px] font-semibold text-blue-600 dark:text-blue-400">
                     <span>Questions before sending a brief?</span>
-                    <Link to="/contact" className="underline hover:opacity-80">Book a discovery review →</Link>
+                    <Link to={`/contact?service=${encodeURIComponent(activeCategory)}`} className="underline hover:opacity-80">Ask a pricing question →</Link>
                   </div>
                 </div>
               </div>
+
+              {activeInfrastructureLevels.length > 0 && (
+                <div className="mt-10 overflow-hidden rounded-2xl border border-blue-200 dark:border-blue-400/20 bg-blue-50/60 dark:bg-blue-950/10">
+                  <div className="px-6 py-7 sm:px-8 border-b border-blue-200 dark:border-blue-400/20">
+                    <h3 className="text-2xl sm:text-3xl font-bold font-heading text-gray-900 dark:text-white">
+                      Infrastructure that scales with your build
+                    </h3>
+                    <p className="mt-2 max-w-3xl text-sm leading-relaxed text-blue-950/70 dark:text-blue-100/70">
+                      {isCareCategory
+                        ? 'Your Care plan keeps the level shown on its card active. Higher levels add capacity, stronger recovery, closer operational oversight, and faster human response windows.'
+                        : 'Your build includes the level shown on its card for 12 months. Higher levels add capacity, safer release environments, stronger recovery, and closer operational oversight.'}
+                    </p>
+                  </div>
+
+                  <div className={`grid grid-cols-1 ${activeInfrastructureLevels.length === 3 ? 'lg:grid-cols-3' : 'md:grid-cols-2 lg:grid-cols-4'} divide-y lg:divide-y-0 lg:divide-x divide-blue-200 dark:divide-blue-400/20`}>
+                    {activeInfrastructureLevels.map((level) => {
+                      const value = infrastructureValue(level);
+                      return (
+                        <div key={level.id} className="p-6 sm:p-7">
+                          <div className="flex flex-wrap items-start justify-between gap-2">
+                            <div>
+                              <p className="text-lg font-bold font-heading text-gray-900 dark:text-white">{level.shortName}</p>
+                              <p className="mt-1 text-xs font-semibold text-blue-700 dark:text-blue-300">{value.primary}</p>
+                            </div>
+                            <ShieldCheck className="w-5 h-5 text-blue-600 dark:text-blue-300" aria-hidden="true" />
+                          </div>
+                          <p className="mt-3 text-xs leading-relaxed text-gray-600 dark:text-gray-400">{level.summary}</p>
+                          <ul className="mt-5 space-y-2 text-xs text-gray-700 dark:text-gray-300">
+                            {level.included.map((feature) => (
+                              <li key={feature} className="flex items-start gap-2 leading-relaxed">
+                                <CheckIcon className="w-3.5 h-3.5 mt-0.5 shrink-0 text-blue-600 dark:text-blue-300" />
+                                <span>{feature}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  <p className="px-6 py-4 sm:px-8 border-t border-blue-200 dark:border-blue-400/20 text-xs leading-relaxed text-blue-950/70 dark:text-blue-100/70">
+                    {isCareCategory
+                      ? 'Infrastructure remains included while the Care plan is active and within its stated limits. Usage above those limits and premium third-party services are scoped separately with no hidden markup.'
+                      : 'Included capacity is subject to the limits shown above and the final proposal. From month 13, continue through a matching Care plan, move provider billing to your client-owned accounts, or right-size the profile around actual usage. Provider renewals are passed through with 0% markup.'}
+                  </p>
+                </div>
+              )}
             </div>
 
             {/* ── 3. PRODUCTION INFRASTRUCTURE & RESPONSIBILITY STANDARD ── */}
@@ -593,10 +655,10 @@ const Pricing = ({ isHomepage = false }) => {
               <div className="max-w-3xl">
                 <span className="text-[10px] font-extrabold uppercase tracking-widest text-accent block mb-1">Production Infrastructure & Commercial Standard</span>
                 <h3 className="text-3xl font-bold font-heading text-black dark:text-white mb-3">
-                  BUILD → RUN → MAINTAIN: Clean, Transparent Commercial Model
+                  Build, infrastructure and Care—clearly separated
                 </h3>
                 <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 font-light leading-relaxed">
-                  We separate one-time design and engineering fees from recurring production cloud infrastructure and ongoing maintenance retainers. This ensures you only pay for what your system actually needs, with zero proprietary hosting lock-in.
+                  Your build fee, first-year infrastructure, warranty, and optional Care plan each solve a different need. You keep full account ownership without proprietary hosting lock-in.
                 </p>
               </div>
 
@@ -628,14 +690,14 @@ const Pricing = ({ isHomepage = false }) => {
                     <h4 className="text-sm font-bold font-heading text-black dark:text-white">RUN · Production Infrastructure</h4>
                   </div>
                   <p className="text-xs text-gray-600 dark:text-gray-400 font-light leading-relaxed">
-                    The hosting, database, storage, email, CDN, and domain required to operate your live application.
+                    The named Foundation, Growth, Scale, or Enterprise level required to operate your live application.
                   </p>
                   <div className="pt-2 border-t border-gray-200 dark:border-white/10 text-[11px] space-y-1.5 text-gray-600 dark:text-gray-300">
                     <div>
-                      <strong className="text-gray-900 dark:text-white">Client-Owned:</strong> Pay host directly with 0% markup.
+                      <strong className="text-gray-900 dark:text-white">First 12 months:</strong> Included at no additional charge within the stated limits.
                     </div>
                     <div>
-                      <strong className="text-gray-900 dark:text-white">Buildwith_lami-Managed:</strong> Custom infrastructure quote per stack. Essential Care manages & monitors your infrastructure — it never pays third-party bills.
+                      <strong className="text-gray-900 dark:text-white">From month 13:</strong> Continue through Care or take over provider billing with 0% markup.
                     </div>
                   </div>
                 </div>
@@ -647,14 +709,14 @@ const Pricing = ({ isHomepage = false }) => {
                     <h4 className="text-sm font-bold font-heading text-black dark:text-white">MAINTAIN · Optional Care Plans</h4>
                   </div>
                   <p className="text-xs text-gray-600 dark:text-gray-400 font-light leading-relaxed">
-                    Optional technical care after your warranty: automated uptime health checks, security patching, and active monthly developer hours.
+                    Keeps the matching infrastructure level active and adds human support, reporting, and reserved developer hours.
                   </p>
                   <div className="pt-2 border-t border-gray-200 dark:border-white/10 text-[11px] space-y-1.5 text-gray-600 dark:text-gray-300">
                     <div>
-                      <strong className="text-gray-900 dark:text-white">Essential Care:</strong> ₦130k/yr health & updates.
+                      <strong className="text-gray-900 dark:text-white">Separate from warranty:</strong> Care covers planned work, not implementation defects.
                     </div>
                     <div>
-                      <strong className="text-gray-900 dark:text-white">Growth Retainer:</strong> ₦150k/mo (4 hrs dev work).
+                      <strong className="text-gray-900 dark:text-white">Response clarity:</strong> Continuous automated monitoring does not imply staffed 24/7 support.
                     </div>
                   </div>
                 </div>
@@ -680,10 +742,10 @@ const Pricing = ({ isHomepage = false }) => {
                     <span>ℹ</span> Infrastructure & Provider Boundaries
                   </h4>
                   <ul className="space-y-1.5 text-xs text-gray-600 dark:text-gray-400 font-light">
-                    <li>• Third-party cloud hosting resource limits & provider downtime</li>
-                    <li>• External SaaS, transactional email, & payment gateway API uptime</li>
-                    <li>• Extreme traffic spikes exceeding the chosen infrastructure plan</li>
-                    <li>• Ongoing infrastructure fees billed directly by third-party providers</li>
+                    <li>• Usage beyond the compute, storage, traffic, and email limits in your proposal</li>
+                    <li>• External SaaS, payment gateway, SMS, and premium licence charges</li>
+                    <li>• Third-party provider outages outside Buildwith_lami control</li>
+                    <li>• Infrastructure renewal after the included first 12 months</li>
                     <li>• Client-added external plugins, unverified scripts, or unsupported edits</li>
                   </ul>
                 </div>

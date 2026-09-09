@@ -1426,7 +1426,7 @@ const ProjectDetailPage = () => {
                     to="/contact"
                     className="inline-flex items-center justify-center bg-accent text-white font-bold uppercase tracking-[0.2em] text-xs px-8 py-4 rounded-xl shadow-lg hover:bg-black dark:hover:bg-white dark:hover:text-black active:scale-[0.98] transition-all"
                   >
-                    Start a Project →
+                    Request a Scoped Proposal →
                   </Link>
                   <Link
                     to="/projects"

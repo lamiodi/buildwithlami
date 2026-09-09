@@ -67,7 +67,7 @@ const Hero = () => {
             to="/contact"
             className="btn-primary w-full sm:w-auto text-center"
           >
-            Start a Project
+            Request a Scoped Proposal
           </Link>
           <Link
             to="/projects"

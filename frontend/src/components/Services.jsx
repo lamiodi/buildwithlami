@@ -323,7 +323,7 @@ const Services = () => {
                   className="flex-1 bg-accent text-white font-heading font-bold uppercase text-[11px] px-8 py-4 tracking-[0.15em] hover:bg-black dark:hover:bg-white dark:hover:text-black transition-all duration-300 shadow-lg hover:shadow-accent/30 text-center active:scale-[0.98] cursor-pointer"
                   style={{ touchAction: 'manipulation' }}
                 >
-                  Start a Project with this Service →
+                  Request a Scoped Proposal →
                 </button>
                 
                 <button

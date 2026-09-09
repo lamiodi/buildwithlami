@@ -2,18 +2,12 @@
  * Buildwith_lami — Centralized Pricing & Commercial Configuration
  * Single source of truth for all public rates, care retainers, and commercial terms.
  *
- * Every build package bundles a **Base Infrastructure Layer**:
- *   • Domain registration & DNS management (1 year)
- *   • Production hosting configuration (Vercel / Render / cPanel)
- *   • Transactional email service (Nodemailer / SMTP)
- *   • SSL certificate provisioning & renewal
- *   • Automated daily backups (90-day retention)
- *   • Essential Care monitoring (uptime health checks, dependency updates)
- * = ₦130,000 / year minimum (priced into every Starter tier).
+ * Infrastructure is included at no additional charge for the first 12 months
+ * of eligible build packages. The included level scales with the build:
+ * Foundation → Growth → Scale → Enterprise.
  *
- * Higher tiers scale up with additional engineering hours, advanced
- * monitoring, and priority support — see `notIncluded` / per-tier
- * differences for what separates Growth from Pro.
+ * Infrastructure covers the live operating layer. Build warranty covers
+ * implementation defects. Care plans cover ongoing human development work.
  */
 
 // Approximate USD conversion rate. The Pricing page uses
@@ -48,6 +42,71 @@ export const formatDualCurrency = (amountNgn, rate = FALLBACK_USD_RATE, currency
   return { primary: `₦${ngnFormatted}`, secondary: usdFormatted, symbol: '₦' };
 };
 
+export const INFRASTRUCTURE_LEVELS = {
+  foundation: {
+    id: 'foundation',
+    name: 'Foundation Infrastructure',
+    shortName: 'Foundation',
+    annualNGN: 130000,
+    valuePrefix: '',
+    summary: 'Managed production essentials for focused launches.',
+    included: [
+      '1 client-owned domain with managed DNS',
+      'Production deployment, SSL and CDN configuration',
+      'Up to 5,000 transactional emails per month',
+      'Daily backups with 90-day retention',
+      'Automated uptime checks and essential security patches'
+    ]
+  },
+  growth: {
+    id: 'growth',
+    name: 'Growth Infrastructure',
+    shortName: 'Growth',
+    annualNGN: 240000,
+    valuePrefix: '',
+    summary: 'More capacity, safer releases and priority alert review.',
+    included: [
+      'Everything in Foundation Infrastructure',
+      'Separate staging environment',
+      'Right-sized compute and database profile',
+      'Up to 10,000 transactional emails per month',
+      'Error and performance monitoring with backup-restore verification',
+      'Priority business-hours alert review'
+    ]
+  },
+  scale: {
+    id: 'scale',
+    name: 'Scale Infrastructure',
+    shortName: 'Scale',
+    annualNGN: 420000,
+    valuePrefix: '',
+    summary: 'Stronger recovery, observability and capacity oversight.',
+    included: [
+      'Everything in Growth Infrastructure',
+      'Isolated production and staging configuration',
+      'Up to 25,000 transactional emails per month',
+      'Enhanced application logs and alerting',
+      'More frequent database recovery points where supported',
+      'Quarterly capacity and security review'
+    ]
+  },
+  enterprise: {
+    id: 'enterprise',
+    name: 'Enterprise Infrastructure',
+    shortName: 'Enterprise',
+    annualNGN: 750000,
+    valuePrefix: 'from',
+    summary: 'Architecture-specific operations for critical systems.',
+    included: [
+      'Architecture-specific production environments',
+      'Capacity and email allowances defined in the proposal',
+      'Documented observability and recovery objectives',
+      'Availability objectives and human response terms',
+      'Quarterly architecture, capacity and security review'
+    ]
+  }
+};
+
 export const COMMERCIAL_TERMS = {
   currency: 'NGN',
   currencySymbol: '₦',
@@ -58,19 +117,15 @@ export const COMMERCIAL_TERMS = {
     deliveryPercent: 50,
     label: '50% Kickoff Milestone / 50% Final Delivery'
   },
-  baseInfrastructure: {
-    name: 'Base Infrastructure Layer',
-    annualNGN: 130000,
+  infrastructure: {
+    includedMonths: 12,
     description:
-      'Every build package includes domain registration, production hosting configuration, transactional email service, SSL provisioning, automated daily backups, and Essential Care monitoring for the first year.',
-    included: [
-      'Domain registration & DNS management (1 year)',
-      'Production hosting configuration (Vercel / Render / cPanel)',
-      'Transactional email service (up to 5,000 emails / month)',
-      'SSL certificate provisioning & renewal',
-      'Automated daily backups (90-day retention)',
-      'Essential Care monitoring — uptime health checks & dependency updates'
-    ]
+      'Eligible build packages include the infrastructure level named on the plan for the first 12 months at no additional charge.',
+    renewal:
+      'From month 13, continue through the matching Care plan, move provider billing to client-owned accounts, or agree a right-sized profile based on actual usage.',
+    supportBoundary:
+      'Automated monitoring runs continuously. Human response follows the business-hours window stated in the proposal or Care plan.',
+    levels: INFRASTRUCTURE_LEVELS
   },
   disclaimer:
     'Website performance depends on application architecture, hosting infrastructure, traffic volume, third-party services, media assets, and network conditions. Buildwith_lami optimizes the application for production performance, while specific uptime or performance guarantees require an appropriate infrastructure tier.',
@@ -94,6 +149,7 @@ export const CARE_PLANS = [
     timeline: 'Annual care plan',
     revisions: 'Minor bug fixes & small text tweaks included',
     support: 'Standard email & ticket support (24–48h response)',
+    infrastructureLevel: 'foundation',
     desc: 'For businesses that want their website kept healthy without a monthly development retainer.',
     features: [
       'Managed production infrastructure configuration',
@@ -105,19 +161,18 @@ export const CARE_PLANS = [
     ],
     notIncluded: [
       'Monthly feature development (available in Standard / Growth Care)',
-      'Unlimited third-party cloud hosting resources',
-      'Third-party SaaS or direct infrastructure provider subscription fees'
+      'Usage above the included Foundation Infrastructure limits',
+      'Premium third-party SaaS licences and transaction fees'
     ]
   },
   {
     id: 'maint_standard',
     name: 'Standard Care',
-    badge: 'Bi-Monthly Updates & Monitoring',
+    badge: 'Monthly Updates & Monitoring',
     billingCadence: 'MONTHLY_OR_ANNUAL',
     priceNGN: 60000,
     priceFormatted: '60,000 / mo',
     annualPriceNGN: 600000,
-    annualPriceFormatted: '600,000 / yr (Save ₦120k)',
     monthlyPriceNGN: 60000,
     popular: false,
     bestFor: 'Growing websites that need regular content publishing and scheduled health checks.',
@@ -125,6 +180,7 @@ export const CARE_PLANS = [
     timeline: 'Monthly or Annual retainer',
     revisions: 'Included within 2-hour monthly allowance',
     support: 'Standard email & WhatsApp support (24h response)',
+    infrastructureLevel: 'growth',
     desc: 'Dependable routine care with up to 2 hours of monthly developer updates, speed checks, and monthly health reports.',
     features: [
       'Everything in Essential Care',
@@ -136,7 +192,7 @@ export const CARE_PLANS = [
     notIncluded: [
       'Major feature engineering (available in Growth / Pro Care)',
       'After-hours emergency calls',
-      'Third-party infrastructure hosting subscription costs'
+      'Usage above the included Growth Infrastructure limits'
     ]
   },
   {
@@ -146,8 +202,7 @@ export const CARE_PLANS = [
     billingCadence: 'MONTHLY',
     priceNGN: 150000,
     priceFormatted: '150,000 / mo',
-    annualPriceNGN: 1800000,
-    annualPriceFormatted: '1,620,000 / yr (Save ₦180k)',
+    annualPriceNGN: 1620000,
     monthlyPriceNGN: 150000,
     popular: true,
     popularBadge: '⭐ Best Value',
@@ -156,6 +211,7 @@ export const CARE_PLANS = [
     timeline: 'Monthly retainer',
     revisions: 'Included within 4-hour improvement allowance',
     support: 'Prioritized email & WhatsApp support (12h response)',
+    infrastructureLevel: 'scale',
     desc: 'An active monthly improvement retainer with dedicated developer hours, conversion testing, and ongoing performance tuning.',
     features: [
       'Everything in Essential Care & Standard Care',
@@ -169,7 +225,8 @@ export const CARE_PLANS = [
     notIncluded: [
       'Large-scale complete website redesigns',
       'After-hours emergency calls',
-      'Third-party advertising or direct infrastructure provider costs'
+      'Infrastructure usage above the included Scale limits',
+      'Third-party advertising and premium SaaS costs'
     ]
   },
   {
@@ -179,8 +236,7 @@ export const CARE_PLANS = [
     billingCadence: 'MONTHLY',
     priceNGN: 350000,
     priceFormatted: '350,000 / mo',
-    annualPriceNGN: 4200000,
-    annualPriceFormatted: '3,850,000 / yr (Save ₦350k)',
+    annualPriceNGN: 3850000,
     monthlyPriceNGN: 350000,
     popular: false,
     bestFor: 'High-traffic stores, SaaS portals, and business-critical platforms where uptime matters.',
@@ -188,6 +244,7 @@ export const CARE_PLANS = [
     timeline: 'Monthly retainer',
     revisions: 'Included within 10-hour allowance',
     support: 'Priority emergency support window (4h response, direct WhatsApp channel)',
+    infrastructureLevel: 'enterprise',
     desc: 'A high-touch engineering retainer with 10 hours monthly development, priority emergency window, and proactive technical reviews.',
     features: [
       'Everything in Growth Care',
@@ -199,6 +256,7 @@ export const CARE_PLANS = [
     notIncluded: [
       'Complete platform rewrites',
       'Third-party enterprise software licensing',
+      'Infrastructure usage above the Enterprise profile agreed in the proposal',
       'Uncapped on-demand engineering beyond allocated retainer'
     ]
   }
@@ -281,7 +339,7 @@ export const BUILD_PRICING = {
       'Browser / device support and launch QA scope'
     ],
     pricingNotes:
-      'Prices are starting points in NGN. The final figure is confirmed after the brief, content audit, and technical scope are understood. Every package includes the ₦130k/yr Base Infrastructure Layer (domain, hosting config, email, SSL, backups, Essential Care monitoring) for the first year.',
+      'Prices are starting points in NGN. The final figure is confirmed after the brief, content audit, and technical scope are understood. Starter includes Foundation Infrastructure, Growth includes Growth Infrastructure, and Pro includes Scale Infrastructure for the first 12 months.',
     tiers: [
       {
         id: 'web_starter',
@@ -295,14 +353,14 @@ export const BUILD_PRICING = {
         timeline: '1–2 weeks',
         revisions: '1 round of revisions on the agreed design',
         support: '14 days of bug-fix support after launch',
+        infrastructureLevel: 'foundation',
         desc: 'A focused, responsive one-to-five page website with a clear content structure and mobile-first layout.',
         features: [
           'Technical planning and site architecture',
           'Up to 5 responsive page templates',
           'Core content components',
           'Accessibility fundamentals and launch QA',
-          'Contact form integration',
-          'Base Infrastructure Layer included (₦130k/yr value)'
+          'Contact form integration'
         ],
         notIncluded: [
           'CMS / editable content backend',
@@ -325,6 +383,7 @@ export const BUILD_PRICING = {
         timeline: '2–4 weeks',
         revisions: '2 structured rounds of revisions',
         support: '30 days of priority support after launch',
+        infrastructureLevel: 'growth',
         desc: 'A complete custom website built on modern components, with a CMS and integrated lead-capture pipelines.',
         features: [
           'Everything in Starter',
@@ -332,8 +391,7 @@ export const BUILD_PRICING = {
           'CMS setup & content modeling',
           'Lead-capture forms & email notifications',
           'Core Web Vitals & Technical SEO Compliance',
-          'Analytics integration',
-          'Base Infrastructure Layer included (₦130k/yr value)'
+          'Analytics integration'
         ],
         notIncluded: [
           'Copywriting from scratch',
@@ -353,14 +411,14 @@ export const BUILD_PRICING = {
         timeline: '4–8 weeks',
         revisions: 'Iterative milestone reviews across each development phase',
         support: '60 days of priority engineering support',
+        infrastructureLevel: 'scale',
         desc: 'A high-performance digital platform with custom dynamic workflows, gated areas, and multi-API integrations.',
         features: [
           'Everything in Growth',
           '15+ custom pages & complex layouts',
           'Protected client areas & user authentication',
           'Custom API integrations & database queries',
-          'Dedicated staging preview environment',
-          'Base Infrastructure Layer + Standard Care monitoring included'
+          'Dedicated staging preview environment'
         ],
         notIncluded: [
           'Ongoing retainers beyond first year (available in Care Plans)',
@@ -385,7 +443,7 @@ export const BUILD_PRICING = {
       'Marketing integrations and abandoned cart recovery'
     ],
     pricingNotes:
-      'Every package includes the ₦130k/yr Base Infrastructure Layer (domain, hosting config, transactional email, SSL, backups, monitoring) for the first year. Production infrastructure fees (hosting, database, storage, payment gateway transactions, CDN) above the base layer are scoped separately and billed by providers with 0% markup.',
+      'Starter includes Foundation Infrastructure, Growth includes Growth Infrastructure, and Pro Headless includes Scale Infrastructure for the first 12 months. Usage above the stated level and payment gateway transaction fees are scoped separately with no hidden markup.',
     tiers: [
       {
         id: 'ecom_starter',
@@ -399,6 +457,7 @@ export const BUILD_PRICING = {
         timeline: '2–3 weeks',
         revisions: '1 round of revisions on the agreed design',
         support: '14 days of launch bug-fix support',
+        infrastructureLevel: 'foundation',
         desc: 'A focused storefront for a small catalogue with a straightforward buying path.',
         features: [
           'Store strategy and catalogue architecture',
@@ -406,8 +465,7 @@ export const BUILD_PRICING = {
           'Checkout & primary payment gateway (Paystack / Cards)',
           'Up to 25 products & variants configured',
           'Flat-rate shipping rules & local delivery setup',
-          'Order management & stock dashboard',
-          'Base Infrastructure Layer included (₦130k/yr value)'
+          'Order management & stock dashboard'
         ],
         notIncluded: [
           'Product photography & studio editing',
@@ -429,6 +487,7 @@ export const BUILD_PRICING = {
         timeline: '4–6 weeks',
         revisions: '2 rounds of revisions on the agreed design',
         support: '30 days of priority bug-fix support after launch',
+        infrastructureLevel: 'growth',
         desc: 'A conversion-focused store with shipping, tax, analytics, and launch support.',
         features: [
           'Everything in Starter',
@@ -437,8 +496,7 @@ export const BUILD_PRICING = {
           'Automated abandoned-cart recovery & email capture',
           'Customer accounts & past order lookup portal',
           'Discounts, promo codes & gift cards engine',
-          'Google Analytics 4 E-Commerce telemetry & Meta Pixel',
-          'Base Infrastructure Layer included (₦130k/yr value)'
+          'Google Analytics 4 E-Commerce telemetry & Meta Pixel'
         ],
         notIncluded: [
           'Direct courier API shipping account fees',
@@ -458,6 +516,7 @@ export const BUILD_PRICING = {
         timeline: '6–10 weeks',
         revisions: 'Phased sprint milestones with continuous review',
         support: '60 days of priority support with direct engineering access',
+        infrastructureLevel: 'scale',
         desc: 'Custom headless storefront architecture with high-performance browsing and custom backends.',
         features: [
           'Everything in Growth',
@@ -465,11 +524,10 @@ export const BUILD_PRICING = {
           'Custom React / Next.js headless commerce frontend',
           'Multi-warehouse inventory allocation & automated sync',
           'Multi-currency auto-conversion (NGN, USD, GBP, EUR)',
-          'Automated courier webhook integration (DHL, FedEx, GIG)',
-          'Base Infrastructure Layer + Standard Care monitoring included'
+          'Automated courier webhook integration (DHL, FedEx, GIG)'
         ],
         notIncluded: [
-          'Third-party cloud server compute billing',
+          'Infrastructure usage above the included Scale limits',
           'Custom native mobile apps'
         ]
       }
@@ -485,13 +543,13 @@ export const BUILD_PRICING = {
     baseInfraIncluded: true,
     whatAffectsPricing: [
       'Database complexity and role-based access logic',
-      'Third-party API integrations and webhook pipelines',
-      'Real-time data streaming & WebSocket requirements',
+      'Connections to payments, messaging, and external business tools',
+      'Live updates, notifications, and real-time collaboration requirements',
       'Security compliance and multi-tenant isolation',
-      'Automated CI/CD testing and deployment staging'
+      'Automated testing, release workflow, and staging requirements'
     ],
     pricingNotes:
-      'Custom software is delivered with 100% source code ownership and full GitHub repository handover. Every package includes the ₦130k/yr Base Infrastructure Layer (domain, hosting config, transactional email, SSL, backups, monitoring) for the first year. Production cloud compute above the base tier is scoped separately.',
+      'Custom software includes 100% source code ownership and full GitHub repository handover. MVP includes Foundation Infrastructure, Growth Platform includes Growth Infrastructure, and Enterprise includes an architecture-specific Enterprise level for the first 12 months.',
     tiers: [
       {
         id: 'soft_mvp',
@@ -505,20 +563,20 @@ export const BUILD_PRICING = {
         timeline: '4–6 weeks',
         revisions: '1 iteration round on validated prototype',
         support: '90 days of post-launch engineering support',
+        infrastructureLevel: 'foundation',
         desc: 'Custom full-stack software built to test market demand, automate core business logic, and onboard early users.',
         features: [
-          'Tailored database schema & secure REST APIs',
-          'Protected authentication & Role-Based Access Control (RBAC)',
+          'Tailored data structure and secure application connections',
+          'Protected sign-in with permissions for each user role',
           'Custom interactive client / admin dashboard',
-          'Payment gateway & webhook trigger pipelines',
+          'Payment gateway and automated workflow connections',
           'Transactional email & SMS notification workflows',
-          '100% intellectual property & source code transfer',
-          'Base Infrastructure Layer included (₦130k/yr value)'
+          '100% intellectual property & source code transfer'
         ],
         notIncluded: [
           'Multi-tenant enterprise partitioning',
           'Custom native mobile apps (iOS / Android)',
-          'Third-party cloud infrastructure subscription costs above the base layer'
+          'Infrastructure usage above the included Foundation limits'
         ]
       },
       {
@@ -534,15 +592,15 @@ export const BUILD_PRICING = {
         timeline: '6–10 weeks',
         revisions: '2 review cycles during phased delivery',
         support: '90 days of priority post-launch engineering support',
+        infrastructureLevel: 'growth',
         desc: 'Robust architecture with multi-role workflows, automated reporting ledgers, and secure integration pipelines.',
         features: [
           'Everything in MVP Platform',
           'Complex multi-role business logic & encrypted data vault',
           'Automated financial ledgers & invoice generation pipelines',
           'Custom CRM pipelines & external partner integrations',
-          'Real-time WebSocket updates & audit activity logs',
-          'Staging environments, automated CI/CD & unit tests',
-          'Base Infrastructure Layer + Standard Care monitoring included'
+          'Live updates and searchable activity logs',
+          'Staging environment with automated release testing'
         ],
         notIncluded: [
           'Third-party SMS / WhatsApp gateway credit costs',
@@ -562,17 +620,17 @@ export const BUILD_PRICING = {
         timeline: 'Scoped during discovery',
         revisions: 'Defined in statement of work',
         support: '90 days of priority engineering support & dedicated on-call window',
+        infrastructureLevel: 'enterprise',
         desc: 'Dedicated cloud infrastructure planning, compliance pipelines, and 100% intellectual property transfer.',
         features: [
           'Multi-tenant data isolation & compliance protocols',
           'Production-grade cloud architecture with automated uptime monitoring',
           'Dedicated data pipelines & large-scale asynchronous processing',
           'Complete IP transfer, GitHub repo & architecture docs',
-          'Dedicated priority support window & on-demand engineering',
-          'Base Infrastructure Layer + Growth Care monitoring included'
+          'Dedicated priority support window & on-demand engineering'
         ],
         notIncluded: [
-          'Third-party cloud infrastructure compute billing above the base layer',
+          'Infrastructure usage above the Enterprise profile agreed in the proposal',
           'Third-party software license subscriptions'
         ]
       }
@@ -586,6 +644,7 @@ export const BUILD_PRICING = {
     startingPriceNGN: 850000,
     startingPriceFormatted: '850,000',
     baseInfraIncluded: true,
+    offerStructureLabel: 'Separate solution starting points — not upgrade tiers',
     whatAffectsPricing: [
       'Number of distinct operational roles (Admins, Staff, Students / Residents / Cashiers)',
       'Hardware integration requirements (QR scanners, barcode readers, thermal printers)',
@@ -594,7 +653,7 @@ export const BUILD_PRICING = {
       'SMS and WhatsApp operational notification volume'
     ],
     pricingNotes:
-      'All business management systems include 100% source code ownership, database deployment, staff onboarding walk-through, 50/50 milestone payment terms, and the ₦130k/yr Base Infrastructure Layer (domain, hosting config, transactional email, SSL, backups, monitoring) for the first year. Third-party SMS / WhatsApp gateway credits and hardware peripherals are billed separately.',
+      'These are separate solution starting points, not versions of the same product. Every system includes source code ownership, database deployment, and staff onboarding. Infrastructure is matched to the operating demands of each solution.',
     tiers: [
       {
         id: 'portal_gatepass',
@@ -608,6 +667,7 @@ export const BUILD_PRICING = {
         timeline: '2–3 weeks',
         revisions: '1 revision round on resident interface & QR pass layout',
         support: '30 days of operational support & staff onboarding',
+        infrastructureLevel: 'foundation',
         desc: 'A streamlined web portal allowing residents to generate timed digital visitor passes, with a guard tablet scanner for rapid entry validation.',
         features: [
           'Resident self-service portal (generate timed visitor access codes & QR passes)',
@@ -615,8 +675,7 @@ export const BUILD_PRICING = {
           'Automated SMS / WhatsApp arrival notification to host resident',
           'Vehicle license plate logging, entry / exit timestamp audit trail',
           'Estate manager admin dashboard with resident directory & blacklist alerts',
-          '100% source code handover & database setup',
-          'Base Infrastructure Layer included (₦130k/yr value)'
+          '100% source code handover & database setup'
         ],
         notIncluded: [
           'Hardware tablets / scanners (we provide hardware recommendations)',
@@ -636,6 +695,7 @@ export const BUILD_PRICING = {
         timeline: '4–6 weeks',
         revisions: '2 revision cycles across grading and student records',
         support: '60 days of academic priority support & teacher training',
+        infrastructureLevel: 'growth',
         desc: 'A comprehensive academic management system managing student admissions, continuous assessment grading, automated PDF report cards, and online fee collection.',
         features: [
           'Multi-role access: Super Admin, Principal, Teachers, Students & Parents',
@@ -644,8 +704,7 @@ export const BUILD_PRICING = {
           'One-click downloadable & printable PDF termly report cards',
           'Online school fees payment integration (Paystack / Cards) with auto-receipts',
           'Daily student attendance tracking and disciplinary record log',
-          'SMS / Email announcements broadcast engine for parents',
-          'Base Infrastructure Layer included (₦130k/yr value)'
+          'SMS / Email announcements broadcast engine for parents'
         ],
         notIncluded: [
           'Third-party SMS broadcast credits (billed directly by provider)',
@@ -664,6 +723,7 @@ export const BUILD_PRICING = {
         timeline: '6–8 weeks',
         revisions: 'Iterative milestone reviews per branch deployment',
         support: '90 days of enterprise priority warranty & staff training',
+        infrastructureLevel: 'scale',
         desc: 'An enterprise inventory and Point-of-Sale operating system with real-time stock deductions, multi-location transfers, barcode scanning, and daily cash reconciliation.',
         features: [
           'High-speed POS Cashier checkout screen with barcode scanner & receipt printer support',
@@ -672,12 +732,11 @@ export const BUILD_PRICING = {
           'Inter-warehouse stock transfer requests, dispatch approvals & transit logs',
           'Supplier purchase order management & goods received note (GRN) reconciliation',
           'Daily cash drawer reconciliation, cashier shift audits & gross profit analytics',
-          'Role-based permissions (Cashier, Storekeeper, Warehouse Manager, Auditor)',
-          'Base Infrastructure Layer + Standard Care monitoring included'
+          'Role-based permissions (Cashier, Storekeeper, Warehouse Manager, Auditor)'
         ],
         notIncluded: [
           'POS hardware peripherals (thermal printers, barcode scanners, cash drawers)',
-          'Third-party cloud infrastructure subscription fees above the base layer'
+          'Infrastructure usage above the included Scale limits'
         ]
       }
     ]
@@ -691,7 +750,7 @@ export const BUILD_PRICING = {
     startingPriceFormatted: '280,000',
     baseInfraIncluded: false,
     baseInfraNote:
-      'UI/UX deliverables are design files (Figma) — no hosting or domain required. The Base Infrastructure Layer is bundled only when the design is paired with a development build.',
+      'UI/UX deliverables are design files (Figma), so no hosting or domain is required. The matching Infrastructure level is included only when design is paired with an eligible development build.',
     whatAffectsPricing: [
       'Total number of unique user screens and modal flows',
       'Depth of user research, persona creation, and journey mapping',
@@ -866,6 +925,7 @@ export const BUILD_PRICING = {
     startingPriceNGN: 220000,
     startingPriceFormatted: '220,000',
     baseInfraIncluded: false,
+    offerStructureLabel: 'Choose your stage: Audit → Implementation → Ongoing Growth',
     baseInfraNote:
       'SEO engagements are advisory + code-implementation services. No hosting or domain is included — these are owned by the client.',
     whatAffectsPricing: [
@@ -876,7 +936,7 @@ export const BUILD_PRICING = {
       'Ongoing content strategy and backlink profile health'
     ],
     pricingNotes:
-      'One-time technical SEO implementations include full audit documentation, direct codebase code fixes, and Search Console telemetry verification.',
+      'Start with an Audit when the problems are unclear, choose Implementation when the fixes are already understood, and add Ongoing Growth after the technical foundation is healthy. A new retainer may require a separate onboarding audit.',
     tiers: [
       {
         id: 'seo_starter',
@@ -917,7 +977,7 @@ export const BUILD_PRICING = {
         features: [
           'Everything in Starter Audit',
           'Direct codebase on-page SEO implementation',
-          'JSON-LD Structured Schema (Organization, Product, FAQ)',
+          'Structured search markup for organizations, products, and FAQs',
           'Core Web Vitals speed tuning in source code',
           'Keyword mapping & content structure guidelines',
           'Automated XML sitemap & robots.txt rules'
@@ -926,7 +986,7 @@ export const BUILD_PRICING = {
       },
       {
         id: 'seo_pro',
-        name: 'Pro Retainer',
+        name: 'Ongoing Growth',
         badge: 'Ongoing Organic Growth',
         priceNGN: 350000,
         priceFormatted: '350,000 / mo',
@@ -938,13 +998,13 @@ export const BUILD_PRICING = {
         support: 'Priority strategy support & bi-weekly check-ins',
         desc: 'Monthly technical monitoring, competitor rank tracking, and content optimization.',
         features: [
-          'Everything in Growth Implementation',
+          'Technical monitoring for the approved website scope',
           'Continuous monthly technical health monitoring',
           'Competitor keyword movement & gap analysis',
           'Monthly conversion & search performance reports',
           'Quarterly content refresh strategy'
         ],
-        notIncluded: ['Third-party paid link placements']
+        notIncluded: ['Initial implementation when technical fixes are still outstanding', 'Third-party paid link placements']
       }
     ]
   },
@@ -956,17 +1016,18 @@ export const BUILD_PRICING = {
     startingPriceNGN: 250000,
     startingPriceFormatted: '250,000',
     baseInfraIncluded: false,
+    offerStructureLabel: 'Choose your stage: Strategy → Campaign Launch → Monthly Management',
     baseInfraNote:
       'Marketing engagements produce strategy + creative assets. Hosting for landing pages is provided only when built alongside a development engagement.',
     whatAffectsPricing: [
       'Number of advertising channels (Meta, Google, LinkedIn)',
       'Creative asset volume (static graphics, motion, copy variants)',
       'Landing page design and split-testing requirements',
-      'Attribution setup (Conversion API, GA4, pixel telemetry)',
+      'Conversion tracking and analytics requirements',
       'Monthly advertising budget under management'
     ],
     pricingNotes:
-      'Campaign setup fees cover strategy, creative production, and tracking configuration. Ad spend is paid directly to advertising platforms by the client.',
+      'Strategy and Campaign Launch are one-time engagements. Monthly Management begins after launch; if campaign foundations do not exist, onboarding is scoped first. Advertising spend is always paid directly to the platforms.',
     tiers: [
       {
         id: 'mktg_starter',
@@ -1007,14 +1068,14 @@ export const BUILD_PRICING = {
           'Everything in Strategy Blueprint',
           'Custom high-converting campaign landing page',
           '5 tailored ad creative sets (copy + visual assets)',
-          'Meta Pixel & Conversion API (CAPI) server setup',
+          'Meta Pixel and reliable server-side conversion tracking',
           'Google Analytics 4 conversion event tracking'
         ],
         notIncluded: ['Direct platform ad spend (paid by client)']
       },
       {
         id: 'mktg_pro',
-        name: 'Pro Retainer',
+        name: 'Monthly Management',
         badge: 'Ongoing Growth Management',
         priceNGN: 850000,
         priceFormatted: '850,000 / mo',
@@ -1026,13 +1087,13 @@ export const BUILD_PRICING = {
         support: 'Priority strategic support & weekly performance reports',
         desc: 'Continuous campaign management, A/B creative testing, and funnel optimization.',
         features: [
-          'Everything in Campaign Launch',
+          'Management of approved campaign accounts and tracking',
           'Active campaign optimization across channels',
           'Weekly creative refreshes (copy & graphics)',
           'Landing page conversion rate optimization (CRO)',
           'Weekly ROI reporting & lead pipeline auditing'
         ],
-        notIncluded: ['Ad spend budget (billed directly by ad networks)']
+        notIncluded: ['Initial strategy, creative production, or tracking setup when not already completed', 'Ad spend budget (billed directly by ad networks)']
       }
     ]
   },
@@ -1040,7 +1101,7 @@ export const BUILD_PRICING = {
     id: 'ai',
     label: '⚡ AI & Automations',
     title: '09. AI Solutions & Workflow Automations',
-    desc: 'Intelligent automation pipelines, webhook integrations, and AI models to eliminate repetitive business operations.',
+    desc: 'Connected AI workflows that reduce repetitive work and move information between your business tools.',
     startingPriceNGN: 450000,
     startingPriceFormatted: '450,000',
     baseInfraIncluded: true,
@@ -1052,7 +1113,7 @@ export const BUILD_PRICING = {
       'Staff onboarding, documentation, and video runbooks'
     ],
     pricingNotes:
-      'Automation setups include architecture diagramming, testing in sandbox environments, failover handling, and staff walkthrough recordings. Every package includes the ₦130k/yr Base Infrastructure Layer for the first year.',
+      'Automation setups include architecture mapping, sandbox testing, failover handling, and staff walkthroughs. Starter includes Foundation Infrastructure, Growth includes Growth Infrastructure, and Enterprise AI includes an architecture-specific Enterprise level for the first 12 months.',
     tiers: [
       {
         id: 'ai_starter',
@@ -1065,15 +1126,15 @@ export const BUILD_PRICING = {
         examples: 'e.g. Lead-to-CRM Sync, WhatsApp Order Notifications',
         timeline: '1–2 weeks',
         revisions: '1 round of tuning on prompt logic & triggers',
-        support: '14 days of webhook monitoring support',
+        support: '14 days of automation monitoring support',
+        infrastructureLevel: 'foundation',
         desc: 'Streamlined automation connecting 2–3 core business tools.',
         features: [
           'Workflow discovery & architecture mapping',
           'Integration connecting up to 3 business tools',
           'Automated lead capture & notification pipeline',
-          'Error alert webhook to email / WhatsApp',
-          'Loom video walkthrough for team training',
-          'Base Infrastructure Layer included (₦130k/yr value)'
+          'Failure alerts delivered by email or WhatsApp',
+          'Loom video walkthrough for team training'
         ],
         notIncluded: ['Custom LLM fine-tuning', 'Complex multi-step database branching']
       },
@@ -1090,15 +1151,15 @@ export const BUILD_PRICING = {
         timeline: '3–5 weeks',
         revisions: '2 testing rounds on automated logic & failovers',
         support: '30 days of priority integration support',
+        infrastructureLevel: 'growth',
         desc: 'Advanced automated workflows with AI text extraction, CRM sync, and databases.',
         features: [
           'Everything in Starter Automation',
-          'Integration connecting up to 6 business tools / APIs',
+          'Integration connecting up to 6 business tools or data services',
           'AI-powered data classification & extraction',
           'Automated customer onboarding & email sequences',
-          'Custom webhook endpoints on Node.js / Python server',
-          'Automated data backup & retry queue system',
-          'Base Infrastructure Layer included (₦130k/yr value)'
+          'Custom connections for systems that need to exchange data',
+          'Automated data backup & retry queue system'
         ],
         notIncluded: ['Third-party AI API token fees (OpenAI, Anthropic)']
       },
@@ -1110,19 +1171,19 @@ export const BUILD_PRICING = {
         priceFormatted: '3,000,000+ starting',
         popular: false,
         bestFor: 'Enterprises deploying proprietary AI chatbots, custom models, and internal tools.',
-        examples: 'e.g. Internal Knowledge Base AI, Custom RAG Search Platform',
+        examples: 'e.g. Internal Knowledge Assistant, Secure Company Search',
         timeline: '6–10 weeks',
         revisions: 'Iterative sprint reviews across data ingestion & outputs',
         support: '60 days of priority engineering support',
-        desc: 'Custom retrieval-augmented generation (RAG) platforms and autonomous agent workflows.',
+        infrastructureLevel: 'enterprise',
+        desc: 'Secure company knowledge assistants and multi-step AI workflows tailored to internal data.',
         features: [
           'Everything in Growth Pipeline',
           'Custom AI chatbot trained on internal company data',
-          'Vector database indexing (Pinecone / pgvector)',
+          'Searchable knowledge index for approved company information',
           'Role-based staff access & sensitive data filtering',
-          'High-availability webhook architecture with 99.9% uptime target',
-          'Complete IP handover & technical runbook',
-          'Base Infrastructure Layer + Growth Care monitoring included'
+          'High-availability workflow architecture with a 99.9% uptime target',
+          'Complete IP handover & technical runbook'
         ],
         notIncluded: ['Third-party GPU server compute billing']
       }
@@ -1136,10 +1197,11 @@ export const BUILD_PRICING = {
     startingPriceNGN: 130000,
     startingPriceFormatted: '130,000 / yr',
     baseInfraIncluded: true,
+    offerStructureLabel: 'Choose ongoing coverage: Essential → Standard → Growth → Pro',
     baseInfraNote:
-      'All maintenance retainers include the Base Infrastructure Layer (domain renewal, hosting, email, SSL, backups, monitoring) by default.',
+      'Every Care retainer includes its matching Infrastructure level while the plan remains active. Usage above that level and premium third-party services are scoped separately.',
     pricingNotes:
-      'Optional ongoing technical care. Distinct from your included build warranty, maintenance provides proactive monitoring, security updates, and active developer improvement retainers.',
+      'Care keeps the matching Infrastructure level active after launch and adds human support, planned updates, reporting, and reserved developer time. It remains separate from the build warranty, which covers implementation defects.',
     tiers: CARE_PLANS
   }
 };

@@ -1,24 +1,49 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
-import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { api } from '../services/api';
-import { buttonHover, buttonTap, cardHover, cardHoverTransition, reducedMotionVariants, fadeUpItem, staggerContainer } from '../utils/motion';
+import { reducedMotionVariants, staggerContainer } from '../utils/motion';
 import { CONTACT } from '../config/contact';
-import { Clock, PhoneCall, ShieldCheck, CheckCircle2, ArrowRight } from 'lucide-react';
+import { BUDGET_RANGES, BUILD_PRICING } from '../config/pricing';
+import { CheckCircle2, ArrowRight } from 'lucide-react';
 
-const PROJECT_TYPES = [
+const CORE_PROJECT_TYPES = [
   'Business Website',
   'E-Commerce Store',
   'Custom Software',
   'Business Management System & ERP',
+  'Maintenance',
+];
+
+const SPECIALIST_PROJECT_TYPES = [
   'UI/UX Design',
   'Branding',
   'SEO & Growth',
   'Marketing',
   'AI & Automations',
-  'Maintenance',
   'Not sure yet',
 ];
+
+const SERVICE_TYPE_BY_ID = {
+  websites: 'Business Website',
+  ecommerce: 'E-Commerce Store',
+  software: 'Custom Software',
+  portals: 'Business Management System & ERP',
+  uiux: 'UI/UX Design',
+  branding: 'Branding',
+  seo: 'SEO & Growth',
+  marketing: 'Marketing',
+  ai: 'AI & Automations',
+  maintenance: 'Maintenance',
+};
+
+const resolveTierName = (tierParam) => {
+  if (!tierParam) return '';
+  const matchingTier = Object.values(BUILD_PRICING)
+    .flatMap((category) => category.tiers || [])
+    .find((tier) => tier.id === tierParam || tier.name === tierParam);
+  return matchingTier?.name || tierParam.replace(/_/g, ' ').replace(/\b\w/g, (letter) => letter.toUpperCase());
+};
 
 const TIMELINE_OPTIONS = [
   'ASAP (1–2 weeks)',
@@ -78,7 +103,6 @@ const ContactPage = () => {
   const [isEmailDirty, setIsEmailDirty] = useState(false);
 
   const container = useMemo(() => (shouldReduce ? reducedMotionVariants : staggerContainer), [shouldReduce]);
-  const item = useMemo(() => (shouldReduce ? reducedMotionVariants : fadeUpItem), [shouldReduce]);
 
   const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
@@ -98,37 +122,34 @@ const ContactPage = () => {
   // Detect URL parameters from Pricing Page selection (e.g. ?service=ecommerce&tier=Growth)
   useEffect(() => {
     window.scrollTo(0, 0);
-    document.title = "Start a Project | Buildwith_lami — Direct Engineering Inquiry";
+    document.title = "Request a Proposal | Buildwith_lami";
     const metaDesc = document.querySelector('meta[name="description"]');
     if (metaDesc) {
       metaDesc.setAttribute(
         'content',
-        "Start a project inquiry with Buildwith_lami (Eugene Odibenuah). Custom software engineering, high-converting websites, e-commerce, and technical consulting."
+        "Request a scoped proposal from Buildwith_lami for custom software, business websites, e-commerce systems, ERP platforms, or technical consulting."
       );
     }
 
     const params = new URLSearchParams(location.search);
-    const serviceParam = params.get('service');
-    const tierParam = params.get('tier');
-    const currencyParam = params.get('currency');
+    const serviceParam = params.get('service')?.slice(0, 100) || '';
+    const tierParam = params.get('tier')?.slice(0, 100) || '';
+    const requestedCurrency = params.get('currency');
+    const currencyParam = ['NGN', 'USD'].includes(requestedCurrency) ? requestedCurrency : '';
 
     if (serviceParam || tierParam) {
-      let matchedType = '';
-      if (serviceParam === 'websites') matchedType = 'Business Website';
-      else if (serviceParam === 'ecommerce') matchedType = 'E-Commerce Store';
-      else if (serviceParam === 'software') matchedType = 'Custom Software';
-      else if (serviceParam === 'portals') matchedType = 'Business Management System & ERP';
-      else if (serviceParam === 'uiux') matchedType = 'UI/UX Design';
-      else if (serviceParam === 'branding') matchedType = 'Branding';
-      else if (serviceParam === 'seo') matchedType = 'SEO & Growth';
-      else if (serviceParam === 'marketing') matchedType = 'Marketing';
-      else if (serviceParam === 'ai') matchedType = 'AI & Automations';
-      else if (serviceParam === 'maintenance') matchedType = 'Maintenance';
+      const matchedType = SERVICE_TYPE_BY_ID[serviceParam] || '';
+      const tierName = resolveTierName(tierParam);
+      const projectLabel = matchedType || serviceParam;
+      const projectContext = projectLabel ? ` for ${projectLabel}` : '';
+      const currencyContext = currencyParam ? ` Prices were shown in ${currencyParam}.` : '';
 
       setFormData(prev => ({
         ...prev,
         project_type: matchedType || prev.project_type,
-        message: prev.message || (tierParam ? `Hi Eugene, I'm interested in discussing the ${tierParam} package for ${matchedType || serviceParam} (${currencyParam || 'NGN'}).` : '')
+        message: prev.message || (tierName
+          ? `Hi Eugene, I'm interested in the ${tierName} package${projectContext}.${currencyContext}`
+          : '')
       }));
     }
   }, [location.search]);
@@ -148,20 +169,25 @@ const ContactPage = () => {
     const tierParam = searchParams.get('tier');
     const currencyParam = searchParams.get('currency');
 
-    const res = await api.post('/contact', {
-      full_name: formData.name.trim(),
-      email: formData.email.trim(),
-      project_type: formData.project_type || null,
-      budget: formData.budget || null,
-      timeline: formData.timeline || null,
-      service: serviceParam || null,
-      tier: tierParam || null,
-      currency: currencyParam || null,
-      message: formData.message.trim(),
-      b_website: formData.b_website || null,
-    });
+    try {
+      const res = await api.post('/contact', {
+        full_name: formData.name.trim(),
+        email: formData.email.trim(),
+        project_type: formData.project_type || null,
+        budget: formData.budget || null,
+        timeline: formData.timeline || null,
+        service: serviceParam || null,
+        tier: resolveTierName(tierParam) || null,
+        currency: ['NGN', 'USD'].includes(currencyParam) ? currencyParam : null,
+        message: formData.message.trim(),
+        b_website: formData.b_website || null,
+      });
 
-    if (res.ok) {
+      if (!res.ok) {
+        setStatus('error');
+        return;
+      }
+
       setStatus('success');
       setFormData({
         name: '',
@@ -174,7 +200,7 @@ const ContactPage = () => {
       });
       setIsEmailDirty(false);
       setTimeout(() => setStatus('idle'), 5000);
-    } else {
+    } catch {
       setStatus('error');
     }
   };
@@ -197,11 +223,11 @@ const ContactPage = () => {
             <span>Direct Project Discovery</span>
           </div>
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-heading font-extrabold tracking-tight text-black dark:text-white leading-[1.08]">
-            Let&apos;s build something <br className="hidden sm:block" />
-            that <span className="text-accent">moves your business.</span>
+            Tell me what you need. <br className="hidden sm:block" />
+            I&apos;ll <span className="text-accent">confirm the right next step.</span>
           </h1>
           <p className="mt-4 text-base sm:text-lg text-gray-700 dark:text-gray-300 font-light leading-relaxed">
-            Direct founder-to-engineer communication. Share your goals, timeline, or required features. I personally review every inquiry and reply within 24 hours with a concrete proposal and roadmap.
+            Share your goal, preferred timeline, and the package you are considering. I personally review every inquiry and reply within one business day with a fit assessment and clear next step.
           </p>
         </motion.header>
 
@@ -227,7 +253,7 @@ const ContactPage = () => {
               </h2>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-6" aria-busy={status === 'submitting'}>
               {/* Spam Honeypot Field */}
               <div className="absolute -left-[9999px] top-auto w-px h-px overflow-hidden opacity-0" aria-hidden="true">
                 <label htmlFor="contact_b_website">Leave this field blank</label>
@@ -252,6 +278,8 @@ const ContactPage = () => {
                     type="text"
                     id="name"
                     required
+                    maxLength={100}
+                    autoComplete="name"
                     placeholder="e.g. Alex Johnson"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -266,10 +294,14 @@ const ContactPage = () => {
                     type="email"
                     id="email"
                     required
+                    maxLength={254}
+                    autoComplete="email"
                     placeholder="you@company.com"
                     value={formData.email}
                     onChange={handleEmailChange}
                     onBlur={handleEmailBlur}
+                    aria-invalid={emailError}
+                    aria-describedby={emailError ? 'contact-email-error' : undefined}
                     className={`bwl-input ${
                       emailError
                         ? '!border-red-500 focus:!border-red-500'
@@ -279,35 +311,47 @@ const ContactPage = () => {
                     }`}
                   />
                   {emailError && (
-                    <p className="text-red-500 text-xs mt-1">Please enter a valid email address.</p>
+                    <p id="contact-email-error" className="text-red-500 text-xs mt-1">Please enter a valid email address.</p>
                   )}
                 </div>
               </div>
 
-              {/* What are you looking to build? */}
-              <div>
-                <label className="block text-xs uppercase tracking-wider font-bold text-gray-700 dark:text-gray-300 mb-2">
-                  What are you looking to build?
-                </label>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                  {PROJECT_TYPES.map((type) => (
-                    <button
-                      key={type}
-                      type="button"
-                      onClick={() => setFormData({ ...formData, project_type: formData.project_type === type ? '' : type })}
-                      className={`px-3 py-2 rounded-xl text-xs font-semibold border transition-all text-center truncate ${
-                        formData.project_type === type
-                          ? 'bg-accent text-white border-accent shadow-sm'
-                          : 'bg-gray-50 dark:bg-white/5 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-white/10 hover:border-accent/50'
-                      }`}
-                    >
-                      {type}
-                    </button>
-                  ))}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="project_type" className="block text-xs uppercase tracking-wider font-bold text-gray-700 dark:text-gray-300 mb-1.5">
+                    Closest Service
+                  </label>
+                  <select
+                    id="project_type"
+                    value={formData.project_type}
+                    onChange={(event) => setFormData({ ...formData, project_type: event.target.value })}
+                    className="bwl-input min-h-12 text-base"
+                  >
+                    <option value="">Select a service</option>
+                    <optgroup label="Core build and support">
+                      {CORE_PROJECT_TYPES.map((type) => <option key={type} value={type}>{type}</option>)}
+                    </optgroup>
+                    <optgroup label="Specialist services">
+                      {SPECIALIST_PROJECT_TYPES.map((type) => <option key={type} value={type}>{type}</option>)}
+                    </optgroup>
+                  </select>
+                </div>
+
+                <div>
+                  <label htmlFor="budget" className="block text-xs uppercase tracking-wider font-bold text-gray-700 dark:text-gray-300 mb-1.5">
+                    Investment Range <span className="normal-case tracking-normal font-medium text-gray-400">(optional)</span>
+                  </label>
+                  <select
+                    id="budget"
+                    value={formData.budget}
+                    onChange={(event) => setFormData({ ...formData, budget: event.target.value })}
+                    className="bwl-input min-h-12 text-base"
+                  >
+                    <option value="">Select a range</option>
+                    {BUDGET_RANGES.map((range) => <option key={range} value={range}>{range}</option>)}
+                  </select>
                 </div>
               </div>
-
-
 
               {/* Preferred Timeline */}
               <div>
@@ -319,8 +363,9 @@ const ContactPage = () => {
                     <button
                       key={time}
                       type="button"
+                      aria-pressed={formData.timeline === time}
                       onClick={() => setFormData({ ...formData, timeline: formData.timeline === time ? '' : time })}
-                      className={`px-3 py-2 rounded-xl text-xs font-semibold border transition-all text-center truncate ${
+                      className={`min-h-11 px-3 py-2 rounded-xl text-xs font-semibold border transition-all text-center leading-snug ${
                         formData.timeline === time
                           ? 'bg-accent text-white border-accent shadow-sm'
                           : 'bg-gray-50 dark:bg-white/5 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-white/10 hover:border-accent/50'
@@ -340,6 +385,7 @@ const ContactPage = () => {
                 <textarea
                   id="message"
                   required
+                  maxLength={4000}
                   rows="4"
                   placeholder="Describe what you want to achieve, key features, reference websites, or current business bottlenecks."
                   value={formData.message}
@@ -356,7 +402,7 @@ const ContactPage = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[11px] text-gray-600 dark:text-gray-300">
                   <div className="flex items-start gap-1.5">
                     <span className="font-bold text-accent">1.</span>
-                    <span>Direct review of your brief within 24h</span>
+                    <span>Fit review within one business day</span>
                   </div>
                   <div className="flex items-start gap-1.5">
                     <span className="font-bold text-accent">2.</span>
@@ -364,7 +410,7 @@ const ContactPage = () => {
                   </div>
                   <div className="flex items-start gap-1.5">
                     <span className="font-bold text-accent">3.</span>
-                    <span>Fixed milestone proposal & SOW</span>
+                    <span>Fixed proposal after scope is clear</span>
                   </div>
                 </div>
               </div>
@@ -385,7 +431,7 @@ const ContactPage = () => {
                 >
                   {status === 'idle' || status === 'error' ? (
                     <span className="flex items-center justify-center gap-2">
-                      <span>Send Project Inquiry</span>
+                      <span>Request a scoped proposal</span>
                       <ArrowRight className="w-4 h-4" />
                     </span>
                   ) : status === 'submitting' ? (
@@ -394,19 +440,19 @@ const ContactPage = () => {
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                       </svg>
-                      Transmitting Brief...
+                      Sending your brief...
                     </span>
                   ) : (
                     <span className="flex items-center justify-center gap-2">
                       <CheckCircle2 className="w-4 h-4" />
-                      Inquiry Received! I Will Reply Within 24h
+                      Inquiry received — I&apos;ll reply within one business day
                     </span>
                   )}
                 </button>
 
                 {status === 'error' && (
-                  <p className="text-red-500 text-xs mt-3 text-center">
-                    There was an issue sending your inquiry. Please reach me directly via WhatsApp below.
+                  <p className="text-red-600 dark:text-red-400 text-xs mt-3 text-center" role="alert">
+                    Your inquiry could not be sent. Your details are still here—try again or use the WhatsApp option below.
                   </p>
                 )}
               </div>

@@ -421,7 +421,7 @@ const ProjectsPage = () => {
               className="btn-primary w-full sm:w-auto"
               style={{ touchAction: 'manipulation' }}
             >
-              Start a Project →
+              Request a Scoped Proposal →
             </Link>
             <a
               href={`https://wa.me/${CONTACT.phoneE164}`}

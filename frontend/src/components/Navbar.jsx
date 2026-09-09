@@ -144,7 +144,7 @@ const Navbar = ({ isDark, toggleTheme }) => {
               to="/contact" 
               className="bg-accent text-white px-6 py-2.5 hover:bg-black dark:hover:bg-white dark:hover:text-black transition-all duration-300 font-heading font-bold text-[11px] uppercase tracking-[0.15em] shadow-md hover:shadow-accent/30 flex items-center gap-1.5 active:scale-[0.98]"
             >
-              <span>Start a Project</span>
+              <span>Request a Proposal</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
@@ -279,7 +279,7 @@ const Navbar = ({ isDark, toggleTheme }) => {
                 onClick={closeMenu}
                 className="w-full py-3.5 px-4 rounded-xl bg-accent text-white font-extrabold text-xs uppercase tracking-wider text-center flex items-center justify-center gap-2 shadow-lg active:scale-95 transition-all"
               >
-                <span>Start a Project Inquiry</span>
+                <span>Request a Proposal</span>
                 <ArrowRight className="w-4 h-4" />
               </Link>
 
