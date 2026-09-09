@@ -207,6 +207,30 @@ const AdminPortfolio = ({ lockedDivision }) => {
         setIsEditModalOpen(true);
     };
 
+    // Auto-open edit modal if ?edit=<id> is present in the URL
+    useEffect(() => {
+        const editId = searchParams.get('edit');
+        if (editId && apiProjects.length > 0) {
+            const target = apiProjects.find((p) => String(p.id) === String(editId));
+            if (target) {
+                openEditFor(target);
+                const nextParams = new URLSearchParams(searchParams);
+                nextParams.delete('edit');
+                setSearchParams(nextParams, { replace: true });
+            }
+        }
+    }, [apiProjects, searchParams, setSearchParams]);
+
+    // Auto-open create modal if ?action=new is present in the URL
+    useEffect(() => {
+        if (searchParams.get('action') === 'new') {
+            openNew();
+            const nextParams = new URLSearchParams(searchParams);
+            nextParams.delete('action');
+            setSearchParams(nextParams, { replace: true });
+        }
+    }, [searchParams, setSearchParams]);
+
     const updateField = useCallback((key, value) => {
         setFormData((prev) => ({ ...prev, [key]: value }));
     }, []);

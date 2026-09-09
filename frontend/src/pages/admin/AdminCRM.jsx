@@ -13,6 +13,7 @@
 // ──────────────────────────────────────────────────────────
 
 import React, { useEffect, useMemo, useState, useCallback } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { api } from '../../services/api';
 import { notify } from '../../services/notify';
@@ -614,6 +615,17 @@ const AdminCRM = () => {
     const [showNewForm, setShowNewForm] = useState(false);
     const [draggingId, setDraggingId] = useState(null);
     const [templates, setTemplates] = useState([]);
+    const [searchParams, setSearchParams] = useSearchParams();
+
+    // Auto-open new lead form if ?action=new is in URL
+    useEffect(() => {
+        if (searchParams.get('action') === 'new') {
+            setShowNewForm(true);
+            const next = new URLSearchParams(searchParams);
+            next.delete('action');
+            setSearchParams(next, { replace: true });
+        }
+    }, [searchParams, setSearchParams]);
 
     // Pull the canonical 8-stage list from the backend once.
     useEffect(() => {

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { api } from '../../services/api';
 import { notify } from '../../services/notify';
@@ -64,12 +65,24 @@ const AdminInvoices = () => {
     const [search, setSearch] = useState('');
     const [statusFilter, setStatusFilter] = useState('all');
     const [divisionFilter, setDivisionFilter] = useState(() => {
-        const ws = localStorage.getItem('admin_workspace');
-        return ws && ['SOFTWARE', 'SURVEY', 'DRONE'].includes(ws) ? ws : 'all';
-    });    const [showForm, setShowForm] = useState(false);
+        const ws = (localStorage.getItem('bwl:admin:workspace') || localStorage.getItem('admin_workspace') || '').toUpperCase();
+        return ['SOFTWARE', 'SURVEY', 'DRONE'].includes(ws) ? ws : 'all';
+    });
+    const [showForm, setShowForm] = useState(false);
     const [submitting, setSubmitting] = useState(false);
     const [projects, setProjects] = useState([]);
     const [fxRates, setFxRates] = useState({});
+    const [searchParams, setSearchParams] = useSearchParams();
+
+    // Auto-open new invoice form if ?action=new is in URL
+    useEffect(() => {
+        if (searchParams.get('action') === 'new') {
+            setShowForm(true);
+            const next = new URLSearchParams(searchParams);
+            next.delete('action');
+            setSearchParams(next, { replace: true });
+        }
+    }, [searchParams, setSearchParams]);
     const [formData, setFormData] = useState({ 
         project_id: '', amount: '', currency: 'NGN', dueDate: '',
         taxRate: 0, discountAmount: 0, depositRequired: 0, notes: '',

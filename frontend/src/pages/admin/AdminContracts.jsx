@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { api } from '../../services/api';
 import {
   FileSignature,
@@ -116,6 +117,17 @@ export default function AdminContracts() {
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [selectedContract, setSelectedContract] = useState(null);
   const [copiedToken, setCopiedToken] = useState(null);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Auto-open new contract form if ?action=new is in URL
+  useEffect(() => {
+    if (searchParams.get('action') === 'new') {
+      setShowCreate(true);
+      const next = new URLSearchParams(searchParams);
+      next.delete('action');
+      setSearchParams(next, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
 
   // Form state
   const [clientId, setClientId] = useState('');

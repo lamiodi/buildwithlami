@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   FileText, 
@@ -171,6 +172,17 @@ export default function AdminQuotations() {
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [previewQuotation, setPreviewQuotation] = useState(null);
     const [submitting, setSubmitting] = useState(false);
+    const [searchParams, setSearchParams] = useSearchParams();
+
+    // Auto-open create modal if ?action=new is in URL
+    useEffect(() => {
+        if (searchParams.get('action') === 'new') {
+            setShowCreateModal(true);
+            const next = new URLSearchParams(searchParams);
+            next.delete('action');
+            setSearchParams(next, { replace: true });
+        }
+    }, [searchParams, setSearchParams]);
 
     // New quotation form state
     const [form, setForm] = useState({

@@ -215,42 +215,44 @@ const AdminSettings = () => {
                             </div>
                         </div>
 
-                        <div className="border-t border-gray-100 dark:border-gray-700 pt-6">
-                            <h3 className="font-bold font-heading text-gray-900 dark:text-white mb-4">Change Password</h3>
-                            <PasswordSection />
+                        <div className="pt-2">
+                            <button type="submit" disabled={saving}
+                                className="bg-accent hover:bg-orange-600 text-white font-bold py-3 px-6 rounded-xl transition-all shadow-lg hover:shadow-accent/30 disabled:opacity-50 font-body inline-flex items-center gap-2"
+                            >
+                                <Icon.Save className="w-4 h-4" />
+                                {saving ? 'Saving...' : 'Save Profile Settings'}
+                            </button>
                         </div>
-
-                        <div className="border-t border-gray-100 dark:border-gray-700 pt-6">
-                            <h3 className="font-bold font-heading text-gray-900 dark:text-white mb-1">Database Backup</h3>
-                            <p className="text-xs text-gray-500 dark:text-gray-400 mb-4 font-body">
-                                Quick liveness check + per-table row counts. Full backup procedure lives in <code className="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-900 rounded">docs/BACKUP.md</code>.
-                            </p>
-                            <BackupStatusWidget />
-                        </div>
-
-                        <div className="border-t border-gray-100 dark:border-gray-700 pt-6">
-                            <h3 className="font-bold font-heading text-gray-900 dark:text-white mb-1">FX Rates (Multi-Currency)</h3>
-                            <p className="text-xs text-gray-500 dark:text-gray-400 mb-4 font-body">
-                                Static exchange rates used to convert invoice amounts to NGN for reporting. Update these when rates move. 1 NGN = X foreign.
-                            </p>
-                            <FxRatesSection onSaved={fetchProfile} />
-                        </div>
-
-                        <div className="border-t border-gray-100 dark:border-gray-700 pt-6">
-                            <h3 className="font-bold font-heading text-gray-900 dark:text-white mb-1">Bank Accounts (Grey · International Payments)</h3>
-                            <p className="text-xs text-gray-500 dark:text-gray-400 mb-4 font-body">
-                                USD and GBP settlement accounts shown on the public payment page after the client picks a currency. Never publish these on the public website. Edit and deactivate rows here.
-                            </p>
-                            <BankAccountsSection />
-                        </div>
-
-                        <button type="submit" disabled={saving}
-                            className="bg-accent hover:bg-orange-600 text-white font-bold py-3 px-6 rounded-xl transition-all shadow-lg hover:shadow-accent/30 disabled:opacity-50 font-body inline-flex items-center gap-2"
-                        >
-                            <Icon.Save className="w-4 h-4" />
-                            {saving ? 'Saving...' : 'Save Settings'}
-                        </button>
                     </form>
+
+                    <div className="border-t border-gray-100 dark:border-gray-700 pt-6 mt-6">
+                        <h3 className="font-bold font-heading text-gray-900 dark:text-white mb-4">Change Password</h3>
+                        <PasswordSection />
+                    </div>
+
+                    <div className="border-t border-gray-100 dark:border-gray-700 pt-6 mt-6">
+                        <h3 className="font-bold font-heading text-gray-900 dark:text-white mb-1">Database Backup</h3>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mb-4 font-body">
+                            Quick liveness check + per-table row counts. Full backup procedure lives in <code className="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-900 rounded">docs/BACKUP.md</code>.
+                        </p>
+                        <BackupStatusWidget />
+                    </div>
+
+                    <div className="border-t border-gray-100 dark:border-gray-700 pt-6 mt-6">
+                        <h3 className="font-bold font-heading text-gray-900 dark:text-white mb-1">FX Rates (Multi-Currency)</h3>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mb-4 font-body">
+                            Static exchange rates used to convert invoice amounts to NGN for reporting. Update these when rates move. 1 NGN = X foreign.
+                        </p>
+                        <FxRatesSection onSaved={fetchProfile} />
+                    </div>
+
+                    <div className="border-t border-gray-100 dark:border-gray-700 pt-6 mt-6">
+                        <h3 className="font-bold font-heading text-gray-900 dark:text-white mb-1">Bank Accounts (Grey · International Payments)</h3>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mb-4 font-body">
+                            USD and GBP settlement accounts shown on the public payment page after the client picks a currency. Never publish these on the public website. Edit and deactivate rows here.
+                        </p>
+                        <BankAccountsSection />
+                    </div>
                 </motion.div>
             </div>
         </div>
@@ -371,6 +373,7 @@ const FxRatesSection = () => {
                         : <>No live fetch yet · {manualCount} MANUAL</>}
                 </p>
                 <button
+                    type="button"
                     onClick={handleRefresh}
                     disabled={refreshing}
                     className="text-[10px] font-extrabold text-white bg-blue-600 hover:bg-blue-700 px-3 py-1.5 rounded-lg transition-colors disabled:opacity-50 inline-flex items-center gap-1.5"
@@ -417,6 +420,7 @@ const FxRatesSection = () => {
                     {lastUpdated ? `Last update: ${new Date(lastUpdated).toLocaleString()}` : 'Never updated'}
                 </p>
                 <button
+                    type="button"
                     onClick={handleSave}
                     disabled={saving}
                     className="bg-accent hover:bg-orange-600 text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors disabled:opacity-50 inline-flex items-center gap-1.5"
@@ -496,9 +500,9 @@ const BankAccountsSection = () => {
                             </p>
                         </div>
                         <div className="flex flex-col gap-2">
-                            <button onClick={() => setEditing(acc)} className="text-xs font-bold text-accent hover:underline">Edit</button>
+                            <button type="button" onClick={() => setEditing(acc)} className="text-xs font-bold text-accent hover:underline">Edit</button>
                             {acc.is_active && (
-                                <button onClick={() => handleDeactivate(acc.id)} className="text-xs font-bold text-red-500 hover:underline">Deactivate</button>
+                                <button type="button" onClick={() => handleDeactivate(acc.id)} className="text-xs font-bold text-red-500 hover:underline">Deactivate</button>
                             )}
                         </div>
                     </div>
@@ -506,6 +510,7 @@ const BankAccountsSection = () => {
             ))}
 
             <button
+                type="button"
                 onClick={() => setEditing({ currency: 'USD', provider: 'GREY', account_name: '', bank_name: '', account_number: '', reference_hint: 'Use your invoice number as the payment reference.', is_active: true })}
                 className="w-full border-2 border-dashed border-gray-200 dark:border-gray-700 hover:border-accent rounded-xl p-3 text-xs font-bold text-gray-500 hover:text-accent transition-colors"
             >
@@ -572,8 +577,8 @@ const BankAccountForm = ({ initial, saving, onCancel, onSave }) => {
                     Active
                 </label>
                 <div className="flex gap-2">
-                    <button onClick={onCancel} className="px-3 py-1.5 text-xs font-bold text-gray-500 hover:text-gray-900">Cancel</button>
-                    <button onClick={() => onSave(form)} disabled={saving} className="bg-accent hover:bg-[#d43d1a] text-white px-4 py-1.5 text-xs font-bold rounded-lg disabled:opacity-50">
+                    <button type="button" onClick={onCancel} className="px-3 py-1.5 text-xs font-bold text-gray-500 hover:text-gray-900">Cancel</button>
+                    <button type="button" onClick={() => onSave(form)} disabled={saving} className="bg-accent hover:bg-[#d43d1a] text-white px-4 py-1.5 text-xs font-bold rounded-lg disabled:opacity-50">
                         {saving ? 'Saving…' : 'Save'}
                     </button>
                 </div>
@@ -611,6 +616,7 @@ const BackupStatusWidget = () => {
                     {data ? `${data.totalRows.toLocaleString()} rows · last checked ${new Date(data.timestamp).toLocaleString()}` : error || 'Press Refresh to check'}
                 </p>
                 <button
+                    type="button"
                     onClick={load}
                     disabled={loading}
                     className="cursor-pointer text-xs font-bold px-3 py-1.5 rounded-lg bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 hover:border-accent text-gray-800 dark:text-white disabled:opacity-50"

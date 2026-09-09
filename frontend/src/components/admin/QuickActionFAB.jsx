@@ -17,7 +17,7 @@ const Icon = {
 
 const ACTIONS = [
     { id: 'today',     label: 'View today',    icon: Icon.Today,     to: '/admin' },
-    { id: 'lead',      label: 'New lead',      icon: Icon.Lead,      to: '/admin/clients?action=new' },
+    { id: 'lead',      label: 'New lead',      icon: Icon.Lead,      to: '/admin/crm?action=new' },
     { id: 'quotation', label: 'New quotation', icon: Icon.Quotation, to: '/admin/quotations?action=new' },
     { id: 'invoice',   label: 'New invoice',   icon: Icon.Invoice,   to: '/admin/invoices?action=new' },
     { id: 'contract',  label: 'New contract',  icon: Icon.Contract,  to: '/admin/contracts?action=new' },

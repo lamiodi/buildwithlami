@@ -13,8 +13,8 @@ const AdminClients = () => {
   const [error, setError] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [divisionFilter, setDivisionFilter] = useState(() => {
-    const ws = localStorage.getItem('admin_workspace');
-    return ws && ['SOFTWARE', 'SURVEY', 'DRONE'].includes(ws) ? ws : 'all';
+    const ws = (localStorage.getItem('bwl:admin:workspace') || localStorage.getItem('admin_workspace') || '').toUpperCase();
+    return ['SOFTWARE', 'SURVEY', 'DRONE'].includes(ws) ? ws : 'all';
   });
   const fetchClients = async () => {
     const params = {};

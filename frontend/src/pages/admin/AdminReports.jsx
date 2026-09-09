@@ -131,7 +131,7 @@ const AdminReports = () => {
 
     // ── CSV exports ─────────────────────────────────────────
     const exportRevenueCSV = () => {
-        const csv = toCSV(data.revenueByMonth, [
+        const csv = toCSV(data?.revenueByMonth || [], [
             { label: 'Month', key: 'month' },
             { label: 'Revenue (NGN)', key: 'total' },
             { label: 'Invoices', key: 'count' },
@@ -141,7 +141,7 @@ const AdminReports = () => {
     };
 
     const exportPnLCSV = () => {
-        const csv = toCSV(pnlChart, [
+        const csv = toCSV(pnlChart || [], [
             { label: 'Month', key: 'month' },
             { label: 'Revenue (NGN)', key: 'revenue' },
             { label: 'Expenses (NGN)', key: 'expenses' },
@@ -152,7 +152,7 @@ const AdminReports = () => {
     };
 
     const exportClientsCSV = () => {
-        const csv = toCSV(data.topClients, [
+        const csv = toCSV(data?.topClients || [], [
             { label: 'Client', key: 'name' },
             { label: 'Total Revenue (NGN)', key: 'total_revenue' },
             { label: 'Invoice Count', key: 'invoice_count' },

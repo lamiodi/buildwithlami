@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { api } from '../../services/api';
 import { notify } from '../../services/notify';
@@ -9,6 +10,7 @@ export default function AdminExpenses() {
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingExpense, setEditingExpense] = useState(null);
+    const [searchParams, setSearchParams] = useSearchParams();
     const [formData, setFormData] = useState({
         expenseDate: new Date().toISOString().split('T')[0],
         category: '',
@@ -64,6 +66,16 @@ export default function AdminExpenses() {
         }
         setIsModalOpen(true);
     };
+
+    // Auto-open new expense modal if ?action=new is in URL
+    useEffect(() => {
+        if (searchParams.get('action') === 'new') {
+            handleOpenModal();
+            const next = new URLSearchParams(searchParams);
+            next.delete('action');
+            setSearchParams(next, { replace: true });
+        }
+    }, [searchParams, setSearchParams]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
