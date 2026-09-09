@@ -325,7 +325,9 @@ const ContactPage = () => {
                     id="project_type"
                     value={formData.project_type}
                     onChange={(event) => setFormData({ ...formData, project_type: event.target.value })}
-                    className="bwl-input min-h-12 text-base"
+                    className={`bwl-input bwl-select min-h-12 text-base ${
+                      formData.project_type ? '' : 'text-gray-500 dark:text-gray-400'
+                    }`}
                   >
                     <option value="">Select a service</option>
                     <optgroup label="Core build and support">
@@ -345,7 +347,9 @@ const ContactPage = () => {
                     id="budget"
                     value={formData.budget}
                     onChange={(event) => setFormData({ ...formData, budget: event.target.value })}
-                    className="bwl-input min-h-12 text-base"
+                    className={`bwl-input bwl-select min-h-12 text-base ${
+                      formData.budget ? '' : 'text-gray-500 dark:text-gray-400'
+                    }`}
                   >
                     <option value="">Select a range</option>
                     {BUDGET_RANGES.map((range) => <option key={range} value={range}>{range}</option>)}
