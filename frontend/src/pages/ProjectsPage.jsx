@@ -1,16 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { motion, useReducedMotion } from 'framer-motion';
 import { api } from '../services/api';
 import fallbackProjects from '../data/fallbackProjects';
 import { CONTACT } from '../config/contact';
-import { ProjectCardSkeleton, SkeletonTransition } from '../components/Skeleton';
-import { staggerContainer, fadeUpItem, cardHover, cardHoverTransition, buttonHover, buttonTap, sectionViewport, reducedMotionVariants } from '../utils/motion';
+import { staggerContainer, fadeUpItem, cardHover, cardHoverTransition, sectionViewport, reducedMotionVariants } from '../utils/motion';
+
+const projectStatusLabel = (status) => ({
+  'Client Project': 'Client Work',
+  'Concept Prototype': 'Concept'
+}[status] || status || 'Client Work');
 
 const ProjectsPage = () => {
-  const navigate = useNavigate();
   const [projects, setProjects] = useState(fallbackProjects);
-  const [loading, setLoading] = useState(false);
   const [activeFilter, setActiveFilter] = useState('All');
   const shouldReduce = useReducedMotion();
   const container = shouldReduce ? reducedMotionVariants : staggerContainer;
@@ -197,7 +199,7 @@ const ProjectsPage = () => {
                         </div>
                         <div className="space-y-2">
                           <p className="text-white/80 text-xs uppercase tracking-widest font-mono font-bold">
-                            {featuredProject.year || '2024'} · {featuredProject.category || 'Business Systems'} · {featuredProject.project_status || 'Client Project'}
+                            {featuredProject.year || '2024'} · {featuredProject.category || 'Business Systems'} · {projectStatusLabel(featuredProject.project_status)}
                           </p>
                           <h2 className="text-2xl sm:text-3xl md:text-4xl font-heading font-bold text-white leading-tight">
                             {featuredProject.title}
@@ -330,7 +332,7 @@ const ProjectsPage = () => {
                                 {project.category || 'Web Platforms'}
                               </span>
                               <span className="bg-white/90 dark:bg-black/80 backdrop-blur-sm text-gray-700 dark:text-gray-300 text-[10px] font-mono font-bold uppercase tracking-wider px-3 py-1 border border-gray-200 dark:border-white/10 shadow-sm">
-                                {project.year || '2024'} · {project.project_status || 'Client Project'}
+                                {project.year || '2024'} · {projectStatusLabel(project.project_status)}
                               </span>
                             </div>
                           </Link>

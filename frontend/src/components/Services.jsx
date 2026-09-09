@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
-import { staggerContainer, fadeUpItem, cardHover, cardHoverTransition, buttonHover, buttonTap, sectionViewport, reducedMotionVariants } from '../utils/motion';
+import { useNavigate } from 'react-router-dom';
+import { staggerContainer, fadeUpItem, cardHover, cardHoverTransition, sectionViewport, reducedMotionVariants } from '../utils/motion';
 import {
   Dialog,
   DialogContent,
@@ -11,6 +12,7 @@ import {
 import { playPopSound } from '../utils/sound';
 
 const Services = () => {
+  const navigate = useNavigate();
   const shouldReduce = useReducedMotion();
   const container = shouldReduce ? reducedMotionVariants : staggerContainer;
   const item = shouldReduce ? reducedMotionVariants : fadeUpItem;
@@ -20,6 +22,7 @@ const Services = () => {
   const services = [
     {
       id: "web-platforms",
+      pricingCategory: "software",
       title: "Custom Web Platforms",
       badge: "Full-Stack Engineering",
       timeline: "3–8 Weeks",
@@ -45,6 +48,7 @@ const Services = () => {
     },
     {
       id: "interfaces",
+      pricingCategory: "websites",
       title: "High-Performance Interfaces",
       badge: "UI/UX & Speed Optimization",
       timeline: "1–3 Weeks",
@@ -55,11 +59,11 @@ const Services = () => {
         "Responsive web app interfaces",
         "Mobile-first performance improvements"
       ],
-      detailedScope: "First impressions dictate conversion rates. We design and build lightning-fast, high-converting digital storefronts and marketing pages with fluid animations, zero layout shifts, and flawless mobile responsiveness.",
+      detailedScope: "First impressions influence conversion. We design and build fast, conversion-focused storefronts and marketing pages with purposeful motion, stable layouts, and carefully tested mobile responsiveness.",
       deliverables: [
         "Custom UI design with bespoke brand aesthetics & micro-animations",
         "Lighthouse-optimized builds targeting 90+ scores on delivered code",
-        "Flawless mobile, tablet, and widescreen responsiveness",
+        "Tested mobile, tablet, and widescreen responsiveness",
         "Lead capture forms with real-time spam validation",
         "Interactive product showcases, calculators, and interactive widgets",
         "Complete Webflow / WordPress to modern React / Vite migration"
@@ -69,6 +73,7 @@ const Services = () => {
     },
     {
       id: "backend-data",
+      pricingCategory: "software",
       title: "Secure API & Data Systems",
       badge: "Backend & Cloud Architecture",
       timeline: "2–5 Weeks",
@@ -93,6 +98,7 @@ const Services = () => {
     },
     {
       id: "audits-strategy",
+      pricingCategory: "software",
       title: "Technical Strategy & Audits",
       badge: "Engineering Advisory",
       timeline: "3–7 Business Days",
@@ -116,6 +122,7 @@ const Services = () => {
     },
     {
       id: "seo-growth",
+      pricingCategory: "seo",
       title: "SEO & Growth Strategy",
       badge: "Organic Search & Indexing",
       timeline: "2–4 Weeks + Roadmap",
@@ -126,7 +133,7 @@ const Services = () => {
         "Core Web Vitals improvements",
         "Content and growth recommendations"
       ],
-      detailedScope: "Organic search delivers the highest ROI over time. We overhaul your website's crawlability, structured data schemas, semantic hierarchy, and metadata to give you dominant visibility across search engines.",
+      detailedScope: "Organic search can compound over time. We improve your website's crawlability, structured data, semantic hierarchy, and metadata to build a stronger foundation for search visibility.",
       deliverables: [
         "Complete Technical SEO audit & indexing fix plan",
         "Schema.org JSON-LD structured data implementation (Articles, FAQs, Products)",
@@ -148,12 +155,9 @@ const Services = () => {
     setSelectedService(null);
   };
 
-  const handleServiceSelect = (serviceTitle) => {
+  const handleServiceSelect = (service) => {
     handleCloseModal();
-    const contactSection = document.getElementById('contact');
-    if (contactSection) {
-      contactSection.scrollIntoView({ behavior: 'smooth' });
-    }
+    navigate(`/contact?service=${encodeURIComponent(service.pricingCategory)}`);
   };
 
   return (
@@ -214,7 +218,7 @@ const Services = () => {
               </h4>
               <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed mb-4 font-light">{service.desc}</p>
               
-              <div className="bg-gray-50 dark:bg-white/5 border-l-2 border-accent p-3 rounded-r-lg mb-5">
+              <div className="bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 p-3 rounded-lg mb-5">
                 <p className="text-[11px] font-bold uppercase tracking-wider text-accent mb-0.5 font-mono">Key Outcome</p>
                 <p className="text-xs text-black dark:text-white font-medium">{service.outcome}</p>
               </div>
@@ -275,7 +279,7 @@ const Services = () => {
               </DialogHeader>
 
               {/* Key Outcome Highlight */}
-              <div className="my-5 p-4 bg-accent/5 dark:bg-accent/10 border-l-4 border-accent">
+              <div className="my-5 p-4 bg-accent/5 dark:bg-accent/10 border border-accent/20 rounded-xl">
                 <p className="text-[11px] font-heading font-bold uppercase tracking-wider text-accent mb-1">Target Result</p>
                 <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
                   {selectedService.outcome}
@@ -319,7 +323,7 @@ const Services = () => {
               <div className="flex flex-col sm:flex-row gap-3 pt-2">
                 <button
                   type="button"
-                  onClick={() => handleServiceSelect(selectedService.title)}
+                  onClick={() => handleServiceSelect(selectedService)}
                   className="flex-1 bg-accent text-white font-heading font-bold uppercase text-[11px] px-8 py-4 tracking-[0.15em] hover:bg-black dark:hover:bg-white dark:hover:text-black transition-all duration-300 shadow-lg hover:shadow-accent/30 text-center active:scale-[0.98] cursor-pointer"
                   style={{ touchAction: 'manipulation' }}
                 >

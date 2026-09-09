@@ -18,10 +18,18 @@ import {
   FALLBACK_USD_RATE
 } from '../config/pricing';
 import { useAutomatedCurrency } from '../utils/currency';
+import fallbackProjects from '../data/fallbackProjects';
 
 const CORE_PRICING_CATEGORIES = ['websites', 'ecommerce', 'software', 'portals', 'maintenance'];
 const SPECIALIST_PRICING_CATEGORIES = ['uiux', 'branding', 'seo', 'marketing', 'ai'];
 const CURRENCY_PREFERENCE_KEY = 'bwl-pricing-currency';
+const PROOF_PROJECT_BY_CATEGORY = {
+  websites: 'sourceline-limited',
+  ecommerce: 'tiabrand-ecommerce',
+  software: 'vonnex2x-enterprise-erp',
+  portals: 'vonnex2x-enterprise-erp',
+  uiux: 'wodibenuah-fair'
+};
 
 const categoryFromHash = (hash) => {
   const categoryId = String(hash || '').replace(/^#/, '');
@@ -122,6 +130,9 @@ const Pricing = ({ isHomepage = false }) => {
   const currentCategoryData = BUILD_PRICING[activeCategory] || BUILD_PRICING.websites;
   const currentTiers = currentCategoryData.tiers;
   const isCareCategory = activeCategory === 'maintenance';
+  const relevantProof = fallbackProjects.find(
+    (project) => project.slug === PROOF_PROJECT_BY_CATEGORY[activeCategory] && project.project_status === 'Client Work'
+  );
   const activeInfrastructureLevels = currentCategoryData.baseInfraIncluded
     ? [...new Set(currentTiers.map((tier) => tier.infrastructureLevel).filter(Boolean))]
         .map((levelId) => INFRASTRUCTURE_LEVELS[levelId])
@@ -312,8 +323,8 @@ const Pricing = ({ isHomepage = false }) => {
             <div className="p-8 rounded-3xl bg-gradient-to-r from-gray-900 to-black text-white dark:from-neutral-900 dark:to-[#121212] border border-gray-800 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xl">
               <div>
                 <span className="text-[10px] font-extrabold uppercase tracking-widest text-accent block mb-1">Studio Pricing Matrix</span>
-                <h4 className="text-xl font-bold font-heading">Explore all 10 service categories and transparent scope tiers</h4>
-                <p className="text-xs text-gray-400 mt-1">Includes Web Dev, E-Commerce, Custom Software, Business Management Systems & ERP, UI/UX, Branding, SEO, Marketing, AI, and Maintenance.</p>
+                <h4 className="text-xl font-bold font-heading">Compare core build packages and specialist services</h4>
+                <p className="text-xs text-gray-400 mt-1">Start with Websites, E-commerce, Business Software, ERP, or Care. UI/UX, Branding, SEO, Marketing, and AI are grouped as specialist services.</p>
               </div>
               <Link 
                 to="/pricing" 
@@ -398,6 +409,24 @@ const Pricing = ({ isHomepage = false }) => {
                   </span>
                 </div>
               </div>
+
+              {relevantProof && (
+                <div className="mb-8 border-y border-gray-200 dark:border-white/10 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2 mb-1">
+                      <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-accent">Relevant client work</span>
+                      <span className="text-[10px] font-semibold text-gray-500 dark:text-gray-400">{relevantProof.industry}</span>
+                    </div>
+                    <p className="font-heading font-bold text-gray-900 dark:text-white">{relevantProof.title}</p>
+                  </div>
+                  <Link
+                    to={`/projects/${relevantProof.slug}`}
+                    className="shrink-0 inline-flex items-center gap-2 text-sm font-bold text-accent hover:text-gray-900 dark:hover:text-white transition-colors"
+                  >
+                    View case study <ArrowRight className="w-4 h-4" aria-hidden="true" />
+                  </Link>
+                </div>
+              )}
 
               <motion.div
                 className={`grid grid-cols-1 ${

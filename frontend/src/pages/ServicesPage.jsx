@@ -1,15 +1,13 @@
-import React, { useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { motion, useReducedMotion } from 'framer-motion';
-import { staggerContainer, fadeUpItem, cardHover, cardHoverTransition, buttonHover, buttonTap, sectionViewport, reducedMotionVariants } from '../utils/motion';
-import { BUILD_PRICING, COMMERCIAL_TERMS } from '../config/pricing';
+import { staggerContainer, fadeUpItem, cardHover, cardHoverTransition, sectionViewport, reducedMotionVariants } from '../utils/motion';
+import { BUILD_PRICING } from '../config/pricing';
 
 const ServicesPage = () => {
   const shouldReduce = useReducedMotion();
   const container = shouldReduce ? reducedMotionVariants : staggerContainer;
   const item = shouldReduce ? reducedMotionVariants : fadeUpItem;
-  const navigate = useNavigate();
-
   useEffect(() => {
     window.scrollTo(0, 0);
     document.title = "Services | Buildwith_lami — Web Platforms & Technical Strategy";
@@ -59,6 +57,7 @@ const ServicesPage = () => {
   const services = [
     {
       id: "business-portals",
+      pricingCategory: "portals",
       title: "Business Management Systems & ERP",
       bestFor: "Schools, residential estates, wholesale warehouses, and supermarket retail chains",
       desc: "Turnkey operational systems: student result & tuition portals, QR gate-pass visitor apps, multi-branch warehouse inventory ledgers, and fast cashier POS stations.",
@@ -76,6 +75,7 @@ const ServicesPage = () => {
     },
     {
       id: "web-platforms",
+      pricingCategory: "software",
       title: "Custom Web Platforms & Portals",
       bestFor: "Complex business systems, internal operations & client dashboards",
       desc: "Engineered web applications built with scalable backend architectures, structured relational databases, role-based authentication, and modern user interfaces.",
@@ -93,6 +93,7 @@ const ServicesPage = () => {
     },
     {
       id: "interfaces",
+      pricingCategory: "websites",
       title: "High-Performance Digital Storefronts & UIs",
       bestFor: "Brands needing high-ticket conversion, rapid speed & polished aesthetics",
       desc: "Modern digital interfaces engineered with fast page loads, micro-animations, accessible design systems, and seamless responsive layouts.",
@@ -100,7 +101,7 @@ const ServicesPage = () => {
       deliverables: [
         "Bespoke Visual Identity & Micro-Interactions",
         "Lighthouse-Optimized Builds — targeting 90+ scores on delivered code",
-        "Flawless Mobile-First Layout & Touch Experience",
+        "Tested Mobile-First Layout & Touch Experience",
         "Interactive Quotation Tools & Scoping Calculators",
         "Frictionless Lead Capture & Spam Protection"
       ],
@@ -110,10 +111,11 @@ const ServicesPage = () => {
     },
     {
       id: "backend-data",
+      pricingCategory: "software",
       title: "Robust Backend, APIs & Database Systems",
       bestFor: "Mission-critical data structures, microservices & 3rd-party integrations",
       desc: "Scalable server architectures, type-safe REST APIs, relational database design, asynchronous queues, and hardened authentication systems.",
-      outcome: "A resilient backend infrastructure capable of handling high concurrency without downtime or data corruption.",
+      outcome: "A resilient backend designed for higher concurrency, dependable recovery, and stronger data-integrity safeguards.",
       deliverables: [
         "Documented, Type-Safe REST API Endpoints",
         "Normalized PostgreSQL / Supabase Schema Architecture",
@@ -127,6 +129,7 @@ const ServicesPage = () => {
     },
     {
       id: "audits-strategy",
+      pricingCategory: "software",
       title: "Technical Architecture & Code Audits",
       bestFor: "Legacy codebases, pre-funding due diligence & system migrations",
       desc: "Deep-dive inspections of existing codebases, performance bottlenecks, security vulnerabilities, and architecture roadmaps.",
@@ -144,6 +147,7 @@ const ServicesPage = () => {
     },
     {
       id: "seo-growth",
+      pricingCategory: "seo",
       title: "Technical SEO & Structured Growth Engine",
       bestFor: "Businesses seeking compounding inbound organic search traffic",
       desc: "Full-stack technical search optimization ensuring clean crawlability, JSON-LD structured data, rich social cards, and speed scores.",
@@ -242,7 +246,7 @@ const ServicesPage = () => {
                     {service.desc}
                   </p>
 
-                  <div className="p-4 bg-accent/5 dark:bg-accent/10 border-l-3 border-accent rounded-r-xl">
+                  <div className="p-4 bg-accent/5 dark:bg-accent/10 border border-accent/20 rounded-xl">
                     <p className="text-[11px] uppercase tracking-widest font-bold text-accent mb-0.5">Expected Outcome</p>
                     <p className="text-xs sm:text-sm font-medium text-black dark:text-white leading-relaxed">
                       {service.outcome}
@@ -268,7 +272,7 @@ const ServicesPage = () => {
 
                   <div className="pt-4 border-t border-gray-200 dark:border-white/10 relative z-10">
                     <Link
-                      to={`/contact?service=${encodeURIComponent(service.title)}`}
+                      to={`/contact?service=${encodeURIComponent(service.pricingCategory)}`}
                       className="btn-primary w-full"
                       style={{ touchAction: 'manipulation' }}
                     >

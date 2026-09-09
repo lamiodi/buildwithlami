@@ -511,7 +511,7 @@ export const BUILD_PRICING = {
         priceNGN: 2200000,
         priceFormatted: '2,200,000+',
         popular: false,
-        bestFor: 'High-volume merchants wanting absolute speed, custom checkouts, and ERP sync.',
+        bestFor: 'High-volume merchants needing faster storefronts, custom checkouts, and ERP sync.',
         examples: 'e.g. High-Volume Retailers, Multi-Warehouse Stores',
         timeline: '6–10 weeks',
         revisions: 'Phased sprint milestones with continuous review',
@@ -520,7 +520,7 @@ export const BUILD_PRICING = {
         desc: 'Custom headless storefront architecture with high-performance browsing and custom backends.',
         features: [
           'Everything in Growth',
-          'Unlimited products & advanced category hierarchies',
+          'Large product catalogues with advanced category hierarchies and agreed performance limits',
           'Custom React / Next.js headless commerce frontend',
           'Multi-warehouse inventory allocation & automated sync',
           'Multi-currency auto-conversion (NGN, USD, GBP, EUR)',

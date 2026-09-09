@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { Fragment, useEffect, useRef, useState } from 'react';
 import { motion, useReducedMotion, useInView, animate } from 'framer-motion';
 import { 
   ShieldCheck, 
@@ -9,8 +9,7 @@ import {
   PenTool, 
   Code2, 
   Rocket,
-  CheckCircle2,
-  ArrowRight
+  CheckCircle2
 } from 'lucide-react';
 import { 
   staggerContainer, 
@@ -48,7 +47,7 @@ const steps = [
   {
     number: '01',
     title: 'Discovery & Scope',
-    description: 'We align on your goals, map user journeys, and define technical scope so there are zero surprises or ambiguous requirements.',
+    description: 'We align on your goals, map user journeys, and define technical scope to reduce ambiguity before work begins.',
     icon: Search
   },
   {
@@ -246,12 +245,12 @@ const WhyAndHow = () => {
             transition={{ duration: shouldReduce ? 0 : 0.6, delay: shouldReduce ? 0 : 0.2 }}
           >
             {stats.map((stat, i) => (
-              <React.Fragment key={stat.label}>
+              <Fragment key={stat.label}>
                 <AnimatedStat stat={stat} />
                 {i < stats.length - 1 && (
                   <div className="hidden sm:block w-px h-10 bg-gray-200 dark:bg-white/10" />
                 )}
-              </React.Fragment>
+              </Fragment>
             ))}
           </motion.div>
         </div>

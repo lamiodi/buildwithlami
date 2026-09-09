@@ -1,12 +1,12 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { motion, useReducedMotion, useInView, useMotionValue, useTransform, animate } from 'framer-motion';
-import { staggerContainer, fadeUpItem, cardHover, cardHoverTransition, buttonHover, buttonTap, sectionViewport, reducedMotionVariants } from '../utils/motion';
+import { useEffect, useRef, useState } from 'react';
+import { motion, useReducedMotion, useInView, animate } from 'framer-motion';
+import { staggerContainer, fadeUpItem, cardHover, cardHoverTransition, sectionViewport, reducedMotionVariants } from '../utils/motion';
 
 const steps = [
   {
     number: '01',
     title: 'Discovery',
-    description: 'I hop on a call, map out your goals, and define the scope so there are zero surprises.',
+    description: 'I hop on a call, map out your goals, and define the scope to reduce ambiguity before work begins.',
     icon: (
       <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
         <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>

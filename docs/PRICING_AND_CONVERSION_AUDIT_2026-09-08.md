@@ -278,13 +278,13 @@ Mark each item **Approve**, **Defer**, or **Reject** before implementation.
 | A6 | Make pricing deep links open the selected category and pass human-readable plan names to Contact. | P1 | **Applied** |
 | A7 | Reframe ERP packages as separate solution starting points, not a linear tier ladder. | P1 | **Applied** |
 | A8 | Split SEO and Marketing into lifecycle steps: Strategy/Audit → Launch/Implementation → Retainer. | P1 | **Applied** |
-| A9 | Recalculate Software and AI public floors using estimated hours, risk, and support cost. | P1 | Pending |
-| A10 | Add one verified, service-relevant proof item beside pricing; standardize project status labels. | P1 | Pending |
+| A9 | Recalculate Software and AI public floors using estimated hours, risk, and support cost. | P1 | **Worksheet added — public floor changes require real cost and hour inputs** |
+| A10 | Add one verified, service-relevant proof item beside pricing; standardize project status labels. | P1 | **Partially applied — relevant client-work profiles added; numeric proof remains withheld pending verification** |
 | A11 | Standardize voice and primary CTA to “Request a scoped proposal.” | P2 | **Applied across Software Studio routes** |
-| A12 | Replace technical acronyms in cards with business outcomes; move technical scope into disclosure. | P2 | **Partially applied — highest-friction acronyms removed** |
+| A12 | Replace technical acronyms in cards with business outcomes; move technical scope into disclosure. | P2 | **Applied to buyer-facing pricing and primary service copy** |
 | A13 | Add a Monthly/Annual Care comparison with business hours, rollover, overage, and minimum-term rules. | P2 | **Partially applied — price comparison added; policy terms need confirmation** |
 | A14 | Add optional investment-range qualification on the contact form. | P2 | **Applied** |
-| A15 | Add defensible price anchors or example scenarios to Survey and Drone. | P2 | Pending |
+| A15 | Add defensible price anchors or example scenarios to Survey and Drone. | P2 | **Awaiting real minimum or example job values — no invented anchors published** |
 
 ## Implementation log — 9 September 2026
 
@@ -298,6 +298,11 @@ Mark each item **Approve**, **Defer**, or **Reject** before implementation.
 - Care cards now calculate annual prices and savings from numeric data instead of duplicate formatted strings.
 - ERP is labelled as separate solution starting points; SEO and Marketing are presented as lifecycle choices rather than false upgrade tiers.
 - High-friction buyer-facing acronyms such as RBAC, RAG, CAPI, CI/CD, and WebSockets were replaced with plain business outcomes in the pricing flow.
+- Relevant pricing categories now surface a qualitative Client Work profile without adding unsupported performance numbers.
+- Project status labels now use Client Work, Internal Product, and Concept consistently in fallback data.
+- Service-page proposal links now send valid pricing categories into the inquiry form instead of unmatched technical service titles.
+- Overstated phrases such as “absolute speed,” “unlimited products,” and “flawless responsiveness” were replaced with scoped, defensible language.
+- `PRICING_MARGIN_AND_CARE_POLICY_WORKSHEET.md` records the cost-floor formula, Care discount comparison, Essential Care margin risk, and proposed policy terms for approval.
 
 ## Questions to decide before implementation
 
