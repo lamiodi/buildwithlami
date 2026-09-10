@@ -79,6 +79,7 @@ const Pricing = ({ isHomepage = false }) => {
   const currentCategoryData = BUILD_PRICING[activeCategory] || BUILD_PRICING.websites;
   const currentTiers = currentCategoryData.tiers;
   const isCareCategory = activeCategory === 'maintenance';
+  const isWebsiteCategory = activeCategory === 'websites';
   const relevantProof = fallbackProjects.find(
     (project) => project.slug === PROOF_PROJECT_BY_CATEGORY[activeCategory] && project.project_status === 'Client Work'
   );
@@ -289,7 +290,9 @@ const Pricing = ({ isHomepage = false }) => {
                   </p>
                 </div>
                 <div className="shrink-0 p-3 sm:p-4 rounded-xl bg-accent/5 dark:bg-accent/10 border border-accent/20 text-left md:text-right">
-                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-accent block">Starting Investment</span>
+                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-accent block">
+                    {isCareCategory ? 'Plans from' : 'Starting investment'}
+                  </span>
                   <span className="text-2xl font-bold font-heading text-gray-900 dark:text-white">
                     {renderPrice(
                       currentCategoryData.startingPriceNGN,
@@ -299,6 +302,26 @@ const Pricing = ({ isHomepage = false }) => {
                   </span>
                 </div>
               </div>
+
+              {isWebsiteCategory && (
+                <div className="mb-8 grid grid-cols-1 sm:grid-cols-3 border border-gray-200 dark:border-white/10 rounded-2xl overflow-hidden bg-white dark:bg-[#141414]">
+                  <div className="p-5 sm:p-6 border-b sm:border-b-0 sm:border-r border-gray-200 dark:border-white/10">
+                    <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-accent">Build fee</span>
+                    <p className="mt-2 text-sm font-bold text-gray-900 dark:text-white">Paid once</p>
+                    <p className="mt-1 text-xs leading-relaxed text-gray-500 dark:text-gray-400">Strategy, design, development, testing, and launch.</p>
+                  </div>
+                  <div className="p-5 sm:p-6 border-b sm:border-b-0 sm:border-r border-gray-200 dark:border-white/10">
+                    <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-accent">First 12 months</span>
+                    <p className="mt-2 text-sm font-bold text-gray-900 dark:text-white">Infrastructure included</p>
+                    <p className="mt-1 text-xs leading-relaxed text-gray-500 dark:text-gray-400">The level named on your package is included after launch.</p>
+                  </div>
+                  <div className="p-5 sm:p-6">
+                    <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-accent">From month 13</span>
+                    <p className="mt-2 text-sm font-bold text-gray-900 dark:text-white">Annual care starts</p>
+                    <p className="mt-1 text-xs leading-relaxed text-gray-500 dark:text-gray-400">The exact yearly amount is shown on every website plan below.</p>
+                  </div>
+                </div>
+              )}
 
               {relevantProof && (
                 <div className="mb-8 border-y border-gray-200 dark:border-white/10 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
@@ -343,6 +366,9 @@ const Pricing = ({ isHomepage = false }) => {
                   const annualCarePrice = isCareCategory && tier.monthlyPriceNGN && tier.annualPriceNGN
                     ? formatRegionalAmount(tier.annualPriceNGN, usdTierPricing?.annualPriceUSD)
                     : null;
+                  const annualWebsiteCarePrice = isWebsiteCategory && tier.annualCare
+                    ? formatRegionalAmount(tier.annualCare.priceNGN, tier.annualCare.priceUSD)
+                    : null;
                   const annualCareSavings = annualCarePrice
                     ? formatRegionalAmount(
                         (tier.monthlyPriceNGN * 12) - tier.annualPriceNGN,
@@ -386,7 +412,11 @@ const Pricing = ({ isHomepage = false }) => {
                             <span className="text-3xl font-heading font-bold text-black dark:text-white leading-none">{tier.priceFormatted}</span>
                           ) : (
                             <>
-                              <span className="text-xs text-gray-500 font-semibold">starting at</span>
+                              <span className="text-xs text-gray-500 font-semibold">
+                                {isCareCategory
+                                  ? tier.billingCadence === 'ANNUAL' ? 'annual plan' : 'monthly plan'
+                                  : 'starting at'}
+                              </span>
                               <span className="text-3xl sm:text-4xl font-heading font-extrabold text-black dark:text-white tracking-tight leading-none">
                                 {renderPrice(tier.priceNGN, usdTierPricing?.priceUSD, tier.priceFormatted)}
                               </span>
@@ -407,6 +437,21 @@ const Pricing = ({ isHomepage = false }) => {
                           <p className="mb-5 border-y border-blue-200 dark:border-blue-400/20 py-3 text-xs font-semibold text-blue-700 dark:text-blue-300">
                             {infrastructure.shortName} infrastructure {isCareCategory ? 'included while active' : 'included for 12 months'}
                           </p>
+                        )}
+
+                        {annualWebsiteCarePrice && (
+                          <div className="mb-5 rounded-xl border border-accent/25 bg-accent/5 dark:bg-accent/10 p-4">
+                            <div className="flex flex-wrap items-end justify-between gap-2">
+                              <div>
+                                <span className="block text-[10px] font-mono font-bold uppercase tracking-wider text-accent">Annual care from month 13</span>
+                                <span className="mt-1 block text-xs font-semibold text-gray-600 dark:text-gray-300">{tier.annualCare.planName}</span>
+                              </div>
+                              <strong className="text-xl font-heading text-gray-900 dark:text-white">
+                                {annualWebsiteCarePrice}<span className="text-xs font-sans font-semibold text-gray-500 dark:text-gray-400">/year</span>
+                              </strong>
+                            </div>
+                            <p className="mt-3 text-xs leading-relaxed text-gray-600 dark:text-gray-400">{tier.annualCare.summary}</p>
+                          </div>
                         )}
 
                         {/* Essential delivery details */}
@@ -452,10 +497,17 @@ const Pricing = ({ isHomepage = false }) => {
               </motion.div>
 
               <div className="mt-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-t border-gray-200 dark:border-white/10 pt-5 text-xs">
-                <p className="text-gray-600 dark:text-gray-400">
-                  <strong className="text-gray-900 dark:text-white">Price depends on: </strong>
-                  {currentCategoryData.whatAffectsPricing?.slice(0, 2).join(' · ')}
-                </p>
+                <div className="max-w-4xl text-gray-600 dark:text-gray-400">
+                  {currentCategoryData.whatAffectsPricing?.length > 0 && (
+                    <p>
+                      <strong className="text-gray-900 dark:text-white">Price depends on: </strong>
+                      {currentCategoryData.whatAffectsPricing.slice(0, 2).join(' · ')}
+                    </p>
+                  )}
+                  {currentCategoryData.pricingNotes && (
+                    <p className="mt-2 leading-relaxed">{currentCategoryData.pricingNotes}</p>
+                  )}
+                </div>
                 <Link
                   to={`/contact?service=${encodeURIComponent(activeCategory)}`}
                   className="shrink-0 font-bold text-accent hover:text-gray-900 dark:hover:text-white transition-colors"
@@ -467,9 +519,10 @@ const Pricing = ({ isHomepage = false }) => {
 
             <div className="p-6 sm:p-8 rounded-2xl bg-white dark:bg-[#161616] border border-gray-200 dark:border-white/10">
               <h3 className="text-xl font-bold font-heading text-black dark:text-white mb-4">Simple terms</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm text-gray-600 dark:text-gray-400">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-sm text-gray-600 dark:text-gray-400">
                 <p><strong className="text-gray-900 dark:text-white">Payments:</strong> 50% to start, 50% on delivery.</p>
-                <p><strong className="text-gray-900 dark:text-white">Infrastructure:</strong> 12 months included with eligible builds.</p>
+                <p><strong className="text-gray-900 dark:text-white">First year:</strong> Named infrastructure included with eligible builds.</p>
+                <p><strong className="text-gray-900 dark:text-white">Renewal:</strong> Annual care begins in month 13 at the price shown.</p>
                 <p><strong className="text-gray-900 dark:text-white">Warranty:</strong> Post-launch bug support is included.</p>
               </div>
             </div>

@@ -27,6 +27,35 @@ export const ngnToUsd = (amountNgn, rate = FALLBACK_USD_RATE) => {
 };
 
 /**
+ * Annual website care shown on each website package.
+ * Keeping this mapping separate prevents the build cards and Care plans
+ * from drifting to different renewal figures.
+ */
+export const WEBSITE_ANNUAL_CARE = Object.freeze({
+  web_starter: {
+    planId: 'maint_essential',
+    planName: 'Essential Care',
+    priceNGN: 130000,
+    priceUSD: 2400,
+    summary: 'For eligible static websites using a commercially suitable free hosting tier.'
+  },
+  web_growth: {
+    planId: 'maint_standard',
+    planName: 'Standard Care',
+    priceNGN: 420000,
+    priceUSD: 7500,
+    summary: 'For CMS websites that need managed hosting, monthly checks, and small updates.'
+  },
+  web_pro: {
+    planId: 'maint_growth',
+    planName: 'Growth Care',
+    priceNGN: 900000,
+    priceUSD: 15000,
+    summary: 'For dynamic websites that need stronger monitoring and reserved improvement time.'
+  }
+});
+
+/**
  * Build a dual-currency formatted string for display.
  *   formatDualCurrency(270000, rate) -> { ngn: '270,000', usd: '$176', symbol: '₦' }
  */
@@ -76,10 +105,10 @@ export const USD_TIER_PRICING = Object.freeze({
   ai_starter: { priceUSD: 7200 },
   ai_growth: { priceUSD: 21600 },
   ai_pro: { priceUSD: 57600 },
-  maint_essential: { priceUSD: 2400, annualPriceUSD: 2400, monthlyPriceUSD: null },
-  maint_standard: { priceUSD: 1200, annualPriceUSD: 12000, monthlyPriceUSD: 1200 },
-  maint_growth: { priceUSD: 2400, annualPriceUSD: 26000, monthlyPriceUSD: 2400 },
-  maint_pro: { priceUSD: 4800, annualPriceUSD: 52800, monthlyPriceUSD: 4800 }
+  maint_essential: { priceUSD: WEBSITE_ANNUAL_CARE.web_starter.priceUSD, annualPriceUSD: WEBSITE_ANNUAL_CARE.web_starter.priceUSD, monthlyPriceUSD: null },
+  maint_standard: { priceUSD: 750, annualPriceUSD: WEBSITE_ANNUAL_CARE.web_growth.priceUSD, monthlyPriceUSD: 750 },
+  maint_growth: { priceUSD: 1500, annualPriceUSD: WEBSITE_ANNUAL_CARE.web_pro.priceUSD, monthlyPriceUSD: 1500 },
+  maint_pro: { priceUSD: 3600, annualPriceUSD: 36000, monthlyPriceUSD: 3600 }
 });
 
 export const INFRASTRUCTURE_LEVELS = {
@@ -92,10 +121,10 @@ export const INFRASTRUCTURE_LEVELS = {
     summary: 'Managed production essentials for focused launches.',
     included: [
       '1 client-owned domain with managed DNS',
-      'Production deployment, SSL and CDN configuration',
-      'Up to 5,000 transactional emails per month',
-      'Daily backups with 90-day retention',
-      'Automated uptime checks and essential security patches'
+      'Eligible static-site deployment, SSL and CDN configuration',
+      'Automated uptime checks and outage alerts',
+      'Quarterly dependency and security review',
+      'Source-controlled deployment and rollback readiness'
     ]
   },
   growth: {
@@ -162,7 +191,7 @@ export const COMMERCIAL_TERMS = {
     description:
       'Eligible build packages include the infrastructure level named on the plan for the first 12 months at no additional charge.',
     renewal:
-      'From month 13, continue through the matching Care plan, move provider billing to client-owned accounts, or agree a right-sized profile based on actual usage.',
+      'From month 13, the annual Care amount shown on each website plan becomes due for continued management. Clients may instead move provider billing and maintenance to their own team before renewal.',
     supportBoundary:
       'Automated monitoring runs continuously. Human response follows the business-hours window stated in the proposal or Care plan.',
     levels: INFRASTRUCTURE_LEVELS
@@ -170,7 +199,7 @@ export const COMMERCIAL_TERMS = {
   disclaimer:
     'Website performance depends on application architecture, hosting infrastructure, traffic volume, third-party services, media assets, and network conditions. Buildwith_lami optimizes the application for production performance, while specific uptime or performance guarantees require an appropriate infrastructure tier.',
   footerNotice:
-    'Regional pricing shown. USD rates are fixed U.S. market prices, not currency conversions. Taxes and third-party costs are excluded.'
+    'Regional pricing shown. USD rates are fixed U.S. market prices, not currency conversions. VAT, domains, premium licences, and provider usage above the stated allowance are excluded.'
 };
 
 export const CARE_PLANS = [
@@ -179,30 +208,30 @@ export const CARE_PLANS = [
     name: 'Essential Care',
     badge: 'Annual Website Care & Health Retainer',
     billingCadence: 'ANNUAL',
-    priceNGN: 130000,
+    priceNGN: WEBSITE_ANNUAL_CARE.web_starter.priceNGN,
     priceFormatted: '130,000 / yr',
-    annualPriceNGN: 130000,
+    annualPriceNGN: WEBSITE_ANNUAL_CARE.web_starter.priceNGN,
     monthlyPriceNGN: null,
     popular: false,
-    bestFor: 'Small business websites, personal portfolios, and low-complexity e-commerce stores.',
-    examples: 'e.g. Small Business Site, Creator Portfolio, Single-Product Store',
-    timeline: 'Annual care plan',
-    revisions: 'Minor bug fixes & small text tweaks included',
+    bestFor: 'Static brochure sites, portfolios, and landing pages that qualify for free-tier hosting.',
+    examples: 'e.g. Small Business Site, Creator Portfolio, Campaign Landing Page',
+    timeline: 'Billed once per year',
+    revisions: 'Up to 2 minor text or image corrections per year',
     support: 'Standard email & ticket support (24–48h response)',
     infrastructureLevel: 'foundation',
-    desc: 'For businesses that want their website kept healthy without a monthly development retainer.',
+    desc: 'A lean annual plan that keeps an eligible static website deployed, monitored, and technically healthy.',
     features: [
-      'Managed production infrastructure configuration',
-      'SSL certificate provisioning & renewal monitoring',
-      'Automated uptime health checks with outage alerting',
-      'Software, plugin & security dependency updates',
-      'Basic automated backup configuration (90-day retention)',
-      'Minor bug fixes & basic technical health checks'
+      'Eligible free-tier static hosting setup and deployment management',
+      'Managed DNS, SSL and CDN configuration',
+      'Automated uptime checks with outage alerts',
+      'Quarterly dependency and security review',
+      'Source-controlled deployment and rollback support',
+      'Up to 2 minor text or image corrections per year'
     ],
     notIncluded: [
-      'Monthly feature development (available in Standard / Growth Care)',
-      'Usage above the included Foundation Infrastructure limits',
-      'Premium third-party SaaS licences and transaction fees'
+      'Dynamic servers, databases, or monthly feature development',
+      'Domain registration and paid provider usage',
+      'Premium third-party licences and transaction fees'
     ]
   },
   {
@@ -210,10 +239,10 @@ export const CARE_PLANS = [
     name: 'Standard Care',
     badge: 'Monthly Updates & Monitoring',
     billingCadence: 'MONTHLY_OR_ANNUAL',
-    priceNGN: 60000,
-    priceFormatted: '60,000 / mo',
-    annualPriceNGN: 600000,
-    monthlyPriceNGN: 60000,
+    priceNGN: 40000,
+    priceFormatted: '40,000 / mo',
+    annualPriceNGN: WEBSITE_ANNUAL_CARE.web_growth.priceNGN,
+    monthlyPriceNGN: 40000,
     popular: false,
     bestFor: 'Growing websites that need regular content publishing and scheduled health checks.',
     examples: 'e.g. Corporate Blogs, Professional Service Firms, Active Portfolios',
@@ -221,38 +250,38 @@ export const CARE_PLANS = [
     revisions: 'Included within 2-hour monthly allowance',
     support: 'Standard email & WhatsApp support (24h response)',
     infrastructureLevel: 'growth',
-    desc: 'Dependable routine care with up to 2 hours of monthly developer updates, speed checks, and monthly health reports.',
+    desc: 'Routine CMS care with managed infrastructure, monthly checks, and reserved time for small updates.',
     features: [
       'Everything in Essential Care',
       'Up to 2 hours of dedicated developer updates & content publishing per month',
-      'Monthly performance & security audit summary report',
-      'Database snapshot verification & health telemetry check',
+      'Monthly performance and security health summary',
+      'Backup or content-export verification where supported',
       'Standard email & WhatsApp response window'
     ],
     notIncluded: [
       'Major feature engineering (available in Growth / Pro Care)',
       'After-hours emergency calls',
-      'Usage above the included Growth Infrastructure limits'
+      'Paid provider usage above the agreed Growth profile'
     ]
   },
   {
     id: 'maint_growth',
     name: 'Growth Care',
     badge: 'Active Improvement Retainer',
-    billingCadence: 'MONTHLY',
-    priceNGN: 150000,
-    priceFormatted: '150,000 / mo',
-    annualPriceNGN: 1620000,
-    monthlyPriceNGN: 150000,
+    billingCadence: 'MONTHLY_OR_ANNUAL',
+    priceNGN: 85000,
+    priceFormatted: '85,000 / mo',
+    annualPriceNGN: WEBSITE_ANNUAL_CARE.web_pro.priceNGN,
+    monthlyPriceNGN: 85000,
     popular: true,
     popularBadge: '⭐ Best Value',
     bestFor: 'Active websites and e-commerce stores that change, publish content, and improve regularly.',
     examples: 'e.g. E-Commerce Stores, Active Businesses, Lead Gen Portals',
-    timeline: 'Monthly retainer',
+    timeline: 'Monthly or Annual retainer',
     revisions: 'Included within 4-hour improvement allowance',
     support: 'Prioritized email & WhatsApp support (12h response)',
     infrastructureLevel: 'scale',
-    desc: 'An active monthly improvement retainer with dedicated developer hours, conversion testing, and ongoing performance tuning.',
+    desc: 'Active website care with dedicated improvement time, conversion checks, and ongoing performance tuning.',
     features: [
       'Everything in Essential Care & Standard Care',
       'Up to 4 hours of dedicated developer improvement work per month',
@@ -265,7 +294,7 @@ export const CARE_PLANS = [
     notIncluded: [
       'Large-scale complete website redesigns',
       'After-hours emergency calls',
-      'Infrastructure usage above the included Scale limits',
+      'Paid provider usage above the agreed Scale profile',
       'Third-party advertising and premium SaaS costs'
     ]
   },
@@ -273,15 +302,15 @@ export const CARE_PLANS = [
     id: 'maint_pro',
     name: 'Pro Care',
     badge: 'Ongoing Engineering Retainer',
-    billingCadence: 'MONTHLY',
-    priceNGN: 350000,
-    priceFormatted: '350,000 / mo',
-    annualPriceNGN: 3850000,
-    monthlyPriceNGN: 350000,
+    billingCadence: 'MONTHLY_OR_ANNUAL',
+    priceNGN: 225000,
+    priceFormatted: '225,000 / mo',
+    annualPriceNGN: 2400000,
+    monthlyPriceNGN: 225000,
     popular: false,
     bestFor: 'High-traffic stores, SaaS portals, and business-critical platforms where uptime matters.',
     examples: 'e.g. High-Volume E-Commerce, SaaS Platforms, Corporate Groups',
-    timeline: 'Monthly retainer',
+    timeline: 'Monthly or Annual retainer',
     revisions: 'Included within 10-hour allowance',
     support: 'Priority emergency support window (4h response, direct WhatsApp channel)',
     infrastructureLevel: 'enterprise',
@@ -367,7 +396,7 @@ export const BUILD_PRICING = {
     id: 'websites',
     label: '🌐 Web Development',
     title: '01. Web Development',
-    desc: 'Custom, responsive, high-performance websites built for real business conversion.',
+    desc: 'One-time website builds with the first 12 months of infrastructure included and a clear annual care price from month 13.',
     startingPriceNGN: 270000,
     startingPriceFormatted: '270,000',
     baseInfraIncluded: true,
@@ -379,7 +408,7 @@ export const BUILD_PRICING = {
       'Browser / device support and launch QA scope'
     ],
     pricingNotes:
-      'Prices are starting points in NGN. The final figure is confirmed after the brief, content audit, and technical scope are understood. Starter includes Foundation Infrastructure, Growth includes Growth Infrastructure, and Pro includes Scale Infrastructure for the first 12 months.',
+      'The build fee covers strategy, design, development, launch, and the named infrastructure level for 12 months. The annual Care figure shown on each plan starts in month 13 if you want Buildwith_lami to keep managing the site. Domains, premium licences, and provider overages are separate.',
     tiers: [
       {
         id: 'web_starter',
@@ -394,6 +423,7 @@ export const BUILD_PRICING = {
         revisions: '1 round of revisions on the agreed design',
         support: '14 days of bug-fix support after launch',
         infrastructureLevel: 'foundation',
+        annualCare: WEBSITE_ANNUAL_CARE.web_starter,
         desc: 'A focused, responsive one-to-five page website with a clear content structure and mobile-first layout.',
         features: [
           'Technical planning and site architecture',
@@ -406,7 +436,7 @@ export const BUILD_PRICING = {
           'CMS / editable content backend',
           'Copywriting',
           'Photography & stock assets',
-          'Ongoing maintenance beyond first year',
+          'Domain registration and paid provider usage',
           'Third-party API integrations'
         ]
       },
@@ -424,6 +454,7 @@ export const BUILD_PRICING = {
         revisions: '2 structured rounds of revisions',
         support: '30 days of priority support after launch',
         infrastructureLevel: 'growth',
+        annualCare: WEBSITE_ANNUAL_CARE.web_growth,
         desc: 'A complete custom website built on modern components, with a CMS and integrated lead-capture pipelines.',
         features: [
           'Everything in Starter',
@@ -452,6 +483,7 @@ export const BUILD_PRICING = {
         revisions: 'Iterative milestone reviews across each development phase',
         support: '60 days of priority engineering support',
         infrastructureLevel: 'scale',
+        annualCare: WEBSITE_ANNUAL_CARE.web_pro,
         desc: 'A high-performance digital platform with custom dynamic workflows, gated areas, and multi-API integrations.',
         features: [
           'Everything in Growth',
@@ -461,7 +493,7 @@ export const BUILD_PRICING = {
           'Dedicated staging preview environment'
         ],
         notIncluded: [
-          'Ongoing retainers beyond first year (available in Care Plans)',
+          'Care work beyond the included first 12 months',
           'Third-party SaaS API monthly subscriptions'
         ]
       }
@@ -1232,16 +1264,16 @@ export const BUILD_PRICING = {
   maintenance: {
     id: 'maintenance',
     label: '🛡️ Website Maintenance',
-    title: '10. Website Maintenance Retainers',
-    desc: 'Keep your website secure, fast, and improving long after launch on a dependable rhythm.',
+    title: '10. Website Care & Managed Operations',
+    desc: 'Keep your site live, monitored, maintained, and supported after the included first year.',
     startingPriceNGN: 130000,
     startingPriceFormatted: '130,000 / yr',
     baseInfraIncluded: true,
-    offerStructureLabel: 'Choose ongoing coverage: Essential → Standard → Growth → Pro',
+    offerStructureLabel: 'Choose annual protection or a plan with reserved monthly improvement time.',
     baseInfraNote:
-      'Every Care retainer includes its matching Infrastructure level while the plan remains active. Usage above that level and premium third-party services are scoped separately.',
+      'Essential Care is capped at ₦130,000 per year for eligible static sites on a commercially suitable free hosting tier. Dynamic websites and higher usage move to the matching managed plan.',
     pricingNotes:
-      'Care keeps the matching Infrastructure level active after launch and adds human support, planned updates, reporting, and reserved developer time. It remains separate from the build warranty, which covers implementation defects.',
+      'Every price includes the matching infrastructure allowance and the management work listed on the plan. Domain renewals, provider usage above that allowance, premium licences, and third-party fees are quoted separately and require approval.',
     tiers: CARE_PLANS
   }
 };
