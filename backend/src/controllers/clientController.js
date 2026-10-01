@@ -20,6 +20,16 @@ const clientSchema = z.object({
     notes: z.string().optional().or(z.literal('')),
     // Optional. When provided must be 8-128 chars.
     password: z.string().min(8, "Password must be at least 8 characters").max(128).optional().or(z.literal('')),
+    // Admin OS Phase 1 — blueprint §16/§30: WhatsApp-first contact
+    // channels, location and the client's next action.
+    whatsapp_number: z.string().max(32).optional().or(z.literal('')),
+    instagram: z.string().max(120).optional().or(z.literal('')),
+    country: z.string().max(100).optional().or(z.literal('')),
+    city: z.string().max(100).optional().or(z.literal('')),
+    preferred_contact_method: z.enum(['WHATSAPP', 'EMAIL', 'PHONE']).optional().or(z.literal('')),
+    status: z.enum(['ACTIVE', 'ONBOARDING', 'MAINTENANCE', 'INACTIVE']).optional(),
+    next_action: z.string().optional().or(z.literal('')),
+    next_action_due_at: z.string().optional().or(z.literal('')),
 });
 
 export const getClients = async (req, res) => {
@@ -79,11 +89,14 @@ export const createClient = async (req, res) => {
         const { rows } = await pool.query(
             `INSERT INTO clients
                 (name, primary_contact_email, billing_email, phone,
-                 stripe_customer_id, division, notes, password_hash)
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+                 stripe_customer_id, division, notes, password_hash,
+                 whatsapp_number, instagram, country, city,
+                 preferred_contact_method, status, next_action, next_action_due_at)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
              RETURNING id, name, primary_contact_email, billing_email, phone,
                        stripe_customer_id, division, notes, created_at, updated_at,
-                       last_login_at`,
+                       last_login_at, whatsapp_number, instagram, country, city,
+                       preferred_contact_method, status, next_action, next_action_due_at`,
             [
                 data.name,
                 data.primary_contact_email,
@@ -93,6 +106,14 @@ export const createClient = async (req, res) => {
                 data.division || 'SOFTWARE',
                 data.notes || null,
                 passwordHash,
+                data.whatsapp_number || null,
+                data.instagram || null,
+                data.country || null,
+                data.city || null,
+                data.preferred_contact_method || null,
+                data.status || 'ACTIVE',
+                data.next_action || null,
+                data.next_action_due_at || null,
             ]
         );
         writeAuditLog({
@@ -119,9 +140,29 @@ export const updateClient = async (req, res) => {
         const before = await pool.query('SELECT * FROM clients WHERE id = $1', [id]);
         const { rows } = await pool.query(
             `UPDATE clients
-             SET name = $1, primary_contact_email = $2, billing_email = $3, phone = $4, stripe_customer_id = $5, division = $6, notes = $7, updated_at = NOW()
+             SET name = $1, primary_contact_email = $2, billing_email = $3, phone = $4, stripe_customer_id = $5, division = $6, notes = $7, updated_at = NOW(),
+                 whatsapp_number = $9, instagram = $10, country = $11, city = $12,
+                 preferred_contact_method = $13, status = COALESCE($14, status),
+                 next_action = $15, next_action_due_at = $16
              WHERE id = $8 RETURNING *`,
-            [data.name, data.primary_contact_email, data.billing_email || null, data.phone || null, data.stripe_customer_id || null, data.division || 'SOFTWARE', data.notes || null, id]
+            [
+                data.name,
+                data.primary_contact_email,
+                data.billing_email || null,
+                data.phone || null,
+                data.stripe_customer_id || null,
+                data.division || 'SOFTWARE',
+                data.notes || null,
+                id,
+                data.whatsapp_number || null,
+                data.instagram || null,
+                data.country || null,
+                data.city || null,
+                data.preferred_contact_method || null,
+                data.status || null,
+                data.next_action || null,
+                data.next_action_due_at || null,
+            ]
         );
         if (rows.length === 0) return res.status(404).json({ error: 'Client not found' });
         writeAuditLog({

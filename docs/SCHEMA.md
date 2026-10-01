@@ -368,12 +368,14 @@ The CRM pipeline. Auto-populated by `contactController` and `bookingController`.
 | `source` | TEXT? | e.g. `'contact_form'`, `'booking_form'` |
 | `notes` | TEXT? | |
 | `converted_client_id` | UUID? FK → `clients.id` ON DELETE SET NULL | Set by `/convert` route |
+| `next_action` | TEXT? | Admin OS Phase 1 — the single next step (blueprint §30) |
+| `next_action_due_at` | TIMESTAMPTZ? | Feeds the Command Center "Next Actions" panel |
 | `created_at` | TIMESTAMPTZ | |
 | `updated_at` | TIMESTAMPTZ | |
 
 **8-stage pipeline:** `LEAD` → `QUALIFIED` → `PROPOSAL` → `NEGOTIATION` → `WON` → `PROJECT` → `COMPLETED` → `RETENTION`
 
-**Indexes:** `division`, `stage`, `email`, `(updated_at DESC)`
+**Indexes:** `division`, `stage`, `email`, `(updated_at DESC)`, partial `idx_leads_next_action_due` on `next_action_due_at` WHERE active stages
 
 ---
 
@@ -715,6 +717,7 @@ The following columns were also dropped (in earlier migrations) for the same rea
 | 25 | `v26_portfolio_fields.sql` | Phase 12 | Adds portfolio fields to `client_projects` |
 | 26 | `v27_portfolio_polish.sql` | Phase 12 | Adds matching portfolio fields to `projects` |
 | 27 | `v28_portfolio_case_study.sql`| Phase 12 | Adds JSONB fields for advanced case-study rendering to `projects` + GIN indexes |
+| 47 | `v47_admin_os_phase1.sql` | Admin OS Phase 1 | `tasks`, `client_actions`, `client_onboardings`, `client_contacts`, `client_social_profiles` + `next_action` columns on `leads`/`clients`/`client_projects` + WhatsApp/Instagram/location/status columns on `clients` |
 
 ---
 
@@ -767,3 +770,119 @@ uses `IF NOT EXISTS` and `DO $$` guards, so re-application is safe.
 *End of schema reference. If you spot a table, column, or index that the
 code references but isn't documented here, treat it as a bug — the schema
 should be the single source of truth.*
+
+---
+
+## 15. Admin OS Phase 1 (v47)
+
+Tables added by `v47_admin_os_phase1.sql` — the core-productivity layer of the
+Admin Operating System blueprint (tasks / Tonight Queue, client actions /
+"Waiting on Client", dedicated client onboarding).
+
+### tasks
+
+The task system feeding the Command Center's Tonight Queue.
+
+| Column | Type | Notes |
+|---|---|---|
+| `id` | UUID PK | |
+| `client_id` | UUID? FK → `clients.id` ON DELETE SET NULL | Auto-filled from the project when only `project_id` is given |
+| `project_id` | UUID? FK → `client_projects.id` ON DELETE CASCADE | |
+| `title` | TEXT NOT NULL | |
+| `description` | TEXT? | |
+| `owner_type` | TEXT NOT NULL DEFAULT `'ADMIN'` | `ADMIN` \| `CLIENT` \| `SYSTEM` |
+| `status` | TEXT NOT NULL DEFAULT `'TODO'` | `TODO` \| `IN_PROGRESS` \| `WAITING` \| `REVIEW` \| `DONE` \| `CANCELLED` |
+| `priority` | TEXT NOT NULL DEFAULT `'MEDIUM'` | `LOW` \| `MEDIUM` \| `HIGH` \| `URGENT` |
+| `estimated_minutes` | INT? | Tonight Queue sizing |
+| `actual_minutes` | INT? | |
+| `due_at` | TIMESTAMPTZ? | |
+| `blocked` | BOOLEAN NOT NULL DEFAULT FALSE | |
+| `blocked_reason` | TEXT? | |
+| `completed_at` | TIMESTAMPTZ? | Set server-side on `status → DONE` |
+| `created_at` / `updated_at` | TIMESTAMPTZ | |
+
+**Indexes:** `status`, partial `due_at` (open statuses), `(project_id, status)`, `client_id`
+
+### client_actions
+
+"Waiting on Client" items — created by admin, shown in the client portal's
+Action Required panel, completed by the client (with an admin notification).
+
+| Column | Type | Notes |
+|---|---|---|
+| `id` | UUID PK | |
+| `client_id` | UUID FK → `clients.id` ON DELETE CASCADE | |
+| `project_id` | UUID? FK → `client_projects.id` ON DELETE SET NULL | |
+| `title` / `description` | TEXT | |
+| `type` | TEXT NOT NULL DEFAULT `'INFO'` | `UPLOAD` \| `APPROVAL` \| `PAYMENT` \| `INFO` \| `REVIEW` |
+| `priority` | TEXT NOT NULL DEFAULT `'MEDIUM'` | Same enum as tasks |
+| `status` | TEXT NOT NULL DEFAULT `'PENDING'` | `PENDING` \| `COMPLETED` \| `CANCELLED` |
+| `due_at` | TIMESTAMPTZ? | |
+| `completed_at` | TIMESTAMPTZ? | |
+| `completion_note` | TEXT? | Optional note left by the client |
+| `created_by` | UUID? FK → `users.id` | |
+| `created_at` / `updated_at` | TIMESTAMPTZ | |
+
+**Indexes:** `status`, partial `due_at` (PENDING), `(client_id, status)`
+
+### client_onboardings
+
+The dedicated progressive onboarding wizard (one **active** record per client,
+enforced by partial unique index `uq_client_onboardings_active` on `client_id`
+WHERE status IN `NOT_STARTED, IN_PROGRESS, SUBMITTED, NEEDS_CHANGES`).
+
+| Column | Type | Notes |
+|---|---|---|
+| `id` | UUID PK | |
+| `client_id` | UUID FK → `clients.id` ON DELETE CASCADE | |
+| `project_id` | UUID? FK → `client_projects.id` ON DELETE SET NULL | |
+| `project_type` | TEXT NOT NULL DEFAULT `'BUSINESS'` | `BUSINESS` \| `ECOMMERCE` \| `BOOKING` \| `LANDING` \| `PORTFOLIO` \| `CUSTOM` — drives conditional wizard sections |
+| `status` | TEXT NOT NULL DEFAULT `'NOT_STARTED'` | `NOT_STARTED` \| `IN_PROGRESS` \| `SUBMITTED` \| `NEEDS_CHANGES` \| `APPROVED` |
+| `responses` | JSONB NOT NULL DEFAULT `'{}'` | `{ sectionKey: { field: value } }` — section-keyed, shallow-merged on autosave |
+| `completion_percent` | INT NOT NULL DEFAULT 0 | Recomputed server-side on every save |
+| `requested_changes` | TEXT? | Admin's note when status = NEEDS_CHANGES |
+| `submitted_at` / `approved_at` | TIMESTAMPTZ? | |
+| `created_at` / `updated_at` | TIMESTAMPTZ | |
+
+**Indexes:** `status`, partial unique active-per-client (above)
+
+### client_contacts
+
+Secondary contact people for a client.
+
+| Column | Type | Notes |
+|---|---|---|
+| `id` | UUID PK | |
+| `client_id` | UUID FK → `clients.id` ON DELETE CASCADE | |
+| `name` | TEXT NOT NULL | |
+| `role_title` / `email` / `whatsapp` / `phone` / `notes` | TEXT? | |
+| `is_primary` | BOOLEAN NOT NULL DEFAULT FALSE | |
+| `created_at` / `updated_at` | TIMESTAMPTZ | |
+
+**Indexes:** `client_id`
+
+### client_social_profiles
+
+Social handles per client (Instagram-first, blueprint §76).
+
+| Column | Type | Notes |
+|---|---|---|
+| `id` | UUID PK | |
+| `client_id` | UUID FK → `clients.id` ON DELETE CASCADE | |
+| `platform` | TEXT NOT NULL | `INSTAGRAM` \| `FACEBOOK` \| `TIKTOK` \| `X` \| `LINKEDIN` \| `SNAPCHAT` \| `YOUTUBE` \| `PINTEREST` \| `WHATSAPP` \| `OTHER` |
+| `username` / `url` | TEXT? | |
+| `created_at` / `updated_at` | TIMESTAMPTZ | |
+
+**Indexes:** `client_id`
+
+### New columns on existing tables (v47)
+
+| Table | Columns |
+|---|---|
+| `leads` | `next_action` TEXT?, `next_action_due_at` TIMESTAMPTZ? |
+| `clients` | `whatsapp_number` TEXT?, `instagram` TEXT?, `country` TEXT?, `city` TEXT?, `preferred_contact_method` TEXT? (`WHATSAPP`\|`EMAIL`\|`PHONE`), `status` TEXT NOT NULL DEFAULT `'ACTIVE'` (`ACTIVE`\|`ONBOARDING`\|`MAINTENANCE`\|`INACTIVE`), `source` TEXT?, `next_action` TEXT?, `next_action_due_at` TIMESTAMPTZ? |
+| `client_projects` | `next_action` TEXT?, `next_action_due_at` TIMESTAMPTZ? |
+
+**New API surface:** `/api/tasks`, `/api/client-actions`, `/api/onboarding` (admin, Owner-gated);
+`/api/client-portal/{actions,onboarding}` (portal, client JWT);
+`GET /api/dashboard/command-center` (Tonight Queue / Waiting on Client / Needs Attention / Next Actions).

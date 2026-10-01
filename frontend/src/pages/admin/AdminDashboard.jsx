@@ -5,6 +5,7 @@ import { api } from '../../services/api';
 import { notify } from '../../services/notify';
 import { toCSV, downloadCSV } from '../../utils/csv.jsx';
 import TodayWidget from '../../components/admin/TodayWidget';
+import CommandCenter from '../../components/admin/CommandCenter';
 import { CoreIcon, DashboardIcon, ActionIcon } from '../../data/adminIcons.jsx';
 import {
     StatCard,
@@ -327,6 +328,10 @@ const AdminDashboard = () => {
 
                 {/* ── TODAY WIDGET (Phase 2) — actionable at-a-glance counters ── */}
                 <TodayWidget />
+
+                {/* ── COMMAND CENTER (Admin OS Phase 1) — Tonight Queue,
+                    Waiting on Client, Needs Attention, Next Actions ── */}
+                <CommandCenter />
 
                 {/* ── ALERT BANNER (only if there are issues) ───────── */}
                 {needsAttention > 0 && (

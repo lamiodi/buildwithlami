@@ -74,22 +74,36 @@ const labelClass = "block text-[10px] font-extrabold text-gray-500 dark:text-gra
 // ── Lead detail drawer ──────────────────────────────────
 const LeadDrawer = ({ lead, stages, onClose, onUpdate, onConvert, onSendTemplate, onGenerateQuotation, templates }) => {
     const [notes, setNotes] = useState(lead?.notes || '');
+    const [nextAction, setNextAction] = useState(lead?.next_action || '');
+    const [nextActionDue, setNextActionDue] = useState(
+        lead?.next_action_due_at ? new Date(lead.next_action_due_at).toISOString().slice(0, 10) : ''
+    );
     const [savingNotes, setSavingNotes] = useState(false);
     const [showTemplatePicker, setShowTemplatePicker] = useState(false);
     const [showQuotationModal, setShowQuotationModal] = useState(false);
 
     useEffect(() => {
         setNotes(lead?.notes || '');
-    }, [lead?.id, lead?.notes]);
+        setNextAction(lead?.next_action || '');
+        setNextActionDue(lead?.next_action_due_at ? new Date(lead.next_action_due_at).toISOString().slice(0, 10) : '');
+    }, [lead?.id, lead?.notes, lead?.next_action, lead?.next_action_due_at]);
 
     if (!lead) return null;
 
+    const nextActionDirty =
+        nextAction !== (lead.next_action || '') || nextActionDue !== (lead.next_action_due_at ? new Date(lead.next_action_due_at).toISOString().slice(0, 10) : '');
+
     const handleSaveNotes = async () => {
         setSavingNotes(true);
-        const res = await api.patch(`/crm/leads/${lead.id}`, { notes });
+        const payload = { notes };
+        if (nextActionDirty) {
+            payload.next_action = nextAction;
+            payload.next_action_due_at = nextActionDue || null;
+        }
+        const res = await api.patch(`/crm/leads/${lead.id}`, payload);
         setSavingNotes(false);
         if (res.ok) {
-            notify.success('Notes saved.');
+            notify.success(nextActionDirty ? 'Notes & next action saved.' : 'Notes saved.');
             onUpdate(res.data);
         } else {
             notify.error(res.error || 'Failed to save notes.');
@@ -197,6 +211,24 @@ const LeadDrawer = ({ lead, stages, onClose, onUpdate, onConvert, onSendTemplate
                             </div>
                         </section>
 
+                        {/* Next action (Admin OS Phase 1 — blueprint §30) */}
+                        <section>
+                            <h3 className="text-[10px] font-extrabold uppercase tracking-widest text-gray-500 mb-2">Next Action</h3>
+                            <input
+                                type="text"
+                                value={nextAction}
+                                onChange={(e) => setNextAction(e.target.value)}
+                                className={inputClass}
+                                placeholder="e.g. Send quotation follow-up"
+                            />
+                            <input
+                                type="date"
+                                value={nextActionDue}
+                                onChange={(e) => setNextActionDue(e.target.value)}
+                                className={`${inputClass} mt-2`}
+                            />
+                        </section>
+
                         {/* Notes */}
                         <section>
                             <h3 className="text-[10px] font-extrabold uppercase tracking-widest text-gray-500 mb-2">Notes</h3>
@@ -209,10 +241,10 @@ const LeadDrawer = ({ lead, stages, onClose, onUpdate, onConvert, onSendTemplate
                             />
                             <button
                                 onClick={handleSaveNotes}
-                                disabled={savingNotes || notes === (lead.notes || '')}
+                                disabled={savingNotes || (notes === (lead.notes || '') && !nextActionDirty)}
                                 className="mt-2 w-full bg-accent hover:bg-orange-600 text-white text-sm font-bold py-2.5 rounded-xl disabled:opacity-50 transition-colors"
                             >
-                                {savingNotes ? 'Saving…' : 'Save Notes'}
+                                {savingNotes ? 'Saving…' : 'Save Notes & Next Action'}
                             </button>
                         </section>
 

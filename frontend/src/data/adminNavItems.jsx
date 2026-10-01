@@ -22,6 +22,7 @@ export { Icon };
 export const coreNav = [
     { to: '/admin', label: 'Dashboard', icon: Icon.Dashboard, end: true },
     { to: '/admin/crm', label: 'CRM Pipeline', icon: Icon.Kanban },
+    { to: '/admin/tasks', label: 'Tasks', icon: Icon.CheckSquare },
     { to: '/admin/email-templates', label: 'Email Templates', icon: Icon.Mail },
     { to: '/admin/inbox', label: 'Inbox', icon: Icon.Bell },
     { to: '/admin/contracts', label: 'Contracts', icon: Icon.Code },

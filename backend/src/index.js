@@ -38,6 +38,9 @@ import expenseRoutes from './routes/expenseRoutes.js';
 import clientAuthRoutes from './routes/clientAuthRoutes.js';
 import clientPortalRoutes from './routes/clientPortalRoutes.js';
 import quotationRoutes from './routes/quotationRoutes.js';
+import taskRoutes from './routes/taskRoutes.js';
+import clientActionRoutes from './routes/clientActionRoutes.js';
+import onboardingRoutes from './routes/onboardingRoutes.js';
 import pool from './config/db.js';
 import { startCronJobs } from './services/cronService.js';
 
@@ -200,6 +203,13 @@ app.use('/api/expenses', apiLimiter, expenseRoutes);
 app.use('/api/client-auth', apiLimiter, clientAuthRoutes);
 app.use('/api/client-portal', apiLimiter, clientPortalRoutes);
 app.use('/api/quotations', apiLimiter, quotationRoutes);
+
+// Admin OS Phase 1 — Tasks (Tonight Queue), Client Actions
+// (Waiting on Client) and the onboarding review loop. Portal-side
+// onboarding/action endpoints live under /api/client-portal.
+app.use('/api/tasks', apiLimiter, adminWriteLimiter, taskRoutes);
+app.use('/api/client-actions', apiLimiter, adminWriteLimiter, clientActionRoutes);
+app.use('/api/onboarding', apiLimiter, adminWriteLimiter, onboardingRoutes);
 
 // ── 404 fallback ─────────────────────────────────────────
 app.use((_req, res) => {

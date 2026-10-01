@@ -116,6 +116,8 @@ const createLeadSchema = z.object({
     division: z.enum(['SOFTWARE', 'SURVEY', 'DRONE']),
     source: z.string().optional().nullable(),
     notes: z.string().optional().nullable(),
+    next_action: z.string().optional().nullable(),
+    next_action_due_at: z.string().optional().nullable(),
 });
 
 const stageSchema = z.object({
@@ -128,6 +130,9 @@ const updateLeadSchema = z.object({
     phone: z.string().optional().nullable(),
     source: z.string().optional().nullable(),
     notes: z.string().optional().nullable(),
+    // Admin OS Phase 1 — next action (blueprint §30).
+    next_action: z.string().optional().nullable(),
+    next_action_due_at: z.string().optional().nullable(),
 });
 
 /**
@@ -144,8 +149,8 @@ const updateLeadSchema = z.object({
 export async function insertLeadRow(data) {
     try {
         const { rows } = await pool.query(
-            `INSERT INTO leads (full_name, email, phone, division, source, notes, stage)
-             VALUES ($1, $2, $3, $4, $5, $6, 'LEAD')
+            `INSERT INTO leads (full_name, email, phone, division, source, notes, next_action, next_action_due_at, stage)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'LEAD')
              RETURNING *`,
             [
                 data.full_name,
@@ -154,6 +159,8 @@ export async function insertLeadRow(data) {
                 data.division,
                 data.source || null,
                 data.notes || null,
+                data.next_action || null,
+                data.next_action_due_at || null,
             ]
         );
         return rows[0];
@@ -305,7 +312,7 @@ export async function updateLead(req, res) {
         if (!isUuid(id)) return res.status(400).json({ error: 'Invalid lead ID.' });
 
         const data = updateLeadSchema.parse(req.body);
-        const allowedKeys = ['full_name', 'email', 'phone', 'source', 'notes'];
+        const allowedKeys = ['full_name', 'email', 'phone', 'source', 'notes', 'next_action', 'next_action_due_at'];
         const fields = Object.keys(data).filter((k) => allowedKeys.includes(k));
         if (fields.length === 0) {
             return res.status(400).json({ error: 'No updatable fields provided.' });

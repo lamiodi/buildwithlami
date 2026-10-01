@@ -183,6 +183,12 @@ export const getAllInvoices = async (req, res) => {
             params.push(req.query.division);
             conditions.push(`i.division = $${params.length}`);
         }
+
+        // Admin OS Phase 1 — filter by client for the client detail page.
+        if (req.query.client_id && /^[0-9a-f-]{36}$/i.test(req.query.client_id)) {
+            params.push(req.query.client_id);
+            conditions.push(`i.client_id = $${params.length}`);
+        }
         
         const where = conditions.length > 0 ? ' WHERE ' + conditions.join(' AND ') : '';
         

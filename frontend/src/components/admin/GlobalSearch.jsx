@@ -20,7 +20,7 @@ const Icon = {
 
 const CATEGORIES = [
     { key: 'leads',      label: 'Leads',      icon: Icon.Lead,      path: (item) => `/admin/crm` },
-    { key: 'clients',    label: 'Clients',    icon: Icon.Client,    path: (item) => `/admin/clients` },
+    { key: 'clients',    label: 'Clients',    icon: Icon.Client,    path: (item) => `/admin/clients/${item.id}` },
     { key: 'projects',   label: 'Projects',   icon: Icon.Project,   path: (item) => `/admin/projects/${item.id}` },
     { key: 'quotations', label: 'Quotations', icon: Icon.Quotation, path: (item) => `/admin/quotations` },
     { key: 'invoices',   label: 'Invoices',   icon: Icon.Invoice,   path: (item) => `/admin/invoices` },

@@ -51,6 +51,8 @@ const AdminQuotations = lazyWithRetry(() => import('./pages/admin/AdminQuotation
 const AdminEmailTemplates = lazyWithRetry(() => import('./pages/admin/AdminEmailTemplates'));
 const AdminHelp = lazyWithRetry(() => import('./pages/admin/AdminHelp'));
 const AdminPaymentQueue = lazyWithRetry(() => import('./pages/admin/AdminPaymentQueue'));
+const AdminTasks = lazyWithRetry(() => import('./pages/admin/AdminTasks'));
+const AdminClientDetail = lazyWithRetry(() => import('./pages/admin/AdminClientDetail'));
 const PaymentPage = lazyWithRetry(() => import('./pages/PaymentPage'));
 
 const AdminSurveyBookings = lazyWithRetry(() => import('./pages/admin/survey/AdminSurveyBookings'));
@@ -80,6 +82,7 @@ const ClientDocuments = lazyWithRetry(() => import('./pages/client/ClientDocumen
 const ClientMessages = lazyWithRetry(() => import('./pages/client/ClientMessages'));
 const ClientProfile = lazyWithRetry(() => import('./pages/client/ClientProfile'));
 const ClientTimeline = lazyWithRetry(() => import('./pages/client/ClientTimeline'));
+const ClientOnboarding = lazyWithRetry(() => import('./pages/client/ClientOnboarding'));
 const ClientProtectedRoute = lazyWithRetry(() => import('./components/ClientProtectedRoute'));
 import { ClientAuthProvider } from './contexts/ClientAuthContext';
 
@@ -262,6 +265,8 @@ function App() {
                   <Route path="portfolio" element={<AdminPortfolio lockedDivision="SOFTWARE" />} />
                   <Route path="projects" element={<AdminClientProjects />} />
                   <Route path="clients" element={<AdminClients />} />
+                  <Route path="clients/:id" element={<AdminClientDetail />} />
+                  <Route path="tasks" element={<AdminTasks />} />
                   <Route path="quotations" element={<AdminQuotations />} />
                   <Route path="projects/:id" element={<AdminProjectDetail />} />
                   <Route path="invoices" element={<AdminInvoices />} />
@@ -293,6 +298,7 @@ function App() {
                 <Route path="/portal/login" element={<ClientLogin />} />
                 <Route path="/portal" element={<ClientProtectedRoute><ClientPortalLayout isDark={isDark} toggleTheme={toggleTheme} /></ClientProtectedRoute>}>
                   <Route index element={<ClientDashboard />} />
+                  <Route path="onboarding" element={<ClientOnboarding />} />
                   <Route path="projects" element={<ClientProjects />} />
                   <Route path="quotations" element={<ClientQuotations />} />
                   <Route path="contracts" element={<ClientContracts />} />

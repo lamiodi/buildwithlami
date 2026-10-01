@@ -40,6 +40,9 @@ const UPDATABLE_COLUMNS = new Set([
     'offboarding_status',
     'offboarding_checklist',
     'client_id',
+    // Admin OS Phase 1 — next action (blueprint §30).
+    'next_action',
+    'next_action_due_at',
 ]);
 
 export const getClientProjects = async (req, res) => {

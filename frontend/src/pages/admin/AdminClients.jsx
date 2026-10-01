@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { api } from '../../services/api';
 import { notify } from '../../services/notify';
 import { HighlightedText } from '../../utils/csv.jsx';
@@ -270,9 +271,9 @@ const AdminClients = () => {
                       ).map(client => (
                         <tr key={client.id} className="hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors">
                           <td className="py-4 px-6">
-                            <p className="font-bold text-gray-900 dark:text-white font-heading">
+                            <Link to={`/admin/clients/${client.id}`} className="font-bold text-gray-900 dark:text-white font-heading hover:text-accent transition-colors">
                               <HighlightedText text={client.name} search={searchQuery} />
-                            </p>
+                            </Link>
                             <p className="text-sm text-gray-500 dark:text-gray-400 font-body">
                               <HighlightedText text={client.primary_contact_email} search={searchQuery} />
                             </p>

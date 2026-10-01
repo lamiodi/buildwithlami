@@ -412,3 +412,254 @@ export async function getTodaySummary(req, res) {
         res.status(500).json({ error: 'Failed to load today summary.' });
     }
 }
+
+// ── Command Center — Admin OS Phase 1 ────────────────────
+// Blueprint §5 / §94: the dashboard answers "what needs my
+// attention next?" with Tonight Queue, Waiting on Client,
+// Needs Attention and cross-entity Next Actions.
+export async function getCommandCenter(req, res) {
+    try {
+        const [
+            tonightTasks,
+            waitingActions,
+            overdueInvoices,
+            overdueTaskCount,
+            staleLeads,
+            domainsExpiring,
+            onboardingsSubmitted,
+            onboardingsStalled,
+            pendingProofs,
+            leadNextActions,
+            clientNextActions,
+            projectNextActions,
+            counters,
+            outstandingByCurrency,
+        ] = await Promise.all([
+            // Tonight Queue — open work due today or earlier, plus
+            // anything URGENT regardless of due date.
+            pool.query(`
+                SELECT t.id, t.title, t.priority, t.status, t.due_at, t.estimated_minutes,
+                       t.blocked, t.blocked_reason, t.project_id,
+                       c.name AS client_name, p.project_name,
+                       (t.due_at < NOW()) AS overdue
+                  FROM tasks t
+                  LEFT JOIN clients c         ON c.id = t.client_id
+                  LEFT JOIN client_projects p ON p.id = t.project_id
+                 WHERE t.status NOT IN ('DONE', 'CANCELLED')
+                   AND (t.due_at < NOW() + INTERVAL '1 day' OR t.priority = 'URGENT')
+                 ORDER BY (t.due_at IS NULL) ASC,
+                          t.due_at ASC,
+                          CASE t.priority WHEN 'URGENT' THEN 0 WHEN 'HIGH' THEN 1 WHEN 'MEDIUM' THEN 2 ELSE 3 END
+                 LIMIT 10
+            `),
+            // Waiting on Client — pending client actions.
+            pool.query(`
+                SELECT a.id, a.title, a.type, a.priority, a.due_at, a.project_id,
+                       a.client_id, c.name AS client_name, p.project_name,
+                       (a.due_at < NOW()) AS overdue
+                  FROM client_actions a
+                  LEFT JOIN clients c         ON c.id = a.client_id
+                  LEFT JOIN client_projects p ON p.id = a.project_id
+                 WHERE a.status = 'PENDING'
+                 ORDER BY (a.due_at IS NULL) ASC, a.due_at ASC
+                 LIMIT 10
+            `),
+            // Overdue invoices (top 5 by due date).
+            pool.query(`
+                SELECT i.id, i.invoice_number, i.amount, i.currency, i.due_date,
+                       c.name AS client_name, i.client_id
+                  FROM invoices i
+                  LEFT JOIN clients c ON c.id = i.client_id
+                 WHERE i.status IN ('PENDING', 'OVERDUE') AND i.due_date < NOW()
+                 ORDER BY i.due_date ASC
+                 LIMIT 5
+            `),
+            pool.query(`
+                SELECT COUNT(*)::int AS count FROM tasks
+                 WHERE status NOT IN ('DONE', 'CANCELLED') AND due_at < NOW()
+            `),
+            // Leads untouched for 48h+ in an active stage.
+            pool.query(`
+                SELECT id, full_name, division, stage, updated_at
+                  FROM leads
+                 WHERE stage IN ('LEAD', 'QUALIFIED', 'PROPOSAL', 'NEGOTIATION')
+                   AND updated_at < NOW() - INTERVAL '48 hours'
+                 ORDER BY updated_at ASC
+                 LIMIT 5
+            `),
+            pool.query(`
+                SELECT id, project_name, domain_name, domain_expiration, client_id
+                  FROM client_projects
+                 WHERE domain_expiration IS NOT NULL
+                   AND domain_expiration BETWEEN NOW() AND NOW() + INTERVAL '30 days'
+                   AND status NOT IN ('ARCHIVED')
+                 ORDER BY domain_expiration ASC
+                 LIMIT 5
+            `),
+            // Onboardings awaiting admin review.
+            pool.query(`
+                SELECT o.id, o.client_id, c.name AS client_name,
+                       o.completion_percent, o.submitted_at
+                  FROM client_onboardings o
+                  LEFT JOIN clients c ON c.id = o.client_id
+                 WHERE o.status = 'SUBMITTED'
+                 ORDER BY o.submitted_at ASC
+                 LIMIT 5
+            `),
+            // Onboardings started but never finished (7+ days).
+            pool.query(`
+                SELECT o.id, o.client_id, c.name AS client_name,
+                       o.completion_percent, o.updated_at
+                  FROM client_onboardings o
+                  LEFT JOIN clients c ON c.id = o.client_id
+                 WHERE o.status IN ('NOT_STARTED', 'IN_PROGRESS')
+                   AND o.updated_at < NOW() - INTERVAL '7 days'
+                 ORDER BY o.updated_at ASC
+                 LIMIT 5
+            `),
+            pool.query(`
+                SELECT COUNT(*)::int AS count FROM payment_proofs WHERE status = 'PENDING'
+            `),
+            // Next actions across the three entities (blueprint §30).
+            pool.query(`
+                SELECT id, full_name AS name, division, stage, next_action, next_action_due_at,
+                       (next_action_due_at < NOW()) AS overdue
+                  FROM leads
+                 WHERE next_action IS NOT NULL AND next_action <> ''
+                   AND stage NOT IN ('WON', 'COMPLETED', 'RETENTION')
+                   AND (next_action_due_at IS NULL OR next_action_due_at < NOW() + INTERVAL '7 days')
+                 ORDER BY (next_action_due_at IS NULL) ASC, next_action_due_at ASC
+                 LIMIT 5
+            `),
+            pool.query(`
+                SELECT id, name, next_action, next_action_due_at,
+                       (next_action_due_at < NOW()) AS overdue
+                  FROM clients
+                 WHERE next_action IS NOT NULL AND next_action <> ''
+                   AND (next_action_due_at IS NULL OR next_action_due_at < NOW() + INTERVAL '7 days')
+                 ORDER BY (next_action_due_at IS NULL) ASC, next_action_due_at ASC
+                 LIMIT 5
+            `),
+            pool.query(`
+                SELECT p.id, p.project_name AS name, p.status, p.next_action, p.next_action_due_at,
+                       c.name AS client_name,
+                       (p.next_action_due_at < NOW()) AS overdue
+                  FROM client_projects p
+                  LEFT JOIN clients c ON c.id = p.client_id
+                 WHERE p.next_action IS NOT NULL AND p.next_action <> ''
+                   AND p.status NOT IN ('ARCHIVED')
+                   AND (p.next_action_due_at IS NULL OR p.next_action_due_at < NOW() + INTERVAL '7 days')
+                 ORDER BY (p.next_action_due_at IS NULL) ASC, p.next_action_due_at ASC
+                 LIMIT 5
+            `),
+            pool.query(`
+                SELECT
+                    (SELECT COUNT(*)::int FROM tasks
+                      WHERE status NOT IN ('DONE','CANCELLED')
+                        AND due_at::date = CURRENT_DATE) AS tasks_due_today,
+                    (SELECT COUNT(*)::int FROM leads
+                      WHERE created_at > NOW() - INTERVAL '7 days') AS new_leads_7d,
+                    (SELECT COALESCE(SUM(conv), 0)
+                       FROM (
+                         SELECT i.amount * r.rate AS conv
+                           FROM invoices i
+                           JOIN fx_rates r
+                             ON r.base_currency = $1 AND r.target_currency = i.currency
+                          WHERE i.status = 'PAID'
+                            AND DATE_TRUNC('month', i.created_at) = DATE_TRUNC('month', CURRENT_DATE)
+                       ) rev
+                    ) AS revenue_this_month,
+                    (SELECT COUNT(*)::int FROM client_projects
+                      WHERE domain_expiration BETWEEN NOW() AND NOW() + INTERVAL '60 days'
+                        AND status NOT IN ('ARCHIVED')) AS upcoming_renewals,
+                    (SELECT COUNT(*)::int FROM client_actions WHERE status = 'PENDING') AS waiting_on_client
+            `, [BASE_CURRENCY]),
+            // Outstanding per currency — never blindly combined
+            // across currencies (blueprint §42).
+            pool.query(`
+                SELECT currency, COUNT(*)::int AS count, COALESCE(SUM(amount), 0) AS amount
+                  FROM invoices
+                 WHERE status IN ('PENDING', 'OVERDUE')
+                 GROUP BY currency
+                 ORDER BY amount DESC
+            `),
+        ]);
+
+        // Blueprint §74 — always show *why* an item ranks high.
+        const tonightQueue = tonightTasks.rows.map((t) => ({
+            ...t,
+            reason: t.overdue
+                ? 'Overdue'
+                : (t.due_at && new Date(t.due_at).toDateString() === new Date().toDateString())
+                    ? 'Due today'
+                    : 'Urgent priority',
+        }));
+
+        const needsAttention = [
+            ...overdueInvoices.rows.map((i) => ({
+                kind: 'INVOICE_OVERDUE',
+                id: i.id,
+                title: `${i.invoice_number || 'Invoice'} — ${i.client_name || 'Client'}`,
+                detail: `Due ${new Date(i.due_date).toLocaleDateString()}`,
+                link: '/admin/invoices',
+            })),
+            ...staleLeads.rows.map((l) => ({
+                kind: 'LEAD_STALE',
+                id: l.id,
+                title: `${l.full_name} (${l.stage})`,
+                detail: `No activity since ${new Date(l.updated_at).toLocaleDateString()}`,
+                link: '/admin/crm',
+            })),
+            ...domainsExpiring.rows.map((d) => ({
+                kind: 'DOMAIN_EXPIRING',
+                id: d.id,
+                title: `${d.domain_name || d.project_name}`,
+                detail: `Domain expires ${new Date(d.domain_expiration).toLocaleDateString()}`,
+                link: `/admin/projects/${d.id}`,
+            })),
+            ...onboardingsSubmitted.rows.map((o) => ({
+                kind: 'ONBOARDING_SUBMITTED',
+                id: o.id,
+                title: `${o.client_name} submitted onboarding`,
+                detail: `${o.completion_percent}% complete`,
+                link: `/admin/clients/${o.client_id}`,
+            })),
+            ...onboardingsStalled.rows.map((o) => ({
+                kind: 'ONBOARDING_STALLED',
+                id: o.id,
+                title: `${o.client_name} onboarding stalled`,
+                detail: `${o.completion_percent}% complete — last touched ${new Date(o.updated_at).toLocaleDateString()}`,
+                link: `/admin/clients/${o.client_id}`,
+            })),
+        ];
+
+        res.json({
+            tonightQueue,
+            waitingOnClient: waitingActions.rows,
+            needsAttention,
+            nextActions: {
+                leads: leadNextActions.rows,
+                clients: clientNextActions.rows,
+                projects: projectNextActions.rows,
+            },
+            counters: {
+                tasksDueToday: counters.rows[0].tasks_due_today,
+                overdueTasks: overdueTaskCount.rows[0].count,
+                waitingOnClient: counters.rows[0].waiting_on_client,
+                newLeads7d: counters.rows[0].new_leads_7d,
+                revenueThisMonth: Number(counters.rows[0].revenue_this_month || 0),
+                upcomingRenewals: counters.rows[0].upcoming_renewals,
+                pendingPaymentProofs: pendingProofs.rows[0].count,
+                overdueInvoices: overdueInvoices.rows.length,
+            },
+            outstandingByCurrency: outstandingByCurrency.rows.map((r) => ({
+                currency: r.currency,
+                count: r.count,
+                amount: Number(r.amount || 0),
+            })),
+        });
+    } catch (err) {
+        console.error('[CommandCenter] Error:', err.message);
+        res.status(500).json({ error: 'Failed to load command center data.' });
+    }
+}
