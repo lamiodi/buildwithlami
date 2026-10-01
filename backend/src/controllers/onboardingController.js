@@ -207,70 +207,120 @@ export async function getOnboardingById(req, res) {
 }
 
 // ── Admin: Create ────────────────────────────────────────
-export async function createOnboarding(req, res) {
+/**
+ * Shared creation core used by BOTH the admin route below and
+ * the Phase 2 automation chain (automationService.onInvoicePaid).
+ *
+ * Idempotent: when the client already has an active onboarding
+ * (partial unique index), returns it with created:false and no
+ * duplicate email. Returns:
+ *   { ok, onboarding, created, emailStatus, error? }
+ */
+export async function ensureOnboardingForClient({
+    clientId,
+    projectId = null,
+    projectType = 'BUSINESS',
+    sendInvite = true,
+    user = null,
+    ipAddress = null,
+}) {
+    const clientRes = await pool.query(
+        `SELECT id, name, primary_contact_email FROM clients WHERE id = $1`,
+        [clientId]
+    );
+    if (clientRes.rows.length === 0) {
+        return { ok: false, error: 'client_not_found' };
+    }
+    const client = clientRes.rows[0];
+
+    let onboarding;
+    let created = false;
     try {
-        const data = createOnboardingSchema.parse(req.body);
-        if (!isUuid(data.client_id)) return res.status(400).json({ error: 'Invalid client ID.' });
-
-        const clientRes = await pool.query(
-            `SELECT id, name, primary_contact_email FROM clients WHERE id = $1`,
-            [data.client_id]
+        const insert = await pool.query(
+            `INSERT INTO client_onboardings (client_id, project_id, project_type)
+             VALUES ($1, $2, $3)
+             RETURNING *`,
+            [clientId, projectId, projectType]
         );
-        if (clientRes.rows.length === 0) return res.status(404).json({ error: 'Client not found.' });
-        const client = clientRes.rows[0];
-
-        const projectId = isUuid(data.project_id || '') ? data.project_id : null;
-
-        let onboarding;
-        try {
-            const insert = await pool.query(
-                `INSERT INTO client_onboardings (client_id, project_id, project_type)
-                 VALUES ($1, $2, $3)
-                 RETURNING *`,
-                [data.client_id, projectId, data.project_type]
+        onboarding = insert.rows[0];
+        created = true;
+    } catch (insertErr) {
+        // 23505 = unique_violation → the partial unique index says
+        // this client already has an active onboarding.
+        if (insertErr.code === '23505') {
+            const existing = await pool.query(
+                `SELECT * FROM client_onboardings
+                  WHERE client_id = $1 AND status IN ('NOT_STARTED','IN_PROGRESS','SUBMITTED','NEEDS_CHANGES')
+                  ORDER BY updated_at DESC LIMIT 1`,
+                [clientId]
             );
-            onboarding = insert.rows[0];
-        } catch (insertErr) {
-            // 23505 = unique_violation → the partial unique index says
-            // this client already has an active onboarding.
-            if (insertErr.code === '23505') {
-                const existing = await pool.query(
-                    `SELECT id FROM client_onboardings
-                      WHERE client_id = $1 AND status IN ('NOT_STARTED','IN_PROGRESS','SUBMITTED','NEEDS_CHANGES')`,
-                    [data.client_id]
-                );
-                return res.status(409).json({
-                    error: 'This client already has an active onboarding.',
-                    onboardingId: existing.rows[0]?.id || null,
-                });
-            }
-            throw insertErr;
+            if (existing.rows.length === 0) throw insertErr;
+            return { ok: true, onboarding: existing.rows[0], created: false, emailStatus: null };
         }
+        throw insertErr;
+    }
 
-        writeAuditLog({
-            action: 'ONBOARDING_CREATED',
-            entityType: 'client_onboardings',
-            entityId: onboarding.id,
-            details: { clientId: data.client_id, projectType: data.project_type, inviteSent: data.send_invite },
-            user: req.user,
-            ipAddress: getClientIp(req),
-        }).catch(() => {});
+    writeAuditLog({
+        action: 'ONBOARDING_CREATED',
+        entityType: 'client_onboardings',
+        entityId: onboarding.id,
+        details: { clientId, projectType, inviteSent: sendInvite, automated: user === null },
+        user,
+        ipAddress,
+    }).catch(() => {});
 
-        // Set the client's lifecycle status to ONBOARDING so the
-        // client list reflects where they are in the funnel.
-        await pool.query(`UPDATE clients SET status = 'ONBOARDING', updated_at = NOW() WHERE id = $1 AND status = 'ACTIVE'`, [data.client_id]);
+    // Set the client's lifecycle status to ONBOARDING so the
+    // client list reflects where they are in the funnel.
+    await pool.query(`UPDATE clients SET status = 'ONBOARDING', updated_at = NOW() WHERE id = $1 AND status = 'ACTIVE'`, [clientId]);
 
-        let emailStatus = null;
-        if (data.send_invite) {
+    let emailStatus = null;
+    if (sendInvite) {
+        try {
             const result = await sendOnboardingInviteEmail({
                 clientEmail: client.primary_contact_email,
                 clientName: client.name,
                 portalUrl: portalUrl(),
             });
             emailStatus = result.success ? 'sent' : 'failed';
+        } catch (emailErr) {
+            // The onboarding row already exists — an SMTP outage must
+            // not roll back the business action. Surface the failure
+            // and let the admin resend the invite later.
+            console.error('[Onboarding] invite email failed:', emailErr.message);
+            emailStatus = 'failed';
+        }
+    }
+
+    return { ok: true, onboarding, created, emailStatus };
+}
+
+export async function createOnboarding(req, res) {
+    try {
+        const data = createOnboardingSchema.parse(req.body);
+        if (!isUuid(data.client_id)) return res.status(400).json({ error: 'Invalid client ID.' });
+
+        const projectId = isUuid(data.project_id || '') ? data.project_id : null;
+
+        const result = await ensureOnboardingForClient({
+            clientId: data.client_id,
+            projectId,
+            projectType: data.project_type,
+            sendInvite: data.send_invite,
+            user: req.user,
+            ipAddress: getClientIp(req),
+        });
+
+        if (!result.ok) {
+            return res.status(404).json({ error: 'Client not found.' });
+        }
+        if (!result.created) {
+            return res.status(409).json({
+                error: 'This client already has an active onboarding.',
+                onboardingId: result.onboarding.id,
+            });
         }
 
-        return res.status(201).json({ ...onboarding, emailStatus });
+        return res.status(201).json({ ...result.onboarding, emailStatus: result.emailStatus });
     } catch (err) {
         if (err instanceof z.ZodError) return res.status(400).json({ error: err.errors });
         console.error('[Onboarding] createOnboarding error:', err.message);

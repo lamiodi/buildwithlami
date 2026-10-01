@@ -1,5 +1,7 @@
 import pool from '../config/db.js';
 import { z } from 'zod';
+import { onQuotationAccepted } from '../services/automationService.js';
+import { writeAuditLog, getClientIp } from '../utils/auditLog.js';
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const isUuid = (s) => typeof s === 'string' && UUID_REGEX.test(s);
@@ -15,18 +17,27 @@ const createQuotationSchema = z.object({
     line_items: z.array(z.any()).optional(),
     notes: z.string().optional().nullable(),
     valid_until: z.string().optional().nullable(),
+    // Admin OS Phase 2 — currency + deposit share drive the
+    // auto-created deposit invoice when the quote is accepted.
+    currency: z.string().length(3).optional(),
+    deposit_percent: z.number().int().min(0).max(100).optional(),
 }).strict().passthrough();
 
 export const getQuotations = async (req, res) => {
     try {
         const { rows } = await pool.query(`
-            SELECT q.*, 
-                   l.full_name as lead_name, 
+            SELECT q.*,
+                   l.full_name as lead_name,
                    l.email as lead_email,
-                   c.name as client_name
+                   c.name as client_name,
+                   di.id AS deposit_invoice_id,
+                   di.invoice_number AS deposit_invoice_number,
+                   di.status AS deposit_invoice_status,
+                   di.amount AS deposit_invoice_amount
             FROM quotations q
             LEFT JOIN leads l ON q.lead_id = l.id
             LEFT JOIN clients c ON q.client_id = c.id
+            LEFT JOIN invoices di ON di.quotation_id = q.id
             ORDER BY q.created_at DESC
         `);
         res.json(rows);
@@ -39,19 +50,24 @@ export const getQuotations = async (req, res) => {
 export const getQuotationById = async (req, res) => {
     const { id } = req.params;
     if (!isUuid(id)) return res.status(400).json({ error: 'Invalid ID' });
-    
+
     try {
         const { rows } = await pool.query(`
-            SELECT q.*, 
-                   l.full_name as lead_name, 
+            SELECT q.*,
+                   l.full_name as lead_name,
                    l.email as lead_email,
-                   c.name as client_name
+                   c.name as client_name,
+                   di.id AS deposit_invoice_id,
+                   di.invoice_number AS deposit_invoice_number,
+                   di.status AS deposit_invoice_status,
+                   di.amount AS deposit_invoice_amount
             FROM quotations q
             LEFT JOIN leads l ON q.lead_id = l.id
             LEFT JOIN clients c ON q.client_id = c.id
+            LEFT JOIN invoices di ON di.quotation_id = q.id
             WHERE q.id = $1
         `, [id]);
-        
+
         if (rows.length === 0) return res.status(404).json({ error: 'Quotation not found' });
         res.json(rows[0]);
     } catch (err) {
@@ -70,12 +86,12 @@ export const createQuotation = async (req, res) => {
         }
         throw err;
     }
-    const { lead_id, client_id, title, amount, line_items, notes, valid_until } = parsed;
+    const { lead_id, client_id, title, amount, line_items, notes, valid_until, currency, deposit_percent } = parsed;
 
     try {
         const { rows } = await pool.query(`
-            INSERT INTO quotations (lead_id, client_id, title, amount, line_items, notes, valid_until, status)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, 'DRAFT')
+            INSERT INTO quotations (lead_id, client_id, title, amount, line_items, notes, valid_until, status, currency, deposit_percent)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, 'DRAFT', $8, $9)
             RETURNING *
         `, [
             isUuid(lead_id) ? lead_id : null,
@@ -84,7 +100,9 @@ export const createQuotation = async (req, res) => {
             amount,
             JSON.stringify(line_items || []),
             notes || '',
-            valid_until || null
+            valid_until || null,
+            (currency || 'NGN').toUpperCase(),
+            deposit_percent ?? 50
         ]);
 
         // Auto-update lead stage if applicable
@@ -102,22 +120,45 @@ export const createQuotation = async (req, res) => {
 export const updateQuotationStatus = async (req, res) => {
     const { id } = req.params;
     const { status } = req.body;
-    
+
     if (!isUuid(id)) return res.status(400).json({ error: 'Invalid ID' });
     if (!['DRAFT', 'SENT', 'ACCEPTED', 'REJECTED', 'CONVERTED'].includes(status)) {
         return res.status(400).json({ error: 'Invalid status' });
     }
-    
+
     try {
         const { rows } = await pool.query(`
-            UPDATE quotations 
-            SET status = $1, updated_at = NOW() 
-            WHERE id = $2 
+            UPDATE quotations
+            SET status = $1, updated_at = NOW()
+            WHERE id = $2
             RETURNING *
         `, [status, id]);
-        
+
         if (rows.length === 0) return res.status(404).json({ error: 'Quotation not found' });
-        
+
+        // Admin OS Phase 2 — acceptance kicks off the automation
+        // chain (client link-up, WON lead, deposit invoice, email).
+        // Idempotent: re-accepting an already-processed quote is a
+        // no-op. A chain failure never blocks the status change.
+        let chain = null;
+        if (status === 'ACCEPTED') {
+            chain = await onQuotationAccepted({
+                quotationId: id,
+                user: req.user,
+                ipAddress: getClientIp(req),
+            });
+            if (!chain.ok && chain.reason === 'no_client') {
+                return res.json({
+                    ...rows[0],
+                    chain,
+                    warning: 'Quotation accepted, but no client is linked and no lead is attached — link a client to generate the deposit invoice.',
+                });
+            }
+            // Reload — the chain links client_id / accepted_at.
+            const refreshed = await pool.query(`SELECT * FROM quotations WHERE id = $1`, [id]);
+            return res.json({ ...(refreshed.rows[0] || rows[0]), chain });
+        }
+
         res.json(rows[0]);
     } catch (err) {
         console.error('[Quotations] updateQuotationStatus error:', err.message);

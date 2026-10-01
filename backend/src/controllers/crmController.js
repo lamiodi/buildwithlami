@@ -93,7 +93,7 @@ export async function ensureOnboardingProject(client, division, txClient) {
              client_id, project_name, status, division, payment_status,
              offboarding_status, offboarding_checklist, notes, tracking_id
          ) VALUES (
-             $1, $2, 'WON', $3, 'PENDING',
+             $1, $2, 'PLANNING', $3, 'PENDING',
              'IN_PROGRESS', $4::jsonb, $5,
              encode(gen_random_bytes(16), 'hex')
          ) RETURNING *`,

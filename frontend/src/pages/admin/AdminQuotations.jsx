@@ -304,6 +304,9 @@ export default function AdminQuotations() {
                 title: form.title,
                 currency: form.currency,
                 amount: totalFormAmount,
+                // Studio standard is 50/50 — the backend uses this to
+                // auto-generate the deposit invoice on acceptance.
+                deposit_percent: 50,
                 client_id: form.recipientType === 'client' ? (form.client_id || undefined) : undefined,
                 lead_id: form.recipientType === 'lead' ? (form.lead_id || undefined) : undefined,
                 line_items: form.line_items
@@ -342,10 +345,29 @@ export default function AdminQuotations() {
     const updateStatus = async (id, status) => {
         const res = await api.patch(`/quotations/${id}/status`, { status });
         if (res.ok) {
-            notify.success(`Status updated to ${status}`);
+            if (status === 'ACCEPTED') {
+                // Phase 2 chain — the backend ran the acceptance
+                // automation; surface exactly what happened.
+                const chain = res.data?.chain;
+                if (res.data?.warning) {
+                    notify.warn(res.data.warning);
+                } else if (chain?.ok && chain.invoiceNumber) {
+                    notify.success(
+                        chain.alreadyRan
+                            ? `Already processed — deposit invoice ${chain.invoiceNumber} exists.`
+                            : `Accepted ✅ Client linked, deposit invoice ${chain.invoiceNumber} (${chain.currency} ${Number(chain.invoiceAmount || 0).toLocaleString()}) created & emailed.`
+                    );
+                } else if (chain?.ok) {
+                    notify.success('Quotation accepted (no deposit invoice required).');
+                } else {
+                    notify.success('Quotation accepted.');
+                }
+            } else {
+                notify.success(`Status updated to ${status}`);
+            }
             fetchQuotations();
-            if (previewQuotation && previewQuotation.id === id) {
-                setPreviewQuotation({ ...previewQuotation, status });
+            if (previewQuotation && previewQuotation.id === id && res.data) {
+                setPreviewQuotation({ ...previewQuotation, ...res.data });
             }
         } else {
             notify.error(res.error || 'Failed to update status');
@@ -500,8 +522,19 @@ export default function AdminQuotations() {
                                                 {currencySymbol(q.currency)}{total.toLocaleString()}
                                             </td>
                                             <td className="p-4 text-xs font-mono">
-                                                <span className="text-emerald-600 dark:text-emerald-400 font-bold block">50%: {currencySymbol(q.currency)}{deposit.toLocaleString()}</span>
-                                                <span className="text-gray-400 text-[10px]">upon delivery</span>
+                                                {q.deposit_invoice_number ? (
+                                                    <>
+                                                        <span className={`font-bold block ${q.deposit_invoice_status === 'PAID' ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'}`}>
+                                                            {q.deposit_invoice_number} · {q.deposit_invoice_status}
+                                                        </span>
+                                                        <span className="text-gray-400 text-[10px]">{currencySymbol(q.currency)}{Number(q.deposit_invoice_amount || 0).toLocaleString()} deposit</span>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <span className="text-emerald-600 dark:text-emerald-400 font-bold block">50%: {currencySymbol(q.currency)}{deposit.toLocaleString()}</span>
+                                                        <span className="text-gray-400 text-[10px]">upon delivery</span>
+                                                    </>
+                                                )}
                                             </td>
                                             <td className="p-4">
                                                 <span className={`px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider ${

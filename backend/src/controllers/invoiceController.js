@@ -5,6 +5,7 @@ import { writeAuditLog, getClientIp } from '../utils/auditLog.js';
 import { SUPPORTED_CURRENCIES } from '../utils/fx.js';
 import { sendInvoiceEmail } from './paymentController.js';
 import { confirmManualPayment } from '../utils/paymentConfirmation.js';
+import { onInvoicePaid } from '../services/automationService.js';
 
 const invoiceSchema = z.object({
     clientId: z.string().uuid(),
@@ -316,7 +317,20 @@ export const markInvoicePaid = async (req, res) => {
         if (!result.ok) {
             return res.status(meta.http).json({ error: meta.message, reason: result.reason });
         }
-        return res.status(meta.http).json({ invoice: result.invoice, message: meta.message });
+
+        // Admin OS Phase 2 — a first-time PAID flip fires the
+        // deposit automation chain (idempotent; never throws).
+        let chain = null;
+        if (result.reason === 'paid') {
+            chain = await onInvoicePaid({
+                invoiceId: id,
+                via: body.paidVia || 'MANUAL_ADMIN',
+                user: req.user,
+                ipAddress: getClientIp(req),
+            });
+        }
+
+        return res.status(meta.http).json({ invoice: result.invoice, message: meta.message, chain });
     } catch (err) {
         console.error('[Invoices] markInvoicePaid error:', err.message);
         res.status(500).json({ error: 'Internal server error' });
@@ -399,7 +413,7 @@ export const paystackWebhook = async (req, res) => {
             if (!invoice.project_id) {
                 const projRes = await pool.query(`
                     INSERT INTO client_projects (client_id, project_name, status, division, payment_status, offboarding_status, tracking_id)
-                    VALUES ($1, $2, 'ACTIVE', 'SOFTWARE', 'PAID', 'PENDING', encode(gen_random_bytes(16), 'hex'))
+                    VALUES ($1, $2, 'PLANNING', 'SOFTWARE', 'PAID', 'PENDING', encode(gen_random_bytes(16), 'hex'))
                     RETURNING id
                 `, [invoice.client_id, `Project for ${invoice.invoice_number}`]);
 
@@ -435,6 +449,10 @@ export const paystackWebhook = async (req, res) => {
                     [newStatus, invoice.project_id]
                 );
             }
+
+            // Admin OS Phase 2 — deposit invoices trigger the
+            // onboarding chain on server-verified payment.
+            await onInvoicePaid({ invoiceId: invoice.id, via: 'PAYSTACK' });
         }
 
         res.sendStatus(200);

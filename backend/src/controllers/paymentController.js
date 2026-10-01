@@ -22,6 +22,7 @@ import {
 } from '../services/paymentEmailService.js';
 import { uploadToCloudinary } from '../services/cloudinaryService.js';
 import { SUPPORTED_CURRENCIES } from '../utils/fx.js';
+import { onInvoicePaid } from '../services/automationService.js';
 
 // ── PUBLIC ──────────────────────────────────────────────
 
@@ -309,7 +310,7 @@ export const reviewProof = async (req, res) => {
                 if (updatedInvoice && !updatedInvoice.project_id) {
                     const projRes = await client.query(`
                         INSERT INTO client_projects (client_id, project_name, status, division, payment_status, offboarding_status, tracking_id)
-                        VALUES ($1, $2, 'ACTIVE', 'SOFTWARE', 'PAID', 'PENDING', encode(gen_random_bytes(16), 'hex'))
+                        VALUES ($1, $2, 'PLANNING', 'SOFTWARE', 'PAID', 'PENDING', encode(gen_random_bytes(16), 'hex'))
                         RETURNING id
                     `, [updatedInvoice.client_id, `Project for ${updatedInvoice.invoice_number}`]);
 
@@ -350,6 +351,15 @@ export const reviewProof = async (req, res) => {
                 amount: row.amount_paid,
                 currency: row.currency,
             }).catch(err => console.error('[Payments] confirmed-email failed:', err.message));
+
+            // Admin OS Phase 2 — deposit invoices trigger the
+            // onboarding chain on this server-verified confirm.
+            await onInvoicePaid({
+                invoiceId: row.invoice_id,
+                via: 'BANK_TRANSFER',
+                user: req.user,
+                ipAddress: getClientIp(req),
+            });
         }
 
         res.json({

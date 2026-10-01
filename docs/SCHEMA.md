@@ -886,3 +886,29 @@ Social handles per client (Instagram-first, blueprint §76).
 **New API surface:** `/api/tasks`, `/api/client-actions`, `/api/onboarding` (admin, Owner-gated);
 `/api/client-portal/{actions,onboarding}` (portal, client JWT);
 `GET /api/dashboard/command-center` (Tonight Queue / Waiting on Client / Needs Attention / Next Actions).
+
+---
+
+## 16. Admin OS Phase 2 (v48) — Quote → Deposit → Onboarding chain
+
+`v48_quote_deposit_automation.sql` wires the blueprint §25/§58 automation chain.
+
+### New columns
+
+| Table | Columns |
+|---|---|
+| `quotations` | `currency` CHAR(3) NOT NULL DEFAULT `'NGN'`, `deposit_percent` INT NOT NULL DEFAULT 50 (0–100, CHECK), `accepted_at` TIMESTAMPTZ? |
+| `invoices` | `quotation_id` UUID? FK → `quotations.id` ON DELETE SET NULL |
+
+**New index:** `idx_quotations_status`; **partial unique** `uq_invoices_per_quotation` on `invoices(quotation_id) WHERE quotation_id IS NOT NULL` — a quotation can have at most ONE invoice, which is the database-level idempotency guarantee for the auto-created deposit invoice (blueprint §89).
+
+### Automation service (`src/services/automationService.js`)
+
+- **`onQuotationAccepted({ quotationId })`** — fired by `PATCH /api/quotations/:id/status` → ACCEPTED: creates/links the client (from the lead), marks the lead WON, ensures a PLANNING project, generates the deposit invoice (`amount × deposit_percent`, INV-YYYY-NNN, Paystack link for NGN, invoice email), audits `QUOTATION_ACCEPTED`, notifies the admin (deduped). Response includes a `chain` summary + a `warning` when no client/lead is attached.
+- **`onInvoicePaid({ invoiceId, via })`** — fired from all three server-verified PAID paths (Paystack webhook, manual `confirmManualPayment`, proof review) but acts only on deposit invoices (`quotation_id IS NOT NULL`): activates the client, creates the onboarding (project type inferred from the quotation title/line items) + invite email, creates two starter client actions, sets the project's next action, audits `DEPOSIT_PAID_CHAIN`, notifies the admin (deduped via `notification_dedup`, 30-day window).
+- Both are idempotent and never throw; failures are audited as `AUTOMATION_FAILED`.
+
+### Related fixes surfaced by the chain's E2E test
+
+- `client_projects.status` CHECK only allows `PLANNING|IN_PROGRESS|REVIEW|LAUNCHED|MAINTENANCE|ARCHIVED` — the lead-conversion project insert (`'WON'`) and the payment project spin-ups (`'ACTIVE'`) in crmController/invoiceController/paymentController were latent constraint violations; all now insert `'PLANNING'`.
+- `ensureOnboardingForClient` no longer aborts when the invite email fails (SMTP outage → `emailStatus: 'failed'`, onboarding still created).
