@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { api } from '../../services/api';
+import { notify } from '../../services/notify';
 
 const DIVISION_META = {
     SOFTWARE: { label: 'Software', tone: 'blue', accent: '#3b82f6' },
@@ -145,7 +146,11 @@ const AdminPortfolio = ({ lockedDivision }) => {
     const galleryInputRef = useRef(null);
     const [searchParams, setSearchParams] = useSearchParams();
 
-    const triggerToast = (msg) => {
+    const triggerToast = (msg, kind = 'success') => {
+        if (kind === 'error') {
+            notify.error(msg);
+            return;
+        }
         setSuccessMessage(msg);
         setTimeout(() => setSuccessMessage(null), 4000);
     };
@@ -232,7 +237,7 @@ const AdminPortfolio = ({ lockedDivision }) => {
             updateField('image_url', url);
             triggerToast('Primary image uploaded successfully!');
         } catch (err) {
-            alert('Failed to upload image: ' + err.message);
+            triggerToast('Failed to upload image: ' + err.message, 'error');
         } finally {
             setUploading(false);
             if (primaryFileInputRef.current) primaryFileInputRef.current.value = '';
@@ -263,7 +268,7 @@ const AdminPortfolio = ({ lockedDivision }) => {
             triggerToast(`Added ${successes.length} image(s) to gallery!`);
         }
         if (failures.length > 0) {
-            alert(`Failed to upload ${failures.length} file(s): ${failures.join(', ')}`);
+            triggerToast(`Failed to upload ${failures.length} file(s): ${failures.join(', ')}`, 'error');
         }
         setGalleryUploading(false);
         if (galleryInputRef.current) galleryInputRef.current.value = '';
@@ -317,7 +322,7 @@ const AdminPortfolio = ({ lockedDivision }) => {
     const handleSave = async (e) => {
         e.preventDefault();
         if (!formData.title || !formData.slug) {
-            alert('Title and slug fields are required');
+            triggerToast('Title and slug fields are required', 'error');
             return;
         }
 
@@ -374,7 +379,7 @@ const AdminPortfolio = ({ lockedDivision }) => {
             setIsEditModalOpen(false);
             triggerToast(editingProject ? 'Project updated successfully!' : 'Project created successfully!');
         } catch (err) {
-            alert(err.message);
+            triggerToast(err.message, 'error');
         }
     };
 
@@ -386,7 +391,7 @@ const AdminPortfolio = ({ lockedDivision }) => {
             setApiProjects((prev) => prev.filter((p) => p.id !== id));
             triggerToast('Project deleted.');
         } catch (err) {
-            alert(err.message);
+            triggerToast(err.message, 'error');
         }
     };
 

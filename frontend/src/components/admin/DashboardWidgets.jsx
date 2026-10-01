@@ -6,7 +6,7 @@
 // query doesn't block the user from seeing the rest of the page.
 // ──────────────────────────────────────────────────────────
 
-import React, { useState, useEffect, useMemo, Suspense, lazy } from 'react';
+import React, { useState, useEffect, useMemo, lazy } from 'react';
 import { motion } from 'framer-motion';
 import { api } from '../../services/api';
 import Skeleton from '../Skeleton';
@@ -54,30 +54,6 @@ export const StatCard = ({ label, value, hint, icon: IconComp, accent = 'blue', 
 };
 
 
-// ── Independent Stat Widget: fetches its own data ────────
-export const LazyStatCard = ({ label, endpoint, hint, icon, accent, transform, isCurrency }) => {
-    const [value, setValue] = useState(null);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        let cancelled = false;
-        const load = async () => {
-            const res = await api.get(endpoint);
-            if (cancelled) return;
-            if (res.ok) {
-                const v = transform ? transform(res.data) : res.data;
-                setValue(v);
-            }
-            setLoading(false);
-        };
-        load();
-        return () => { cancelled = true; };
-    }, [endpoint, transform]);
-
-    if (loading) return <WidgetSkeleton height="h-32" lines={2} />;
-    return <StatCard label={label} value={value} hint={hint} icon={icon} accent={accent} isCurrency={isCurrency} />;
-};
-
 // ── Time-of-day greeting (deterministic from the local hour) ──
 export const useGreeting = () => {
     return useMemo(() => {
@@ -119,8 +95,3 @@ export const RecentFeedback = lazy(() => import('./widgets/RecentFeedback'));
 export const RecentInvoices = lazy(() => import('./widgets/RecentInvoices'));
 export const ProjectsByStage = lazy(() => import('./widgets/ProjectsByStage'));
 export const ActivityFeed = lazy(() => import('./widgets/ActivityFeed'));
-
-// ── Suspense boundary for the whole dashboard ────────────
-export const WidgetSuspense = ({ children, fallback = <WidgetSkeleton /> }) => (
-    <Suspense fallback={fallback}>{children}</Suspense>
-);

@@ -5,6 +5,7 @@ import { api } from '../../services/api';
 import { notify } from '../../services/notify';
 import { FRONTEND_URL } from '../../config/frontend.js';
 import { ActionIcon } from '../../data/adminIcons.jsx';
+import { formatNaira } from '../../utils/currency';
 const DEFAULT_STAGES = [
   { name: 'Discovery & Planning', status: 'PENDING' },
   { name: 'Design & Mockups', status: 'PENDING' },
@@ -31,7 +32,6 @@ const AdminClientProjects = () => {
   const [projects, setProjects] = useState([]);
   const [templates, setTemplates] = useState([]);
   const [clients, setClients] = useState([]);
-  const [archiveAsCompleted, setArchiveAsCompleted] = useState(false);
   const [formData, setFormData] = useState({
     client_id: '', project_name: '', progress: 0, status: 'PLANNING',
     notes: '',
@@ -87,28 +87,7 @@ const AdminClientProjects = () => {
     }));
   };
 
-  const handleArchiveAsCompleted = (checked) => {
-    setArchiveAsCompleted(checked);
-    if (checked) {
-      const completedStages = DEFAULT_STAGES.map(s => ({ ...s, status: 'COMPLETED' }));
-      setFormData(prev => ({
-        ...prev,
-        stages: completedStages,
-        progress: 100,
-        status: 'ARCHIVED',
-      }));
-    } else {
-      setFormData(prev => ({
-        ...prev,
-        stages: DEFAULT_STAGES,
-        progress: 0,
-        status: 'PLANNING',
-      }));
-    }
-  };
-
   const resetForm = () => {
-    setArchiveAsCompleted(false);
     return {
       client_id: '', project_name: '', progress: 0, status: 'PLANNING',
       notes: '',
@@ -201,6 +180,8 @@ const AdminClientProjects = () => {
     const url = `${FRONTEND_URL}/track/${p.tracking_id}`;
     navigator.clipboard.writeText(url).then(() => {
       notify.success('Magic link copied to clipboard!');
+    }).catch(() => {
+      notify.error('Could not copy — clipboard unavailable');
     });
   };
 
@@ -598,7 +579,7 @@ const AdminClientProjects = () => {
                       )}
                       <div className="bg-gray-50 dark:bg-gray-900 p-3 rounded-xl">
                         <span className="block text-[10px] uppercase tracking-wider font-bold mb-1">Amount Due</span>
-                        <span className="font-bold font-mono text-red-600 dark:text-red-400">₦{Number(p.amount_due || 0).toLocaleString()}</span>
+                        <span className="font-bold font-mono text-red-600 dark:text-red-400">{formatNaira(p.amount_due)}</span>
                       </div>
                       {p.intake_form_id && (
                         <div className={`p-3 rounded-xl ${p.intake_completed ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'}`}>

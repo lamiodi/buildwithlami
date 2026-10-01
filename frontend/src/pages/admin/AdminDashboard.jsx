@@ -18,7 +18,8 @@ import {
 } from '../../components/admin/DashboardWidgets';
 
 // Simple Naira formatter (stored amounts are already in NGN in the DB).
-const formatCurrency = (n) => `₦${Number(n || 0).toLocaleString()}`;
+import { formatNaira as formatCurrency } from '../../utils/currency';
+import { useGreeting } from '../../components/admin/DashboardWidgets';
 
 // ── Icon aliases ──────────────────────────────────────────
 const Icon = {
@@ -27,7 +28,6 @@ const Icon = {
     Rocket: DashboardIcon.Rocket,
     Money: DashboardIcon.Money,
     Check: ActionIcon.Check,
-    Chat: DashboardIcon.Chat,
     Alert: DashboardIcon.AlertTriangle,
     Clock: DashboardIcon.Clock,
     Plus: ActionIcon.Plus,
@@ -43,18 +43,6 @@ const Icon = {
     BarChart: CoreIcon.BarChart,
     Kanban: CoreIcon.Kanban,
     FileText: CoreIcon.FileText,
-};
-
-// ── Time-of-day greeting (deterministic from the local hour) ──
-const useGreeting = () => {
-    return useMemo(() => {
-        const h = new Date().getHours();
-        if (h < 5) return 'Working late';
-        if (h < 12) return 'Good morning';
-        if (h < 17) return 'Good afternoon';
-        if (h < 22) return 'Good evening';
-        return 'Working late';
-    }, []);
 };
 
 const AdminDashboard = () => {
@@ -110,27 +98,6 @@ const AdminDashboard = () => {
         return allInvoices.filter(i => (i.division || 'SOFTWARE').toUpperCase() === selectedDivision);
     }, [allInvoices, selectedDivision]);
 
-    // Count for each smart-view chip. Must run on every render, even before
-    // data arrives (yields zeros in that case) — that's why it's a hook.
-    const smartViewCounts = useMemo(() => {
-        const c = { all: projects.length, active: 0, launched: 0, stalled: 0, overdue: 0, thisweek: 0 };
-        for (const p of projects) {
-            if (!['LAUNCHED', 'MAINTENANCE', 'ARCHIVED'].includes(p.status)) c.active++;
-            if (p.status === 'LAUNCHED' || p.status === 'MAINTENANCE') c.launched++;
-            const updated = p.updated_at ? new Date(p.updated_at).getTime() : 0;
-            if (updated && (nowMs - updated) > 30 * 24 * 60 * 60 * 1000 &&
-                !['LAUNCHED', 'ARCHIVED'].includes(p.status)) c.stalled++;
-            const owed = Number(p.amount_due || 0);
-            const overdueInv = invoices.find(
-                (i) => i.project_id === p.id && i.status === 'PENDING' && i.due_date && new Date(i.due_date) < now
-            );
-            if (owed > 0 || overdueInv) c.overdue++;
-            const created = p.created_at ? new Date(p.created_at).getTime() : 0;
-            if (created && (nowMs - created) <= sevenDays) c.thisweek++;
-        }
-        return c;
-    }, [projects, invoices, nowMs]);
-
     // Monthly Revenue for Chart
     const monthlyRevenue = useMemo(() => {
         const months = {};
@@ -180,7 +147,6 @@ const AdminDashboard = () => {
         );
     }
 
-    const stats = data.stats;
     const recentFeedback = [...feedback].sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 5);
     const recentInvoices = [...invoices].sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 5);
     const openFeedback = feedback.filter(f => f.status === 'OPEN');
@@ -212,8 +178,10 @@ const AdminDashboard = () => {
 
     // ── Smart view filter ──────────────────────────────
     // One-click filters that surface the work the admin actually came here to do.
-    const matchesSmartView = (p) => {
-        switch (smartView) {
+    // Takes the view as a parameter so the counts below are computed by the
+    // SAME predicate that filters the list — one definition, no drift.
+    const matchesSmartView = (p, view = smartView) => {
+        switch (view) {
             case 'all':
                 return true;
             case 'active':
@@ -242,10 +210,20 @@ const AdminDashboard = () => {
         }
     };
 
+    // Count for each smart-view chip — computed by the same predicate
+    // that filters the list, so the badges can never disagree with it.
+    const smartViewCounts = useMemo(() => {
+        const c = { all: projects.length };
+        for (const key of ['active', 'launched', 'stalled', 'overdue', 'thisweek']) {
+            c[key] = projects.filter((p) => matchesSmartView(p, key)).length;
+        }
+        return c;
+    }, [projects, invoices, nowMs, smartView]);
+
     // Client-side search + smart-view filter
     const q = search.trim().toLowerCase();
     const filteredProjects = projects
-        .filter(matchesSmartView)
+        .filter((p) => matchesSmartView(p))
         .filter((p) =>
             !q
                 ? true

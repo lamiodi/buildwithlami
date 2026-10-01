@@ -119,8 +119,9 @@ const AdminProjectDetail = () => {
   };
 
   const copyToClipboard = (text) => {
-    navigator.clipboard.writeText(text);
-    notify.success('Copied to clipboard');
+    navigator.clipboard.writeText(text)
+      .then(() => notify.success('Copied to clipboard'))
+      .catch(() => notify.error('Could not copy — clipboard unavailable'));
   };
 
   const handleCreateInvoice = async (e) => {

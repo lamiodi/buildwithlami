@@ -447,7 +447,7 @@ const TemplatePickerModal = ({ lead, templates, onClose, onSend }) => {
 };
 
 // ── Lead card ───────────────────────────────────────────
-const LeadCard = ({ lead, onClick, onDragStart, onDragEnd }) => {
+const LeadCard = ({ lead, onClick }) => {
     return (
         <motion.div
             layout
@@ -458,9 +458,7 @@ const LeadCard = ({ lead, onClick, onDragStart, onDragEnd }) => {
             onDragStart={(e) => {
                 e.dataTransfer.effectAllowed = 'move';
                 e.dataTransfer.setData('text/plain', lead.id);
-                onDragStart(lead.id);
             }}
-            onDragEnd={onDragEnd}
             onClick={() => onClick(lead)}
             className="bg-white dark:bg-[#1c1c1c] rounded-xl border border-gray-200 dark:border-white/5 p-3 cursor-grab active:cursor-grabbing hover:shadow-md transition-all group"
         >
@@ -485,7 +483,7 @@ const LeadCard = ({ lead, onClick, onDragStart, onDragEnd }) => {
 };
 
 // ── Column ──────────────────────────────────────────────
-const KanbanColumn = ({ stage, leads, onDrop, onCardClick, onDragStart, onDragEnd, draggingId }) => {
+const KanbanColumn = ({ stage, leads, onDrop, onCardClick }) => {
     const [isOver, setIsOver] = useState(false);
     const c = COLOR_CLASSES[stage.color] || COLOR_CLASSES.blue;
 
@@ -517,8 +515,6 @@ const KanbanColumn = ({ stage, leads, onDrop, onCardClick, onDragStart, onDragEn
                             key={lead.id}
                             lead={lead}
                             onClick={onCardClick}
-                            onDragStart={onDragStart}
-                            onDragEnd={onDragEnd}
                         />
                     ))}
                 </AnimatePresence>
@@ -613,7 +609,6 @@ const AdminCRM = () => {
     const [sourceFilter, setSourceFilter] = useState('all');
     const [selected, setSelected] = useState(null);
     const [showNewForm, setShowNewForm] = useState(false);
-    const [draggingId, setDraggingId] = useState(null);
     const [templates, setTemplates] = useState([]);
     const [searchParams, setSearchParams] = useSearchParams();
 
@@ -786,9 +781,6 @@ const AdminCRM = () => {
                                     leads={grouped[stage.id] || []}
                                     onDrop={handleDrop}
                                     onCardClick={setSelected}
-                                    onDragStart={setDraggingId}
-                                    onDragEnd={() => setDraggingId(null)}
-                                    draggingId={draggingId}
                                 />
                             ))}
                         </div>
@@ -804,8 +796,7 @@ const AdminCRM = () => {
                     onClose={() => setSelected(null)}
                     onUpdate={handleLeadUpdate}
                     onConvert={handleLeadConvert}
-                    onSendTemplate={() => {}}
-                    onGenerateQuotation={(quote) => {
+                    onGenerateQuotation={() => {
                         // Optimistically move lead to Proposal stage
                         handleDrop(selected.id, 'PROPOSAL');
                     }}

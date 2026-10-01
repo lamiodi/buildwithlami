@@ -58,13 +58,22 @@ const ICON_FOR_KEY = {
 const TodayWidget = () => {
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(false);
 
     useEffect(() => {
         let cancelled = false;
         const load = async () => {
+            // Don't poll from a hidden tab (matches NotificationBell) —
+            // the refresh on return keeps the widget roughly live anyway.
+            if (typeof document !== 'undefined' && document.visibilityState === 'hidden') return;
             const res = await api.get('/dashboard/today', { timeout: 7000 });
             if (cancelled) return;
-            if (res.ok && res.data) setData(res.data);
+            if (res.ok && res.data) {
+                setData(res.data);
+                setError(false);
+            } else {
+                setError(true);
+            }
             setLoading(false);
         };
         load();
@@ -83,7 +92,15 @@ const TodayWidget = () => {
         );
     }
 
-    if (!data) return null;
+    // Failed load: say so instead of silently unmounting.
+    if (!data) {
+        if (!error) return null;
+        return (
+            <div className="mb-6 px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#111] text-xs text-gray-500 dark:text-gray-400">
+                Today's snapshot is unavailable right now.
+            </div>
+        );
+    }
 
     const items = Object.entries(METRIC_CONFIG)
         .map(([key, cfg]) => {

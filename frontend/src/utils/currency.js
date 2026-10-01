@@ -57,3 +57,11 @@ export const useAutomatedCurrency = () => {
 
   return currency;
 };
+
+/**
+ * Shared naira formatter for admin surfaces. One implementation instead
+ * of per-page copies (Dashboard, Reports, ClientProjects each carried
+ * their own). Currency-aware pages (Invoices, Contracts) keep their
+ * multi-currency Intl wrappers.
+ */
+export const formatNaira = (n) => `₦${Number(n || 0).toLocaleString()}`;

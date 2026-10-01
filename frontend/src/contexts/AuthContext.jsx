@@ -295,24 +295,3 @@ export function useAuth() {
     }
     return ctx;
 }
-
-/**
- * Lightweight guard for routes that should only be visible to
- * the Owner (e.g. the 2FA setup page itself, or the role editor).
- * Renders `children` when the current user is the Owner; otherwise
- * silently swaps to a "forbidden" stub so non-Owners don't see a
- * flash of admin-only UI.
- *
- * Buildwith_lami is a one-man studio — the Owner role is the only
- * admin role after v38_simplify_roles. We intentionally do NOT
- * accept the legacy 'Administrator' label here; any stale token
- * holding that role is normalised to 'Owner' by the auth middleware
- * before it reaches the frontend, so this branch is the only
- * one we need.
- */
-export function OwnerOnly({ children, fallback = null }) {
-    const { user } = useAuth();
-    if (!user) return fallback;
-    if (user.role !== 'Owner') return fallback;
-    return children;
-}

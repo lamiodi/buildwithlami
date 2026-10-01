@@ -16,7 +16,7 @@ import {
   Mail,
   ArrowRight
 } from 'lucide-react';
-import { getAuthToken, clearAuth, getAuthUser } from '../services/auth';
+import { useAuth } from '../contexts/AuthContext';
 import { CONTACT } from '../config/contact';
 
 const NAV_LINKS = [
@@ -31,8 +31,12 @@ const Navbar = ({ isDark, toggleTheme }) => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const isLoggedIn = !!getAuthToken();
-  const user = getAuthUser();
+  // Live auth state from the context. The old check read the deprecated
+  // services/auth helpers, whose token getter hard-returns null now that
+  // tokens live in cookies/localStorage under AuthContext — so the
+  // logged-in branch of this navbar could never render.
+  const { user, logout } = useAuth();
+  const isLoggedIn = !!user;
 
   // Close mobile menu whenever the route changes
   useEffect(() => {
@@ -56,8 +60,8 @@ const Navbar = ({ isDark, toggleTheme }) => {
 
   const closeMenu = () => setIsOpen(false);
 
-  const handleLogout = () => {
-    clearAuth();
+  const handleLogout = async () => {
+    await logout();
     closeMenu();
     navigate('/');
   };

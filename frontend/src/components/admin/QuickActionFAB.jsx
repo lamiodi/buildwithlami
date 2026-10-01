@@ -52,13 +52,16 @@ const QuickActionFAB = () => {
 
     // Keyboard + outside-click listeners stay mounted for the
     // lifetime of the component; gating happens inside the
-    // handlers. Single effect → no listener re-attach churn.
+    // handlers via openRef. Single effect → no listener re-attach churn.
+    const openRef = useRef(open);
+    useEffect(() => { openRef.current = open; }, [open]);
+
     useEffect(() => {
         const onClick = (e) => {
-            if (open && ref.current && !ref.current.contains(e.target)) setOpen(false);
+            if (openRef.current && ref.current && !ref.current.contains(e.target)) setOpen(false);
         };
         const onKey = (e) => {
-            if (e.key === 'Escape' && open) {
+            if (e.key === 'Escape' && openRef.current) {
                 setOpen(false);
                 return;
             }
@@ -74,7 +77,7 @@ const QuickActionFAB = () => {
             document.removeEventListener('mousedown', onClick);
             document.removeEventListener('keydown', onKey);
         };
-    }, [open]);
+    }, []);
 
     const go = (to) => {
         setOpen(false);

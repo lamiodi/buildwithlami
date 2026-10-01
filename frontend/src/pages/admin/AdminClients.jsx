@@ -13,7 +13,7 @@ const AdminClients = () => {
   const [error, setError] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [divisionFilter, setDivisionFilter] = useState(() => {
-    const ws = (localStorage.getItem('bwl:admin:workspace') || localStorage.getItem('admin_workspace') || '').toUpperCase();
+    const ws = (localStorage.getItem('bwl:admin:workspace') || '').toUpperCase();
     return ['SOFTWARE', 'SURVEY', 'DRONE'].includes(ws) ? ws : 'all';
   });
   const fetchClients = async () => {
@@ -57,12 +57,12 @@ const AdminClients = () => {
     
     // Validate required fields
     if (!formData.name.trim()) {
-      alert('Name is required');
+      notify.error('Name is required');
       return;
     }
     
     if (!formData.primary_contact_email.trim()) {
-      alert('Primary contact email is required');
+      notify.error('Primary contact email is required');
       return;
     }
     

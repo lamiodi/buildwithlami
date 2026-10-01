@@ -32,7 +32,6 @@ const SessionTimeoutModal = () => {
     const { tokenExpiresAt, extendSession, logout, user } = useAuth();
     const [now, setNow] = useState(() => Date.now());
     const [extending, setExtending] = useState(false);
-    const lastTokenRef = useRef(tokenExpiresAt);
 
     // Tick once per second so the countdown stays live.
     useEffect(() => {

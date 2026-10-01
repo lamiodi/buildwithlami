@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { api } from '../../services/api';
@@ -20,10 +20,10 @@ const Icon = {
 
 const CATEGORIES = [
     { key: 'leads',      label: 'Leads',      icon: Icon.Lead,      path: (item) => `/admin/crm` },
-    { key: 'clients',    label: 'Clients',    icon: Icon.Client,    path: (item) => `/admin/clients?focus=${item.id}` },
+    { key: 'clients',    label: 'Clients',    icon: Icon.Client,    path: (item) => `/admin/clients` },
     { key: 'projects',   label: 'Projects',   icon: Icon.Project,   path: (item) => `/admin/projects/${item.id}` },
     { key: 'quotations', label: 'Quotations', icon: Icon.Quotation, path: (item) => `/admin/quotations` },
-    { key: 'invoices',   label: 'Invoices',   icon: Icon.Invoice,   path: (item) => `/admin/invoices?focus=${item.id}` },
+    { key: 'invoices',   label: 'Invoices',   icon: Icon.Invoice,   path: (item) => `/admin/invoices` },
     { key: 'contracts',  label: 'Contracts',  icon: Icon.Contract,  path: (item) => `/admin/contracts` },
     { key: 'bookings',   label: 'Bookings',   icon: Icon.Booking,   path: (item) => item.division === 'DRONE' ? `/admin/drone/bookings` : `/admin/survey/bookings` },
     { key: 'expenses',   label: 'Expenses',   icon: Icon.Expense,   path: (item) => `/admin/expenses` },
@@ -104,7 +104,13 @@ const GlobalSearch = () => {
             // Focus trap: keep Tab/Shift+Tab cycling inside the
             // dialog so keyboard users can't escape into the page
             // underneath (where there's an invisible modal layer).
+            // Esc closes — the on-screen ESC hint promised it.
             const onKeyDown = (e) => {
+                if (e.key === 'Escape') {
+                    e.preventDefault();
+                    setOpen(false);
+                    return;
+                }
                 if (e.key !== 'Tab') return;
                 const dialog = document.getElementById('global-search-dialog');
                 if (!dialog) return;
@@ -261,6 +267,10 @@ const GlobalSearch = () => {
                                                     // O(1) lookup using the precomputed map.
                                                     const flatIdx = flat.flatIdxById[`${cat.key}-${item.id}`];
                                                     const isActive = flatIdx === activeIdx;
+                                                    // Same label chain the flat/keyboard list uses,
+                                                    // so Enter-navigation and the visible rows
+                                                    // describe the same data.
+                                                    const row = flat.list[flatIdx];
                                                     return (
                                                         <button
                                                             key={item.id}
@@ -270,13 +280,10 @@ const GlobalSearch = () => {
                                                         >
                                                             <span className="flex-1 min-w-0">
                                                                 <span className="font-bold truncate block">
-                                                                    {item.name || item.project_name || item.author_name || item.email}
+                                                                    {row?.primary || 'Item'}
                                                                 </span>
-                                                                {item.email && (
-                                                                    <span className="text-[11px] text-gray-500 dark:text-gray-400 truncate block">{item.email}</span>
-                                                                )}
-                                                                {item.status && (
-                                                                    <span className="text-[10px] font-extrabold uppercase tracking-widest text-gray-500">{item.status}</span>
+                                                                {row?.secondary && (
+                                                                    <span className="text-[11px] text-gray-500 dark:text-gray-400 truncate block">{row.secondary}</span>
                                                                 )}
                                                             </span>
                                                             <span className="text-[10px] text-gray-400">↵</span>

@@ -5,7 +5,7 @@ import { notify } from '../../services/notify';
 import { toCSV, downloadCSV } from '../../utils/csv.jsx';
 import { ActionIcon, DashboardIcon, NavIcon, CoreIcon } from '../../data/adminIcons.jsx';
 
-const formatCurrency = (n) => `₦${Number(n || 0).toLocaleString()}`;
+import { formatNaira as formatCurrency } from '../../utils/currency';
 
 const Icon = {
     Download: ActionIcon.Download,

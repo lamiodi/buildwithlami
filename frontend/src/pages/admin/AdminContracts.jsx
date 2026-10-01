@@ -7,16 +7,10 @@ import {
   Download,
   Search,
   X,
-  CheckCircle,
-  Clock,
-  User,
   Copy,
   Check,
   ShieldCheck,
   Eye,
-  FileText,
-  Briefcase,
-  Hash,
 } from 'lucide-react';
 import Skeleton from '../../components/Skeleton';
 import { notify } from '../../services/notify';
@@ -233,7 +227,7 @@ export default function AdminContracts() {
 
   const handleCopySigningLink = (token) => {
     const url = `${window.location.origin}/sign/${token}`;
-    navigator.clipboard.writeText(url);
+    navigator.clipboard.writeText(url).catch(() => notify.error('Could not copy — clipboard unavailable'));
     setCopiedToken(token);
     notify.success('Signing link copied to clipboard');
     setTimeout(() => setCopiedToken(null), 2500);

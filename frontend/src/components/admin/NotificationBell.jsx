@@ -153,7 +153,10 @@ const NotificationBell = () => {
                             exit={{ scale: 0 }}
                             className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-rose-500 text-white text-[10px] font-extrabold flex items-center justify-center shadow-md"
                         >
-                            {unread > 9 ? '9+' : unread}
+                            {/* Unread is derived from the latest POPUP_LIMIT items —
+                                cap the badge honestly at that limit rather than an
+                                unreachable "9+". */}
+                            {unread >= POPUP_LIMIT ? `${POPUP_LIMIT}+` : unread}
                         </motion.span>
                     )}
                 </AnimatePresence>

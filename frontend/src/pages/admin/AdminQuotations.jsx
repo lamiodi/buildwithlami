@@ -1,24 +1,18 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  FileText, 
-  Plus, 
-  Search, 
-  Printer, 
-  ArrowRight, 
-  X, 
-  Trash2, 
-  Building, 
+import {
+  FileText,
+  Plus,
+  Search,
+  Printer,
+  ArrowRight,
+  X,
+  Trash2,
+  Building,
   User,
   Sparkles,
-  Zap,
-  Layers,
-  Server,
-  Calculator,
-  CheckCircle2,
-  Sliders,
-  DollarSign
+  Calculator
 } from 'lucide-react';
 import { api } from '../../services/api';
 import { notify } from '../../services/notify';

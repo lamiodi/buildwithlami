@@ -260,11 +260,11 @@ const AdminHelp = () => {
                 <div className="mt-8 bg-gray-50 dark:bg-gray-900/40 rounded-2xl border border-gray-200 dark:border-gray-700 p-5 text-xs text-gray-600 dark:text-gray-400 font-body">
                     <p className="font-extrabold uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-2">More in /docs</p>
                     <ul className="space-y-1">
-                        <li>📄 <a href="https://github.com/EugeneOd/buildwithlami/blob/main/docs/README.md" target="_blank" rel="noreferrer" className="text-accent hover:underline">docs/README.md</a> — index of all docs</li>
-                        <li>🚀 <a href="https://github.com/EugeneOd/buildwithlami/blob/main/docs/DEPLOYMENT.md" target="_blank" rel="noreferrer" className="text-accent hover:underline">docs/DEPLOYMENT.md</a> — deploy + rollback</li>
-                        <li>💾 <a href="https://github.com/EugeneOd/buildwithlami/blob/main/docs/BACKUP.md" target="_blank" rel="noreferrer" className="text-accent hover:underline">docs/BACKUP.md</a> — backup + restore</li>
-                        <li>🔐 <a href="https://github.com/EugeneOd/buildwithlami/blob/main/docs/ENV_VARIABLES.md" target="_blank" rel="noreferrer" className="text-accent hover:underline">docs/ENV_VARIABLES.md</a> — every env var</li>
-                        <li>🆘 <a href="https://github.com/EugeneOd/buildwithlami/blob/main/docs/CEO_QUICK_REFERENCE.md" target="_blank" rel="noreferrer" className="text-accent hover:underline">docs/CEO_QUICK_REFERENCE.md</a> — emergency card (print me)</li>
+                        <li>📄 <a href="https://github.com/lamiodi/buildwithlami/blob/main/docs/README.md" target="_blank" rel="noreferrer" className="text-accent hover:underline">docs/README.md</a> — index of all docs</li>
+                        <li>🚀 <a href="https://github.com/lamiodi/buildwithlami/blob/main/docs/DEPLOYMENT.md" target="_blank" rel="noreferrer" className="text-accent hover:underline">docs/DEPLOYMENT.md</a> — deploy + rollback</li>
+                        <li>💾 <a href="https://github.com/lamiodi/buildwithlami/blob/main/docs/BACKUP.md" target="_blank" rel="noreferrer" className="text-accent hover:underline">docs/BACKUP.md</a> — backup + restore</li>
+                        <li>🔐 <a href="https://github.com/lamiodi/buildwithlami/blob/main/docs/ENV_VARIABLES.md" target="_blank" rel="noreferrer" className="text-accent hover:underline">docs/ENV_VARIABLES.md</a> — every env var</li>
+                        <li>🆘 <a href="https://github.com/lamiodi/buildwithlami/blob/main/docs/CEO_QUICK_REFERENCE.md" target="_blank" rel="noreferrer" className="text-accent hover:underline">docs/CEO_QUICK_REFERENCE.md</a> — emergency card (print me)</li>
                     </ul>
                 </div>
             </div>

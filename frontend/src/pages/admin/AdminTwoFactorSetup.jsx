@@ -20,7 +20,7 @@ import { useAuth } from '../../contexts/AuthContext';
  *   - Buttons: Regenerate recovery codes, Disable 2FA (asks for password)
  */
 const AdminTwoFactorSetup = () => {
-    const { refresh } = useAuth();
+    const { refresh, user } = useAuth();
     const [status, setStatus] = useState(null);
     const [loading, setLoading] = useState(true);
     const [step, setStep] = useState('status'); // 'status' | 'qr' | 'recovery'
@@ -248,7 +248,7 @@ const AdminTwoFactorSetup = () => {
                                     </button>
                                 </div>
                                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-3">
-                                    Account: <span className="font-mono">buildwithlami</span>
+                                    Account: <span className="font-mono">{user?.email || 'admin'}</span>
                                 </p>
                             </div>
                         </div>

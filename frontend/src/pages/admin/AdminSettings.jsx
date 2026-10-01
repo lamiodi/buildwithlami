@@ -243,7 +243,7 @@ const AdminSettings = () => {
                         <p className="text-xs text-gray-500 dark:text-gray-400 mb-4 font-body">
                             Static exchange rates used to convert invoice amounts to NGN for reporting. Update these when rates move. 1 NGN = X foreign.
                         </p>
-                        <FxRatesSection onSaved={fetchProfile} />
+                        <FxRatesSection />
                     </div>
 
                     <div className="border-t border-gray-100 dark:border-gray-700 pt-6 mt-6">
