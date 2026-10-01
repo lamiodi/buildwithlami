@@ -1,7 +1,8 @@
 // ─── contexts/AuthContext.jsx ────────────────────────────
 // React context that owns the authenticated admin's identity.
-// Wraps the raw `services/auth.js` localStorage helpers and
-// exposes them as a `useAuth()` hook so individual pages
+// Talks to services/api.js directly (token in localStorage +
+// Authorization header — see the api client's header comment) and
+// exposes the session via a `useAuth()` hook so individual pages
 // don't have to thread props.
 //
 // What lives in here:
@@ -33,6 +34,30 @@ import { api } from '../services/api.js';
 //   - XSS would already be catastrophic on this SPA and is mitigated
 //     by React + DOMPurify at the boundary.
 const ADMIN_TOKEN_KEY = 'admin_token';
+
+/**
+ * Real expiry (ms epoch) from the JWT's `exp` claim. The token is the
+ * credential the server actually enforces, so the timeout modal and the
+ * refresh timer must read THIS, not a locally-fabricated "last activity
+ * + 30 min" window — that fiction slid forever for active users while
+ * the real token still died 30 minutes from issue, producing a hard 401
+ * wall with no warning and no refresh. Returns null when the payload
+ * can't be decoded (malformed/truncated token) so callers degrade to
+ * "no expiry known" instead of crashing.
+ */
+function decodeJwtExp(token) {
+    if (!token || typeof token !== 'string') return null;
+    const parts = token.split('.');
+    if (parts.length < 2) return null;
+    try {
+        const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+        const payload = JSON.parse(atob(base64));
+        if (typeof payload.exp !== 'number') return null;
+        return payload.exp * 1000;
+    } catch {
+        return null;
+    }
+}
 
 function readAdminToken() {
     try { return localStorage.getItem(ADMIN_TOKEN_KEY); } catch { return null; }
@@ -176,17 +201,18 @@ export function AuthProvider({ children }) {
     }, []);
 
     // ── Derived: token expiry (ms epoch) for the timeout warning. ─
-    // Sliding window: the session is "fresh" for 30 minutes from the
-    // user's last activity. A successful /auth/refresh resets the
-    // window (handled in `extendSession` below).
-    //
-    // Background timer proactively calls /auth/refresh ~5 min before
-    // expiry so the user never hits the modal unless they walk away
-    // from the keyboard for >25 min.
+    // Read from the JWT's real `exp` claim. A successful /auth/refresh
+    // swaps in a new token, which re-derives this value and re-arms the
+    // timers below — that is the only thing that moves expiry.
     const tokenExpiresAt = useMemo(
-        () => (user ? lastActivity + 30 * 60 * 1000 : null),
-        [user, lastActivity]
+        () => (user && token ? decodeJwtExp(token) : null),
+        [user, token]
     );
+
+    // Keep a ref of the last activity so the background refresh can ask
+    // "is the user still here?" without being a timer dependency.
+    const lastActivityRef = useRef(lastActivity);
+    useEffect(() => { lastActivityRef.current = lastActivity; }, [lastActivity]);
 
     // Track user activity (click, key, mousemove, touch). Throttled
     // to once per 60s so a long session doesn't fire hundreds of events
@@ -213,34 +239,39 @@ export function AuthProvider({ children }) {
         };
     }, [user]);
 
-    // Background proactive refresh — fires once per session, ~25
-    // minutes after the last activity, and re-arms itself when the
-    // expiry moves (e.g. after a manual extend).
+    // Background proactive refresh + hard expiry logout.
+    //   - ~5 min before the REAL exp: silently re-issue the token, but
+    //     only if the user has been active in the last 5 minutes. An
+    //     idle user gets the SessionTimeoutModal instead.
+    //   - At exp: log out for real. Previously nothing enforced expiry —
+    //     the modal just vanished and the user stayed in a dead admin.
     useEffect(() => {
         if (!user || !tokenExpiresAt) return undefined;
         const PROACTIVE_REFRESH_LEAD_MS = 5 * 60 * 1000;
-        const delay = tokenExpiresAt - Date.now() - PROACTIVE_REFRESH_LEAD_MS;
-        if (delay <= 0) {
-            // Already inside the warning window — let SessionTimeoutModal
-            // handle the user-facing decision. Don't call /auth/refresh
-            // automatically here, because the user might be about to
-            // log out.
-            return undefined;
-        }
-        const id = setTimeout(() => {
-            // Silent background refresh — the user is still here, so
-            // an automatic re-issue is the right default. The Server
-            // will set a fresh cookie.
+        const ACTIVE_RECENTLY_MS = 5 * 60 * 1000;
+
+        const refreshTimer = setTimeout(() => {
+            const isActive = Date.now() - lastActivityRef.current < ACTIVE_RECENTLY_MS;
+            if (!isActive) return; // idle — SessionTimeoutModal owns this window
             api.post('/auth/refresh').then((res) => {
-                if (res.ok) {
-                    setLastActivity(Date.now());
-                } else if (res.status === 401 || res.status === 403) {
-                    logout();
+                if (res.ok && res.data?.token) {
+                    writeAdminToken(res.data.token);
+                    setToken(res.data.token);
+                    if (res.data.user) setUser(res.data.user);
                 }
+                // 401/403 here propagates through the global 401 handler.
             });
-        }, delay);
-        return () => clearTimeout(id);
-    }, [user, tokenExpiresAt, logout]);
+        }, Math.max(0, tokenExpiresAt - Date.now() - PROACTIVE_REFRESH_LEAD_MS));
+
+        const logoutTimer = setTimeout(() => {
+            logoutRef.current();
+        }, Math.max(0, tokenExpiresAt - Date.now()));
+
+        return () => {
+            clearTimeout(refreshTimer);
+            clearTimeout(logoutTimer);
+        };
+    }, [user, tokenExpiresAt]);
 
     const value = useMemo(() => ({
         user,
