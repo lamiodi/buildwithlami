@@ -83,20 +83,29 @@ const AdminInvoices = () => {
             setSearchParams(next, { replace: true });
         }
     }, [searchParams, setSearchParams]);
-    const [formData, setFormData] = useState({ 
+    const [formData, setFormData] = useState({
         project_id: '', amount: '', currency: 'NGN', dueDate: '',
         taxRate: 0, discountAmount: 0, depositRequired: 0, notes: '',
-        lineItems: [{ description: '', amount: '' }]
+        // `_key` gives React stable identity for rows that can be removed
+        // and re-added; it is stripped before the payload is sent.
+        lineItems: [{ _key: 'li-0', description: '', amount: '' }]
     });
 
     const handleLineItemChange = (index, field, value) => {
-        const newItems = [...formData.lineItems];
-        newItems[index][field] = value;
-        setFormData({ ...formData, lineItems: newItems });
+        setFormData(prev => ({
+            ...prev,
+            lineItems: prev.lineItems.map((it, i) => (i === index ? { ...it, [field]: value } : it)),
+        }));
     };
 
     const addLineItem = () => {
-        setFormData({ ...formData, lineItems: [...formData.lineItems, { description: '', amount: '' }] });
+        setFormData(prev => ({
+            ...prev,
+            lineItems: [...prev.lineItems, {
+                _key: `li-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+                description: '', amount: '',
+            }],
+        }));
     };
 
     const removeLineItem = (index) => {
@@ -107,6 +116,7 @@ const AdminInvoices = () => {
     };
 
     const fetchInvoices = async () => {
+        setError(null);
         const params = {};
         if (divisionFilter !== 'all') {
             params.division = divisionFilter;
@@ -127,10 +137,16 @@ const AdminInvoices = () => {
         if (res.ok && res.data?.rates) setFxRates(res.data.rates);
     };
 
+    // Only the invoice list depends on the division filter — projects
+    // and FX rates are fetched once on mount.
     useEffect(() => {
-        fetchInvoices();
         fetchProjects();
         fetchFxRates();
+        /* eslint-disable-next-line react-hooks/exhaustive-deps */
+    }, []);
+
+    useEffect(() => {
+        fetchInvoices();
         /* eslint-disable-next-line react-hooks/exhaustive-deps */
     }, [divisionFilter]);
 
@@ -150,15 +166,17 @@ const AdminInvoices = () => {
             discountAmount: Number(formData.discountAmount) || 0,
             depositRequired: Number(formData.depositRequired) || 0,
             notes: formData.notes,
-            lineItems: formData.lineItems.filter(item => item.description.trim() !== '')
+            lineItems: formData.lineItems
+                .filter(item => item.description.trim() !== '')
+                .map(({ _key, ...item }) => ({ ...item, amount: Number(item.amount) || 0 }))
         });
 
         if (res.ok) {
             notify.success('Invoice created successfully!');
-            setFormData({ 
+            setFormData({
                 project_id: '', amount: '', currency: 'NGN', dueDate: '',
                 taxRate: 0, discountAmount: 0, depositRequired: 0, notes: '',
-                lineItems: [{ description: '', amount: '' }]
+                lineItems: [{ _key: 'li-0', description: '', amount: '' }]
             });
             setShowForm(false);
             fetchInvoices();
@@ -416,7 +434,7 @@ const AdminInvoices = () => {
                                     <label className={labelClass}>Line Items</label>
                                     <div className="space-y-2">
                                         {formData.lineItems.map((item, index) => (
-                                            <div key={index} className="flex items-center gap-2">
+                                            <div key={item._key ?? index} className="flex items-center gap-2">
                                                 <input type="text" placeholder="Description" value={item.description} onChange={e => handleLineItemChange(index, 'description', e.target.value)} className={`${inputClass} flex-1`} />
                                                 <input type="number" placeholder="Amount" value={item.amount} onChange={e => handleLineItemChange(index, 'amount', e.target.value)} className={`${inputClass} w-32`} />
                                                 <button type="button" onClick={() => removeLineItem(index)} className="text-red-500 hover:bg-red-50 p-2 rounded-xl transition-colors">

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { api } from '../../services/api';
 import { notify } from '../../services/notify';
@@ -56,10 +56,17 @@ const AdminInbox = () => {
     const [reply, setReply] = useState('');
     const [sending, setSending] = useState(false);
 
-    const autoSelectMessage = (id) => {
-        const found = items.find((i) => i.id === id);
+    const autoSelectMessage = (id, pool) => {
+        const list = pool || items;
+        const found = list.find((i) => String(i.id) === String(id));
         if (found) setSelected(found);
     };
+
+    // Deep-linked ?message=<id> — remembered here, then applied inside
+    // load() against the freshly fetched rows. The old 600ms setTimeout
+    // closed over the initial empty items list, so the link never
+    // selected anything.
+    const pendingSelectRef = useRef(null);
 
     // ── Read filters from URL (deep-linkable state) ──────
     useEffect(() => {
@@ -69,10 +76,7 @@ const AdminInbox = () => {
         const msg = params.get('message');
         if (s && STATUS_OPTIONS.includes(s)) setStatusFilter(s);
         if (k && KIND_OPTIONS.find((o) => o.id === k)) setKindFilter(k);
-        if (msg) {
-            // auto-select the matching item after fetch
-            setTimeout(() => autoSelectMessage(msg), 600);
-        }
+        if (msg) pendingSelectRef.current = msg;
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
@@ -83,7 +87,14 @@ const AdminInbox = () => {
         if (kindFilter !== 'all')   params.kind = kindFilter;
         if (search.trim())          params.q = search.trim();
         const res = await api.get('/admin', { params, timeout: 7000 });
-        if (res.ok) setItems(res.data?.items || []);
+        if (res.ok) {
+            const rows = res.data?.items || [];
+            setItems(rows);
+            if (pendingSelectRef.current) {
+                autoSelectMessage(pendingSelectRef.current, rows);
+                pendingSelectRef.current = null;
+            }
+        }
         setLoading(false);
     }, [statusFilter, kindFilter, search]);
 

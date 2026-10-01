@@ -87,6 +87,7 @@ const AdminIntakeTemplates = () => {
   const fetchTemplates = async () => {
     const res = await api.get('/templates');
     if (res.ok && res.data) setTemplates(res.data);
+    else notify.error(res.error || 'Failed to load templates.');
   };
 
   useEffect(() => { fetchTemplates(); }, []);

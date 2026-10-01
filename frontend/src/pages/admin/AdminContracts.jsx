@@ -152,8 +152,7 @@ export default function AdminContracts() {
     try {
       const res = await api.get('/contracts');
       if (res.ok && res.data) setContracts(res.data);
-    } catch {
-      notify.error('Failed to load contracts');
+      else notify.error(res.error || 'Failed to load contracts');
     } finally {
       setLoading(false);
     }

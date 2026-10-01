@@ -21,8 +21,10 @@ const AdminProjectDetail = () => {
   const [invoiceForm, setInvoiceForm] = useState({ amount: '', dueDate: '' });
   const [invoiceSubmitting, setInvoiceSubmitting] = useState(false);
   const [revealedSecrets, setRevealedSecrets] = useState({});
+  const [loadError, setLoadError] = useState(null);
 
   const fetchProjectData = async () => {
+    setLoadError(null);
     const res = await api.get(`/client-projects/${id}/dashboard`);
     if (res.ok && res.data) {
       setProject(res.data.project);
@@ -33,11 +35,11 @@ const AdminProjectDetail = () => {
       setFeedback(res.data.feedback || []);
       setFiles(res.data.files || []);
     } else if (!res.ok) {
-      notify.error(res.error || 'Failed to load project');
+      setLoadError(res.error || 'Failed to load project');
     }
   };
 
-  useEffect(() => { fetchProjectData(); }, [id]);
+  useEffect(() => { fetchProjectData(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [id]);
 
   const handleAssignTemplate = async (e) => {
     const templateId = e.target.value;
@@ -66,20 +68,26 @@ const AdminProjectDetail = () => {
     else notify.error(res.error || 'Failed to regenerate link');
   };
 
+  // Milestones may arrive as a JSON string, an array, or (after a bad
+  // write) something unparseable. One safe reader for render + mutation —
+  // an unguarded JSON.parse in render white-screened the whole page.
+  const safeMilestones = (raw) => {
+    if (Array.isArray(raw)) return raw;
+    if (typeof raw === 'string') {
+      try {
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch {
+        return [];
+      }
+    }
+    return [];
+  };
+
   const advanceMilestone = async (index) => {
     if (!project?.milestones) return;
-    
-    // Parse milestones safely
-    let currentMilestones = [];
-    if (typeof project.milestones === 'string') {
-        try {
-            currentMilestones = JSON.parse(project.milestones);
-        } catch {
-            // Milestones came back as a non-JSON string — fall back to []
-        }
-    } else if (Array.isArray(project.milestones)) {
-        currentMilestones = [...project.milestones];
-    }
+
+    const currentMilestones = safeMilestones(project.milestones).map(m => ({ ...m }));
 
     if (!currentMilestones.length) return;
 
@@ -172,11 +180,25 @@ const AdminProjectDetail = () => {
     }
   };
 
-  if (!project) return (
-    <div className="flex-1 flex items-center justify-center">
-      <div className="animate-pulse text-gray-400 font-body">Loading project…</div>
-    </div>
-  );
+  if (!project) {
+    if (loadError) return (
+      <div className="flex-1 flex flex-col items-center justify-center gap-4 px-6 text-center">
+        <p className="text-red-500 font-body font-bold">{loadError}</p>
+        <button
+          type="button"
+          onClick={fetchProjectData}
+          className="px-5 py-2.5 rounded-xl bg-accent text-white text-sm font-bold hover:bg-orange-600 transition-colors"
+        >
+          Retry
+        </button>
+      </div>
+    );
+    return (
+      <div className="flex-1 flex items-center justify-center">
+        <div className="animate-pulse text-gray-400 font-body">Loading project…</div>
+      </div>
+    );
+  }
 
   const inputClass = "w-full p-3 text-sm border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900 outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-colors font-body";
   const labelClass = "block text-[10px] font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2";
@@ -257,7 +279,7 @@ const AdminProjectDetail = () => {
                   <h3 className="text-xl font-bold font-heading text-gray-900 dark:text-white mb-4">Milestone Tracker</h3>
                   <div className="bg-gray-50 dark:bg-gray-900 rounded-xl p-4 md:p-6 border border-gray-200 dark:border-gray-700">
                     <div className="space-y-4">
-                      {(typeof project.milestones === 'string' ? JSON.parse(project.milestones) : Array.isArray(project.milestones) ? project.milestones : []).map((milestone, idx) => (
+                      {safeMilestones(project.milestones).map((milestone, idx) => (
                         <div key={idx} className="flex items-center justify-between p-4 bg-white dark:bg-card border border-gray-100 dark:border-white/10 rounded-lg shadow-sm">
                           <div className="flex items-center gap-4">
                             <button 

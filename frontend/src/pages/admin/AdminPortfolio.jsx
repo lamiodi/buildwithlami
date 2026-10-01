@@ -207,20 +207,6 @@ const AdminPortfolio = ({ lockedDivision }) => {
         setIsEditModalOpen(true);
     };
 
-    // Auto-open edit modal if ?edit=<id> is present in the URL
-    useEffect(() => {
-        const editId = searchParams.get('edit');
-        if (editId && apiProjects.length > 0) {
-            const target = apiProjects.find((p) => String(p.id) === String(editId));
-            if (target) {
-                openEditFor(target);
-                const nextParams = new URLSearchParams(searchParams);
-                nextParams.delete('edit');
-                setSearchParams(nextParams, { replace: true });
-            }
-        }
-    }, [apiProjects, searchParams, setSearchParams]);
-
     // Auto-open create modal if ?action=new is present in the URL
     useEffect(() => {
         if (searchParams.get('action') === 'new') {
@@ -290,6 +276,9 @@ const AdminPortfolio = ({ lockedDivision }) => {
             gallery: [
                 ...(prev.gallery || []),
                 {
+                    // `_key` is client-side row identity for React keys
+                    // (gallery supports remove + reorder); never persisted.
+                    _key: `g-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
                     src: newGalleryUrl.trim(),
                     alt: newGalleryAlt.trim() || `${prev.title || 'Project'} Preview`,
                     device: newGalleryDevice || 'desktop',
@@ -366,7 +355,10 @@ const AdminPortfolio = ({ lockedDivision }) => {
                 status_label: formData.status_label || null,
                 duration: formData.duration || null,
                 role: formData.role || null,
-                gallery: Array.isArray(formData.gallery) ? formData.gallery : [],
+                // Strip the client-side row identity before persisting.
+                gallery: Array.isArray(formData.gallery)
+                    ? formData.gallery.map(({ _key, ...g }) => g)
+                    : [],
                 ...parsed,
                 display_order: Number(formData.display_order) || 0,
                 division: activeDivision,
@@ -1100,8 +1092,8 @@ const AdminPortfolio = ({ lockedDivision }) => {
                                     {formData.gallery && formData.gallery.length > 0 ? (
                                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 pt-2">
                                             {formData.gallery.map((g, i) => (
-                                                <div 
-                                                    key={i} 
+                                                <div
+                                                    key={g._key ?? g.src ?? i}
                                                     className="group relative border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden bg-gray-900 shadow-sm flex flex-col"
                                                 >
                                                     <div className="relative h-28 w-full bg-black/40 overflow-hidden">

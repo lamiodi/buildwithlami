@@ -45,7 +45,15 @@ const AdminReports = () => {
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
-    const [dateRange, setDateRange] = useState({ start: '', end: '' });
+    // Default to the last 12 months, computed once in the initializer —
+    // the old mount-effect + setState double-fetch raced an unbounded
+    // query against the bounded one.
+    const [dateRange, setDateRange] = useState(() => {
+        const end = new Date().toISOString().split('T')[0];
+        const start = new Date();
+        start.setMonth(start.getMonth() - 12);
+        return { start: start.toISOString().split('T')[0], end };
+    });
 
     const buildQuery = () => {
         const params = new URLSearchParams();
@@ -55,6 +63,7 @@ const AdminReports = () => {
     };
 
     const fetchReports = async () => {
+        setError(null);
         const query = buildQuery();
         const res = await api.get(`/dashboard/reports${query ? `?${query}` : ''}`);
         if (res.ok && res.data) {
@@ -160,18 +169,6 @@ const AdminReports = () => {
         downloadCSV(`top-clients-${new Date().toISOString().slice(0, 10)}.csv`, csv);
         notify.success('Clients report exported');
     };
-
-    // Set default date range to last 12 months
-    const setDefaultRange = () => {
-        const end = new Date().toISOString().split('T')[0];
-        const start = new Date();
-        start.setMonth(start.getMonth() - 12);
-        setDateRange({ start: start.toISOString().split('T')[0], end });
-    };
-
-    useEffect(() => {
-        if (!dateRange.start && !dateRange.end) setDefaultRange();
-    }, []);
 
     if (loading) {
         return (

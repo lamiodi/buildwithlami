@@ -11,7 +11,7 @@
 // without per-page duplication.
 // ──────────────────────────────────────────────────────────
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { api } from '../../services/api';
 
@@ -58,10 +58,17 @@ const WorkspaceListPage = ({
         hasMore: false
     });
 
+    // Sequence guard: clicking Next/Prev quickly can resolve an older
+    // page's response after the newer one — only the latest request
+    // is allowed to touch state.
+    const fetchSeqRef = useRef(0);
+
     const fetch = async () => {
+        const seq = ++fetchSeqRef.current;
         setLoading(true);
         setError(null);
         const res = await api.get(endpoint, { params: { ...extraParams, page, limit: pagination.limit } });
+        if (seq !== fetchSeqRef.current) return;
         if (res.ok) {
             // Handle both old format (array) and new format (object with data + pagination)
             if (Array.isArray(res.data)) {

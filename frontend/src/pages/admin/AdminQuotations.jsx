@@ -212,6 +212,9 @@ export default function AdminQuotations() {
             ]);
             if (leadsRes.ok && leadsRes.data) setLeads(leadsRes.data);
             if (clientsRes.ok && clientsRes.data) setClients(clientsRes.data);
+            if (!leadsRes.ok && !clientsRes.ok) {
+                notify.error('Could not load clients or leads for the recipient dropdown.');
+            }
         } catch {
             // dropdown fetch fallback
         }
@@ -241,15 +244,18 @@ export default function AdminQuotations() {
     const deliveryBalance50 = useMemo(() => totalFormAmount - upfrontDeposit50, [totalFormAmount, upfrontDeposit50]);
 
     const handleLineItemChange = (index, field, val) => {
-        const items = [...form.line_items];
-        items[index][field] = val;
-        setForm({ ...form, line_items: items });
+        setForm(prev => ({
+            ...prev,
+            line_items: prev.line_items.map((it, i) => (i === index ? { ...it, [field]: val } : it)),
+        }));
     };
 
     const addLineItem = () => {
         setForm({
             ...form,
-            line_items: [...form.line_items, { description: '', qty: 1, rate: 0 }]
+            // `_key` is a client-side row identity for React keys; stripped
+            // from the payload before sending.
+            line_items: [...form.line_items, { _key: `li-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, description: '', qty: 1, rate: 0 }]
         });
     };
 
@@ -278,7 +284,7 @@ export default function AdminQuotations() {
     const appendAddon = (addon) => {
         setForm(prev => ({
             ...prev,
-            line_items: [...prev.line_items, { description: addon.desc, qty: 1, rate: addon.rate }]
+            line_items: [...prev.line_items, { _key: `li-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, description: addon.desc, qty: 1, rate: addon.rate }]
         }));
         notify.info(`Added: ${addon.label}`);
     };
@@ -306,7 +312,9 @@ export default function AdminQuotations() {
                 amount: totalFormAmount,
                 client_id: form.recipientType === 'client' ? (form.client_id || undefined) : undefined,
                 lead_id: form.recipientType === 'lead' ? (form.lead_id || undefined) : undefined,
-                line_items: form.line_items.filter(i => i.description.trim() !== ''),
+                line_items: form.line_items
+                    .filter(i => i.description.trim() !== '')
+                    .map(({ _key, ...i }) => i),
                 notes: form.notes,
                 valid_until: form.valid_until || undefined
             };
@@ -704,7 +712,7 @@ export default function AdminQuotations() {
 
                                     <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
                                         {form.line_items.map((item, idx) => (
-                                            <div key={idx} className="flex items-center gap-2">
+                                            <div key={item._key ?? idx} className="flex items-center gap-2">
                                                 <input 
                                                     type="text" 
                                                     placeholder="Deliverable description"

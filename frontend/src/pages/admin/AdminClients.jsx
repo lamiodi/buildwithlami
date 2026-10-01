@@ -17,6 +17,7 @@ const AdminClients = () => {
     return ['SOFTWARE', 'SURVEY', 'DRONE'].includes(ws) ? ws : 'all';
   });
   const fetchClients = async () => {
+    setError(null);
     const params = {};
     if (divisionFilter !== 'all') {
       params.division = divisionFilter;

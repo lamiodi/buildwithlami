@@ -12,7 +12,7 @@
 // and each column listens for `dragover` + `drop`.
 // ──────────────────────────────────────────────────────────
 
-import React, { useEffect, useMemo, useState, useCallback } from 'react';
+import React, { useEffect, useMemo, useState, useCallback, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { api } from '../../services/api';
@@ -637,15 +637,25 @@ const AdminCRM = () => {
         });
     }, []);
 
+    // Abort in-flight lead fetches so a slow response for an old
+    // filter/search combination can't overwrite the current board.
+    const leadsAbortRef = useRef(null);
+
     const fetchLeads = useCallback(async () => {
+        if (leadsAbortRef.current) leadsAbortRef.current.abort();
+        const controller = new AbortController();
+        leadsAbortRef.current = controller;
         setLoading(true);
-        const params = {};
-        if (divisionFilter !== 'all') params.division = divisionFilter;
-        if (sourceFilter !== 'all') params.source = sourceFilter;
-        if (search.trim()) params.q = search.trim();
-        const res = await api.get('/crm/leads', { params });
-        if (res.ok) setLeads(Array.isArray(res.data) ? res.data : []);
-        setLoading(false);
+        try {
+            const params = {};
+            if (divisionFilter !== 'all') params.division = divisionFilter;
+            if (sourceFilter !== 'all') params.source = sourceFilter;
+            if (search.trim()) params.q = search.trim();
+            const res = await api.get('/crm/leads', { params, signal: controller.signal });
+            if (!controller.signal.aborted && res.ok) setLeads(Array.isArray(res.data) ? res.data : []);
+        } finally {
+            if (!controller.signal.aborted) setLoading(false);
+        }
     }, [divisionFilter, sourceFilter, search]);
 
     useEffect(() => {

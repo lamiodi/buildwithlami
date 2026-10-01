@@ -18,6 +18,7 @@ const AdminPaymentQueue = () => {
         const qs = statusFilter === 'all' ? '' : `?status=${statusFilter}`;
         const res = await api.get(`/payments/proofs${qs}`);
         if (res.ok) setProofs(res.data || []);
+        else notify.error(res.error || 'Failed to load payment proofs.');
         setLoading(false);
     };
 
