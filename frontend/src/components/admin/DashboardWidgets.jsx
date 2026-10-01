@@ -26,18 +26,18 @@ export const WidgetSkeleton = ({ height = 'h-32', lines = 3 }) => (
 // ── Stat Card Widget (KPI display) ───────────────────────
 export const StatCard = ({ label, value, hint, icon: IconComp, accent = 'blue', isCurrency }) => {
     const accents = {
-        blue: { grad: 'from-blue-500 to-indigo-600', ring: 'ring-blue-500/10', text: 'text-blue-500' },
-        emerald: { grad: 'from-emerald-500 to-teal-600', ring: 'ring-emerald-500/10', text: 'text-emerald-500' },
-        amber: { grad: 'from-amber-500 to-orange-600', ring: 'ring-amber-500/10', text: 'text-amber-500' },
-        purple: { grad: 'from-purple-500 to-fuchsia-600', ring: 'ring-purple-500/10', text: 'text-purple-500' },
-        rose: { grad: 'from-rose-500 to-pink-600', ring: 'ring-rose-500/10', text: 'text-rose-500' },
-        slate: { grad: 'from-slate-500 to-gray-700', ring: 'ring-slate-500/10', text: 'text-slate-500' },
+        blue: { grad: 'bg-blue-600', ring: 'ring-blue-500/10', text: 'text-blue-500' },
+        emerald: { grad: 'bg-emerald-600', ring: 'ring-emerald-500/10', text: 'text-emerald-500' },
+        amber: { grad: 'bg-amber-500', ring: 'ring-amber-500/10', text: 'text-amber-500' },
+        purple: { grad: 'bg-purple-600', ring: 'ring-purple-500/10', text: 'text-purple-500' },
+        rose: { grad: 'bg-rose-600', ring: 'ring-rose-500/10', text: 'text-rose-500' },
+        slate: { grad: 'bg-slate-600', ring: 'ring-slate-500/10', text: 'text-slate-500' },
     };
     const a = accents[accent] || accents.blue;
     return (
         <div className={`p-5 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#111] hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 ring-1 ${a.ring}`}>
             <div className="flex items-start justify-between mb-3">
-                <div className={`size-10 rounded-xl bg-gradient-to-br ${a.grad} text-white flex items-center justify-center shadow-md`}>
+                <div className={`size-10 rounded-xl ${a.grad} text-white flex items-center justify-center shadow-md`}>
                     {IconComp && <IconComp className="size-5" aria-hidden="true" />}
                 </div>
                 {isCurrency && (

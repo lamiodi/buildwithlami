@@ -528,7 +528,7 @@ const AdminProjectDetail = () => {
                       id="file-upload-input"
                       type="file" 
                       onChange={(e) => setUploadForm({ ...uploadForm, file: e.target.files[0] })}
-                      className="w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-orange-50 file:text-accent hover:file:bg-orange-100"
+                      className="w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100"
                     />
                   </div>
                   <button type="submit" disabled={uploadForm.uploading || !uploadForm.file}

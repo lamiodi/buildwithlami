@@ -3,6 +3,7 @@ import { motion, useReducedMotion, AnimatePresence } from 'framer-motion';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 import fallbackProjects from '../data/fallbackProjects';
+import { projectPlaceholder } from '../utils/placeholders';
 import { Skeleton, SkeletonTransition } from '../components/Skeleton';
 import {
   staggerContainer as centralStaggerContainer,
@@ -456,7 +457,7 @@ const ProjectDetailPage = () => {
           api.get(`/projects/${id}`),
           new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 3000))
         ]);
-        if (isMounted && res && res.ok && res.data) {
+        if (isMounted && res && res.ok && res.data && typeof res.data === 'object') {
           setProject(res.data);
         }
       } catch {
@@ -490,7 +491,7 @@ const ProjectDetailPage = () => {
     () =>
       project?.image_url ||
       project?.image ||
-      'https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=2070&auto=format&fit=crop',
+      projectPlaceholder({ width: 1600, height: 900, label: project?.title || 'Case study' }),
     [project]
   );
 
@@ -504,21 +505,10 @@ const ProjectDetailPage = () => {
       );
     }
     return [
-      { src: imageUrl, alt: `${project.title} — hero interface`, device: 'desktop' },
       {
-        src: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=2015&auto=format&fit=crop',
-        alt: `${project.title} — analytics dashboard`,
+        src: imageUrl,
+        alt: `${project.title} — actual product screenshot`,
         device: 'desktop',
-      },
-      {
-        src: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=2070&auto=format&fit=crop',
-        alt: `${project.title} — operator workspace`,
-        device: 'tablet',
-      },
-      {
-        src: 'https://images.unsplash.com/photo-1661956602116-aa6865609028?q=80&w=1964&auto=format&fit=crop',
-        alt: `${project.title} — mobile experience`,
-        device: 'phone',
       },
     ];
   }, [project, imageUrl]);
@@ -1126,9 +1116,9 @@ const ProjectDetailPage = () => {
               >
                 <SectionHeader
                   number="07"
-                  eyebrow="Responsive Gallery"
-                  title="The product, in context."
-                  lede="A look at the interfaces across desktop, tablet, and mobile — every screen hand-tuned."
+                  eyebrow="Product Screenshot"
+                  title="The product, as shipped."
+                  lede="A capture of the real, deployed interface — not a mockup."
                 />
 
                 <div className="space-y-8 md:space-y-12">
@@ -1316,6 +1306,43 @@ const ProjectDetailPage = () => {
                 </div>
               </section>
             )}
+
+            {/* ═══════════════════════════════════════════════════════════════
+                9b. NEXT STEP — one clear action beside the work
+                ═══════════════════════════════════════════════════════════════ */}
+            <motion.section
+              className="max-w-7xl mx-auto px-6 md:px-12 pb-16 md:pb-24"
+              initial="hidden"
+              whileInView="visible"
+              viewport={sectionViewport}
+              variants={container}
+            >
+              <div className="relative overflow-hidden rounded-3xl bg-black dark:bg-white text-white dark:text-black px-8 py-12 md:px-16 md:py-20 text-center">
+                <h2 className="font-heading text-3xl md:text-5xl font-bold mb-4">
+                  Discuss a similar project.
+                </h2>
+                <p className="text-gray-300 dark:text-gray-600 text-base md:text-lg max-w-2xl mx-auto mb-8 font-light">
+                  If this is close to what you need, the next step is a short
+                  conversation about your requirements, timeline, and budget.
+                </p>
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                  <Link
+                    to="/contact"
+                    className="inline-flex items-center justify-center bg-accent hover:bg-white dark:hover:bg-black text-white dark:text-white hover:text-black dark:hover:text-white font-heading font-bold uppercase text-[11px] tracking-[0.15em] px-10 py-4 transition-all duration-300 rounded-md"
+                  >
+                    Start the conversation
+                  </Link>
+                  {CONTACT?.email && (
+                    <a
+                      href={`mailto:${CONTACT.email}`}
+                      className="text-sm underline underline-offset-4 decoration-white/30 dark:decoration-black/30 hover:decoration-current"
+                    >
+                      or email {CONTACT.email}
+                    </a>
+                  )}
+                </div>
+              </div>
+            </motion.section>
 
             {/* ═══════════════════════════════════════════════════════════════
                 10. RELATED PROJECTS — hover cards

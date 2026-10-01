@@ -230,7 +230,7 @@ const NotificationBell = () => {
                                                         <button
                                                             onClick={() => markRead(n.id)}
                                                             title="Mark as read"
-                                                            className="cursor-pointer p-1 rounded hover:bg-emerald-100 dark:hover:bg-emerald-900/30 text-gray-500 hover:text-emerald-600 transition-colors"
+                                                            className="cursor-pointer p-1 rounded hover:bg-emerald-100 dark:hover:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 transition-colors"
                                                         >
                                                             <Icon.Check className="w-3.5 h-3.5" />
                                                         </button>

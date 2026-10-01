@@ -265,14 +265,14 @@ const ClientProjectTracker = () => {
         <div className="max-w-4xl mx-auto space-y-8">
           
           {/* Celebration Header */}
-          <div className="bg-gradient-to-br from-purple-900 to-indigo-900 rounded-3xl shadow-lg overflow-hidden text-white relative">
-            <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-white via-transparent to-transparent"></div>
+          <div className="bg-gradient-to-br from-[#1E1B18] to-[#111] rounded-3xl shadow-lg overflow-hidden text-white relative border border-white/10">
+            <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-accent/40 via-transparent to-transparent"></div>
             <div className="p-10 md:p-14 text-center relative z-10">
-              <span className="inline-block bg-purple-500/30 text-purple-200 px-4 py-1 rounded-full text-sm font-bold tracking-widest uppercase mb-6">
+              <span className="inline-block bg-accent/20 text-orange-200 px-4 py-1 rounded-full text-sm font-bold tracking-widest uppercase mb-6">
                 Project Launched 🚀
               </span>
               <h1 className="text-4xl md:text-5xl font-extrabold mb-4">{project.project_name} is Live!</h1>
-              <p className="text-purple-200 text-lg max-w-2xl mx-auto font-medium">
+              <p className="text-gray-300 text-lg max-w-2xl mx-auto font-medium">
                 Congratulations! Your project has been successfully deployed. Below you will find your final assets, training materials, and support options.
               </p>
               {project.domain_name && (
@@ -281,7 +281,7 @@ const ClientProjectTracker = () => {
                   target="_blank" 
                   rel="noreferrer" 
                   whileHover={shouldReduce ? {} : buttonHover}
-                  className="inline-block mt-8 bg-white text-purple-900 font-bold py-3 px-8 rounded-full hover:scale-105 transition-transform shadow-xl active:scale-[0.98]"
+                  className="inline-block mt-8 bg-accent hover:bg-[#d43d1a] text-white font-bold py-3 px-8 rounded-full hover:scale-105 transition-transform shadow-xl shadow-accent/25 active:scale-[0.98]"
                 >
                   Visit Live Website
                 </motion.a>

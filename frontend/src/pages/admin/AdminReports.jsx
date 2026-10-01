@@ -20,17 +20,17 @@ const Icon = {
 
 const StatCard = ({ label, value, hint, icon: IconComp, accent = 'blue' }) => {
     const accents = {
-        blue: { grad: 'from-blue-500 to-indigo-600', text: 'text-blue-600 dark:text-blue-400' },
-        emerald: { grad: 'from-emerald-500 to-teal-600', text: 'text-emerald-600 dark:text-emerald-400' },
-        amber: { grad: 'from-amber-500 to-orange-600', text: 'text-amber-600 dark:text-amber-400' },
-        purple: { grad: 'from-purple-500 to-fuchsia-600', text: 'text-purple-600 dark:text-purple-400' },
-        rose: { grad: 'from-rose-500 to-pink-600', text: 'text-rose-600 dark:text-rose-400' },
+        blue: { grad: 'bg-blue-600', text: 'text-blue-600 dark:text-blue-400' },
+        emerald: { grad: 'bg-emerald-600', text: 'text-emerald-600 dark:text-emerald-400' },
+        amber: { grad: 'bg-amber-500', text: 'text-amber-600 dark:text-amber-400' },
+        purple: { grad: 'bg-purple-600', text: 'text-purple-600 dark:text-purple-400' },
+        rose: { grad: 'bg-rose-600', text: 'text-rose-600 dark:text-rose-400' },
     };
     const a = accents[accent] || accents.blue;
     return (
         <div className="bg-white dark:bg-gray-800 p-5 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm">
             <div className="flex items-start justify-between mb-3">
-                <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${a.grad} text-white flex items-center justify-center shadow-sm`}>
+                <div className={`w-10 h-10 rounded-xl ${a.grad} text-white flex items-center justify-center shadow-sm`}>
                     {IconComp && <IconComp className="w-5 h-5" />}
                 </div>
             </div>
@@ -205,7 +205,7 @@ const AdminReports = () => {
                 <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
                         <div>
-                            <h1 className="text-4xl font-extrabold font-heading bg-gradient-to-r from-accent to-orange-500 bg-clip-text text-transparent">
+                            <h1 className="text-4xl font-extrabold font-heading text-gray-900 dark:text-white">
                                 Reports & Financials
                             </h1>
                             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 font-body">Cross-division analytics, P&L, and business insights.</p>
@@ -475,7 +475,7 @@ const AdminReports = () => {
                                                 <td className="py-3 px-4 text-gray-400 font-bold text-sm">{idx + 1}</td>
                                                 <td className="py-3 px-4">
                                                     <div className="flex items-center gap-3">
-                                                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-accent to-orange-500 text-white flex items-center justify-center font-bold text-xs">
+                                                        <div className="w-8 h-8 rounded-full bg-accent text-white flex items-center justify-center font-bold text-xs">
                                                             {c.name.charAt(0).toUpperCase()}
                                                         </div>
                                                         <span className="font-bold text-gray-900 dark:text-white text-sm">{c.name}</span>

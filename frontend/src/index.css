@@ -247,3 +247,11 @@ header,
 .font-signature {
   font-family: 'Caveat', 'Dancing Script', cursive, sans-serif;
 }
+
+/* Smooth scrolling is itself motion — only offer it to visitors who
+   have not asked the system to reduce motion. */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}

@@ -159,7 +159,7 @@ const AdminSettings = () => {
             <div className="max-w-4xl mx-auto w-full">
                 <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
                     <div className="mb-8">
-                        <h1 className="text-4xl font-extrabold bg-gradient-to-r from-accent to-orange-500 bg-clip-text text-transparent font-heading">
+                        <h1 className="text-4xl font-extrabold text-gray-900 dark:text-white font-heading">
                             Admin Settings
                         </h1>
                         <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 font-body">Manage your public profile and social links.</p>

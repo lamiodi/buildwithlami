@@ -61,7 +61,7 @@ const AdminPaymentQueue = () => {
         <React.Fragment>
             <div className="max-w-7xl mx-auto w-full">
                 <div className="mb-6">
-                    <h1 className="text-3xl font-extrabold font-heading bg-gradient-to-r from-accent to-orange-500 bg-clip-text text-transparent">
+                    <h1 className="text-3xl font-extrabold font-heading text-gray-900 dark:text-white">
                         Payment Proofs
                     </h1>
                     <p className="text-sm text-gray-500 mt-1 font-body">

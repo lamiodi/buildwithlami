@@ -320,7 +320,7 @@ const AdminDashboard = () => {
                                 {now.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' })} · {now.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
                             </time>
                         </div>
-                        <h1 className="text-4xl font-extrabold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                        <h1 className="text-4xl font-extrabold text-gray-900 dark:text-white">
                             {greeting}.
                         </h1>
                         <p className="text-gray-500 dark:text-gray-400 mt-2 text-sm">

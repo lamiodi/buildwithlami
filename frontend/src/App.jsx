@@ -12,6 +12,8 @@ import { Toaster } from './components/ui/sonner';
 import SoundEffects from './components/SoundEffects';
 import { lazyWithRetry } from './utils/lazyWithRetry';
 import { HomePageSkeleton, PageSkeleton } from './components/Skeleton';
+import { soundManager } from './utils/sound';
+import { Volume2, VolumeX } from 'lucide-react';
 
 // Statically import core public pages for zero-latency instant transitions
 import HomePage from './pages/HomePage';
@@ -100,6 +102,7 @@ function App() {
   const [toastMessage, setToastMessage] = useState(null);
   const [showPreloader, setShowPreloader] = useState(true);
   const location = useLocation();
+  const prefersReducedMotion = useReducedMotion();
 
   // Initialize API client: fetch CSRF token on app start
   useEffect(() => {
@@ -133,7 +136,9 @@ function App() {
       setTimeout(() => {
         const element = document.getElementById(id);
         if (element) {
-          element.scrollIntoView({ behavior: 'smooth' });
+          element.scrollIntoView({
+            behavior: prefersReducedMotion ? 'auto' : 'smooth',
+          });
         }
       }, 100);
     } else {
@@ -163,6 +168,11 @@ function App() {
     const t = setTimeout(() => setPreloaderTimedOut(true), 4000);
     return () => clearTimeout(t);
   }, [showPreloader]);
+
+  // Site-wide click sounds have a visible mute — soundManager already
+  // persists the preference, this just exposes the control.
+  const [soundOn, setSoundOn] = useState(() => soundManager.isEnabled());
+  const toggleSound = () => setSoundOn(soundManager.toggleSound());
 
   // Determine if the current route should hide the global Navbar and Footer
   const currentPath = (location.pathname || '').toLowerCase();
@@ -307,6 +317,20 @@ function App() {
         <ToastHost />
         <Toaster position="top-right" richColors />
         <SoundEffects />
+        <button
+          type="button"
+          onClick={toggleSound}
+          aria-pressed={soundOn}
+          aria-label={soundOn ? 'Mute click sounds' : 'Enable click sounds'}
+          title={soundOn ? 'Mute click sounds' : 'Enable click sounds'}
+          className="fixed bottom-5 left-5 z-40 p-2.5 rounded-full border border-gray-300 dark:border-white/15 bg-white/85 dark:bg-black/70 backdrop-blur text-gray-600 dark:text-gray-300 hover:text-accent hover:border-accent transition-colors cursor-pointer"
+        >
+          {soundOn ? (
+            <Volume2 className="w-4 h-4" aria-hidden="true" />
+          ) : (
+            <VolumeX className="w-4 h-4" aria-hidden="true" />
+          )}
+        </button>
       </ErrorBoundary>
     </div>
     </ClientAuthProvider>

@@ -654,7 +654,7 @@ const BankTransferBlock = ({ invoice, currency, meta, bank, form, setForm, proof
                             type="file"
                             accept="image/*,application/pdf"
                             onChange={e => setProofFile(e.target.files?.[0] || null)}
-                            className="w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-orange-50 file:text-accent hover:file:bg-orange-100"
+                            className="w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100"
                         />
                         {proofFile && (
                             <p className="text-xs text-gray-500 mt-1">📎 {proofFile.name} ({(proofFile.size / 1024).toFixed(0)} KB)</p>

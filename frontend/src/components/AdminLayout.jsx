@@ -119,7 +119,7 @@ const AdminLayout = ({ isDark, toggleTheme }) => {
             >
                 <div className="flex items-center justify-between h-16 px-4 border-b border-gray-200 dark:border-gray-800">
                     {sidebarOpen ? (
-                        <span className="font-extrabold text-xl tracking-tight bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">LAMI ODI CRM</span>
+                        <span className="font-extrabold text-xl tracking-tight text-gray-900 dark:text-white">LAMI ODI CRM</span>
                     ) : (
                         <span className="font-extrabold text-xl mx-auto text-blue-600">L</span>
                     )}
@@ -199,7 +199,7 @@ const AdminLayout = ({ isDark, toggleTheme }) => {
                             className="fixed inset-y-0 left-0 w-64 bg-white dark:bg-[#111111] border-r border-gray-200 dark:border-gray-800 z-50 flex flex-col"
                         >
                             <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200 dark:border-gray-800">
-                                <span className="font-extrabold text-xl tracking-tight bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">LAMI ODI</span>
+                                <span className="font-extrabold text-xl tracking-tight text-gray-900 dark:text-white">LAMI ODI</span>
                                 <button onClick={() => setMobileMenuOpen(false)} className="text-gray-500">
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                                 </button>

@@ -29,13 +29,13 @@ const METRIC_CONFIG = {
 };
 
 const TONES = {
-    blue:    { grad: 'from-blue-500 to-indigo-600',     text: 'text-blue-700 dark:text-blue-300',     border: 'border-blue-200/60 dark:border-blue-800/40' },
-    rose:    { grad: 'from-rose-500 to-pink-600',       text: 'text-rose-700 dark:text-rose-300',     border: 'border-rose-200/60 dark:border-rose-800/40' },
-    amber:   { grad: 'from-amber-500 to-orange-600',    text: 'text-amber-700 dark:text-amber-300',   border: 'border-amber-200/60 dark:border-amber-800/40' },
-    purple:  { grad: 'from-purple-500 to-fuchsia-600',  text: 'text-purple-700 dark:text-purple-300', border: 'border-purple-200/60 dark:border-purple-800/40' },
-    emerald: { grad: 'from-emerald-500 to-teal-600',    text: 'text-emerald-700 dark:text-emerald-300', border: 'border-emerald-200/60 dark:border-emerald-800/40' },
-    slate:   { grad: 'from-slate-500 to-gray-700',      text: 'text-slate-700 dark:text-slate-300',   border: 'border-slate-200/60 dark:border-slate-800/40' },
-    cyan:    { grad: 'from-cyan-500 to-sky-600',         text: 'text-cyan-700 dark:text-cyan-300',     border: 'border-cyan-200/60 dark:border-cyan-800/40' },
+    blue:    { grad: 'bg-blue-600',     text: 'text-blue-700 dark:text-blue-300',     border: 'border-blue-200/60 dark:border-blue-800/40' },
+    rose:    { grad: 'bg-rose-600',       text: 'text-rose-700 dark:text-rose-300',     border: 'border-rose-200/60 dark:border-rose-800/40' },
+    amber:   { grad: 'bg-amber-500',    text: 'text-amber-700 dark:text-amber-300',   border: 'border-amber-200/60 dark:border-amber-800/40' },
+    purple:  { grad: 'bg-purple-600',  text: 'text-purple-700 dark:text-purple-300', border: 'border-purple-200/60 dark:border-purple-800/40' },
+    emerald: { grad: 'bg-emerald-600',    text: 'text-emerald-700 dark:text-emerald-300', border: 'border-emerald-200/60 dark:border-emerald-800/40' },
+    slate:   { grad: 'bg-slate-600',      text: 'text-slate-700 dark:text-slate-300',   border: 'border-slate-200/60 dark:border-slate-800/40' },
+    cyan:    { grad: 'bg-cyan-600',         text: 'text-cyan-700 dark:text-cyan-300',     border: 'border-cyan-200/60 dark:border-cyan-800/40' },
 };
 
 const ICON_FOR_KEY = {
@@ -122,7 +122,7 @@ const TodayWidget = () => {
                             to={to}
                             className={`block h-full bg-white dark:bg-gray-800 p-4 rounded-2xl border ${toneClasses.border} shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200`}
                         >
-                            <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${toneClasses.grad} text-white flex items-center justify-center mb-2 shadow-sm`}>
+                            <div className={`w-8 h-8 rounded-lg ${toneClasses.grad} text-white flex items-center justify-center mb-2 shadow-sm`}>
                                 {Ico && <Ico className="w-4 h-4" />}
                             </div>
                             <div className="text-2xl font-extrabold text-gray-900 dark:text-white tabular-nums">{value}</div>

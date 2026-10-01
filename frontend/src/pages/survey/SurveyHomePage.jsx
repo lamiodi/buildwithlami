@@ -59,8 +59,11 @@ const useFontsEffect = () => {
   useLayoutEffect(() => {
     if (typeof document === 'undefined') return;
 
-    // Clean existing survey fonts to avoid duplicate styles
-    const existingLink = document.querySelector('link[href*="Manrope"], link[href*="Mulish"], link[href*="Antic+Didone"]');
+    // Clean existing survey fonts to avoid duplicate styles. Only match
+    // the survey-only families — matching "Antic+Didone" here would also
+    // delete the site-wide brand stylesheet in index.html, stripping the
+    // main site's fonts for the rest of the session.
+    const existingLink = document.querySelector('link[href*="Manrope"], link[href*="Mulish"]');
     const existingStyle = document.querySelector('style[data-survey-fonts]');
     if (existingLink) existingLink.remove();
     if (existingStyle) existingStyle.remove();

@@ -99,7 +99,7 @@ const AdminClients = () => {
     <div className="flex flex-col">
       <div className="max-w-7xl mx-auto w-full">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-          <h1 className="text-4xl font-extrabold bg-gradient-to-r from-accent to-orange-500 bg-clip-text text-transparent font-heading">
+          <h1 className="text-4xl font-extrabold text-gray-900 dark:text-white font-heading">
             Client Directory
           </h1>
           <div className="flex gap-2 items-center w-full md:w-auto">
