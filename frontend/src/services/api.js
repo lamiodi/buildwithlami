@@ -26,7 +26,7 @@
 
 // Only honour VITE_API_URL if it points to the same origin (relative
 // path) or to a localhost address (local dev convenience). An absolute
-// URL pointing to a remote host (e.g. https://buildwithlami.onrender.com/api)
+// URL pointing to a remote host (e.g. https://buildwithlami-jb12.onrender.com/api)
 // would force every request to be cross-origin and re-introduce the
 // third-party cookie problem — browsers silently drop the HttpOnly
 // `access_token` cookie, and every admin endpoint returns 401.

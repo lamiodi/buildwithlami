@@ -90,7 +90,7 @@ The frontend uses Vite, so vars are **build-time**. Prefix with
 
 | Var | Example | Purpose |
 |---|---|---|
-| `VITE_API_URL` | `https://buildwithlami-api.onrender.com` | Base URL for all backend API calls. **If unset, defaults to `http://localhost:4000` in dev.** |
+| `VITE_API_URL` | `https://buildwithlami-jb12.onrender.com` | Base URL for all backend API calls. **If unset, defaults to `http://localhost:4000` in dev.** |
 | `VITE_PAYSTACK_PUBLIC_KEY` | `pk_test_...` | Paystack public key for inline payments. |
 
 | `VITE_GA_ID` | `G-XXXXXXX` | Google Analytics 4 ID. |
