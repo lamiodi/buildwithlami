@@ -2,7 +2,6 @@ import { useState, useEffect, useRef, useLayoutEffect, useCallback } from 'react
 import { Link } from 'react-router-dom';
 import { 
   ArrowRight, 
-  ArrowUpRight, 
   Plus, 
   Minus, 
   Download, 
@@ -12,122 +11,22 @@ import {
   Shield, 
   Compass, 
   FileText, 
-  Sliders,
   MapPin,
-  Phone,
-  Mail,
   Menu,
   CheckCircle2,
   Cpu,
-  Target,
-  FileCheck,
   ChevronLeft,
   ChevronRight,
-  Maximize2,
-  Building2,
-  Calendar,
   Activity,
   UserCheck,
-  Award,
-  ShieldCheck,
-  AlertTriangle,
   MessageCircle
 } from 'lucide-react';
 import { api } from '../../services/api';
-import { surveyPlaceholder, projectPlaceholder } from '../../utils/placeholders';
-import { validateBooking, validateField } from '../../utils/formValidation';
 import { CONTACT } from '../../config/contact';
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '../../components/ui/select';
+import DivisionQuoteForm from '../../components/DivisionQuoteForm';
+import { ServiceShortcuts, MobileQuoteBar } from '../../components/DivisionConversion';
+import '../../styles/division-pages.css';
 import SurveyFooter from '../../components/SurveyFooter';
-
-// ── Survey-page fonts ────────────────────────────────────
-// Heading: Antic Didone (display serif, single weight 400).
-// Body:    Manrope (variable sans, 200-800).
-const FONT_HREF =
-  'https://fonts.googleapis.com/css2?family=Antic+Didone&family=Manrope:wght@200..800&display=swap';
-
-const useFontsEffect = () => {
-  const fontRef = useRef(null);
-  
-  useLayoutEffect(() => {
-    if (typeof document === 'undefined') return;
-
-    // Clean existing survey fonts to avoid duplicate styles. Only match
-    // the survey-only families — matching "Antic+Didone" here would also
-    // delete the site-wide brand stylesheet in index.html, stripping the
-    // main site's fonts for the rest of the session.
-    const existingLink = document.querySelector('link[href*="Manrope"], link[href*="Mulish"]');
-    const existingStyle = document.querySelector('style[data-survey-fonts]');
-    if (existingLink) existingLink.remove();
-    if (existingStyle) existingStyle.remove();
-
-    const created = [];
-    const add = (node) => { document.head.appendChild(node); created.push(node); fontRef.current = created; };
-
-    const preconnect1 = document.createElement('link');
-    preconnect1.rel = 'preconnect';
-    preconnect1.href = 'https://fonts.googleapis.com';
-    add(preconnect1);
-
-    const preconnect2 = document.createElement('link');
-    preconnect2.rel = 'preconnect';
-    preconnect2.href = 'https://fonts.gstatic.com';
-    preconnect2.crossOrigin = 'anonymous';
-    add(preconnect2);
-
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = FONT_HREF;
-    add(link);
-
-    const style = document.createElement('style');
-    style.setAttribute('data-survey-fonts', '');
-    style.textContent = `
-      /* Antic Didone: single weight 400, used for all display
-         headings on the survey page. Pinning weight prevents
-         Tailwind's font-bold / font-black utilities from
-         requesting weights Antic Didone does not ship. */
-      .survey-heading {
-        font-family: "Antic Didone", serif;
-        font-weight: 400;
-        font-style: normal;
-        /* Slight open tracking: Didone display serifs read
-           tighter in UPPERCASE than they render, and the
-           default tracking-tight Tailwind utility was
-           crushing the hairline strokes. 0.04em keeps the
-           heads tight while restoring legibility on every
-           h1 / h2 / h3 that uses this class. Loaded after
-           Tailwind so it wins the cascade against
-           .tracking-tight at equal specificity. */
-        letter-spacing: 0.04em;
-      }
-      /* Manrope: variable, 200-800. Used for body copy,
-         nav items, list rows, and small UI labels. */
-      .survey-body {
-        font-family: "Manrope", sans-serif;
-        font-optical-sizing: auto;
-        font-weight: 400;
-        font-style: normal;
-      }
-    `;
-    add(style);
-
-    return () => {
-      if (fontRef.current) {
-        fontRef.current.forEach((n) => {
-          if (n.parentNode) n.parentNode.removeChild(n);
-        });
-      }
-    };
-  }, []);
-};
 
 // ── Reusable Interactive 3-Image Carousel Component ──────────────────────
 const ProjectImageCarousel = ({ images, title, tag }) => {
@@ -136,13 +35,13 @@ const ProjectImageCarousel = ({ images, title, tag }) => {
   const prevSlide = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    setCurrentIdx((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+    setCurrentIdx((prev) => (prev === 0 ? safeImages.length - 1 : prev - 1));
   };
 
   const nextSlide = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    setCurrentIdx((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+    setCurrentIdx((prev) => (prev === safeImages.length - 1 ? 0 : prev + 1));
   };
 
   const safeImages = images && images.length > 0 ? images : [
@@ -186,14 +85,14 @@ const ProjectImageCarousel = ({ images, title, tag }) => {
         <>
           <button
             onClick={prevSlide}
-            className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-black/70 hover:bg-black text-white flex items-center justify-center transition-all opacity-80 sm:opacity-0 group-hover:opacity-100 z-20 border border-white/20 active:scale-95"
+            className="absolute left-2 top-1/2 -translate-y-1/2 w-11 h-11 bg-black/70 hover:bg-black text-white flex items-center justify-center transition-all opacity-80 sm:opacity-70 group-hover:opacity-100 focus-visible:opacity-100 z-20 border border-white/20 active:scale-95"
             aria-label="Previous Project Image"
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
           <button
             onClick={nextSlide}
-            className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-black/70 hover:bg-black text-white flex items-center justify-center transition-all opacity-80 sm:opacity-0 group-hover:opacity-100 z-20 border border-white/20 active:scale-95"
+            className="absolute right-2 top-1/2 -translate-y-1/2 w-11 h-11 bg-black/70 hover:bg-black text-white flex items-center justify-center transition-all opacity-80 sm:opacity-70 group-hover:opacity-100 focus-visible:opacity-100 z-20 border border-white/20 active:scale-95"
             aria-label="Next Project Image"
           >
             <ChevronRight className="w-4 h-4" />
@@ -223,77 +122,17 @@ const ProjectImageCarousel = ({ images, title, tag }) => {
 };
 
 const SurveyHomePage = () => {
-  useFontsEffect();
 
   // -- Mobile nav state --
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
-  // -- Booking form state --
-  const [booking, setBooking] = useState({
-    full_name: '', email: '', phone: '', service: '', location: '', preferred_date: '', notes: '', land_size: '', survey_purpose: '',
-  });
-  const [bookingStatus, setBookingStatus] = useState('idle'); // idle | submitting | success | error
-  const [bookingErrors, setBookingErrors] = useState({});
+  const [selectedQuoteService, setSelectedQuoteService] = useState(null);
 
   // -- Modal & Filter States --
   const [selectedServiceModal, setSelectedServiceModal] = useState(null);
   const [selectedCaseStudyModal, setSelectedCaseStudyModal] = useState(null);
   const [standardsModal, setStandardsModal] = useState(false);
   const [activeCategory, setActiveCategory] = useState('ALL');
-
-  const handleBookingFieldChange = (field, value) => {
-    setBooking({ ...booking, [field]: value });
-    if (bookingErrors[field]) {
-      setBookingErrors({ ...bookingErrors, [field]: '' });
-    }
-  };
-
-  const handleBookingFieldBlur = (field) => {
-    const error = validateField(field, booking[field]);
-    setBookingErrors((prev) => ({ ...prev, [field]: error }));
-  };
-
-  const handleBooking = async (e) => {
-    e.preventDefault();
-
-    const validation = validateBooking(booking);
-    if (!validation.valid) {
-      setBookingErrors(validation.errors);
-      const firstError = Object.keys(validation.errors)[0];
-      const el = document.querySelector(`[name="survey_booking_${firstError}"]`);
-      if (el) el.focus();
-      return;
-    }
-
-    setBookingErrors({});
-    setBookingStatus('submitting');
-    
-    // Combine qualifying attributes cleanly for seamless backend receipt
-    const enrichedNotes = [
-      booking.land_size ? `Land Size: ${booking.land_size}` : '',
-      booking.survey_purpose ? `Survey Purpose: ${booking.survey_purpose}` : '',
-      booking.notes ? `Client Notes: ${booking.notes}` : ''
-    ].filter(Boolean).join('\n\n');
-
-    try {
-      const res = await api.post('/bookings', { 
-        ...booking, 
-        notes: enrichedNotes || booking.notes,
-        division: 'SURVEY' 
-      });
-      if (res.ok) {
-        setBookingStatus('success');
-        setBooking({ full_name: '', email: '', phone: '', service: '', location: '', preferred_date: '', notes: '', land_size: '', survey_purpose: '' });
-        setTimeout(() => setBookingStatus('idle'), 5000);
-      } else {
-        setBookingStatus('error');
-        setTimeout(() => setBookingStatus('idle'), 5000);
-      }
-    } catch (err) {
-      setBookingStatus('error');
-      setTimeout(() => setBookingStatus('idle'), 5000);
-    }
-  };
 
   // 4 Core Primary Disciplines
   const servicePillars = [
@@ -619,7 +458,7 @@ const SurveyHomePage = () => {
   const scrollTo = (id) => {
     const el = sectionsRef.current[id];
     if (el) {
-      el.scrollIntoView({ behavior: 'smooth' });
+      el.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
       setMobileNavOpen(false);
     }
   };
@@ -682,7 +521,7 @@ const SurveyHomePage = () => {
   }, []);
 
   return (
-    <div className="bg-[#f4f4f4] text-black font-sans selection:bg-black selection:text-white survey-body min-h-screen">
+    <div className="bg-[#f4f4f4] text-black font-sans selection:bg-black selection:text-white survey-body division-page min-h-screen">
 
       {/* ==== DEDICATED GEOSURVEY NAVBAR ==== */}
       <header className="sticky top-0 z-40 bg-[#f4f4f4]/95 backdrop-blur-md border-b border-gray-300/80 px-6 md:px-12 py-4">
@@ -714,14 +553,16 @@ const SurveyHomePage = () => {
               onClick={() => scrollTo('contact')}
               className="hidden sm:inline-flex items-center gap-2 bg-black text-white px-5 py-2.5 text-[10px] font-bold uppercase tracking-widest hover:bg-gray-800 transition-colors shadow-sm"
             >
-              <span>Request Survey</span>
+              <span>Get a quote</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
 
             <button
               onClick={() => setMobileNavOpen(prev => !prev)}
               className="lg:hidden p-2 text-black hover:text-gray-600 focus:outline-none"
-              aria-label="Toggle Navigation Menu"
+              aria-label={mobileNavOpen ? "Close navigation" : "Open navigation"}
+              aria-expanded={mobileNavOpen}
+              aria-controls="survey-mobile-menu"
             >
               {mobileNavOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
@@ -730,271 +571,45 @@ const SurveyHomePage = () => {
 
         {/* Mobile Dropdown Panel */}
         {mobileNavOpen && (
-          <div className="lg:hidden pt-4 pb-2 border-t border-gray-200 mt-3 space-y-2">
-            <button onClick={() => scrollTo('services')} className="block w-full text-left py-2 text-xs font-bold uppercase tracking-wider text-gray-700 hover:text-black">Services</button>
-            <button onClick={() => scrollTo('workflow')} className="block w-full text-left py-2 text-xs font-bold uppercase tracking-wider text-gray-700 hover:text-black">Methodology</button>
-            <button onClick={() => scrollTo('projects')} className="block w-full text-left py-2 text-xs font-bold uppercase tracking-wider text-gray-700 hover:text-black">Portfolio</button>
-            <button onClick={() => scrollTo('equipment')} className="block w-full text-left py-2 text-xs font-bold uppercase tracking-wider text-gray-700 hover:text-black">Equipment</button>
-            <button onClick={() => scrollTo('profile')} className="block w-full text-left py-2 text-xs font-bold uppercase tracking-wider text-gray-700 hover:text-black">Profile</button>
-            <button onClick={() => scrollTo('faq')} className="block w-full text-left py-2 text-xs font-bold uppercase tracking-wider text-gray-700 hover:text-black">FAQ</button>
-            <button onClick={() => scrollTo('contact')} className="block w-full text-left py-2 text-xs font-bold uppercase tracking-wider text-black font-black">Request a Survey →</button>
+          <div id="survey-mobile-menu" className="lg:hidden max-h-[70dvh] overflow-y-auto pt-4 pb-2 border-t border-gray-200 mt-3 space-y-2">
+            <button onClick={() => scrollTo('services')} className="block w-full min-h-[44px] text-left py-2 text-xs font-bold uppercase tracking-wider text-gray-700 hover:text-black">Services</button>
+            <button onClick={() => scrollTo('workflow')} className="block w-full min-h-[44px] text-left py-2 text-xs font-bold uppercase tracking-wider text-gray-700 hover:text-black">Methodology</button>
+            <button onClick={() => scrollTo('projects')} className="block w-full min-h-[44px] text-left py-2 text-xs font-bold uppercase tracking-wider text-gray-700 hover:text-black">Portfolio</button>
+            <button onClick={() => scrollTo('equipment')} className="block w-full min-h-[44px] text-left py-2 text-xs font-bold uppercase tracking-wider text-gray-700 hover:text-black">Equipment</button>
+            <button onClick={() => scrollTo('profile')} className="block w-full min-h-[44px] text-left py-2 text-xs font-bold uppercase tracking-wider text-gray-700 hover:text-black">Profile</button>
+            <button onClick={() => scrollTo('faq')} className="block w-full min-h-[44px] text-left py-2 text-xs font-bold uppercase tracking-wider text-gray-700 hover:text-black">FAQ</button>
+            <button onClick={() => scrollTo('contact')} className="block w-full min-h-[44px] text-left py-2 text-xs font-bold uppercase tracking-wider text-black font-black">Request a Survey →</button>
           </div>
         )}
       </header>
 
-      {/* ==== HERO SECTION (3 Column Editorial Layout) ==== */}
-      <section className="min-h-[calc(100vh-70px)] flex justify-center p-4 md:p-8 pt-6">
-        <div className="bg-white w-full max-w-[1400px] flex flex-col md:flex-row overflow-hidden border border-gray-300 shadow-sm">
-          
-          {/* Left Column - Headline & Positioning */}
-          <div className="w-full md:w-[38%] flex flex-col justify-between p-8 md:p-12 relative border-b md:border-b-0 md:border-r border-gray-300 min-h-[90vh] md:min-h-[auto]">
-            <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-gray-100 border border-gray-200 text-[10px] font-bold uppercase tracking-widest text-gray-700 mb-8">
-                <span className="w-2 h-2 rounded-full bg-black"></span>
-                <span>GeoSurvey // Land &amp; Engineering Division · SURCON Oversight</span>
-              </div>
-
-              <h1 className="survey-heading text-4xl sm:text-5xl lg:text-6xl font-black leading-[1.05] tracking-tight uppercase mb-6 text-gray-900">
-                SURCON-Supervised<br />
-                <span className="text-gray-500">Land &amp; Engineering Surveys.</span>
-              </h1>
-
-              <p className="text-xs sm:text-sm font-semibold leading-relaxed text-gray-700 mb-6">
-                Protect your property investment, secure statutory land title documentation, and ground your civil construction in verified sub-centimeter accuracy. Professional boundary demarcation, 3D topographic baselines, and estate subdivision across Lagos and nationwide — delivered by <span className="text-black font-bold">Eugene Odibenuah</span> under certified SURCON-registered surveyor supervision.
-              </p>
-
-              {/* Conversion Trust Strip */}
-              <div className="grid grid-cols-2 gap-2 mb-6 text-[10px] font-bold uppercase tracking-wider text-gray-700">
-                <div className="flex items-center gap-2 p-2 bg-gray-50 border border-gray-200">
-                  <Check className="w-3.5 h-3.5 text-black shrink-0" />
-                  <span>SURCON Lodgement Oversight</span>
-                </div>
-                <div className="flex items-center gap-2 p-2 bg-gray-50 border border-gray-200">
-                  <Check className="w-3.5 h-3.5 text-black shrink-0" />
-                  <span>Minna Datum &amp; UTM 31N/32N</span>
-                </div>
-                <div className="flex items-center gap-2 p-2 bg-gray-50 border border-gray-200">
-                  <Check className="w-3.5 h-3.5 text-black shrink-0" />
-                  <span>Centimeter RTK GNSS Accuracy</span>
-                </div>
-                <div className="flex items-center gap-2 p-2 bg-gray-50 border border-gray-200">
-                  <Check className="w-3.5 h-3.5 text-black shrink-0" />
-                  <span>Scope &amp; Quote in 24 Hours</span>
-                </div>
-              </div>
-
-              <div className="flex flex-wrap items-center gap-3.5 mb-6">
-                <button
-                  onClick={() => scrollTo('contact')}
-                  className="bg-black text-white px-6 py-3.5 text-xs font-bold uppercase tracking-wider flex items-center gap-2 hover:bg-gray-800 transition-colors shadow-sm active:scale-98"
-                >
-                  <span>Request Survey Quote</span>
-                  <ArrowRight className="w-4 h-4" />
-                </button>
-
-                <a
-                  href={`https://wa.me/${CONTACT.phoneE164}?text=${encodeURIComponent("Hello Eugene, I would like to request a land survey scope and quotation for my site.")}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="border border-black text-black px-5 py-3.5 text-xs font-bold uppercase tracking-wider hover:bg-gray-100 transition-colors flex items-center gap-2"
-                >
-                  <MessageCircle className="w-4 h-4 text-emerald-600" />
-                  <span>WhatsApp Chat</span>
-                </a>
-              </div>
-
-              <div className="pt-2">
-                <a
-                  href="/eugene-odibenuah-land-surveyor-cv.pdf"
-                  download="Eugene-Odibenuah-Surveyor-CV.pdf"
-                  className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-gray-600 hover:text-black transition-colors"
-                >
-                  <Download className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>Download Professional Profile (CV)</span>
-                </a>
-              </div>
+      <section className="survey-hero" aria-labelledby="survey-hero-heading">
+        <div className="survey-hero-grid">
+          <div className="survey-hero-copy">
+            <p className="division-eyebrow">GeoSurvey · Lagos &amp; across Nigeria</p>
+            <h1 id="survey-hero-heading" className="survey-heading">Know your land.<br /><span>Plan your next move.</span></h1>
+            <p className="survey-hero-description">Land and engineering surveys for property owners, architects, and developers. Get clear boundaries, useful site data, and setting out for your next build.</p>
+            <div className="survey-hero-actions">
+              <button type="button" onClick={() => scrollTo('contact')}>Get a survey quote <ArrowRight size={18} /></button>
+              <a href={'https://wa.me/' + CONTACT.phoneE164 + '?text=' + encodeURIComponent('Hello Eugene, I would like to discuss a land survey.')} target="_blank" rel="noopener noreferrer"><MessageCircle size={18} /> Talk on WhatsApp</a>
             </div>
-
-            <div className="pt-8 mt-auto border-t border-gray-200">
-              <p className="text-[9px] font-bold uppercase tracking-[0.25em] text-gray-400 mb-2">Core Disciplines</p>
-              <p className="text-[11px] font-bold uppercase tracking-wider text-gray-800">
-                Boundary Surveys · Topographic Baselines · Setting Out · Land Subdivision
-              </p>
-            </div>
+            <p className="survey-hero-note">Not sure which survey you need? Tell us what you are planning.</p>
+            <div className="survey-hero-proof"><span><Check size={16} /> Defined scope &amp; deliverables</span><span><Check size={16} /> Direct project contact</span></div>
           </div>
-
-          {/* Center Column - Field Operations Imagery */}
-          <div className="w-full md:w-[32%] bg-[#f7f7f7] flex flex-col border-b md:border-b-0 md:border-r border-gray-300">
-            <div className="w-full h-[45vh] md:h-[65%] bg-gray-200 overflow-hidden relative group">
-              <img
-                src="/images/survey/survey_hero_field.webp"
-                alt="Cadastral Survey Field Operations"
-                className="w-full h-full object-cover grayscale-[10%] contrast-110 group-hover:scale-105 transition-transform duration-700"
-                loading="eager"
-                decoding="async"
-              />
-              <div className="absolute bottom-4 left-4 bg-black/80 backdrop-blur-sm text-white px-3 py-1 text-[9px] font-bold uppercase tracking-widest">
-                Fieldwork In Action // Lagos, Nigeria
-              </div>
-            </div>
-
-            <div className="p-8 flex flex-col justify-between flex-1 bg-white">
-              <div className="flex justify-between items-center border-b border-gray-200 pb-3 mb-4">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Methodology</span>
-                <button onClick={() => scrollTo('workflow')} className="text-[11px] font-bold uppercase tracking-wider flex items-center gap-1.5 hover:text-gray-600 transition-colors">
-                  How We Work <ArrowRight className="w-3 h-3" />
-                </button>
-              </div>
-              <p className="text-[11px] font-medium leading-relaxed text-gray-600">
-                Calibrated optical and satellite equipment paired with structured traverse closing computations, with defined quality-control checks against applicable project and statutory requirements.
-              </p>
-            </div>
-          </div>
-
-          {/* Right Column - Professional Practitioner Profile (About Me) */}
-          <div className="w-full md:w-[30%] bg-white p-8 md:p-10 flex flex-col justify-between relative min-h-[500px]">
-            <div>
-              {/* Header with Practitioner Badge */}
-              <div className="flex items-center justify-between mb-6 pb-3 border-b border-gray-200">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Field Practitioner</span>
-                <span className="text-[9px] font-bold uppercase tracking-widest bg-black text-white px-2 py-0.5">
-                  Lead Surveyor
-                </span>
-              </div>
-
-              <div className="flex items-center gap-3.5 mb-4">
-                <div className="w-12 h-12 bg-black text-white flex items-center justify-center font-mono font-black text-base shrink-0 border border-black shadow-sm">
-                  EO
-                </div>
-                <div>
-                  <h3 className="survey-heading text-xl font-bold uppercase tracking-tight text-gray-900 leading-tight">
-                    Eugene Odibenuah
-                  </h3>
-                  <p className="text-[11px] font-bold uppercase tracking-wider text-gray-500 font-mono">
-                    Land &amp; Engineering Geomatics
-                  </p>
-                </div>
-              </div>
-
-              <p className="text-xs text-gray-600 leading-relaxed mb-6 font-medium">
-                Specialist in cadastral boundary demarcation, high-density topographic baselines, construction setting out, and estate subdivision across Lagos and nationwide.
-              </p>
-
-              {/* Credentials & Operational Standards Matrix */}
-              <div className="space-y-2 text-xs">
-                <div className="flex justify-between border-b border-gray-100 pb-1.5">
-                  <span className="font-bold uppercase tracking-wider text-gray-400 text-[10px]">Supervision:</span>
-                  <span className="font-bold text-gray-900 text-[11px] text-right">SURCON-Registered Oversight</span>
-                </div>
-                <div className="flex justify-between border-b border-gray-100 pb-1.5">
-                  <span className="font-bold uppercase tracking-wider text-gray-400 text-[10px]">Hardware:</span>
-                  <span className="font-bold text-gray-900 text-[11px] text-right">GNSS RTK · Total Station · Drone</span>
-                </div>
-                <div className="flex justify-between border-b border-gray-100 pb-1.5">
-                  <span className="font-bold uppercase tracking-wider text-gray-400 text-[10px]">Coordinate Datums:</span>
-                  <span className="font-bold text-gray-900 text-[11px] text-right">Minna Datum / UTM / WGS84</span>
-                </div>
-                <div className="flex justify-between border-b border-gray-100 pb-1.5">
-                  <span className="font-bold uppercase tracking-wider text-gray-400 text-[10px]">Field Base:</span>
-                  <span className="font-bold text-gray-900 text-[11px] text-right">Lagos // Deployments Nationwide</span>
-                </div>
-                <div className="flex justify-between border-b border-gray-100 pb-1.5">
-                  <span className="font-bold uppercase tracking-wider text-gray-400 text-[10px]">Response Time:</span>
-                  <span className="font-bold text-gray-900 text-[11px] text-right">Scope &amp; Quote in 24 Hours</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Bottom Action: Prominent CV Download & Link */}
-            <div className="pt-6 mt-6 border-t border-gray-200 space-y-2.5">
-              <a
-                href="/eugene-odibenuah-land-surveyor-cv.pdf"
-                download="Eugene-Odibenuah-Surveyor-CV.pdf"
-                className="w-full bg-black text-white hover:bg-gray-800 py-3.5 px-4 text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 transition-colors shadow-sm active:scale-98"
-              >
-                <Download className="w-4 h-4 text-emerald-400" />
-                <span>Download Professional Profile (CV)</span>
-              </a>
-
-              <button
-                onClick={() => scrollTo('profile')}
-                className="w-full text-center text-[10px] font-bold uppercase tracking-wider text-gray-500 hover:text-black transition-colors block py-1"
-              >
-                View Comprehensive Profile &amp; Bio ↓
-              </button>
-            </div>
-          </div>
-
+          <figure className="survey-hero-image">
+            <img src="/images/survey/survey_hero_field.webp" alt="Surveying equipment in the field" fetchPriority="high" decoding="async" />
+            <figcaption><span className="division-eyebrow">Land &amp; engineering division</span><strong>From field measurements to your next decision.</strong><p>Boundary surveys · Topographic surveys · Construction setting out · Land subdivision</p></figcaption>
+          </figure>
         </div>
       </section>
 
-      {/* ==== RISK REVERSAL & HIGH-CONVERSION COMPARISON SECTION ==== */}
-      <section className="py-16 px-6 md:px-12 max-w-[1400px] mx-auto border-t border-gray-300">
-        <div className="bg-white border border-gray-300 p-8 md:p-12 shadow-sm">
-          <div className="max-w-3xl mb-10">
-            <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-500 mb-3">— Investment Protection &amp; Legal Peace of Mind</p>
-            <h2 className="survey-heading text-3xl sm:text-4xl md:text-5xl font-black uppercase tracking-tight text-gray-900 mb-4">
-              The Cost of Quack Surveys<br />
-              <span className="text-gray-500">vs. The GeoSurvey Standard</span>
-            </h2>
-            <p className="text-xs sm:text-sm text-gray-600 font-medium leading-relaxed">
-              In Nigerian real estate, saving money on an uncertified surveyor is the single most expensive error a property buyer or developer can make. Here is why serious clients insist on verified SURCON-supervised surveying:
-            </p>
-          </div>
+      <ServiceShortcuts division="SURVEY" services={servicePillars} onSelect={(service) => { setSelectedQuoteService({ service }); scrollTo('contact'); }} />
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {/* Left Card: Risks of Unverified Surveys */}
-            <div className="bg-red-50/60 border border-red-200 p-6 sm:p-8 space-y-4">
-              <div className="flex items-center gap-3 text-red-700 font-bold uppercase tracking-wider text-xs">
-                <AlertTriangle className="w-5 h-5 shrink-0 text-red-600" />
-                <span>The Risks of Quack / Unverified Surveys</span>
-              </div>
-              <ul className="space-y-3 text-xs text-gray-700 font-medium">
-                <li className="flex items-start gap-2.5">
-                  <X className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
-                  <span><strong>Artificial / Guessed Coordinates:</strong> Results in overlapping boundary lines, bitter neighbor disputes, and court injunctions halting building works.</span>
-                </li>
-                <li className="flex items-start gap-2.5">
-                  <X className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
-                  <span><strong>Statutory Lodgement Rejection:</strong> Plans prepared without registered surveyor supervision are rejected at the Lands Bureau during Governor’s Consent and C of O processing.</span>
-                </li>
-                <li className="flex items-start gap-2.5">
-                  <X className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
-                  <span><strong>Uncoordinated Beacons:</strong> Weak, unmonumented beacons easily removed, displaced, or contested by land grabbers (<em>omoonile</em>).</span>
-                </li>
-                <li className="flex items-start gap-2.5">
-                  <X className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
-                  <span><strong>Elevation Blindspots:</strong> Uncalibrated topographic data leads to building on natural drainage paths, chronic flooding, and catastrophic civil rework costs.</span>
-                </li>
-              </ul>
-            </div>
-
-            {/* Right Card: The GeoSurvey Professional Standard */}
-            <div className="bg-emerald-50/60 border border-emerald-200 p-6 sm:p-8 space-y-4">
-              <div className="flex items-center gap-3 text-emerald-800 font-bold uppercase tracking-wider text-xs">
-                <ShieldCheck className="w-5 h-5 shrink-0 text-emerald-600" />
-                <span>The GeoSurvey Professional Standard</span>
-              </div>
-              <ul className="space-y-3 text-xs text-gray-700 font-medium">
-                <li className="flex items-start gap-2.5">
-                  <Check className="w-4 h-4 text-emerald-700 shrink-0 mt-0.5" />
-                  <span><strong>Tied to National Geodetic Framework:</strong> Multi-constellation GNSS RTK observations anchored to Minna Datum / UTM Zone 31N/32N government control beacons.</span>
-                </li>
-                <li className="flex items-start gap-2.5">
-                  <Check className="w-4 h-4 text-emerald-700 shrink-0 mt-0.5" />
-                  <span><strong>100% Lodgement-Ready Certification:</strong> Stamped and certified under the direct supervision of licensed SURCON-registered surveyors for seamless land titling.</span>
-                </li>
-                <li className="flex items-start gap-2.5">
-                  <Check className="w-4 h-4 text-emerald-700 shrink-0 mt-0.5" />
-                  <span><strong>Rigid Monumentation:</strong> Permanent concrete beacon pillars anchored directly at perimeter vertices with tabulated coordinate schedules.</span>
-                </li>
-                <li className="flex items-start gap-2.5">
-                  <Check className="w-4 h-4 text-emerald-700 shrink-0 mt-0.5" />
-                  <span><strong>3D Engineering CAD Vectors:</strong> Clean, layered AutoCAD (.DWG/.DXF) drawings and Digital Elevation Models compatible with Revit, Civil 3D, and ArchiCAD.</span>
-                </li>
-              </ul>
-            </div>
-          </div>
+      <section className="px-6 md:px-12 py-12 max-w-[1400px] mx-auto border-y border-gray-300">
+        <div className="grid md:grid-cols-3 gap-8 text-gray-800">
+          <div><p className="division-eyebrow mb-3">Clear from the start</p><h2 className="survey-heading text-3xl">A survey you can put to work.</h2></div>
+          <div><h3 className="font-bold mb-3">Know what you will receive</h3><p className="text-sm leading-relaxed text-gray-600">We agree the site coverage, required plans, file formats, and delivery schedule with you before fieldwork begins.</p></div>
+          <div><h3 className="font-bold mb-3">A scope that fits your project</h3><p className="text-sm leading-relaxed text-gray-600">Share your location and intended use. We help identify the measurements and documentation your project needs.</p></div>
         </div>
       </section>
 
@@ -1165,7 +780,6 @@ const SurveyHomePage = () => {
               ))}
             </>
           ) : projects.map((proj, idx) => {
-            const isFallback = typeof proj.id === 'string' && proj.id.startsWith('fallback-');
             const tag = (proj.tags && proj.tags[0]) || proj.type || 'Cadastral';
 
             // Construct 3-image carousel array
@@ -1516,7 +1130,7 @@ const SurveyHomePage = () => {
 
       {/* ==== CONTACT / CTA SECTION ==== */}
       <section 
-        ref={(el) => (sectionsRef.current['contact'] = el)} 
+        id="contact" ref={(el) => (sectionsRef.current['contact'] = el)} 
         className="py-20 px-6 md:px-12 max-w-[1400px] mx-auto border-t border-gray-300"
       >
         <div className="flex flex-col md:flex-row gap-12 lg:gap-16 items-start">
@@ -1525,10 +1139,10 @@ const SurveyHomePage = () => {
           <div className="w-full md:w-1/2">
             <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-500 mb-3">— Direct Brief Submission</p>
             <h2 className="survey-heading text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight uppercase text-gray-900 mb-6">
-              Start A Project
+              Let’s plan your survey
             </h2>
             <p className="text-xs sm:text-sm font-semibold leading-relaxed text-gray-700 max-w-md mb-8">
-              Share details about your site location, estimated acreage, and intended deliverables. We respond within one business day with a clear scope, timeline, and transparent quotation.
+              Tell us where your site is and what you want to achieve. You do not need coordinates, exact acreage, or a finished technical brief to start.
             </p>
             
             <div className="space-y-4 bg-white p-6 border border-gray-300 mb-6">
@@ -1540,7 +1154,7 @@ const SurveyHomePage = () => {
               </div>
               <div className="border-b border-gray-200 pb-3">
                 <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-1">Direct Telephone / WhatsApp</p>
-                <a href={`tel:${CONTACT.phoneE164}`} className="text-sm font-bold uppercase tracking-wider text-black hover:underline">
+                <a href={`tel:+${CONTACT.phoneE164}`} className="text-sm font-bold uppercase tracking-wider text-black hover:underline">
                   {CONTACT.phoneDisplay}
                 </a>
               </div>
@@ -1553,262 +1167,19 @@ const SurveyHomePage = () => {
             </div>
 
             <div className="p-4 bg-gray-100 border border-gray-200 text-xs text-gray-600 leading-relaxed font-medium">
-              <span className="font-bold text-gray-900 block mb-1">Professional Guarantee:</span>
+              <span className="font-bold text-gray-900 block mb-1">A clear proposal before you commit:</span>
               Transparent quotations with itemized scope, mobilization, beacon requirements, and agreed deliverables.
             </div>
+<div className="division-next-steps"><h3>What happens next?</h3><ol><li>We review your location and project goals.</li><li>You receive a scope, proposed timing, and an itemized quote.</li><li>We agree the details with you before scheduling fieldwork.</li></ol></div>
           </div>
 
           {/* Right Column - Booking Form */}
-          <div className="w-full md:w-1/2 bg-white p-8 border border-gray-300">
+          <div className="w-full md:w-1/2 bg-white p-5 sm:p-8 border border-gray-300">
             <h3 className="survey-heading text-xl font-bold uppercase tracking-tight text-gray-900 mb-6">
-              Survey Brief Submission Form
+              Get your project quote
             </h3>
 
-            <form className="space-y-5" onSubmit={handleBooking} noValidate aria-label="Survey service booking request">
-              <div>
-                <label htmlFor="survey_booking_full_name" className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1.5 block">Full Name *</label>
-                <input
-                  id="survey_booking_full_name"
-                  name="survey_booking_full_name"
-                  type="text"
-                  required
-                  placeholder="e.g. Engr. Babatunde Adeyemi"
-                  value={booking.full_name}
-                  onChange={e => handleBookingFieldChange('full_name', e.target.value)}
-                  onBlur={() => handleBookingFieldBlur('full_name')}
-                  aria-invalid={!!bookingErrors.full_name}
-                  aria-describedby={bookingErrors.full_name ? 'survey_err_full_name' : undefined}
-                  className={`w-full bg-[#f9f9f9] border p-3 text-xs font-bold uppercase tracking-wider focus:outline-none transition-colors ${
-                    bookingErrors.full_name ? 'border-red-500' : 'border-gray-300 focus:border-black'
-                  }`}
-                />
-                {bookingErrors.full_name && <p id="survey_err_full_name" role="alert" className="text-xs text-red-600 mt-1">{bookingErrors.full_name}</p>}
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label htmlFor="survey_booking_email" className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1.5 block">Email Address *</label>
-                  <input
-                    id="survey_booking_email"
-                    name="survey_booking_email"
-                    type="email"
-                    required
-                    placeholder="name@company.com"
-                    value={booking.email}
-                    onChange={e => handleBookingFieldChange('email', e.target.value)}
-                    onBlur={() => handleBookingFieldBlur('email')}
-                    aria-invalid={!!bookingErrors.email}
-                    aria-describedby={bookingErrors.email ? 'survey_err_email' : undefined}
-                    className={`w-full bg-[#f9f9f9] border p-3 text-xs font-bold uppercase tracking-wider focus:outline-none transition-colors ${
-                      bookingErrors.email ? 'border-red-500' : 'border-gray-300 focus:border-black'
-                    }`}
-                  />
-                  {bookingErrors.email && <p id="survey_err_email" role="alert" className="text-xs text-red-600 mt-1">{bookingErrors.email}</p>}
-                </div>
-
-                <div>
-                  <label htmlFor="survey_booking_phone" className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1.5 block">Phone / WhatsApp</label>
-                  <input
-                    id="survey_booking_phone"
-                    name="survey_booking_phone"
-                    type="tel"
-                    placeholder="+234 800 000 0000"
-                    value={booking.phone}
-                    onChange={e => handleBookingFieldChange('phone', e.target.value)}
-                    onBlur={() => handleBookingFieldBlur('phone')}
-                    aria-invalid={!!bookingErrors.phone}
-                    aria-describedby={bookingErrors.phone ? 'survey_err_phone' : undefined}
-                    className={`w-full bg-[#f9f9f9] border p-3 text-xs font-bold uppercase tracking-wider focus:outline-none transition-colors ${
-                      bookingErrors.phone ? 'border-red-500' : 'border-gray-300 focus:border-black'
-                    }`}
-                  />
-                  {bookingErrors.phone && <p id="survey_err_phone" role="alert" className="text-xs text-red-600 mt-1">{bookingErrors.phone}</p>}
-                </div>
-              </div>
-
-              <div>
-                <label htmlFor="survey_booking_service" className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1.5 block">Survey Discipline Required *</label>
-                <Select
-                  value={booking.service}
-                  onValueChange={val => handleBookingFieldChange('service', val)}
-                >
-                  <SelectTrigger
-                    id="survey_booking_service"
-                    className={`w-full bg-[#f9f9f9] border rounded-none h-11 text-xs font-bold uppercase tracking-wider focus:outline-none transition-colors ${
-                      bookingErrors.service ? 'border-red-500' : 'border-gray-300 focus:border-black'
-                    }`}
-                  >
-                    <SelectValue placeholder="— Select Survey Discipline —" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-white border-gray-300 shadow-2xl">
-                    <SelectGroup>
-                      {servicePillars.map((s, i) => (
-                        <SelectItem key={i} value={s.category} className="cursor-pointer font-bold text-xs uppercase tracking-wider">
-                          {s.category}
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-                {bookingErrors.service && <p id="survey_err_service" role="alert" className="text-xs text-red-600 mt-1">{bookingErrors.service}</p>}
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label htmlFor="survey_booking_land_size" className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1.5 block">Estimated Land Size / Acreage</label>
-                  <Select
-                    value={booking.land_size}
-                    onValueChange={val => handleBookingFieldChange('land_size', val)}
-                  >
-                    <SelectTrigger
-                      id="survey_booking_land_size"
-                      className="w-full bg-[#f9f9f9] border border-gray-300 rounded-none h-11 text-xs font-bold uppercase tracking-wider focus:outline-none transition-colors focus:border-black"
-                    >
-                      <SelectValue placeholder="— Select Land Size —" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-white border-gray-300 shadow-2xl">
-                      <SelectGroup>
-                        <SelectItem value="1–2 Residential Plots (< 1,500 m²)" className="cursor-pointer font-bold text-xs uppercase tracking-wider">
-                          1–2 Plots (&lt; 1,500 m²)
-                        </SelectItem>
-                        <SelectItem value="3–6 Plots / Commercial Site (Half Acre)" className="cursor-pointer font-bold text-xs uppercase tracking-wider">
-                          3–6 Plots / Half Acre
-                        </SelectItem>
-                        <SelectItem value="1–3 Hectares (15–45 Plots)" className="cursor-pointer font-bold text-xs uppercase tracking-wider">
-                          1–3 Hectares (15–45 Plots)
-                        </SelectItem>
-                        <SelectItem value="4–10 Hectares (Estate Layout)" className="cursor-pointer font-bold text-xs uppercase tracking-wider">
-                          4–10 Hectares (Estate Layout)
-                        </SelectItem>
-                        <SelectItem value="10+ Hectares (Regional / Agricultural)" className="cursor-pointer font-bold text-xs uppercase tracking-wider">
-                          10+ Hectares (Large Acreage)
-                        </SelectItem>
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <label htmlFor="survey_booking_survey_purpose" className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1.5 block">Intended Survey Purpose</label>
-                  <Select
-                    value={booking.survey_purpose}
-                    onValueChange={val => handleBookingFieldChange('survey_purpose', val)}
-                  >
-                    <SelectTrigger
-                      id="survey_booking_survey_purpose"
-                      className="w-full bg-[#f9f9f9] border border-gray-300 rounded-none h-11 text-xs font-bold uppercase tracking-wider focus:outline-none transition-colors focus:border-black"
-                    >
-                      <SelectValue placeholder="— Select Purpose —" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-white border-gray-300 shadow-2xl">
-                      <SelectGroup>
-                        <SelectItem value="Title Lodgement / Governor's Consent / C of O" className="cursor-pointer font-bold text-xs uppercase tracking-wider">
-                          Title Lodgement / C of O
-                        </SelectItem>
-                        <SelectItem value="Architectural & Engineering Planning (Topographic)" className="cursor-pointer font-bold text-xs uppercase tracking-wider">
-                          Architectural / Civil Planning
-                        </SelectItem>
-                        <SelectItem value="Boundary Demarcation & Beacon Monumentation" className="cursor-pointer font-bold text-xs uppercase tracking-wider">
-                          Boundary Beaconing
-                        </SelectItem>
-                        <SelectItem value="Construction Setting Out & Column Alignment" className="cursor-pointer font-bold text-xs uppercase tracking-wider">
-                          Construction Setting Out
-                        </SelectItem>
-                        <SelectItem value="Estate Subdivision & Plot Partitioning" className="cursor-pointer font-bold text-xs uppercase tracking-wider">
-                          Estate Subdivision
-                        </SelectItem>
-                        <SelectItem value="Purchase Due Diligence / Boundary Verification" className="cursor-pointer font-bold text-xs uppercase tracking-wider">
-                          Purchase Due Diligence
-                        </SelectItem>
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label htmlFor="survey_booking_location" className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1.5 block">Site Location / LGA</label>
-                  <input
-                    id="survey_booking_location"
-                    name="survey_booking_location"
-                    type="text"
-                    placeholder="e.g. Epe / Ibeju-Lekki, Lagos"
-                    value={booking.location}
-                    onChange={e => handleBookingFieldChange('location', e.target.value)}
-                    className="w-full bg-[#f9f9f9] border border-gray-300 p-3 text-xs font-bold uppercase tracking-wider focus:outline-none focus:border-black transition-colors"
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="survey_booking_preferred_date" className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1.5 block">Preferred Field Date</label>
-                  <input
-                    id="survey_booking_preferred_date"
-                    name="survey_booking_preferred_date"
-                    type="date"
-                    min={new Date().toISOString().split('T')[0]}
-                    value={booking.preferred_date}
-                    onChange={e => handleBookingFieldChange('preferred_date', e.target.value)}
-                    onBlur={() => handleBookingFieldBlur('preferred_date')}
-                    aria-invalid={!!bookingErrors.preferred_date}
-                    aria-describedby={bookingErrors.preferred_date ? 'survey_err_preferred_date' : undefined}
-                    className={`w-full bg-[#f9f9f9] border p-3 text-xs font-bold uppercase tracking-wider focus:outline-none transition-colors ${
-                      bookingErrors.preferred_date ? 'border-red-500' : 'border-gray-300 focus:border-black'
-                    }`}
-                  />
-                  {bookingErrors.preferred_date && <p id="survey_err_preferred_date" role="alert" className="text-xs text-red-600 mt-1">{bookingErrors.preferred_date}</p>}
-                </div>
-              </div>
-
-              <div>
-                <label htmlFor="survey_booking_notes" className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1.5 block">Project Notes &amp; Site Details</label>
-                <textarea
-                  id="survey_booking_notes"
-                  name="survey_booking_notes"
-                  rows="3"
-                  maxLength={1000}
-                  placeholder="e.g. 3 plots for boundary demarcation; title document is a registered deed of assignment..."
-                  value={booking.notes}
-                  onChange={e => handleBookingFieldChange('notes', e.target.value)}
-                  className="w-full bg-[#f9f9f9] border border-gray-300 p-3 text-xs font-bold uppercase tracking-wider focus:outline-none focus:border-black transition-colors resize-none"
-                ></textarea>
-              </div>
-
-              <button
-                type="submit"
-                disabled={bookingStatus === 'submitting'}
-                aria-busy={bookingStatus === 'submitting'}
-                className={`w-full py-4 text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2 group transition-colors ${
-                  bookingStatus === 'success'
-                    ? 'bg-green-700 text-white'
-                    : bookingStatus === 'error'
-                    ? 'bg-red-600 text-white'
-                    : bookingStatus === 'submitting'
-                    ? 'bg-gray-400 text-white cursor-not-allowed'
-                    : 'bg-black text-white hover:bg-gray-800 shadow-md'
-                }`}
-              >
-                {bookingStatus === 'success' ? '✓ Survey Brief Submitted — We will reply in 24h' : bookingStatus === 'error' ? '✗ Submission Failed — Try Again' : bookingStatus === 'submitting' ? 'Submitting Brief...' : 'Submit Survey Brief'}
-                {bookingStatus === 'idle' && <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />}
-              </button>
-
-              {bookingStatus === 'error' && (
-                <p role="alert" className="text-xs text-red-600 font-bold uppercase tracking-wider text-center">Something went wrong. Please try again or email us directly.</p>
-              )}
-
-              <div className="pt-4 border-t border-gray-200 text-center">
-                <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">Prefer Immediate Dialogue?</p>
-                <a
-                  href={`https://wa.me/${CONTACT.phoneE164}?text=${encodeURIComponent("Hello Eugene, I would like to request an instant land survey scope and quote.")}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full py-3 border border-emerald-600 text-emerald-800 hover:bg-emerald-50 text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-colors"
-                >
-                  <MessageCircle className="w-4 h-4 text-emerald-600" />
-                  <span>Chat Directly on WhatsApp for Instant Site Scoping →</span>
-                </a>
-              </div>
-            </form>
+            <DivisionQuoteForm division="SURVEY" services={servicePillars} selectedService={selectedQuoteService} />
           </div>
 
         </div>
@@ -1959,7 +1330,7 @@ const SurveyHomePage = () => {
 
             <button
               onClick={() => {
-                handleBookingFieldChange('service', selectedServiceModal.category);
+                setSelectedQuoteService({ service: selectedServiceModal.category });
                 setSelectedServiceModal(null);
                 scrollTo('contact');
               }}
@@ -2032,6 +1403,7 @@ const SurveyHomePage = () => {
 
       {/* ==== SURVEY DIVISION FOOTER ==== */}
       <SurveyFooter />
+      <MobileQuoteBar division="SURVEY" onQuote={() => scrollTo('contact')} hidden={mobileNavOpen || !!selectedServiceModal || !!selectedCaseStudyModal || standardsModal} />
     </div>
   );
 };

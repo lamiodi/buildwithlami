@@ -2,85 +2,20 @@ import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useReducedMotion } from 'framer-motion';
 import {
-  Crosshair, ArrowRight, ArrowUpRight, Plus, Minus, Mail, Phone, MapPin, Download,
+  Crosshair, ArrowRight, ArrowUpRight, Plus, Minus, Mail, Phone, MapPin,
   Map as MapIcon, Building2, Home, Mountain, Calendar, TreePine, Landmark, Plane,
-  X, Check, Camera, Video, Shield, Layers, Sliders, Menu, Calculator, Clock, CheckCircle2, ShieldCheck,
+  X, Check, Camera, Video, Layers, Sliders, Menu, Clock, CheckCircle2, ShieldCheck,
   MessageCircle
 } from 'lucide-react';
 import { api } from '../../services/api';
 import { dronePlaceholder, equipmentPlaceholder } from '../../utils/placeholders';
-import { validateBooking, validateField } from '../../utils/formValidation';
 import { CONTACT } from '../../config/contact';
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '../../components/ui/select';
+import DivisionQuoteForm from '../../components/DivisionQuoteForm';
+import { ServiceShortcuts, MobileQuoteBar } from '../../components/DivisionConversion';
+import '../../styles/division-pages.css';
 import DroneFooter from '../../components/DroneFooter';
 
-// ── Drone-page fonts ─────────────────────────────────────
-// Heading: Aboreto (display, single weight 400).
-// Body:    Montserrat (variable, 100-900 + italic).
-const FONT_HREF =
-  'https://fonts.googleapis.com/css2?family=Aboreto&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap';
-
-const useFontsEffect = () => {
-    useEffect(() => {
-        if (typeof document === 'undefined') return undefined;
-
-        const created = [];
-        const add = (node) => { document.head.appendChild(node); created.push(node); };
-
-        const preconnect1 = document.createElement('link');
-        preconnect1.rel = 'preconnect';
-        preconnect1.href = 'https://fonts.googleapis.com';
-        add(preconnect1);
-
-        const preconnect2 = document.createElement('link');
-        preconnect2.rel = 'preconnect';
-        preconnect2.href = 'https://fonts.gstatic.com';
-        preconnect2.crossOrigin = 'anonymous';
-        add(preconnect2);
-
-        const link = document.createElement('link');
-        link.rel = 'stylesheet';
-        link.href = FONT_HREF;
-        add(link);
-
-        const style = document.createElement('style');
-        style.setAttribute('data-drone-fonts', '');
-        style.textContent = `
-            /* Aboreto: single weight 400, used for all display headings
-               on the drone page. Pinning weight prevents Tailwind's
-               font-bold / font-black utilities from requesting weights
-               Aboreto does not ship. */
-            .drone-heading {
-              font-family: "Aboreto", system-ui, sans-serif;
-              font-weight: 400;
-              font-style: normal;
-            }
-            /* Montserrat: variable, 100-900 + italic. Used for body
-               copy, nav items, list rows, and small UI labels. */
-            .drone-body {
-              font-family: "Montserrat", system-ui, sans-serif;
-              font-optical-sizing: auto;
-              font-weight: 400;
-              font-style: normal;
-            }
-        `;
-        add(style);
-
-        return () => {
-            created.forEach((n) => n.parentNode && n.parentNode.removeChild(n));
-        };
-    }, []);
-};
-
 const DroneHomePage = () => {
-  useFontsEffect();
   const reduce = useReducedMotion();
 
   useEffect(() => {
@@ -93,55 +28,7 @@ const DroneHomePage = () => {
   const [activeCategory, setActiveCategory] = useState('ALL');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  // -- Booking form state --
-  const [booking, setBooking] = useState({
-    full_name: '', email: '', phone: '', service: '', location: '', preferred_date: '', notes: '',
-  });
-  const [bookingStatus, setBookingStatus] = useState('idle'); // idle | submitting | success | error
-  const [bookingErrors, setBookingErrors] = useState({});
-
-  const handleBookingFieldChange = (field, value) => {
-    setBooking({ ...booking, [field]: value });
-    if (bookingErrors[field]) {
-      setBookingErrors({ ...bookingErrors, [field]: '' });
-    }
-  };
-
-  const handleBookingFieldBlur = (field) => {
-    const error = validateField(field, booking[field]);
-    setBookingErrors((prev) => ({ ...prev, [field]: error }));
-  };
-
-  const handleBooking = async (e) => {
-    e.preventDefault();
-
-    const validation = validateBooking(booking);
-    if (!validation.valid) {
-      setBookingErrors(validation.errors);
-      const firstError = Object.keys(validation.errors)[0];
-      const el = document.querySelector(`[name="booking_${firstError}"]`);
-      if (el) el.focus();
-      return;
-    }
-
-    setBookingErrors({});
-    setBookingStatus('submitting');
-    
-    try {
-      const res = await api.post('/bookings', { ...booking, division: 'DRONE' });
-      if (res.ok) {
-        setBookingStatus('success');
-        setBooking({ full_name: '', email: '', phone: '', service: '', location: '', preferred_date: '', notes: '' });
-        setTimeout(() => setBookingStatus('idle'), 5000);
-      } else {
-        setBookingStatus('error');
-        setTimeout(() => setBookingStatus('idle'), 5000);
-      }
-    } catch (err) {
-      setBookingStatus('error');
-      setTimeout(() => setBookingStatus('idle'), 5000);
-    }
-  };
+  const [selectedQuoteService, setSelectedQuoteService] = useState(null);
 
   // -- 4 Unified Commercial Service Pillars --
   const servicePillars = [
@@ -457,7 +344,7 @@ const DroneHomePage = () => {
   const sectionsRef = useRef({});
   const scrollTo = (id) => {
     const el = sectionsRef.current[id];
-    if (el) el.scrollIntoView({ behavior: 'smooth' });
+    if (el) el.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
   };
 
   // Simple intersection observer for reveal animations
@@ -492,9 +379,9 @@ const DroneHomePage = () => {
   }, []);
 
   return (
-    <div className="min-h-screen flex flex-col font-sans drone-body">
+    <div className="min-h-screen flex flex-col font-sans drone-body division-page">
       {/* Main Content */}
-      <div className="flex-1 bg-[#f4f4f4] overflow-y-auto overflow-x-hidden flex flex-col relative scrollbar-hide">
+      <div className="flex-1 bg-[#f4f4f4] overflow-x-clip flex flex-col relative scrollbar-hide">
 
         {/* ==== NAVBAR ==== */}
         <header className="flex justify-between items-center px-6 md:px-12 py-5 z-40 relative sticky top-0 bg-[#f4f4f4]/95 backdrop-blur-md border-b border-gray-200/60">
@@ -507,7 +394,7 @@ const DroneHomePage = () => {
             </span>
           </div>
 
-          <nav className="hidden lg:flex gap-8 text-sm text-gray-500 font-medium">
+          <nav className="hidden xl:flex gap-5 text-sm text-gray-500 font-medium">
             <button onClick={() => scrollTo('services')}  className="hover:text-black transition-colors">Services</button>
             <button onClick={() => scrollTo('why-choose')} className="hover:text-black transition-colors">Why Lami Aerial</button>
             <button onClick={() => scrollTo('workflow')}  className="hover:text-black transition-colors">Workflow</button>
@@ -520,14 +407,16 @@ const DroneHomePage = () => {
           <div className="flex items-center gap-3">
             <button
               onClick={() => scrollTo('contact')}
-              className="hidden lg:flex bg-black text-white rounded-full py-2.5 px-5 text-xs font-bold tracking-wide hover:bg-accent transition-colors items-center gap-2 group active:scale-95"
+              className="hidden xl:flex bg-black text-white rounded-full py-2.5 px-5 text-xs font-bold tracking-wide hover:bg-accent transition-colors items-center gap-2 group active:scale-95"
             >
-              Book a Flight <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+              Get a drone quote <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
             </button>
             <button
               onClick={() => setMobileMenuOpen(prev => !prev)}
-              className="lg:hidden w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
+              className="xl:hidden w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
               aria-label={mobileMenuOpen ? 'Close navigation' : 'Open navigation'}
+              aria-expanded={mobileMenuOpen}
+              aria-controls="drone-mobile-menu"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
@@ -536,8 +425,10 @@ const DroneHomePage = () => {
 
         {/* Mobile Navigation Panel */}
         <div
-          className={`lg:hidden overflow-hidden transition-all duration-300 ease-in-out z-30 bg-[#f4f4f4]/98 backdrop-blur-md border-b border-gray-200/60 ${
-            mobileMenuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+          id="drone-mobile-menu"
+          hidden={!mobileMenuOpen}
+          className={`xl:hidden overflow-y-auto transition-all duration-300 ease-in-out z-30 bg-[#f4f4f4]/98 backdrop-blur-md border-b border-gray-200/60 ${
+            mobileMenuOpen ? 'max-h-[70dvh] opacity-100' : 'max-h-0 opacity-0'
           }`}
         >
           <nav className="flex flex-col px-6 py-4 gap-1">
@@ -549,7 +440,7 @@ const DroneHomePage = () => {
               { label: 'Equipment', id: 'equipment' },
               { label: 'Pricing & Estimates', id: 'pricing' },
               { label: 'FAQ', id: 'faq' },
-              { label: 'Book a Flight', id: 'contact' },
+              { label: 'Get a drone quote', id: 'contact' },
             ].map(item => (
               <button
                 key={item.id}
@@ -563,7 +454,7 @@ const DroneHomePage = () => {
               onClick={() => { scrollTo('contact'); setMobileMenuOpen(false); }}
               className="mt-2 bg-black text-white rounded-full py-3 px-6 text-xs font-bold tracking-wide hover:bg-accent transition-colors text-center min-h-[44px]"
             >
-              Book a Flight
+              Get a drone quote
             </button>
           </nav>
         </div>
@@ -599,12 +490,12 @@ const DroneHomePage = () => {
                 <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-70 animate-ping" />
                 <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-400" />
               </span>
-              <span className="text-white/80">Mission Active</span>
+              <span className="text-white/80">Lagos & Nationwide</span>
             </div>
             <span className="w-px h-3 bg-white/15" aria-hidden="true" />
-            <span className="font-mono tracking-[0.15em] text-white/60">06°31'N 003°22'E</span>
+            <span className="font-mono tracking-[0.15em] text-white/60">Photo · Film · Mapping</span>
             <span className="w-px h-3 bg-white/15" aria-hidden="true" />
-            <span className="font-mono tracking-[0.15em] text-white/60">AGL 124m</span>
+            <span className="font-mono tracking-[0.15em] text-white/60">Project-led capture</span>
           </div>
 
           <div className="flex flex-1 relative z-10 pt-20 md:pt-20">
@@ -630,8 +521,8 @@ const DroneHomePage = () => {
                 className="drone-heading tracking-[-0.025em] leading-[0.95] mb-6 text-white"
                 style={{ fontSize: 'clamp(2.5rem, 5.2vw, 5rem)' }}
               >
-                Elevate Your Perspective.<br />
-                <span className="text-white/35">Accelerate Property Sales.</span>
+                Show the bigger picture.<br />
+                <span className="text-white/80">Make your project stand out.</span>
               </motion.h1>
 
               <motion.p
@@ -640,7 +531,7 @@ const DroneHomePage = () => {
                 transition={{ duration: 0.8, delay: 0.35, ease: [0.16, 1, 0.3, 1] }}
                 className="text-sm md:text-base text-white/75 font-medium leading-relaxed max-w-lg mb-6"
               >
-                Broadcast-grade 4K/60fps HDR video (10-bit D-Log M), 48MP RAW stills (DNG), and photogrammetric basemaps for luxury real estate developers, construction directors, and commercial brands across Nigeria. Flown with practiced cinematic precision by Chief Pilot <span className="text-white font-bold">Eugene Odibenuah</span>.
+                Aerial photography, films, and mapping for property listings, construction updates, and brand stories. Tell us what you need to show. We’ll plan the capture and deliver files ready for your project.
               </motion.p>
 
               {/* Conversion Trust Strip */}
@@ -652,19 +543,19 @@ const DroneHomePage = () => {
               >
                 <div className="flex items-center gap-2 p-2 bg-white/5 border border-white/10 rounded-xl">
                   <Check className="w-3.5 h-3.5 text-accent shrink-0" />
-                  <span>48MP RAW &amp; 4K 10-Bit D-Log M</span>
+                  <span>Photos &amp; edited video</span>
                 </div>
                 <div className="flex items-center gap-2 p-2 bg-white/5 border border-white/10 rounded-xl">
                   <Check className="w-3.5 h-3.5 text-accent shrink-0" />
-                  <span>Repeatable Waypoint Tracking</span>
+                  <span>Recurring site updates</span>
                 </div>
                 <div className="flex items-center gap-2 p-2 bg-white/5 border border-white/10 rounded-xl">
                   <Check className="w-3.5 h-3.5 text-accent shrink-0" />
-                  <span>Sub-249g Agile NCAA Safety</span>
+                  <span>Site &amp; weather planning</span>
                 </div>
                 <div className="flex items-center gap-2 p-2 bg-white/5 border border-white/10 rounded-xl">
                   <Check className="w-3.5 h-3.5 text-accent shrink-0" />
-                  <span>3–5 Day Delivery (24h Express)</span>
+                  <span>Delivery agreed upfront</span>
                 </div>
               </motion.div>
 
@@ -678,7 +569,7 @@ const DroneHomePage = () => {
                   onClick={() => scrollTo('contact')}
                   className="group bg-white text-black rounded-full py-3.5 pl-7 pr-2 flex items-center gap-3 hover:bg-accent hover:text-white transition-colors active:scale-[0.98] shadow-[0_8px_30px_rgba(244,74,34,0.18)]"
                 >
-                  <span className="font-bold text-sm">Book a Flight</span>
+                  <span className="font-bold text-sm">Get a drone quote</span>
                   <span className="bg-black text-white rounded-full w-7 h-7 flex items-center justify-center group-hover:translate-x-0.5 transition-transform shrink-0">
                     <ArrowRight className="w-3.5 h-3.5" />
                   </span>
@@ -691,7 +582,7 @@ const DroneHomePage = () => {
                   className="flex items-center gap-2 text-white/80 hover:text-white text-xs font-bold uppercase tracking-wider py-3.5 px-5 rounded-full border border-white/20 hover:border-white/40 transition-colors bg-white/5"
                 >
                   <MessageCircle className="w-4 h-4 text-emerald-400" />
-                  <span>WhatsApp Dispatch</span>
+                  <span>Talk on WhatsApp</span>
                 </a>
 
                 <button
@@ -753,7 +644,7 @@ const DroneHomePage = () => {
                   <div className="grid grid-cols-2 gap-x-3 gap-y-2.5 pt-3 border-t border-white/10">
                     <div>
                       <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-white/40 mb-0.5">Video</p>
-                      <p className="text-xs text-white font-semibold">4K / 100fps HDR</p>
+                      <p className="text-xs text-white font-semibold">4K / 60fps HDR</p>
                     </div>
                     <div>
                       <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-white/40 mb-0.5">Stills</p>
@@ -805,6 +696,8 @@ const DroneHomePage = () => {
           </div>
         </section>
 
+        <ServiceShortcuts division="DRONE" services={servicePillars} onSelect={(service) => { setSelectedQuoteService({ service }); scrollTo('contact'); }} />
+
         {/* ==== CAPABILITIES BANNER ==== */}
         <section className="bg-black text-white px-6 md:px-12 py-12 mx-6 md:mx-12 rounded-[2rem] my-8 grid grid-cols-2 md:grid-cols-4 gap-8">
           {capabilities.map((cap, idx) => (
@@ -841,7 +734,7 @@ const DroneHomePage = () => {
                 onClick={() => scrollTo('contact')} 
                 className="bg-black text-white rounded-full py-4 px-8 text-sm font-bold tracking-wide hover:bg-accent transition-colors shadow-lg shadow-black/20 shrink-0"
               >
-                Book a Flight
+                Get a drone quote
               </button>
             </div>
 
@@ -1029,7 +922,7 @@ const DroneHomePage = () => {
               onClick={() => scrollTo('contact')} 
               className="text-sm font-bold underline decoration-2 underline-offset-4 hover:text-accent transition-colors"
             >
-              Book a Flight
+              Get a drone quote
             </button>
           </div>
 
@@ -1196,7 +1089,7 @@ const DroneHomePage = () => {
           id="sister-division"
           className="px-6 md:px-12 py-16 max-w-7xl mx-auto w-full shrink-0"
         >
-          <div className="bg-black text-white rounded-[2.5rem] p-8 md:p-16 grid grid-cols-1 md:grid-cols-[1.4fr_1fr] gap-12 items-start">
+          <div className="bg-black text-white rounded-[2.5rem] p-5 sm:p-8 md:p-12 grid grid-cols-1 md:grid-cols-[1.4fr_1fr] gap-12 items-start">
             <div>
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-[10px] font-bold tracking-widest uppercase text-accent mb-4">
                 <ShieldCheck className="w-3.5 h-3.5" />
@@ -1349,18 +1242,19 @@ const DroneHomePage = () => {
             <div>
               <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-400 mb-4">— Direct Dispatch</p>
               <h2 className="drone-heading text-4xl md:text-5xl font-black tracking-tighter leading-[0.95] mb-6">
-                Request a<br/>Mission Quote
+                Let’s plan<br/>your project
               </h2>
               <p className="text-gray-400 leading-relaxed mb-8 max-w-md text-sm">
-                Tell us about your project — location coordinates, required visual deliverables, timeline, and site specifics. We will respond with an itemized quote within 24 hours.
+                A location and an idea are enough to start. Tell us what you are planning and we’ll help shape the shot list, deliverables, and quote.
               </p>
 
-              <div className="space-y-4">
+<div className="division-next-steps"><h3>What happens next?</h3><ol><li>We review your location and project goals.</li><li>You receive a scope, proposed timing, and an itemized quote.</li><li>We agree the details with you before scheduling the shoot.</li></ol></div>
+              <div className="space-y-4 mt-8">
                 <a href={`mailto:${CONTACT.email}`} className="flex items-center gap-3 text-sm hover:text-accent transition-colors">
                   <div className="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center"><Mail className="w-4 h-4 text-accent" /></div>
                   <span>{CONTACT.email}</span>
                 </a>
-                <a href={`tel:${CONTACT.phoneE164}`} className="flex items-center gap-3 text-sm hover:text-accent transition-colors">
+                <a href={`tel:+${CONTACT.phoneE164}`} className="flex items-center gap-3 text-sm hover:text-accent transition-colors">
                   <div className="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center"><Phone className="w-4 h-4 text-accent" /></div>
                   <span>{CONTACT.phoneDisplay}</span>
                 </a>
@@ -1371,172 +1265,13 @@ const DroneHomePage = () => {
               </div>
             </div>
 
-            <form className="space-y-5" onSubmit={handleBooking} noValidate aria-label="Drone mission quote request">
-              <div>
-                <label htmlFor="booking_full_name" className="sr-only">Full name</label>
-                <input
-                  id="booking_full_name"
-                  name="booking_full_name"
-                  type="text"
-                  placeholder="Full name *"
-                  required
-                  value={booking.full_name}
-                  onChange={e => handleBookingFieldChange('full_name', e.target.value)}
-                  onBlur={() => handleBookingFieldBlur('full_name')}
-                  aria-invalid={!!bookingErrors.full_name}
-                  aria-describedby={bookingErrors.full_name ? 'err_full_name' : undefined}
-                  className={`w-full bg-transparent border-b-2 py-3 text-white placeholder-white/40 focus:outline-none transition-colors ${
-                    bookingErrors.full_name ? 'border-red-400 focus:border-red-400' : 'border-white/20 focus:border-accent'
-                  }`}
-                />
-                {bookingErrors.full_name && <p id="err_full_name" role="alert" className="text-xs text-red-300 mt-1">{bookingErrors.full_name}</p>}
-              </div>
-              <div>
-                <label htmlFor="booking_email" className="sr-only">Email address</label>
-                <input
-                  id="booking_email"
-                  name="booking_email"
-                  type="email"
-                  placeholder="Email address *"
-                  required
-                  value={booking.email}
-                  onChange={e => handleBookingFieldChange('email', e.target.value)}
-                  onBlur={() => handleBookingFieldBlur('email')}
-                  aria-invalid={!!bookingErrors.email}
-                  aria-describedby={bookingErrors.email ? 'err_email' : undefined}
-                  className={`w-full bg-transparent border-b-2 py-3 text-white placeholder-white/40 focus:outline-none transition-colors ${
-                    bookingErrors.email ? 'border-red-400 focus:border-red-400' : 'border-white/20 focus:border-accent'
-                  }`}
-                />
-                {bookingErrors.email && <p id="err_email" role="alert" className="text-xs text-red-300 mt-1">{bookingErrors.email}</p>}
-              </div>
-              <div>
-                <label htmlFor="booking_phone" className="sr-only">Phone</label>
-                <input
-                  id="booking_phone"
-                  name="booking_phone"
-                  type="tel"
-                  placeholder="Phone number (WhatsApp preferred)"
-                  value={booking.phone}
-                  onChange={e => handleBookingFieldChange('phone', e.target.value)}
-                  onBlur={() => handleBookingFieldBlur('phone')}
-                  aria-invalid={!!bookingErrors.phone}
-                  aria-describedby={bookingErrors.phone ? 'err_phone' : undefined}
-                  className={`w-full bg-transparent border-b-2 py-3 text-white placeholder-white/40 focus:outline-none transition-colors ${
-                    bookingErrors.phone ? 'border-red-400 focus:border-red-400' : 'border-white/20 focus:border-accent'
-                  }`}
-                />
-                {bookingErrors.phone && <p id="err_phone" role="alert" className="text-xs text-red-300 mt-1">{bookingErrors.phone}</p>}
-              </div>
-              <div>
-                <label htmlFor="booking_service" className="sr-only">Service type</label>
-                <Select
-                  value={booking.service}
-                  onValueChange={val => handleBookingFieldChange('service', val)}
-                >
-                  <SelectTrigger
-                    id="booking_service"
-                    className={`w-full bg-zinc-900/90 border-2 rounded-xl h-12 text-sm text-white focus:outline-none transition-colors ${
-                      bookingErrors.service ? 'border-red-400 focus:border-red-400' : 'border-white/20 focus:border-accent'
-                    }`}
-                  >
-                    <SelectValue placeholder="— Select Service Discipline —" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-zinc-900 border-zinc-700 text-white shadow-2xl">
-                    <SelectGroup>
-                      {servicePillars.map((s, i) => (
-                        <SelectItem key={i} value={s.category} className="text-white cursor-pointer font-bold text-xs uppercase tracking-wider focus:bg-accent focus:text-white">
-                          {s.category}
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-                {bookingErrors.service && <p id="err_service" role="alert" className="text-xs text-red-300 mt-1">{bookingErrors.service}</p>}
-              </div>
-              <div>
-                <label htmlFor="booking_location" className="sr-only">Project location</label>
-                <input
-                  id="booking_location"
-                  name="booking_location"
-                  type="text"
-                  placeholder="Project location / Coordinates"
-                  value={booking.location}
-                  onChange={e => handleBookingFieldChange('location', e.target.value)}
-                  className="w-full bg-transparent border-b-2 border-white/20 py-3 text-white placeholder-white/40 focus:outline-none focus:border-accent transition-colors"
-                />
-              </div>
-              <div>
-                <label htmlFor="booking_preferred_date" className="sr-only">Preferred date</label>
-                <input
-                  id="booking_preferred_date"
-                  name="booking_preferred_date"
-                  type="date"
-                  placeholder="Target flight date"
-                  min={new Date().toISOString().split('T')[0]}
-                  value={booking.preferred_date}
-                  onChange={e => handleBookingFieldChange('preferred_date', e.target.value)}
-                  onBlur={() => handleBookingFieldBlur('preferred_date')}
-                  aria-invalid={!!bookingErrors.preferred_date}
-                  aria-describedby={bookingErrors.preferred_date ? 'err_preferred_date' : undefined}
-                  className={`w-full bg-transparent border-b-2 py-3 text-white placeholder-white/40 focus:outline-none transition-colors ${
-                    bookingErrors.preferred_date ? 'border-red-400 focus:border-red-400' : 'border-white/20 focus:border-accent'
-                  }`}
-                />
-                {bookingErrors.preferred_date && <p id="err_preferred_date" role="alert" className="text-xs text-red-300 mt-1">{bookingErrors.preferred_date}</p>}
-              </div>
-              <div>
-                <label htmlFor="booking_notes" className="sr-only">Mission details</label>
-                <textarea
-                  id="booking_notes"
-                  name="booking_notes"
-                  rows="3"
-                  maxLength={1000}
-                  placeholder="Tell us about your mission requirements (deliverables, site conditions, timing)..."
-                  value={booking.notes}
-                  onChange={e => handleBookingFieldChange('notes', e.target.value)}
-                  className="w-full bg-transparent border-b-2 border-white/20 py-3 text-white placeholder-white/40 focus:outline-none focus:border-accent transition-colors resize-none"
-                ></textarea>
-              </div>
-              <button
-                type="submit"
-                disabled={bookingStatus === 'submitting'}
-                aria-busy={bookingStatus === 'submitting'}
-                className={`w-full py-4 text-xs font-bold uppercase tracking-[0.2em] rounded-full flex items-center justify-center gap-3 group transition-colors ${
-                  bookingStatus === 'success'
-                    ? 'bg-green-500 text-white'
-                    : bookingStatus === 'error'
-                    ? 'bg-red-500 text-white'
-                    : bookingStatus === 'submitting'
-                    ? 'bg-white/20 text-white/50 cursor-not-allowed'
-                    : 'bg-white text-black hover:bg-accent hover:text-white'
-                }`}
-              >
-                {bookingStatus === 'success' ? '✓ Quote Request Sent — Responding within 24 hours' : bookingStatus === 'error' ? '✗ Try Again' : bookingStatus === 'submitting' ? 'Submitting...' : 'Request Mission Quote'}
-                {bookingStatus === 'idle' && <ArrowRight className="w-4 h-4 group-hover:translate-x-2 transition-transform" />}
-              </button>
-              {bookingStatus === 'error' && (
-                <p role="alert" className="text-xs text-red-300 font-medium text-center">Something went wrong. Please try again or contact us directly.</p>
-              )}
-
-              <div className="pt-4 border-t border-white/10 text-center">
-                <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">Need Immediate Scoping or Rush Turnaround?</p>
-                <a
-                  href={`https://wa.me/${CONTACT.phoneE164}?text=${encodeURIComponent("Hello Lami Aerial, I would like to request an aerial drone mission quote.")}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full py-3.5 border border-emerald-500 text-emerald-400 hover:bg-emerald-500/10 rounded-full text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-colors"
-                >
-                  <MessageCircle className="w-4 h-4 text-emerald-400" />
-                  <span>Connect Directly via WhatsApp for Instant Scoping →</span>
-                </a>
-              </div>
-            </form>
+            <DivisionQuoteForm division="DRONE" services={servicePillars} selectedService={selectedQuoteService} />
           </div>
         </section>
 
         {/* ==== DRONE DIVISION FOOTER ==== */}
         <DroneFooter />
+        <MobileQuoteBar division="DRONE" onQuote={() => scrollTo('contact')} hidden={mobileMenuOpen || !!selectedServiceModal || !!selectedEquipmentModal} />
       </div>
 
       {/* ==== SERVICE SCOPE MODAL ==== */}
@@ -1590,13 +1325,13 @@ const DroneHomePage = () => {
 
             <button
               onClick={() => {
-                handleBookingFieldChange('service', selectedServiceModal.category);
+                setSelectedQuoteService({ service: selectedServiceModal.category });
                 setSelectedServiceModal(null);
                 scrollTo('contact');
               }}
               className="w-full py-4 rounded-full bg-black text-white hover:bg-accent font-bold uppercase text-xs tracking-widest transition-colors flex items-center justify-center gap-2 shadow-lg"
             >
-              Book This Discipline <ArrowRight className="w-4 h-4" />
+              Get a quote for this service <ArrowRight className="w-4 h-4" />
             </button>
           </div>
         </div>

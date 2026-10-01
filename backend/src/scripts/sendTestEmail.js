@@ -10,7 +10,8 @@ import { createTransporter, renderEmailShell, getLogoAttachments } from '../serv
 
 async function main() {
     const targetEmail = process.argv[2] || 'buildwithlami@gmail.com';
-    console.log(`🚀 Preparing test email via Brevo SMTP to: ${targetEmail}`);
+    const smtpLabel = `${process.env.SMTP_HOST}:${process.env.SMTP_PORT}`;
+    console.log(`🚀 Preparing test email via SMTP to: ${targetEmail}`);
     console.log(`   SMTP Host: ${process.env.SMTP_HOST}:${process.env.SMTP_PORT}`);
     console.log(`   SMTP User: ${process.env.SMTP_USER}`);
     console.log(`   From: ${process.env.EMAIL_FROM}`);
@@ -25,13 +26,13 @@ async function main() {
     const bodyHtml = `
         <p style="margin:0 0 16px 0; font-size:15px; color:#334155;">Hello Lami,</p>
         <p style="margin:0 0 16px 0; font-size:15px; color:#334155; line-height:1.6;">
-            This is a verified live test of the <strong>BuildWith_Lami</strong> transactional email system powered by Brevo SMTP.
+            This is a verified live test of the <strong>BuildWith_Lami</strong> transactional email system.
         </p>
 
         <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:20px; margin:24px 0;">
             <div style="font-size:13px; color:#475569; line-height:1.7;">
                 <div style="font-weight:700; font-size:14px; color:#0f172a; margin-bottom:10px;">📋 System Verification Report</div>
-                <div>• <strong>SMTP Service:</strong> Brevo Relay (smtp-relay.brevo.com:587)</div>
+                <div>• <strong>SMTP Service:</strong> ${smtpLabel}</div>
                 <div>• <strong>Branding:</strong> Embedded High-Resolution Logo (MIME CID Inline)</div>
                 <div>• <strong>Email Shell:</strong> Responsive HTML with Apple/Stripe Typography</div>
                 <div>• <strong>Security:</strong> TLS Encrypted Dispatch & Anti-Spoof Headers</div>
@@ -59,7 +60,7 @@ async function main() {
         from: process.env.EMAIL_FROM || '"BuildWith_Lami" <buildwithlami@gmail.com>',
         to: targetEmail,
         subject: '🚀 BuildWith_Lami — System Verification & Test Email',
-        text: `Hello Lami,\n\nThis is a verified live test of the BuildWith_Lami transactional email system powered by Brevo SMTP.\n\nAll transactional emails are active and verified.\n\nThanks,\nBuildWith_Lami Studio`,
+        text: `Hello Lami,\n\nThis is a verified live test of the BuildWith_Lami transactional email system.\n\nAll transactional emails are active and verified.\n\nThanks,\nBuildWith_Lami Studio`,
         html,
         attachments: getLogoAttachments(),
     };
