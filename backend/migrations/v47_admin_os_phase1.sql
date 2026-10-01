@@ -18,6 +18,30 @@
 -- ──────────────────────────────────────────────────────────
 
 -- ── 1. Tasks ─────────────────────────────────────────────
+-- A drifted, empty `tasks` table (columns: assigned_to /
+-- division / due_date) exists in the live DB from manual
+-- editing outside the migration history. Drop it — but ONLY
+-- when it is that legacy shape AND holds zero rows, so real
+-- data can never be silently discarded. If a populated legacy
+-- table ever appears, this migration intentionally fails and
+-- a human decides.
+DO $$
+BEGIN
+    IF EXISTS (
+            SELECT 1 FROM information_schema.tables
+             WHERE table_schema = 'public' AND table_name = 'tasks'
+        )
+        AND EXISTS (
+            SELECT 1 FROM information_schema.columns
+             WHERE table_schema = 'public' AND table_name = 'tasks'
+               AND column_name = 'assigned_to'
+        )
+        AND (SELECT COUNT(*) FROM tasks) = 0
+    THEN
+        DROP TABLE tasks CASCADE;
+    END IF;
+END $$;
+
 CREATE TABLE IF NOT EXISTS tasks (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     client_id UUID REFERENCES clients(id) ON DELETE SET NULL,
