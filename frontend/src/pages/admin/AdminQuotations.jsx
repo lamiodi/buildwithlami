@@ -27,6 +27,10 @@ import Skeleton from '../../components/Skeleton';
 const inputClass = "w-full p-3 text-sm border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-colors font-body";
 const labelClass = "block text-[10px] font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-1.5";
 
+// Currency-aware symbol. Quotations default to naira; older rows and a
+// backend that doesn't persist the column both degrade to ₦.
+const currencySymbol = (c) => (c === 'USD' ? '$' : '₦');
+
 // Studio Packages & Presets for instant quotation generation
 const STUDIO_PRESETS = [
   {
@@ -265,7 +269,7 @@ export default function AdminQuotations() {
             title: preset.title,
             currency: preset.currency,
             line_items: preset.items.map(it => ({ ...it })),
-            notes: `${preset.notes}\n\nMilestone Terms: 50% Upfront Kickoff (${form.currency === 'USD' ? '$' : '₦'}${Math.round(preset.items.reduce((a, b) => a + b.rate, 0) * 0.5).toLocaleString()}) / 50% Final Delivery.`
+            notes: `${preset.notes}\n\nMilestone Terms: 50% Upfront Kickoff (${preset.currency === 'USD' ? '$' : '₦'}${Math.round(preset.items.reduce((a, b) => a + b.rate, 0) * 0.5).toLocaleString()}) / 50% Final Delivery.`
         }));
         notify.success(`Applied preset: ${preset.title}`);
     };
@@ -298,6 +302,7 @@ export default function AdminQuotations() {
         try {
             const payload = {
                 title: form.title,
+                currency: form.currency,
                 amount: totalFormAmount,
                 client_id: form.recipientType === 'client' ? (form.client_id || undefined) : undefined,
                 lead_id: form.recipientType === 'lead' ? (form.lead_id || undefined) : undefined,
@@ -490,10 +495,10 @@ export default function AdminQuotations() {
                                                 )}
                                             </td>
                                             <td className="p-4 font-mono text-sm font-extrabold text-gray-900 dark:text-white">
-                                                ₦{total.toLocaleString()}
+                                                {currencySymbol(q.currency)}{total.toLocaleString()}
                                             </td>
                                             <td className="p-4 text-xs font-mono">
-                                                <span className="text-emerald-600 dark:text-emerald-400 font-bold block">50%: ₦{deposit.toLocaleString()}</span>
+                                                <span className="text-emerald-600 dark:text-emerald-400 font-bold block">50%: {currencySymbol(q.currency)}{deposit.toLocaleString()}</span>
                                                 <span className="text-gray-400 text-[10px]">upon delivery</span>
                                             </td>
                                             <td className="p-4">
@@ -855,7 +860,7 @@ export default function AdminQuotations() {
                                         <thead className="bg-gray-50 dark:bg-gray-800 font-bold uppercase tracking-wider text-gray-500">
                                             <tr>
                                                 <th className="p-3">Deliverable Item</th>
-                                                <th className="p-3 text-right">Amount (NGN)</th>
+                                                <th className="p-3 text-right">Amount ({previewQuotation.currency || 'NGN'})</th>
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
@@ -870,14 +875,14 @@ export default function AdminQuotations() {
                                                     return (
                                                         <tr>
                                                             <td className="p-3">{previewQuotation.title}</td>
-                                                            <td className="p-3 text-right font-mono font-bold">₦{Number(previewQuotation.amount).toLocaleString()}</td>
+                                                            <td className="p-3 text-right font-mono font-bold">{currencySymbol(previewQuotation.currency)}{Number(previewQuotation.amount).toLocaleString()}</td>
                                                         </tr>
                                                     );
                                                 }
                                                 return items.map((it, idx) => (
                                                     <tr key={idx}>
                                                         <td className="p-3">{it.description}</td>
-                                                        <td className="p-3 text-right font-mono font-bold">₦{Number(it.rate || it.amount || 0).toLocaleString()}</td>
+                                                        <td className="p-3 text-right font-mono font-bold">{currencySymbol(previewQuotation.currency)}{Number(it.rate || it.amount || 0).toLocaleString()}</td>
                                                     </tr>
                                                 ));
                                             })()}
@@ -885,7 +890,7 @@ export default function AdminQuotations() {
                                         <tfoot className="bg-gray-50 dark:bg-gray-800 font-bold text-sm">
                                             <tr>
                                                 <td className="p-3 text-right uppercase tracking-wider text-xs">Total Estimate:</td>
-                                                <td className="p-3 text-right font-mono font-extrabold text-accent text-base">₦{Number(previewQuotation.amount).toLocaleString()}</td>
+                                                <td className="p-3 text-right font-mono font-extrabold text-accent text-base">{currencySymbol(previewQuotation.currency)}{Number(previewQuotation.amount).toLocaleString()}</td>
                                             </tr>
                                         </tfoot>
                                     </table>
@@ -900,13 +905,13 @@ export default function AdminQuotations() {
                                         <div>
                                             <span className="text-gray-500 block text-[11px]">1. 50% Kickoff Deposit:</span>
                                             <span className="font-mono font-extrabold text-emerald-600 dark:text-emerald-400 text-sm">
-                                                ₦{Math.round(Number(previewQuotation.amount || 0) * 0.5).toLocaleString()}
+                                                {currencySymbol(previewQuotation.currency)}{Math.round(Number(previewQuotation.amount || 0) * 0.5).toLocaleString()}
                                             </span>
                                         </div>
                                         <div>
                                             <span className="text-gray-500 block text-[11px]">2. 50% Final Delivery:</span>
                                             <span className="font-mono font-extrabold text-blue-600 dark:text-blue-400 text-sm">
-                                                ₦{(Number(previewQuotation.amount || 0) - Math.round(Number(previewQuotation.amount || 0) * 0.5)).toLocaleString()}
+                                                {currencySymbol(previewQuotation.currency)}{(Number(previewQuotation.amount || 0) - Math.round(Number(previewQuotation.amount || 0) * 0.5)).toLocaleString()}
                                             </span>
                                         </div>
                                     </div>

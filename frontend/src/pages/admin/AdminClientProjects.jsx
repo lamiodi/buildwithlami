@@ -206,7 +206,14 @@ const AdminClientProjects = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const payload = { ...formData, intake_form_id: formData.intake_form_id || null };
+    // Money fields arrive as raw input strings — coerce before sending
+    // so the API and every downstream calculation see numbers.
+    const payload = {
+      ...formData,
+      intake_form_id: formData.intake_form_id || null,
+      amount_due: formData.amount_due === '' || formData.amount_due === null ? null : Number(formData.amount_due),
+      monthly_fee: formData.monthly_fee === '' || formData.monthly_fee === null ? null : Number(formData.monthly_fee),
+    };
     let res;
     if (editingId) {
       res = await api.put(`/client-projects/${editingId}`, payload);

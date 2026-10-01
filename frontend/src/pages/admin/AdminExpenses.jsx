@@ -79,9 +79,16 @@ export default function AdminExpenses() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        // Guard the money field: an empty input parses to NaN, which
+        // serializes to null and silently corrupts the stored amount.
+        const amount = parseFloat(formData.amount);
+        if (!Number.isFinite(amount) || amount < 0) {
+            notify.error('Please enter a valid expense amount.');
+            return;
+        }
         const payload = {
             ...formData,
-            amount: parseFloat(formData.amount)
+            amount
         };
         
         const res = editingExpense

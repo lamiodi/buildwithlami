@@ -192,7 +192,14 @@ const AdminDashboard = () => {
     const financialSummary = data.financialSummary || {};
     const pipelineStats = data.pipelineStats || {};
 
-    const totalRevenue = Number(financialSummary.total_revenue || 0) || invoices.filter(i => i.status === 'PAID').reduce((sum, i) => sum + Number(i.amount || 0), 0);
+    // Prefer the backend's global figure; fall back to the local
+    // division-filtered invoice sum ONLY when the backend didn't send
+    // one. The old `|| 0 ||` chain treated a real 0 as "missing" and
+    // silently switched the card between global and division scope.
+    const apiRevenue = financialSummary.total_revenue;
+    const totalRevenue = apiRevenue !== undefined && apiRevenue !== null && Number.isFinite(Number(apiRevenue))
+        ? Number(apiRevenue)
+        : invoices.filter(i => i.status === 'PAID').reduce((sum, i) => sum + Number(i.amount || 0), 0);
     const revenueThisMonth = Number(financialSummary.revenue_this_month || 0);
     const totalExpenses = Number(financialSummary.total_expenses || 0);
     const expensesThisMonth = Number(financialSummary.expenses_this_month || 0);
