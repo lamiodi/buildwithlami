@@ -1116,9 +1116,9 @@ const ProjectDetailPage = () => {
               >
                 <SectionHeader
                   number="07"
-                  eyebrow="Product Screenshot"
+                  eyebrow="Product Screenshots"
                   title="The product, as shipped."
-                  lede="A capture of the real, deployed interface — not a mockup."
+                  lede="Real captures from the deployed application — desktop and mobile, exactly as users see it."
                 />
 
                 <div className="space-y-8 md:space-y-12">

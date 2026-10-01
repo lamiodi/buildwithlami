@@ -32,7 +32,15 @@ const canonicalProjects = [
     category: "Business Systems",
     project_status: "Client Project",
     tech_stack: ["React", "Node.js", "PostgreSQL", "Supabase"],
-    image_url: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=2070&auto=format&fit=crop",
+    image_url: "/images/projects/case/vonnex2x-screenshot.webp",
+    gallery: [
+      { src: "/images/projects/case/vonnex2x-dashboard-desktop.webp", alt: "VonneX2X owner dashboard — daily bookings, revenue, expenses, net profit and low-stock alerts", device: "desktop" },
+      { src: "/images/projects/case/vonnex2x-pos-desktop.webp", alt: "VonneX2X point of sale — product catalogue with live stock counts and shopping cart checkout", device: "desktop" },
+      { src: "/images/projects/case/vonnex2x-bookings-desktop.webp", alt: "VonneX2X bookings calendar — service appointments with status tracking", device: "desktop" },
+      { src: "/images/projects/case/vonnex2x-dashboard-mobile.webp", alt: "VonneX2X dashboard on mobile — today's numbers at a glance", device: "phone" },
+      { src: "/images/projects/case/vonnex2x-inventory-mobile.webp", alt: "VonneX2X inventory on mobile — stock levels and restock flags", device: "phone" },
+      { src: "/images/projects/case/vonnex2x-workers-mobile.webp", alt: "VonneX2X workforce management on mobile — staff roster and assignments", device: "phone" }
+    ],
     live_url: "#",
     repo_url: null,
     year: "2024",
@@ -175,7 +183,15 @@ const canonicalProjects = [
     category: "E-Commerce",
     project_status: "Client Project",
     tech_stack: ["React", "Node.js", "PostgreSQL", "Paystack"],
-    image_url: "https://images.unsplash.com/photo-1661956602116-aa6865609028?q=80&w=1964&auto=format&fit=crop",
+    image_url: "/images/projects/case/tiabrand-screenshot.webp",
+    gallery: [
+      { src: "/images/projects/case/tiabrand-home-desktop.webp", alt: "The TiaBrand storefront homepage — campaign hero with brand navigation", device: "desktop" },
+      { src: "/images/projects/case/tiabrand-shop-desktop.webp", alt: "The TiaBrand shop — product grid with naira pricing and category filtering", device: "desktop" },
+      { src: "/images/projects/case/tiabrand-product-desktop.webp", alt: "The TiaBrand product page — variant selection and add-to-cart", device: "desktop" },
+      { src: "/images/projects/case/tiabrand-home-mobile.webp", alt: "The TiaBrand homepage on mobile", device: "phone" },
+      { src: "/images/projects/case/tiabrand-shop-mobile.webp", alt: "The TiaBrand shop on mobile — thumb-friendly product browsing", device: "phone" },
+      { src: "/images/projects/case/tiabrand-product-mobile.webp", alt: "The TiaBrand product page on mobile — mobile checkout flow", device: "phone" }
+    ],
     live_url: "#",
     repo_url: null,
     year: "2024",
@@ -300,7 +316,15 @@ const canonicalProjects = [
     category: "Web Platforms",
     project_status: "Client Project",
     tech_stack: ["React", "Supabase", "Node.js", "Paystack"],
-    image_url: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=2015&auto=format&fit=crop",
+    image_url: "/images/projects/case/wodibenuah-screenshot.webp",
+    gallery: [
+      { src: "/images/projects/case/wodibenuah-home-desktop.webp", alt: "Wodibenuah Fair homepage — editorial masthead with event countdown", device: "desktop" },
+      { src: "/images/projects/case/wodibenuah-vendors-desktop.webp", alt: "Wodibenuah Fair vendor showcase — participating exhibitors grid", device: "desktop" },
+      { src: "/images/projects/case/wodibenuah-register-desktop.webp", alt: "Wodibenuah Fair vendor registration — booth application flow", device: "desktop" },
+      { src: "/images/projects/case/wodibenuah-home-mobile.webp", alt: "Wodibenuah Fair homepage on mobile", device: "phone" },
+      { src: "/images/projects/case/wodibenuah-vendors-mobile.webp", alt: "Wodibenuah Fair vendor showcase on mobile", device: "phone" },
+      { src: "/images/projects/case/wodibenuah-register-mobile.webp", alt: "Wodibenuah Fair registration on mobile", device: "phone" }
+    ],
     live_url: "#",
     repo_url: null,
     year: "2024",
@@ -426,7 +450,15 @@ const canonicalProjects = [
     category: "Web Platforms",
     project_status: "Client Project",
     tech_stack: ["React 19", "Supabase", "Vite", "Tailwind CSS"],
-    image_url: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=2070&auto=format&fit=crop",
+    image_url: "/images/projects/case/sourceline-screenshot.webp",
+    gallery: [
+      { src: "/images/projects/case/sourceline-home-desktop.webp", alt: "Sourceline Limited homepage — trust-first hero with SURCON certification badges", device: "desktop" },
+      { src: "/images/projects/case/sourceline-verify-desktop.webp", alt: "Sourceline license verification portal — public SURCON lookup", device: "desktop" },
+      { src: "/images/projects/case/sourceline-portfolio-desktop.webp", alt: "Sourceline project portfolio — completed survey case studies", device: "desktop" },
+      { src: "/images/projects/case/sourceline-home-mobile.webp", alt: "Sourceline homepage on mobile", device: "phone" },
+      { src: "/images/projects/case/sourceline-verify-mobile.webp", alt: "Sourceline verification portal on mobile", device: "phone" },
+      { src: "/images/projects/case/sourceline-portfolio-mobile.webp", alt: "Sourceline portfolio on mobile", device: "phone" }
+    ],
     live_url: "#",
     repo_url: null,
     year: "2025",
@@ -550,7 +582,15 @@ const canonicalProjects = [
     category: "Business Systems",
     project_status: "Internal Product",
     tech_stack: ["React", "Node.js", "PostgreSQL", "Termii API"],
-    image_url: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=2070&auto=format&fit=crop",
+    image_url: "/images/projects/case/eduflow-screenshot.webp",
+    gallery: [
+      { src: "/images/projects/case/eduflow-overview-desktop.webp", alt: "EduFlow proprietor dashboard — enrolment, attendance, staff and outstanding fees", device: "desktop" },
+      { src: "/images/projects/case/eduflow-exams-desktop.webp", alt: "EduFlow exams manager — CA and WAEC score entry with auto grading", device: "desktop" },
+      { src: "/images/projects/case/eduflow-fees-desktop.webp", alt: "EduFlow fees ledger — installment tracking and receipts", device: "desktop" },
+      { src: "/images/projects/case/eduflow-overview-mobile.webp", alt: "EduFlow dashboard on mobile", device: "phone" },
+      { src: "/images/projects/case/eduflow-fees-mobile.webp", alt: "EduFlow fees ledger on mobile", device: "phone" },
+      { src: "/images/projects/case/eduflow-attendance-mobile.webp", alt: "EduFlow attendance on mobile — one-tap daily register", device: "phone" }
+    ],
     live_url: "#",
     repo_url: null,
     year: "2024",
@@ -675,7 +715,15 @@ const canonicalProjects = [
     category: "SaaS",
     project_status: "Concept Prototype",
     tech_stack: ["React", "PWA", "IndexedDB", "RxDB"],
-    image_url: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=2070&auto=format&fit=crop",
+    image_url: "/images/projects/case/medios-screenshot.webp",
+    gallery: [
+      { src: "/images/projects/case/medios-landing-desktop.webp", alt: "MediOS landing page — offline-first hospital OS positioning", device: "desktop" },
+      { src: "/images/projects/case/medios-dashboard-desktop.webp", alt: "MediOS hospital dashboard — today's operations across clinic, lab and pharmacy", device: "desktop" },
+      { src: "/images/projects/case/medios-claims-desktop.webp", alt: "MediOS HMO claims engine — tariff validation with approval and rejection rates", device: "desktop" },
+      { src: "/images/projects/case/medios-landing-mobile.webp", alt: "MediOS landing page on mobile", device: "phone" },
+      { src: "/images/projects/case/medios-dashboard-mobile.webp", alt: "MediOS dashboard on mobile — clinical operations in three taps", device: "phone" },
+      { src: "/images/projects/case/medios-claims-mobile.webp", alt: "MediOS claims on mobile", device: "phone" }
+    ],
     live_url: "#",
     repo_url: null,
     year: "2024",
@@ -810,7 +858,9 @@ async function syncProjects() {
       ? existingRow.image_url
       : proj.image_url;
 
-    const finalGallery = existingRow?.gallery && Array.isArray(existingRow.gallery) && existingRow.gallery.length > 0
+    // Preserve manually curated multi-image galleries; replace the old
+    // single-item stock-photo default with the curated set from this script.
+    const finalGallery = existingRow?.gallery && Array.isArray(existingRow.gallery) && existingRow.gallery.length > 1
       ? existingRow.gallery
       : (proj.gallery || [{ src: finalImageUrl, alt: proj.title, device: 'desktop' }]);
 
@@ -841,7 +891,7 @@ async function syncProjects() {
         features = EXCLUDED.features,
         category = EXCLUDED.category,
         image_url = CASE 
-          WHEN projects.image_url IS NOT NULL AND projects.image_url != '' THEN projects.image_url 
+          WHEN projects.image_url LIKE '%cloudinary.com%' THEN projects.image_url 
           ELSE EXCLUDED.image_url 
         END,
         live_url = EXCLUDED.live_url,
@@ -859,7 +909,7 @@ async function syncProjects() {
         duration = EXCLUDED.duration,
         role = EXCLUDED.role,
         gallery = CASE 
-          WHEN jsonb_array_length(projects.gallery) > 0 THEN projects.gallery 
+          WHEN jsonb_array_length(projects.gallery) > 1 THEN projects.gallery 
           ELSE EXCLUDED.gallery 
         END,
         challenge = EXCLUDED.challenge,
