@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { api } from '../services/api';
 
 // ── Client token persistence (see docs/AUTH_MODEL.md) ─────
@@ -87,6 +87,21 @@ export function ClientAuthProvider({ children }) {
         writeClientToken(null);
         setToken(null);
         setClientUser(null);
+    }, []);
+
+    // Listen for 401s broadcast by services/api.js on client-scoped
+    // requests so an expired client session is wiped immediately,
+    // wherever the request came from — not just pages that remember
+    // to call handleUnauthorized themselves.
+    const unauthorizedRef = useRef(handleUnauthorized);
+    useEffect(() => { unauthorizedRef.current = handleUnauthorized; }, [handleUnauthorized]);
+    useEffect(() => {
+        const onUnauthorized = (e) => {
+            if (e.detail?.auth !== 'client') return;
+            unauthorizedRef.current();
+        };
+        window.addEventListener('bwl:api-unauthorized', onUnauthorized);
+        return () => window.removeEventListener('bwl:api-unauthorized', onUnauthorized);
     }, []);
 
     const value = useMemo(() => ({

@@ -159,6 +159,22 @@ export function AuthProvider({ children }) {
         return { ok: false, error: res.error, status: res.status };
     }, [logout]);
 
+    // ── Global 401 handling ─────────────────────────────────
+    // services/api.js broadcasts 'bwl:api-unauthorized' whenever an
+    // admin-scoped request comes back 401. Without this, an expired
+    // session left the user mounted in /admin with every request
+    // silently failing and no path back to the login screen.
+    const logoutRef = useRef(logout);
+    useEffect(() => { logoutRef.current = logout; }, [logout]);
+    useEffect(() => {
+        const onUnauthorized = (e) => {
+            if (e.detail?.auth !== 'admin') return;
+            if (userRef.current) logoutRef.current();
+        };
+        window.addEventListener('bwl:api-unauthorized', onUnauthorized);
+        return () => window.removeEventListener('bwl:api-unauthorized', onUnauthorized);
+    }, []);
+
     // ── Derived: token expiry (ms epoch) for the timeout warning. ─
     // Sliding window: the session is "fresh" for 30 minutes from the
     // user's last activity. A successful /auth/refresh resets the

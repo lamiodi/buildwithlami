@@ -74,6 +74,44 @@ function formatEndpoint(path) {
 }
 
 /**
+ * Append `opts.params` as a real query string. fetch() ignores unknown
+ * config keys, so without this any `{ params }` passed to api.get() was
+ * silently dropped — which left the AdminClients division filter and the
+ * AdminInbox status/kind filters sending no query string at all while the
+ * UI pretended to filter.
+ */
+function buildUrl(path, params) {
+    let url = formatEndpoint(path);
+    if (!params || typeof params !== 'object') return url;
+    const search = new URLSearchParams();
+    for (const [key, value] of Object.entries(params)) {
+        if (value === undefined || value === null || value === '') continue;
+        search.append(key, value);
+    }
+    const qs = search.toString();
+    if (qs) url += (url.includes('?') ? '&' : '?') + qs;
+    return url;
+}
+
+/**
+ * Broadcast 401s so the auth contexts can log the (now-credentialess)
+ * session out instead of leaving the user stranded in a dead admin where
+ * every request silently fails. Dispatched only for authenticated scopes —
+ * public endpoints (auth: 'none', e.g. the login form itself) never fire it.
+ */
+function notifyUnauthorized(authScope) {
+    if (typeof window === 'undefined' || typeof window.dispatchEvent !== 'function') return;
+    window.dispatchEvent(new CustomEvent('bwl:api-unauthorized', { detail: { auth: authScope } }));
+}
+
+const handleResult = (result, auth) => {
+    if (!result.ok && result.status === 401 && (auth === 'admin' || auth === 'client')) {
+        notifyUnauthorized(auth);
+    }
+    return result;
+};
+
+/**
  * Build request config with timeout, credentials, and the appropriate
  * Bearer token. `auth` controls which token is attached:
  *   'admin'  → admin token (default)
@@ -151,8 +189,10 @@ async function parse(res) {
 }
 
 async function request(path, options = {}, { auth = 'admin' } = {}) {
-    const url = formatEndpoint(path);
-    const { config, timer } = buildConfig(options, { auth });
+    // `params` is consumed here, never passed to fetch().
+    const { params, ...rest } = options;
+    const url = buildUrl(path, params);
+    const { config, timer } = buildConfig(rest, { auth });
 
     try {
         return await fetch(url, config);
@@ -169,7 +209,7 @@ export const api = {
     get: async (path, opts = {}, auth = 'admin') => {
         try {
             const res = await request(path, { method: 'GET', ...opts }, { auth });
-            return parse(res);
+            return handleResult(await parse(res), auth);
         } catch (err) {
             console.error(`[API] GET ${path} failed:`, err.message);
             return { ok: false, status: 0, error: err.name === 'AbortError' ? 'Request timed out' : err.message };
@@ -184,7 +224,7 @@ export const api = {
                 body: prepareBody(body),
                 ...opts,
             }, { auth });
-            return parse(res);
+            return handleResult(await parse(res), auth);
         } catch (err) {
             console.error(`[API] POST ${path} failed:`, err.message);
             return { ok: false, status: 0, error: err.name === 'AbortError' ? 'Request timed out' : err.message };
@@ -198,7 +238,7 @@ export const api = {
                 body: prepareBody(body),
                 ...opts,
             }, { auth });
-            return parse(res);
+            return handleResult(await parse(res), auth);
         } catch (err) {
             console.error(`[API] PUT ${path} failed:`, err.message);
             return { ok: false, status: 0, error: err.name === 'AbortError' ? 'Request timed out' : err.message };
@@ -212,7 +252,7 @@ export const api = {
                 body: prepareBody(body),
                 ...opts,
             }, { auth });
-            return parse(res);
+            return handleResult(await parse(res), auth);
         } catch (err) {
             console.error(`[API] PATCH ${path} failed:`, err.message);
             return { ok: false, status: 0, error: err.name === 'AbortError' ? 'Request timed out' : err.message };
@@ -222,7 +262,7 @@ export const api = {
     delete: async (path, opts = {}, auth = 'admin') => {
         try {
             const res = await request(path, { method: 'DELETE', ...opts }, { auth });
-            return parse(res);
+            return handleResult(await parse(res), auth);
         } catch (err) {
             console.error(`[API] DELETE ${path} failed:`, err.message);
             return { ok: false, status: 0, error: err.name === 'AbortError' ? 'Request timed out' : err.message };
@@ -259,7 +299,7 @@ export const api = {
                 body: form,
             });
 
-            return parse(res);
+            return handleResult(await parse(res), auth);
         } catch (err) {
             console.error(`[API] UPLOAD ${path} failed:`, err.message);
             return { ok: false, status: 0, error: err.name === 'AbortError' ? 'Request timed out' : err.message };
