@@ -179,10 +179,10 @@ export async function getUpcomingRenewals(req, res) {
                FROM renewals r
                LEFT JOIN clients c ON c.id = r.client_id
               WHERE r.status = 'ACTIVE'
-                AND r.renewal_date BETWEEN CURRENT_DATE AND CURRENT_DATE + ($2 || ' days')::interval
+                AND r.renewal_date BETWEEN CURRENT_DATE AND CURRENT_DATE + ($1 || ' days')::interval
               ORDER BY r.renewal_date ASC
               LIMIT 8`,
-            [days, String(days)]
+            [String(days)]
         );
         return res.json(rows);
     } catch (err) {
@@ -362,6 +362,9 @@ const testimonialSchema = z.object({
     role: z.string().trim().max(200).nullable().optional().or(z.literal('').transform(() => null)),
     permission_to_publish: z.boolean().optional(),
     avatar_url: z.string().trim().max(500).nullable().optional().or(z.literal('').transform(() => null)),
+    // Publish state is PATCH-only (create always starts unpublished);
+    // without this zod would silently strip it and publishing would no-op.
+    published: z.boolean().optional(),
 });
 
 export async function getTestimonials(req, res) {

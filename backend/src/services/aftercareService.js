@@ -268,8 +268,8 @@ export async function completeHandover(projectId, nextStatus, actor) {
             SET status = $2,
                 offboarding_status = 'COMPLETED',
                 offboarding_completed_at = NOW(),
-                next_action = $3,
-                next_action_due_at = CASE WHEN $3 IS NULL THEN NULL
+                next_action = $3::text,
+                next_action_due_at = CASE WHEN $3::text IS NULL THEN NULL
                                           ELSE NOW() + INTERVAL '30 days' END,
                 updated_at = NOW()
           WHERE id = $1
@@ -391,7 +391,7 @@ export async function launchProject(projectId, actor) {
                 updated_at = NOW()
           WHERE id = $1
             AND status NOT IN ('LAUNCHED', 'ARCHIVED')
-         RETURNING id, project_name`,
+         RETURNING id, project_name, status`,
         [projectId]
     );
     if (rows.length === 0) return { alreadyLaunched: true };

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { api } from '../../../services/api';
 import { notify } from '../../../services/notify';
-import { inputClass, labelClass, fmtDate, fmtMoney, Badge, cardClass, thClass } from './shared';
+import { inputClass, labelClass, fmtDate, fmtMoney, Badge, cardClass, thClass } from './shared.jsx';
 
 // ─── MaintenanceTab (§48) ─────────────────────────────────
 // Dedicated maintenance records — maintenance clients are NOT

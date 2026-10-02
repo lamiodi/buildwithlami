@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { api } from '../../../services/api';
 import { notify } from '../../../services/notify';
-import { inputClass, labelClass, fmtDate, fmtMoney, Badge, daysTone, cardClass, thClass } from './shared';
+import { inputClass, labelClass, fmtDate, fmtMoney, Badge, daysTone, cardClass, thClass } from './shared.jsx';
 
 // ─── RenewalsTab (§47) ────────────────────────────────────
 // One reminder surface for every renewable service — domains,

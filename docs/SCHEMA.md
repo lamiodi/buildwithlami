@@ -998,3 +998,21 @@ priced change request.
 - Admin: `AdminDeliveryPanel.jsx` (self-contained: Approvals / Change Requests / Decision
   Log sections + revision-round counter) as the project workspace's "delivery" tab.
 - Portal: `/portal/approvals` decision page + nav item + dashboard pending-approvals strip.
+
+### Phase 5 — v51_offboarding_retention.sql (Aftercare / Retention)
+
+| Table | Purpose |
+|---|---|
+| `renewals` | §47 — one reminder surface per renewable service (DOMAIN/HOSTING/MAINTENANCE/EMAIL/SSL/SAAS/SUPPORT/OTHER). `renewal_date DATE`, `amount + currency` (per-currency, never combined), `status` ACTIVE/RENEWED/CANCELLED/LAPSED, `last_renewed_at`. Partial unique `uq_renewals_maintenance_plan` (plan_id WHERE NOT NULL) makes plan→renewal sync idempotent. Index `idx_renewals_date_active` on `renewal_date WHERE status='ACTIVE'`. |
+| `maintenance_plans` | §48 — dedicated maintenance records (maintenance ≠ archived projects): plan, billing_cycle MONTHLY/QUARTERLY/ANNUAL, amount+currency, start/renewal dates, `included_hours`/`used_hours NUMERIC(6,1)`, site_url, sla_notes, active. |
+| `testimonials` | §54 — rating (1–5), testimonial, client_name/company/role, `permission_to_publish`, `published`+`published_at`. Server refuses `published=true` without permission. Index on `published_at WHERE published`. |
+| `referrals` | §55 — unique `code`, referrer client, referred contact, status NEW/CONTACTED/QUALIFIED/WON/LOST, revenue+currency, reward_description+reward_status, `hits`+`last_hit_at`. |
+| `site_monitors` + `site_monitor_events` | §49 — gentle uptime/SSL watch: last status/code/latency/error, `ssl_expires_at`, `consecutive_failures`; every check appended to events (pruned after 30 days). |
+| `tasks.dedup_key` | §89 — nullable TEXT with partial unique `uq_tasks_dedup_key`; post-launch automation inserts its six tasks with deterministic keys so re-runs are no-ops. |
+| `client_projects.offboarding_{started,completed}_at` | §51 handover timestamps (checklist itself stays in the existing `offboarding_checklist` JSONB from v6). |
+
+**Endpoints:** `/api/aftercare` (Owner-gated): renewals CRUD + `POST /:id/renew` (+1y default) + `GET /renewals/upcoming?days=N` (Command Center feed); maintenance CRUD + `POST /:id/hours` (plan create/update/delete upserts or cancels its linked renewal); testimonials CRUD (+publish guard); referrals CRUD; monitors CRUD + `GET /:id/events` + `POST /run-checks`; handover `GET|POST start|PATCH checklist|POST complete` (required-item enforcement, completes to MAINTENANCE or ARCHIVED) and `POST /projects/:id/launch` (sets LAUNCHED + fires post-launch automation). **Public (unauthenticated):** `GET /public/testimonials` (published + consented only), `GET|POST /public/referrals/:code(/hit)`.
+
+**Services:** `services/aftercareService.js` — `onProjectLaunched` (six §53 tasks: 7-day, 30-day, testimonial +14d, referral +21d, maintenance +45d, renewal review +60d; dedup-keyed, never-throw), `checkRenewalAlerts` (daily cron: T-60/30/14/7 + weekly overdue nag, deduped via `notification_dedup` + admin email), `runMonitorChecks` (every 15 min: HTTP GET 10s timeout, TLS cert expiry probe, alerts on 2 consecutive failures / recovery / SSL ≤14d — all deduped), `pruneMonitorEvents`. `launchProject` is the supported path to LAUNCHED (a bare status PATCH skips §53).
+
+**UI:** `AdminAftercare.jsx` (`/admin/aftercare`, tab deep-links `?tab=`) with Renewals/Maintenance/Testimonials/Referrals/Monitors tabs (`components/admin/aftercare/*`); Handover tab on the project workspace (`HandoverTab.jsx` — checklist, Launch button, complete-to-MAINTENANCE/ARCHIVED, copyable handover pack with no credentials); homepage Testimonials section now renders DB-published quotes (hidden while none); public `/ref/:code` landing page; Command Center gains an "Upcoming Renewals" panel + the Renewals chip links to Aftercare.

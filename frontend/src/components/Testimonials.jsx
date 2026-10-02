@@ -1,13 +1,28 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { sectionViewport } from '../utils/motion';
+import { api } from '../services/api';
 import { TestimonialsSplit, DEFAULT_TESTIMONIALS } from './ui/split-testimonial';
 
 const Testimonials = () => {
   const shouldReduce = useReducedMotion();
+  // §54 — published, consent-gated testimonials from the admin
+  // Aftercare tab. Falls back to the (deliberately empty) static
+  // list, so the section stays hidden until real quotes exist.
+  const [items, setItems] = useState(DEFAULT_TESTIMONIALS);
+
+  useEffect(() => {
+    let alive = true;
+    api.get('/aftercare/public/testimonials').then((res) => {
+      if (alive && res.ok && Array.isArray(res.data) && res.data.length > 0) {
+        setItems(res.data);
+      }
+    }).catch(() => { /* keep the hidden fallback */ });
+    return () => { alive = false; };
+  }, []);
 
   // Don't render the section at all until real, consented testimonials exist.
-  if (!DEFAULT_TESTIMONIALS || DEFAULT_TESTIMONIALS.length === 0) return null;
+  if (!items || items.length === 0) return null;
 
   return (
     <section id="testimonials" className="px-6 md:px-12 max-w-7xl mx-auto py-24 bg-white dark:bg-[#0a0a0a] transition-colors duration-300">
@@ -30,7 +45,7 @@ const Testimonials = () => {
         </p>
       </motion.div>
 
-      <TestimonialsSplit />
+      <TestimonialsSplit items={items} />
     </section>
   );
 };

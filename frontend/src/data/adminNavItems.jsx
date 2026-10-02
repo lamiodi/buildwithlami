@@ -46,6 +46,7 @@ export const softwareNav = [
     { to: '/admin/quotations', label: 'Quotations', icon: Icon.FileText },
     { to: '/admin/invoices', label: 'Invoices', icon: Icon.CreditCard },
     { to: '/admin/expenses', label: 'Expenses', icon: Icon.Payments },
+    { to: '/admin/aftercare', label: 'Aftercare', icon: Icon.Heart },
     { to: '/admin/templates', label: 'Forms & Intake', icon: Icon.FileText },
     { to: '/admin/reports', label: 'Reports', icon: Icon.BarChart },
 ];

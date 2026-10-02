@@ -68,12 +68,16 @@ const EmptyNote = ({ children }) => (
 const CommandCenter = () => {
   const [data, setData] = useState(null);
   const [queue, setQueue] = useState(null);
+  const [renewals, setRenewals] = useState([]);
   const [error, setError] = useState(false);
 
   const fetchCenter = useCallback(async () => {
-    const [res, iq] = await Promise.all([
+    const [res, iq, rn] = await Promise.all([
       api.get('/dashboard/command-center'),
       api.get('/intelligence/tonight-queue'),
+      // Phase 5 — upcoming renewals live in Aftercare; a failure
+      // here is additive and must not blank the command center.
+      api.get('/aftercare/renewals/upcoming?days=30'),
     ]);
     if (res.ok && res.data) {
       setData(res.data);
@@ -84,6 +88,7 @@ const CommandCenter = () => {
     // The scored queue is additive — a failure here must not
     // blank the whole command center, it just keeps the old list.
     if (iq.ok && iq.data) setQueue(iq.data);
+    if (rn.ok && Array.isArray(rn.data)) setRenewals(rn.data);
   }, []);
 
   useEffect(() => {
@@ -139,7 +144,7 @@ const CommandCenter = () => {
           { label: 'Overdue', value: counters.overdueTasks, link: '/admin/tasks', hot: counters.overdueTasks > 0 },
           { label: 'Waiting on Client', value: counters.waitingOnClient, link: '/admin/tasks', hot: false },
           { label: 'New Leads (7d)', value: counters.newLeads7d, link: '/admin/crm', hot: false },
-          { label: 'Renewals (60d)', value: counters.upcomingRenewals, link: '/admin/projects', hot: false },
+          { label: 'Renewals (60d)', value: counters.upcomingRenewals, link: '/admin/aftercare', hot: false },
           { label: 'Proof Queue', value: counters.pendingPaymentProofs, link: '/admin/payments', hot: counters.pendingPaymentProofs > 0 },
         ].map((c) => (
           <Link key={c.label} to={c.link}
@@ -269,6 +274,30 @@ const CommandCenter = () => {
             </ul>
           )}
         </div>
+
+        {/* ── Upcoming Renewals (Phase 5 — Aftercare) ── */}
+        {renewals.length > 0 && (
+          <div className="bg-white dark:bg-[#1c1c1c] rounded-2xl border border-gray-100 dark:border-gray-800/60 shadow-sm p-5">
+            <PanelTitle label="Upcoming Renewals" count={renewals.length} link="/admin/aftercare" />
+            <ul className="space-y-2">
+              {renewals.map((r) => {
+                const days = r.days_remaining != null ? Number(r.days_remaining) : null;
+                const tone = days != null && days <= 7 ? 'text-red-500' : days != null && days <= 30 ? 'text-amber-600' : 'text-gray-400';
+                return (
+                  <li key={r.id} className="flex items-center justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="text-sm font-bold text-gray-900 dark:text-white font-body truncate">{r.label}</p>
+                      <p className="text-[11px] text-gray-400 font-body">{r.client_name || r.service}{r.amount != null ? ` · ${fmtMoney(r.amount, r.currency)}` : ''}</p>
+                    </div>
+                    <span className={`text-[11px] font-bold font-body shrink-0 ${tone}`}>
+                      {days != null && days < 0 ? `${Math.abs(days)}d overdue` : `${days}d`}
+                    </span>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        )}
 
         {/* ── Next Actions + Money ── */}
         <div className="bg-white dark:bg-[#1c1c1c] rounded-2xl border border-gray-100 dark:border-gray-800/60 shadow-sm p-5">

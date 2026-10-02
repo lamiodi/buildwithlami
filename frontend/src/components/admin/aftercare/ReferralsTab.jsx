@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { api } from '../../../services/api';
 import { notify } from '../../../services/notify';
-import { inputClass, labelClass, fmtDate, fmtMoney, Badge, cardClass, thClass } from './shared';
+import { inputClass, labelClass, fmtDate, fmtMoney, Badge, cardClass, thClass } from './shared.jsx';
 
 // ─── ReferralsTab (§55) ───────────────────────────────────
 // Each client can get a /ref/:code link. The public page thanks

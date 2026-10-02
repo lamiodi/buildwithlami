@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { api } from '../../../services/api';
 import { notify } from '../../../services/notify';
-import { inputClass, labelClass, fmtDateTime, fmtDate, Badge, daysTone, cardClass, thClass } from './shared';
+import { inputClass, labelClass, fmtDateTime, fmtDate, Badge, daysTone, cardClass, thClass } from './shared.jsx';
 
 // ─── MonitorsTab (§49) ────────────────────────────────────
 // Lightweight uptime + SSL watch over launched sites. Checks run

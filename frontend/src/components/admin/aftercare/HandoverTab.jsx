@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { api } from '../../../services/api';
 import { notify } from '../../../services/notify';
-import { Badge, fmtDate, cardClass } from './shared';
+import { Badge, fmtDate, cardClass } from './shared.jsx';
 
 // ─── HandoverTab (§51–§53) ────────────────────────────────
 // Project-level offboarding: the handover checklist (required
