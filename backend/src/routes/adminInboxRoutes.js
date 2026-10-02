@@ -120,10 +120,12 @@ const search = async (req, res) => {
                 [needle]
             ),
             pool.query(
-                `SELECT ct.id, ct.status, ct.signatory_name, ct.signatory_email, COALESCE(c.name, '') AS client_name, ct.created_at
+                // `contracts` names the signer `signer_name` (v45 schema) —
+                // the old `signatory_name` reference 500'd every search.
+                `SELECT ct.id, ct.status, ct.signer_name, ct.signatory_email, COALESCE(c.name, '') AS client_name, ct.created_at
                    FROM contracts ct
                    LEFT JOIN clients c ON ct.client_id = c.id
-                  WHERE ct.signatory_name ILIKE $1 OR ct.signatory_email ILIKE $1 OR COALESCE(c.name, '') ILIKE $1
+                  WHERE ct.signer_name ILIKE $1 OR ct.signatory_email ILIKE $1 OR COALESCE(c.name, '') ILIKE $1
                   ORDER BY ct.created_at DESC LIMIT 5`,
                 [needle]
             ),
@@ -135,9 +137,11 @@ const search = async (req, res) => {
                 [needle]
             ),
             pool.query(
-                `SELECT e.id, e.title, e.category, e.amount, e.currency, e.expense_date
+                // `expenses` has `description`, not `title` (v29 schema) —
+                // the old `e.title` reference 500'd every search.
+                `SELECT e.id, e.description AS title, e.category, e.amount, e.expense_date
                    FROM expenses e
-                  WHERE e.title ILIKE $1 OR e.category ILIKE $1
+                  WHERE e.description ILIKE $1 OR e.category ILIKE $1
                   ORDER BY e.expense_date DESC LIMIT 5`,
                 [needle]
             ),

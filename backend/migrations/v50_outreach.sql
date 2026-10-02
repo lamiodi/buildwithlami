@@ -181,7 +181,7 @@ CREATE TABLE IF NOT EXISTS outreach_settings (
     send_window_start TEXT NOT NULL DEFAULT '09:00',
     send_window_end TEXT NOT NULL DEFAULT '17:00',
     paused BOOLEAN NOT NULL DEFAULT FALSE,
-    from_name TEXT NOT NULL DEFAULT 'Lami — BuildWithLami',
+    from_name TEXT NOT NULL DEFAULT 'Lami - BuildWithLami',
     reply_to TEXT,
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );

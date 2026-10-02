@@ -220,11 +220,19 @@ export async function sendProspectEmail({ prospectId, message = null, step = nul
     });
     const emailText = `${finalBody}\n\n—\nDon't want these emails? Unsubscribe: ${unsubUrl}`;
 
-    // "Lami — BuildWithLami <addr>" built from the settings display
-    // name + the SMTP envelope address from EMAIL_FROM.
+    // "Lami - BuildWithLami <addr>" built from the settings display
+    // name + the SMTP envelope address from EMAIL_FROM. The display
+    // name is forced to ASCII — some relays (Brevo included) reject
+    // the MAIL FROM envelope with a 501 when non-ASCII (em-dash etc.)
+    // rides along in the From header.
     const rawFrom = process.env.EMAIL_FROM || 'buildwithlami@gmail.com';
     const envelopeAddress = rawFrom.match(/<([^>]+)>/)?.[1] || rawFrom;
-    const fromName = (settings.from_name || 'BuildWithLami').replace(/"/g, '');
+    const fromName = (settings.from_name || 'BuildWithLami')
+        .normalize('NFKD')
+        .replace(/[\u2012-\u2015]/g, '-')   // en/em dashes → hyphen
+        .replace(/[^\x20-\x7E]/g, '')       // strip remaining non-ASCII
+        .replace(/["\\]/g, '')
+        .trim() || 'BuildWithLami';
     const mailOptions = {
         from: `"${fromName}" <${envelopeAddress}>`,
         to: prospect.email,
@@ -250,11 +258,15 @@ export async function sendProspectEmail({ prospectId, message = null, step = nul
         }
 
         // ── Post-send state: message SENT ──
+        // Store the RENDERED subject/body — the row is the record of
+        // what actually went out (unsubscribe footer included); the
+        // sequence step keeps the raw template for future sends.
         const { rows: sentRows } = await pool.query(
             `UPDATE outreach_messages
-                SET status = 'SENT', sent_at = NOW(), error = NULL, updated_at = NOW()
+                SET status = 'SENT', sent_at = NOW(), error = NULL,
+                    subject = $2, body = $3, updated_at = NOW()
               WHERE id = $1 RETURNING *`,
-            [msgRow.id]
+            [msgRow.id, finalSubject, finalBody]
         );
 
         // ── Post-send state: prospect status + sequence progression ──
@@ -496,10 +508,20 @@ export async function sendNextSequenceStep(prospectId, { automated = false, user
         if (pRes.rows.length === 0) { await client.query('ROLLBACK'); return { ok: false, reason: 'prospect_not_found' }; }
         const prospect = pRes.rows[0];
 
-        if (!prospect.sequence_id || TERMINAL_STATUSES.has(prospect.status) || prospect.do_not_contact) {
+        if (!prospect.sequence_id) {
             await client.query(`UPDATE prospects SET next_follow_up_at = NULL WHERE id = $1`, [prospectId]);
             await client.query('COMMIT');
             return { ok: false, reason: 'no_active_sequence' };
+        }
+        if (TERMINAL_STATUSES.has(prospect.status)) {
+            await client.query(`UPDATE prospects SET next_follow_up_at = NULL WHERE id = $1`, [prospectId]);
+            await client.query('COMMIT');
+            return { ok: false, reason: `prospect_${prospect.status.toLowerCase()}` };
+        }
+        if (prospect.do_not_contact) {
+            await client.query(`UPDATE prospects SET next_follow_up_at = NULL WHERE id = $1`, [prospectId]);
+            await client.query('COMMIT');
+            return { ok: false, reason: 'do_not_contact' };
         }
 
         const seqRes = await client.query(`SELECT * FROM outreach_sequences WHERE id = $1`, [prospect.sequence_id]);

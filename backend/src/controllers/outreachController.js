@@ -488,6 +488,7 @@ export async function sendProspect(req, res) {
                 do_not_contact: 'This prospect is flagged do-not-contact.',
                 prospect_unsubscribed: 'This prospect unsubscribed.',
                 prospect_bounced: 'This address bounced previously.',
+                prospect_replied: 'This prospect already replied — respond instead of sending more outreach.',
                 prospect_converted: 'This prospect was already converted to a lead.',
                 step_already_sent: 'This sequence step was already sent.',
                 no_active_sequence: 'No sequence step to send — attach a sequence or provide subject + body.',

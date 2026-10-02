@@ -23,6 +23,7 @@ import ServicesPage from './pages/ServicesPage';
 import PricingPage from './pages/PricingPage';
 import ProjectDetailPage from './pages/ProjectDetailPage';
 import NotFoundPage from './pages/NotFoundPage';
+import UnsubscribePage from './pages/UnsubscribePage';
 import SoftwareHomePage from './pages/software/SoftwareHomePage';
 
 // Lazy-loaded divisions and admin pages
@@ -52,6 +53,7 @@ const AdminHelp = lazyWithRetry(() => import('./pages/admin/AdminHelp'));
 const AdminPaymentQueue = lazyWithRetry(() => import('./pages/admin/AdminPaymentQueue'));
 const AdminTasks = lazyWithRetry(() => import('./pages/admin/AdminTasks'));
 const AdminClientDetail = lazyWithRetry(() => import('./pages/admin/AdminClientDetail'));
+const AdminOutreach = lazyWithRetry(() => import('./pages/admin/AdminOutreach'));
 const AdminAftercare = lazyWithRetry(() => import('./pages/admin/AdminAftercare'));
 const ReferralLanding = lazyWithRetry(() => import('./pages/ReferralLanding'));
 const PaymentPage = lazyWithRetry(() => import('./pages/PaymentPage'));
@@ -178,7 +180,8 @@ function App() {
     currentPath.startsWith('/contracts/sign') ||
     currentPath.startsWith('/pay') ||
     currentPath.startsWith('/form') ||
-    currentPath.startsWith('/track');
+    currentPath.startsWith('/track') ||
+    currentPath.startsWith('/unsubscribe');
 
   // Preloader is exclusively displayed on Software Studio pages (e.g. /, /software, /projects, /services, /pricing, /about, /contact)
   // It is omitted on other divisions (Survey, Drone) and internal flows (Admin, Portal, Auth, etc.)
@@ -255,6 +258,7 @@ function App() {
                   <Route path="clients/:id" element={<AdminClientDetail />} />
                   <Route path="tasks" element={<AdminTasks />} />
                   <Route path="quotations" element={<AdminQuotations />} />
+                  <Route path="outreach" element={<AdminOutreach />} />
                   <Route path="projects/:id" element={<AdminProjectDetail />} />
                   <Route path="invoices" element={<AdminInvoices />} />
                   <Route path="expenses" element={<AdminExpenses />} />
@@ -280,6 +284,7 @@ function App() {
                 <Route path="/track/:trackingId" element={<ClientProjectTracker />} />
                 <Route path="/form/:formId" element={<ClientIntakeForm />} />
                 <Route path="/pay/:token" element={<PaymentPage />} />
+                <Route path="/unsubscribe/:token" element={<UnsubscribePage />} />
                 <Route path="/sign/:token" element={<PageWrapper><ContractSigningPage /></PageWrapper>} />
                 <Route path="/contracts/sign/:token" element={<PageWrapper><ContractSigningPage /></PageWrapper>} />
 
