@@ -949,3 +949,52 @@ Status CHECK extended with `SUPERSEDED`. A revision is a **new row** (V2, V3, �
 
 - §76 — global search (`/api/admin/search`) now matches clients by `whatsapp_number` and `instagram` too.
 - §77 — `GET /api/clients/check-duplicate?q=` (exact-ish email / phone-digits / name match) + a debounced, non-blocking amber warning in the AdminClients create form.
+
+---
+
+## 18. Admin OS Phase 3a (v53) — Delivery Control
+
+`v53_delivery_control.sql` implements blueprint §35–§38. (Renumbered from v50 — the
+number was taken by the outreach migration that landed concurrently.)
+
+### approvals (§35)
+
+Client sign-off records. Title/description/item_type (`DESIGN|FEATURE|CONTENT|STAGE|OTHER`)/
+version_label; status `PENDING → APPROVED | CHANGES_REQUESTED` (client, via portal) or
+`→ SUPERSEDED | CANCELLED` (admin, only while PENDING — decided rows are immutable records).
+`decided_at` + `client_comment` captured on decision. Indexes: `(project_id, status)`,
+`(client_id, status)`, partial on `requested_at` WHERE PENDING.
+
+### change_requests (§37)
+
+Scope-change workflow. `additional_cost NUMERIC(12,2)` + `currency`, `additional_days`,
+`launch_impact`; status `DRAFT → SENT → APPROVED | REJECTED` (client) or `CANCELLED`
+(admin, DRAFT only). On client APPROVAL: `client_projects.amount_due += additional_cost`
+and `payment_status` re-derived from paid invoice totals, inside the decision transaction.
+
+### project_decisions (§38)
+
+Append-only log. `source` = `MANUAL | APPROVAL | CHANGE_REQUEST | COMMUNICATION`; the
+latter three are written automatically when clients decide approvals/CRs (with related_id).
+
+### Revision rounds (§36)
+
+`client_projects.included_revision_rounds` (default 2) / `used_revision_rounds`.
+A `CHANGES_REQUESTED` approval decision consumes one round (transactional increment);
+approvals never do. Over-budget is surfaced, never auto-billed — extra rounds need a
+priced change request.
+
+### API surface
+
+- Admin (Owner): `/api/delivery/projects/:id/{approvals,change-requests,decisions}` (GET/POST),
+  `PATCH /api/delivery/approvals/:id`, `PATCH /api/delivery/change-requests/:id` (draft edit/send/cancel).
+- Portal (client JWT): `GET /client-portal/approvals` (pending approvals + SENT CRs),
+  `PATCH /client-portal/approvals/:id/decide`, `PATCH /client-portal/change-requests/:id/decide`
+  — ownership-checked, single-decision (atomic status re-check), audited, owner-notified.
+- Emails: `services/deliveryEmailService.js` (approval request / change request, branded shell).
+
+### UI
+
+- Admin: `AdminDeliveryPanel.jsx` (self-contained: Approvals / Change Requests / Decision
+  Log sections + revision-round counter) as the project workspace's "delivery" tab.
+- Portal: `/portal/approvals` decision page + nav item + dashboard pending-approvals strip.

@@ -53,6 +53,7 @@ const AdminPaymentQueue = lazyWithRetry(() => import('./pages/admin/AdminPayment
 const AdminTasks = lazyWithRetry(() => import('./pages/admin/AdminTasks'));
 const AdminClientDetail = lazyWithRetry(() => import('./pages/admin/AdminClientDetail'));
 const AdminAftercare = lazyWithRetry(() => import('./pages/admin/AdminAftercare'));
+const ReferralLanding = lazyWithRetry(() => import('./pages/ReferralLanding'));
 const PaymentPage = lazyWithRetry(() => import('./pages/PaymentPage'));
 
 const AdminSurveyBookings = lazyWithRetry(() => import('./pages/admin/survey/AdminSurveyBookings'));
@@ -83,6 +84,7 @@ const ClientMessages = lazyWithRetry(() => import('./pages/client/ClientMessages
 const ClientProfile = lazyWithRetry(() => import('./pages/client/ClientProfile'));
 const ClientTimeline = lazyWithRetry(() => import('./pages/client/ClientTimeline'));
 const ClientOnboarding = lazyWithRetry(() => import('./pages/client/ClientOnboarding'));
+const ClientApprovals = lazyWithRetry(() => import('./pages/client/ClientApprovals'));
 const ClientProtectedRoute = lazyWithRetry(() => import('./components/ClientProtectedRoute'));
 import { ClientAuthProvider } from './contexts/ClientAuthContext';
 
@@ -274,6 +276,7 @@ function App() {
                 <Route path="/reset-password/:token" element={<PageWrapper><ResetPasswordPage /></PageWrapper>} />
 
                 {/* Client Public Routes */}
+                <Route path="/ref/:code" element={<PageWrapper><ReferralLanding /></PageWrapper>} />
                 <Route path="/track/:trackingId" element={<ClientProjectTracker />} />
                 <Route path="/form/:formId" element={<ClientIntakeForm />} />
                 <Route path="/pay/:token" element={<PaymentPage />} />
@@ -285,6 +288,7 @@ function App() {
                 <Route path="/portal" element={<ClientProtectedRoute><ClientPortalLayout isDark={isDark} toggleTheme={toggleTheme} /></ClientProtectedRoute>}>
                   <Route index element={<ClientDashboard />} />
                   <Route path="onboarding" element={<ClientOnboarding />} />
+                  <Route path="approvals" element={<ClientApprovals />} />
                   <Route path="projects" element={<ClientProjects />} />
                   <Route path="quotations" element={<ClientQuotations />} />
                   <Route path="contracts" element={<ClientContracts />} />

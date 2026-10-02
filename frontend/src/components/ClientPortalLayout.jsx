@@ -2,7 +2,7 @@ import React from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useClientAuth } from '../contexts/ClientAuthContext';
-import { LayoutDashboard, FolderKanban, FileText, FileBadge, Receipt, Settings, LogOut, MessageSquare, Clock, ClipboardList } from 'lucide-react';
+import { LayoutDashboard, FolderKanban, FileText, FileBadge, Receipt, Settings, LogOut, MessageSquare, Clock, ClipboardList, CheckCircle2 } from 'lucide-react';
 
 export default function ClientPortalLayout({ isDark, toggleTheme }) {
     const { clientUser, logout } = useClientAuth();
@@ -11,6 +11,7 @@ export default function ClientPortalLayout({ isDark, toggleTheme }) {
     const navItems = [
         { name: 'Dashboard', path: '/portal', icon: LayoutDashboard },
         { name: 'Onboarding', path: '/portal/onboarding', icon: ClipboardList },
+        { name: 'Approvals', path: '/portal/approvals', icon: CheckCircle2 },
         { name: 'Projects', path: '/portal/projects', icon: FolderKanban },
         { name: 'Quotations', path: '/portal/quotations', icon: FileText },
         { name: 'Contracts', path: '/portal/contracts', icon: FileBadge },

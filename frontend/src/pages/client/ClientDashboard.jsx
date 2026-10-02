@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { api } from '../../services/api';
 import { notify } from '../../services/notify';
 import { Link } from 'react-router-dom';
-import { FolderKanban, Receipt, FileText, CheckCircle, Clock, ClipboardCheck, ClipboardList } from 'lucide-react';
+import { FolderKanban, Receipt, FileText, CheckCircle, Clock, ClipboardCheck, ClipboardList, CheckCircle2 } from 'lucide-react';
 import Skeleton from '../../components/Skeleton';
 
 export default function ClientDashboard() {
@@ -10,6 +10,7 @@ export default function ClientDashboard() {
     const [loading, setLoading] = useState(true);
     const [actions, setActions] = useState([]);
     const [onboarding, setOnboarding] = useState(null);
+    const [pendingApprovals, setPendingApprovals] = useState([]);
 
     const fetchDashboard = async () => {
         try {
@@ -25,12 +26,16 @@ export default function ClientDashboard() {
     };
 
     const fetchActionsAndOnboarding = useCallback(async () => {
-        const [actionsRes, onboardingRes] = await Promise.all([
+        const [actionsRes, onboardingRes, approvalsRes] = await Promise.all([
             api.get('/client-portal/actions', {}, 'client'),
             api.get('/client-portal/onboarding', {}, 'client'),
+            api.get('/client-portal/approvals', {}, 'client'),
         ]);
         if (actionsRes.ok && Array.isArray(actionsRes.data)) setActions(actionsRes.data);
         if (onboardingRes.ok) setOnboarding(onboardingRes.data);
+        if (approvalsRes.ok && Array.isArray(approvalsRes.data?.approvals)) {
+            setPendingApprovals(approvalsRes.data.approvals);
+        }
     }, []);
 
     useEffect(() => {
@@ -89,6 +94,25 @@ export default function ClientDashboard() {
                             {activeOnboarding.status === 'NEEDS_CHANGES' ? 'Update now →' : 'Continue →'}
                         </span>
                     </div>
+                </Link>
+            )}
+
+            {/* Pending approvals (Admin OS Phase 3a — blueprint §35) */}
+            {pendingApprovals.length > 0 && (
+                <Link to="/portal/approvals"
+                    className="flex items-center gap-4 bg-emerald-50/60 hover:bg-emerald-50 dark:bg-emerald-900/10 dark:hover:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800/40 rounded-xl p-5 transition-colors">
+                    <div className="p-3 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-300 rounded-lg self-start">
+                        <CheckCircle2 size={22} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-gray-900 dark:text-white">
+                            {pendingApprovals.length} item{pendingApprovals.length === 1 ? '' : 's'} awaiting your approval
+                        </p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
+                            {pendingApprovals[0].title}{pendingApprovals.length > 1 ? ` and ${pendingApprovals.length - 1} more` : ''}
+                        </p>
+                    </div>
+                    <span className="text-sm font-bold text-emerald-600 dark:text-emerald-400 whitespace-nowrap">Review →</span>
                 </Link>
             )}
 
