@@ -23,6 +23,7 @@ import {
 import { uploadToCloudinary } from '../services/cloudinaryService.js';
 import { SUPPORTED_CURRENCIES } from '../utils/fx.js';
 import { onInvoicePaid } from '../services/automationService.js';
+import { ensureReceiptForInvoice } from '../services/receiptService.js';
 
 // ── PUBLIC ──────────────────────────────────────────────
 
@@ -352,8 +353,14 @@ export const reviewProof = async (req, res) => {
                 currency: row.currency,
             }).catch(err => console.error('[Payments] confirmed-email failed:', err.message));
 
-            // Admin OS Phase 2 — deposit invoices trigger the
-            // onboarding chain on this server-verified confirm.
+            // Admin OS Phase 2 — receipt for every paid invoice,
+            // then the deposit chain for quotation-linked ones.
+            await ensureReceiptForInvoice({
+                invoiceId: row.invoice_id,
+                paidVia: 'BANK_TRANSFER',
+                user: req.user,
+                ipAddress: getClientIp(req),
+            });
             await onInvoicePaid({
                 invoiceId: row.invoice_id,
                 via: 'BANK_TRANSFER',

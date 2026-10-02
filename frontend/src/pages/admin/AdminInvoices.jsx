@@ -533,6 +533,11 @@ const AdminInvoices = () => {
                                             <tr key={inv.id} className="hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors">
                                                 <td className="py-4 px-6">
                                                     <span className="font-mono text-xs text-gray-500 dark:text-gray-400">{inv.id.slice(0, 8)}…</span>
+                                                    {inv.receipt_number && (
+                                                        <span className="block text-[9px] font-extrabold uppercase tracking-widest text-emerald-600 dark:text-emerald-400 mt-0.5" title="Receipt generated on payment">
+                                                            🧾 {inv.receipt_number}
+                                                        </span>
+                                                    )}
                                                     <p className="text-[10px] text-gray-400 mt-0.5">{new Date(inv.created_at).toLocaleDateString()}</p>
                                                 </td>
                                                 <td className="py-4 px-6">

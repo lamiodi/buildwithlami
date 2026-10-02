@@ -78,8 +78,11 @@ const search = async (req, res) => {
                 [needle]
             ),
             pool.query(
-                `SELECT id, name, primary_contact_email, phone, created_at FROM clients
+                // §76 — clients are often contacted via WhatsApp /
+                // Instagram, so both are searchable alongside email.
+                `SELECT id, name, primary_contact_email, phone, whatsapp_number, instagram, created_at FROM clients
                   WHERE name ILIKE $1 OR primary_contact_email ILIKE $1 OR phone ILIKE $1
+                     OR whatsapp_number ILIKE $1 OR instagram ILIKE $1
                   ORDER BY created_at DESC LIMIT 5`,
                 [needle]
             ),

@@ -388,18 +388,53 @@ export default function AdminQuotations() {
         }
     };
 
+    // ── Quotation versioning (blueprint §24) ──
+    // A "new version" clones the quote as the next DRAFT and marks
+    // the current row SUPERSEDED — sent/accepted versions are never
+    // overwritten. The list shows only the latest version of each
+    // group unless "show old versions" is toggled.
+    const [showOldVersions, setShowOldVersions] = useState(false);
+
+    const versionsOf = (q) =>
+        quotations.filter(x => (x.root_id || x.id) === (q.root_id || q.id))
+            .sort((a, b) => (b.version || 1) - (a.version || 1));
+
+    const createNewVersion = async (id, currentVersion) => {
+        if (!window.confirm(`Create V${currentVersion + 1}? The current version is kept and marked SUPERSEDED.`)) return;
+        const res = await api.post(`/quotations/${id}/new-version`);
+        if (res.ok && res.data) {
+            notify.success(`Version ${res.data.version} created as a draft.`);
+            fetchQuotations();
+        } else {
+            notify.error(res.error || 'Failed to create new version');
+        }
+    };
+
     const filteredQuotations = useMemo(() => {
-        return quotations.filter(q => {
+        const matches = quotations.filter(q => {
             const matchesStatus = statusFilter === 'ALL' || q.status === statusFilter;
             const searchLower = search.toLowerCase();
-            const matchesSearch = !search || 
+            const matchesSearch = !search ||
                 (q.title || '').toLowerCase().includes(searchLower) ||
                 (q.client_name || '').toLowerCase().includes(searchLower) ||
                 (q.lead_name || '').toLowerCase().includes(searchLower) ||
                 String(q.amount || '').includes(searchLower);
             return matchesStatus && matchesSearch;
         });
-    }, [quotations, statusFilter, search]);
+
+        if (showOldVersions) return matches
+            .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+        // Latest version per root group only.
+        const latestByRoot = new Map();
+        for (const q of matches) {
+            const root = q.root_id || q.id;
+            const cur = latestByRoot.get(root);
+            if (!cur || (q.version || 1) > (cur.version || 1)) latestByRoot.set(root, q);
+        }
+        return [...latestByRoot.values()]
+            .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    }, [quotations, statusFilter, search, showOldVersions]);
 
     if (loading) {
         return (
@@ -463,6 +498,17 @@ export default function AdminQuotations() {
                             {st}
                         </button>
                     ))}
+                    <button
+                        onClick={() => setShowOldVersions(s => !s)}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                            showOldVersions
+                                ? 'bg-blue-600 text-white shadow-sm'
+                                : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'
+                        }`}
+                        title="Show SUPERSEDED versions alongside the latest of each quote"
+                    >
+                        {showOldVersions ? '✓ Old Versions' : 'Old Versions'}
+                    </button>
                 </div>
             </div>
 
@@ -493,13 +539,22 @@ export default function AdminQuotations() {
                             <tbody className="divide-y divide-gray-100 dark:divide-gray-700/60">
                                 {filteredQuotations.map(q => {
                                     const total = Number(q.amount || 0);
-                                    const deposit = Math.round(total * 0.5);
+                                    const deposit = Math.round(total * (q.deposit_percent ?? 50) / 100);
+                                    const groupVersions = versionsOf(q);
 
                                     return (
                                         <tr key={q.id} className="hover:bg-gray-50/60 dark:hover:bg-gray-750/50 transition-colors">
                                             <td className="p-4">
                                                 <div className="font-bold text-gray-900 dark:text-white text-sm">
                                                     {q.title}
+                                                    {(q.version || 1) > 1 && (
+                                                        <span className="ml-2 text-[9px] font-extrabold uppercase tracking-widest bg-blue-100 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 px-1.5 py-0.5 rounded">
+                                                            V{q.version}
+                                                        </span>
+                                                    )}
+                                                    {groupVersions.length > 1 && (
+                                                        <span className="ml-1.5 text-[10px] text-gray-400">({groupVersions.length} versions)</span>
+                                                    )}
                                                 </div>
                                                 <span className="text-[11px] text-gray-400 font-mono">ID: {q.id.slice(0, 8)}</span>
                                             </td>
@@ -542,6 +597,7 @@ export default function AdminQuotations() {
                                                     q.status === 'CONVERTED' ? 'bg-purple-100 text-purple-700 dark:bg-purple-950/50 dark:text-purple-300' :
                                                     q.status === 'REJECTED' ? 'bg-rose-100 text-rose-700 dark:bg-rose-950/50 dark:text-rose-300' :
                                                     q.status === 'SENT' ? 'bg-blue-100 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300' :
+                                                    q.status === 'SUPERSEDED' ? 'bg-gray-200 text-gray-500 dark:bg-gray-800 dark:text-gray-500' :
                                                     'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
                                                 }`}>
                                                     {q.status}
@@ -566,6 +622,15 @@ export default function AdminQuotations() {
                                                 {q.status === 'SENT' && (
                                                     <button onClick={() => updateStatus(q.id, 'ACCEPTED')} className="text-xs bg-emerald-50 text-emerald-600 hover:bg-emerald-100 px-3 py-1.5 rounded-lg font-bold">
                                                         Accept
+                                                    </button>
+                                                )}
+                                                {(q.status === 'DRAFT' || q.status === 'SENT' || q.status === 'REJECTED') && (
+                                                    <button
+                                                        onClick={() => createNewVersion(q.id, q.version || 1)}
+                                                        className="text-xs bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 px-3 py-1.5 rounded-lg font-bold"
+                                                        title="Clone as the next version; this version is kept and superseded"
+                                                    >
+                                                        New Version
                                                     </button>
                                                 )}
                                                 {q.status === 'ACCEPTED' && (
@@ -845,6 +910,25 @@ export default function AdminQuotations() {
                             <div className="flex items-center justify-between border-b border-gray-100 dark:border-gray-800 pb-4 print:hidden">
                                 <div className="flex items-center gap-2">
                                     <span className="text-xs uppercase tracking-widest font-extrabold text-accent">Official Quotation Preview</span>
+                                    {(() => {
+                                        const vs = versionsOf(previewQuotation);
+                                        return vs.length > 1 ? (
+                                            <select
+                                                value={previewQuotation.id}
+                                                onChange={(e) => {
+                                                    const pick = quotations.find(x => x.id === e.target.value);
+                                                    if (pick) setPreviewQuotation(pick);
+                                                }}
+                                                className="text-xs font-bold bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-2 py-1 outline-none"
+                                            >
+                                                {vs.map(v => (
+                                                    <option key={v.id} value={v.id}>
+                                                        V{v.version || 1} — {v.status} ({currencySymbol(v.currency)}{Number(v.amount || 0).toLocaleString()})
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        ) : null;
+                                    })()}
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <button 

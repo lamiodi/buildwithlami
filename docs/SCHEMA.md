@@ -912,3 +912,40 @@ Social handles per client (Instagram-first, blueprint §76).
 
 - `client_projects.status` CHECK only allows `PLANNING|IN_PROGRESS|REVIEW|LAUNCHED|MAINTENANCE|ARCHIVED` — the lead-conversion project insert (`'WON'`) and the payment project spin-ups (`'ACTIVE'`) in crmController/invoiceController/paymentController were latent constraint violations; all now insert `'PLANNING'`.
 - `ensureOnboardingForClient` no longer aborts when the invite email fails (SMTP outage → `emailStatus: 'failed'`, onboarding still created).
+
+---
+
+## 17. Admin OS Phase 2b (v49) — Quotation versioning + Receipts
+
+### Quotation versioning (blueprint §24)
+
+| Table | Columns |
+|---|---|
+| `quotations` | `version` INT NOT NULL DEFAULT 1 (CHECK ≥1), `root_id` UUID? FK → `quotations.id` ON DELETE CASCADE, `sent_at` TIMESTAMPTZ? |
+
+Status CHECK extended with `SUPERSEDED`. A revision is a **new row** (V2, V3, …) sharing the original's `root_id`; the previous row moves to `SUPERSEDED`. `ACCEPTED`/`CONVERTED` quotes are immutable (409) — post-acceptance scope changes belong to change requests.
+
+**Endpoints:** `GET /api/quotations/:id/versions`, `POST /api/quotations/:id/new-version` (transactional supersede+clone, audit `QUOTATION_VERSION_CREATED`). `PATCH /:id/status → SENT` stamps `sent_at`. Admin UI shows V-badges, latest-version-per-group by default (toggle for old versions), a version picker in the preview, and a "New Version" row action.
+
+### receipts
+
+| Column | Type | Notes |
+|---|---|---|
+| `id` | UUID PK | |
+| `receipt_number` | TEXT NOT NULL UNIQUE | `RCP-YYYY-NNN` (same collision-retry loop as invoices) |
+| `invoice_id` | UUID NOT NULL UNIQUE FK → `invoices` ON DELETE CASCADE | UNIQUE = idempotent generation |
+| `client_id` / `project_id` | UUID? FK | |
+| `amount` / `currency` | NUMERIC(12,2) / CHAR(3) | Mirrors the invoice |
+| `paid_via` | TEXT? | PAYSTACK / BANK_TRANSFER / MANUAL_ADMIN / … |
+| `paid_at` | TIMESTAMPTZ NOT NULL | |
+| `remaining_balance` | NUMERIC(12,2) | Client's OTHER unpaid invoices in the SAME currency at generation (§42) |
+| `created_at` | TIMESTAMPTZ | |
+
+**Indexes:** `client_id`, `created_at DESC`.
+
+**Service:** `services/receiptService.js → ensureReceiptForInvoice({ invoiceId, paidVia })` — called from all three server-verified PAID paths right before the deposit automation chain; never throws; audit `RECEIPT_GENERATED`. Receipt numbers surface in AdminInvoices and the client portal invoice list (JOIN in both read queries).
+
+### Phase-1 leftovers folded in
+
+- §76 — global search (`/api/admin/search`) now matches clients by `whatsapp_number` and `instagram` too.
+- §77 — `GET /api/clients/check-duplicate?q=` (exact-ish email / phone-digits / name match) + a debounced, non-blocking amber warning in the AdminClients create form.

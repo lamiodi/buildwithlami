@@ -66,6 +66,11 @@ export default function ClientInvoices() {
                                     <tr key={inv.id} className="hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
                                         <td className="p-4 font-medium text-gray-900 dark:text-white">
                                             {inv.invoice_number}
+                                            {inv.receipt_number && (
+                                                <span className="block text-[10px] font-bold text-emerald-600 dark:text-emerald-400 mt-0.5" title="Official payment receipt">
+                                                    🧾 {inv.receipt_number}
+                                                </span>
+                                            )}
                                         </td>
                                         <td className="p-4 text-sm text-gray-500 dark:text-gray-400">
                                             {new Date(inv.created_at).toLocaleDateString()}

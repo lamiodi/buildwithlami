@@ -76,6 +76,33 @@ export const getClientById = async (req, res) => {
     }
 };
 
+// ── Duplicate detection (blueprint §77) ──────────────────
+// Warn — never hard-block — when a new client looks like an
+// existing one. Exact-ish matches on email / phone / WhatsApp /
+// business name (case-insensitive, digits-only for phones).
+export const checkDuplicateClient = async (req, res) => {
+    try {
+        const q = String(req.query.q || '').trim();
+        if (q.length < 3) return res.json({ duplicates: [] });
+
+        const digits = q.replace(/[^\d]/g, '');
+        const { rows } = await pool.query(
+            `SELECT id, name, primary_contact_email, phone, whatsapp_number
+               FROM clients
+              WHERE lower(primary_contact_email) = lower($1)
+                 OR lower(name) = lower($1)
+                 OR ($2 <> '' AND (regexp_replace(COALESCE(phone, ''), '\\D', '', 'g') = $2
+                                   OR regexp_replace(COALESCE(whatsapp_number, ''), '\\D', '', 'g') = $2))
+              LIMIT 3`,
+            [q, digits]
+        );
+        return res.json({ duplicates: rows });
+    } catch (err) {
+        console.error('[Clients] checkDuplicateClient error:', err.message);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
 export const createClient = async (req, res) => {
     try {
         const data = clientSchema.parse(req.body);

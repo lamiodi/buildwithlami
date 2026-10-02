@@ -6,6 +6,7 @@ import { SUPPORTED_CURRENCIES } from '../utils/fx.js';
 import { sendInvoiceEmail } from './paymentController.js';
 import { confirmManualPayment } from '../utils/paymentConfirmation.js';
 import { onInvoicePaid } from '../services/automationService.js';
+import { ensureReceiptForInvoice } from '../services/receiptService.js';
 
 const invoiceSchema = z.object({
     clientId: z.string().uuid(),
@@ -198,10 +199,12 @@ export const getAllInvoices = async (req, res) => {
                    i.due_date, i.payment_url, i.paystack_reference, i.paid_at,
                    i.division, i.created_at, i.tax_rate, i.discount_amount, i.deposit_required, i.notes, i.line_items,
                    c.name AS client_name,
-                   p.project_name
+                   p.project_name,
+                   r.receipt_number
             FROM invoices i
-            LEFT JOIN clients c ON i.client_id = c.id
-            LEFT JOIN client_projects p ON i.project_id = p.id
+            LEFT JOIN clients c ON c.id = i.client_id
+            LEFT JOIN client_projects p ON p.id = i.project_id
+            LEFT JOIN receipts r ON r.invoice_id = i.id
             ${where}
             ORDER BY i.created_at DESC
         `, params);
@@ -318,10 +321,17 @@ export const markInvoicePaid = async (req, res) => {
             return res.status(meta.http).json({ error: meta.message, reason: result.reason });
         }
 
-        // Admin OS Phase 2 — a first-time PAID flip fires the
-        // deposit automation chain (idempotent; never throws).
+        // Admin OS Phase 2 — a first-time PAID flip generates the
+        // receipt (every invoice) and fires the deposit automation
+        // chain (deposit invoices only). Both idempotent, never throw.
         let chain = null;
         if (result.reason === 'paid') {
+            await ensureReceiptForInvoice({
+                invoiceId: id,
+                paidVia: body.paidVia || 'MANUAL_ADMIN',
+                user: req.user,
+                ipAddress: getClientIp(req),
+            });
             chain = await onInvoicePaid({
                 invoiceId: id,
                 via: body.paidVia || 'MANUAL_ADMIN',
@@ -450,8 +460,9 @@ export const paystackWebhook = async (req, res) => {
                 );
             }
 
-            // Admin OS Phase 2 — deposit invoices trigger the
-            // onboarding chain on server-verified payment.
+            // Admin OS Phase 2 — receipt for every paid invoice,
+            // then the deposit chain for quotation-linked ones.
+            await ensureReceiptForInvoice({ invoiceId: invoice.id, paidVia: 'PAYSTACK' });
             await onInvoicePaid({ invoiceId: invoice.id, via: 'PAYSTACK' });
         }
 

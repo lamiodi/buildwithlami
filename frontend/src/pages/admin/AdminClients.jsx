@@ -13,6 +13,8 @@ const AdminClients = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  // §77 — warn (never block) when the form matches an existing client.
+  const [dupWarning, setDupWarning] = useState(null);
   const [divisionFilter, setDivisionFilter] = useState(() => {
     const ws = (localStorage.getItem('bwl:admin:workspace') || '').toUpperCase();
     return ['SOFTWARE', 'SURVEY', 'DRONE'].includes(ws) ? ws : 'all';
@@ -38,6 +40,20 @@ const AdminClients = () => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
+
+  // Debounced duplicate check on email/phone/name while CREATING
+  // (an edit of an existing client obviously "matches" itself).
+  useEffect(() => {
+    if (editingId) { setDupWarning(null); return; }
+    const q = formData.primary_contact_email.trim() || formData.phone.trim() || formData.name.trim();
+    if (q.length < 3) { setDupWarning(null); return; }
+    const t = setTimeout(async () => {
+      const res = await api.get('/clients/check-duplicate', { params: { q } });
+      if (res.ok && res.data && !editingId) setDupWarning(res.data.duplicates || []);
+      else setDupWarning(null);
+    }, 500);
+    return () => clearTimeout(t);
+  }, [formData.primary_contact_email, formData.phone, formData.name, editingId]);
 
   const editClient = (client) => {
     setEditingId(client.id);
@@ -135,7 +151,18 @@ const AdminClients = () => {
               {editingId ? 'Update Client Details' : 'Add New Client'}
             </h2>
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
+                {dupWarning && dupWarning.length > 0 && (
+                  <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/50 rounded-xl p-3 text-xs font-body">
+                    <p className="font-extrabold text-amber-700 dark:text-amber-300 uppercase tracking-widest text-[10px] mb-1.5">Possible duplicate</p>
+                    {dupWarning.map(d => (
+                      <p key={d.id} className="text-amber-800 dark:text-amber-300 font-medium">
+                        {d.name} — {d.primary_contact_email}{d.phone ? ` · ${d.phone}` : ''}
+                      </p>
+                    ))}
+                    <p className="text-amber-600 dark:text-amber-400 mt-1">Continue only if this is genuinely a different client.</p>
+                  </div>
+                )}
+                <div>
                 <label className="block text-[10px] font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2">Company / Client Name</label>
                 <input
                   type="text"

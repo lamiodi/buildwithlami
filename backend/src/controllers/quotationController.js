@@ -129,7 +129,9 @@ export const updateQuotationStatus = async (req, res) => {
     try {
         const { rows } = await pool.query(`
             UPDATE quotations
-            SET status = $1, updated_at = NOW()
+            SET status = $1,
+                sent_at = CASE WHEN $1 = 'SENT' THEN COALESCE(sent_at, NOW()) ELSE sent_at END,
+                updated_at = NOW()
             WHERE id = $2
             RETURNING *
         `, [status, id]);
@@ -163,6 +165,117 @@ export const updateQuotationStatus = async (req, res) => {
     } catch (err) {
         console.error('[Quotations] updateQuotationStatus error:', err.message);
         res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
+// ── Quotation versioning (blueprint §24) ─────────────────
+// A version is a NEW row (V1, V2, …) sharing a root_id; the
+// previous row moves to SUPERSEDED. Accepted/converted quotes are
+// immutable — scope changes after acceptance belong to change
+// requests (Phase 3), not silent revisions.
+
+/**
+ * GET /api/quotations/:id/versions — every version of the same
+ * root, newest first (includes itself).
+ */
+export const getQuotationVersions = async (req, res) => {
+    const { id } = req.params;
+    if (!isUuid(id)) return res.status(400).json({ error: 'Invalid ID' });
+    try {
+        const { rows } = await pool.query(`
+            SELECT id, version, status, amount, currency, title,
+                   sent_at, accepted_at, created_at
+              FROM quotations
+             WHERE id = (SELECT COALESCE(root_id, id) FROM quotations WHERE id = $1)
+                OR root_id = (SELECT COALESCE(root_id, id) FROM quotations WHERE id = $1)
+             ORDER BY version DESC
+        `, [id]);
+        if (rows.length === 0) return res.status(404).json({ error: 'Quotation not found' });
+        res.json(rows);
+    } catch (err) {
+        console.error('[Quotations] getQuotationVersions error:', err.message);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
+/**
+ * POST /api/quotations/:id/new-version — clone as the next DRAFT
+ * version and SUPERSEDE the current row. Only allowed while the
+ * quote is still DRAFT / SENT / REJECTED.
+ */
+export const createQuotationVersion = async (req, res) => {
+    const { id } = req.params;
+    if (!isUuid(id)) return res.status(400).json({ error: 'Invalid ID' });
+
+    const client = await pool.connect();
+    try {
+        await client.query('BEGIN');
+
+        const { rows: qRows } = await client.query(
+            `SELECT * FROM quotations WHERE id = $1 FOR UPDATE`,
+            [id]
+        );
+        if (qRows.length === 0) {
+            await client.query('ROLLBACK');
+            return res.status(404).json({ error: 'Quotation not found' });
+        }
+        const q = qRows[0];
+
+        if (!['DRAFT', 'SENT', 'REJECTED'].includes(q.status)) {
+            await client.query('ROLLBACK');
+            return res.status(409).json({
+                error: `Cannot version a ${q.status} quotation. ${
+                    q.status === 'ACCEPTED' || q.status === 'CONVERTED'
+                        ? 'Accepted scope changes go through a change request.'
+                        : ''
+                }`,
+            });
+        }
+
+        const rootId = q.root_id || q.id;
+        const { rows: vRows } = await client.query(
+            `SELECT COALESCE(MAX(version), 1) + 1 AS next_version
+               FROM quotations
+              WHERE id = $1 OR root_id = $1`,
+            [rootId]
+        );
+        const nextVersion = vRows[0].next_version;
+
+        await client.query(
+            `UPDATE quotations SET status = 'SUPERSEDED', updated_at = NOW() WHERE id = $1`,
+            [id]
+        );
+
+        const { rows: newRows } = await client.query(`
+            INSERT INTO quotations
+                (lead_id, client_id, title, amount, currency, deposit_percent,
+                 line_items, notes, valid_until, status, version, root_id)
+            VALUES ($1, $2, $3, $4, $5, $6, $7::jsonb, $8, $9, 'DRAFT', $10, $11)
+            RETURNING *
+        `, [
+            q.lead_id, q.client_id, q.title, q.amount, q.currency, q.deposit_percent,
+            JSON.stringify(q.line_items || []), q.notes, q.valid_until,
+            nextVersion, rootId,
+        ]);
+
+        await client.query('COMMIT');
+
+        writeAuditLog({
+            action: 'QUOTATION_VERSION_CREATED',
+            entityType: 'quotations',
+            entityId: newRows[0].id,
+            details: { fromVersion: q.version, toVersion: nextVersion, supersededId: id, amount: Number(q.amount) },
+            user: req.user,
+            ipAddress: getClientIp(req),
+        }).catch(() => {});
+
+        res.status(201).json(newRows[0]);
+    } catch (err) {
+        await client.query('ROLLBACK');
+        console.error('[Quotations] createQuotationVersion error:', err.message);
+        res.status(500).json({ error: 'Internal server error' });
+    } finally {
+        client.release();
     }
 };
 
