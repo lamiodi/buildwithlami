@@ -74,8 +74,8 @@ const DEFAULT_NOTES = 'Payment Terms: 50% Kickoff Deposit to commence architectu
  * package for SOFTWARE leads and survey/drone service packs
  * for those divisions.
  */
-export function pickCatalogEntry({ division, service, notes, projectType } = {}) {
-    const haystack = [projectType, service, notes, division].filter(Boolean).join(' ').toLowerCase();
+export function pickCatalogEntry({ division, notes, projectType } = {}) {
+    const haystack = [projectType, notes, division].filter(Boolean).join(' ').toLowerCase();
     let best = null;
     let bestScore = 0;
     for (const entry of CATALOG) {
@@ -127,8 +127,10 @@ export function scaleToBudget(items, budget) {
 export async function generateQuotationDraft({ leadId, projectType, budget, currency, notes } = {}) {
     let lead = null;
     if (leadId) {
+        // Leads carry division + notes only (no service/tier/currency —
+        // those live on the contact `messages` table, v43).
         const { rows } = await pool.query(
-            `SELECT id, full_name, division, service, tier, currency, notes FROM leads WHERE id = $1`,
+            `SELECT id, full_name, division, notes FROM leads WHERE id = $1`,
             [leadId]
         );
         if (rows.length === 0) return { ok: false, reason: 'lead_not_found' };
@@ -137,7 +139,6 @@ export async function generateQuotationDraft({ leadId, projectType, budget, curr
 
     const entry = pickCatalogEntry({
         division: lead?.division,
-        service: lead?.service,
         notes: `${notes || ''} ${lead?.notes || ''}`,
         projectType,
     });
@@ -156,9 +157,9 @@ export async function generateQuotationDraft({ leadId, projectType, budget, curr
                     role: 'user',
                     content: JSON.stringify({
                         package: { id: entry.id, title: entry.title, line_items: items },
-                        lead: lead ? { name: lead.full_name, division: lead.division, service: lead.service, notes: lead.notes } : null,
+                        lead: lead ? { name: lead.full_name, division: lead.division, notes: lead.notes } : null,
                         requirements: notes || null,
-                        currency: currency || lead?.currency || 'NGN',
+                        currency: currency || 'NGN',
                     }),
                 },
             ], { maxTokens: 800 });
@@ -190,7 +191,7 @@ export async function generateQuotationDraft({ leadId, projectType, budget, curr
         draft: {
             title,
             lead_id: lead?.id || undefined,
-            currency: (currency || lead?.currency || 'NGN').toUpperCase().slice(0, 3),
+            currency: (currency || 'NGN').toUpperCase().slice(0, 3),
             line_items: items,
             amount,
             notes: DEFAULT_NOTES,

@@ -7,6 +7,7 @@ import { ActionIcon } from '../../data/adminIcons.jsx';
 
 export default function AdminExpenses() {
     const [expenses, setExpenses] = useState([]);
+    const [projects, setProjects] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingExpense, setEditingExpense] = useState(null);
@@ -18,7 +19,9 @@ export default function AdminExpenses() {
         amount: '',
         division: 'SOFTWARE',
         paymentMethod: 'BANK_TRANSFER',
-        receiptUrl: ''
+        receiptUrl: '',
+        // Phase 6 — optional project link feeds per-project profitability.
+        projectId: ''
     });
 
     const fetchExpenses = async () => {
@@ -34,6 +37,9 @@ export default function AdminExpenses() {
 
     useEffect(() => {
         fetchExpenses();
+        api.get('/client-projects').then((res) => {
+            if (res.ok && res.data) setProjects(res.data);
+        }).catch(() => {});
     }, []);
 
     const handleChange = (e) => {
@@ -50,7 +56,8 @@ export default function AdminExpenses() {
                 amount: expense.amount || '',
                 division: expense.division || 'SOFTWARE',
                 paymentMethod: expense.payment_method || 'BANK_TRANSFER',
-                receiptUrl: expense.receipt_url || ''
+                receiptUrl: expense.receipt_url || '',
+                projectId: expense.project_id || ''
             });
         } else {
             setEditingExpense(null);
@@ -61,7 +68,8 @@ export default function AdminExpenses() {
                 amount: '',
                 division: 'SOFTWARE',
                 paymentMethod: 'BANK_TRANSFER',
-                receiptUrl: ''
+                receiptUrl: '',
+                projectId: ''
             });
         }
         setIsModalOpen(true);
@@ -88,7 +96,9 @@ export default function AdminExpenses() {
         }
         const payload = {
             ...formData,
-            amount
+            amount,
+            // Empty select → no link (backend expects a UUID or null).
+            projectId: formData.projectId || undefined
         };
         
         const res = editingExpense
@@ -256,6 +266,18 @@ export default function AdminExpenses() {
                                     <option value="CARD">Card</option>
                                     <option value="CASH">Cash</option>
                                     <option value="OTHER">Other</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label className={labelClass}>Project (optional — feeds profitability)</label>
+                                <select name="projectId" value={formData.projectId} onChange={handleChange} className={inputClass}>
+                                    <option value="">No project link</option>
+                                    {projects.map((p) => (
+                                        <option key={p.id} value={p.id}>
+                                            {p.project_name}{p.status ? ` · ${p.status}` : ''}
+                                        </option>
+                                    ))}
                                 </select>
                             </div>
 

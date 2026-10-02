@@ -4,15 +4,21 @@ import { getAllRates, BASE_CURRENCY } from '../utils/fx.js';
 // Helper to build date filter (returns { clause, params }).
 // Parameters are appended to the params array — never interpolated
 // into the SQL string — so ?start=… is safe from injection.
-const dateFilter = (start, end, params) => {
+// The ::timestamptz cast is required: start/end arrive as
+// 'YYYY-MM-DD' strings and Postgres cannot compare
+// timestamptz >= untyped-text on every driver/PG combo.
+// baseOffset shifts the generated placeholders for queries whose
+// parameter list starts with other params (e.g. [BASE_CURRENCY,
+// …filter] → offset 1 so the filter lands on $2/$3, never $1).
+const dateFilter = (start, end, params, baseOffset = 0, column = 'created_at') => {
     const conditions = [];
     if (start) {
         params.push(start);
-        conditions.push(`created_at >= $${params.length}`);
+        conditions.push(`${column} >= $${params.length + baseOffset}::timestamptz`);
     }
     if (end) {
         params.push(end);
-        conditions.push(`created_at < $${params.length}`);
+        conditions.push(`${column} < $${params.length + baseOffset}::timestamptz`);
     }
     return conditions.length ? conditions.join(' AND ') : '';
 };
@@ -151,20 +157,24 @@ export async function getDashboardOverview(req, res) {
 export async function getReports(req, res) {
     try {
         const { start, end } = req.query;
+        // Invoice queries pass [BASE_CURRENCY, …invoiceParams], so the
+        // date-filter placeholders must start at $2 (offset 1), and the
+        // column is qualified — those queries join clients/fx_rates which
+        // also have a created_at.
         const invoiceParams = [];
-        const invoiceFilter = dateFilter(start, end, invoiceParams);
+        const invoiceFilter = dateFilter(start, end, invoiceParams, 1, 'i.created_at');
         const projectParams = [];
         const projectFilter = dateFilter(start, end, projectParams);
         const expenseParams = [];
         let expenseFilter = '';
         if (start) {
             expenseParams.push(start);
-            expenseFilter += `expense_date >= $${expenseParams.length}`;
+            expenseFilter += `expense_date >= $${expenseParams.length}::date`;
         }
         if (end) {
             expenseParams.push(end);
             if (expenseFilter) expenseFilter += ' AND ';
-            expenseFilter += `expense_date < $${expenseParams.length}`;
+            expenseFilter += `expense_date < $${expenseParams.length}::date`;
         }
 
         // Fetch the FX rate map once. Used to convert each invoice's

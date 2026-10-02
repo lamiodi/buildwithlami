@@ -116,6 +116,52 @@ const AdminDashboard = () => {
         return Object.entries(months).map(([m, val]) => ({ month: m, value: val, height: (val / max) * 100 }));
     }, [invoices]);
 
+    // ── Smart view filter ──────────────────────────────
+    // One-click filters that surface the work the admin actually came here to do.
+    // Takes the view as a parameter so the counts below are computed by the
+    // SAME predicate that filters the list — one definition, no drift.
+    // NOTE: defined above the loading early-return — smartViewCounts is a
+    // hook call, and hook order must be identical on every render.
+    const matchesSmartView = (p, view = smartView) => {
+        switch (view) {
+            case 'all':
+                return true;
+            case 'active':
+                return !['LAUNCHED', 'MAINTENANCE', 'ARCHIVED'].includes(p.status);
+            case 'launched':
+                return p.status === 'LAUNCHED' || p.status === 'MAINTENANCE';
+            case 'stalled': {
+                // No movement in 30+ days, not yet finished.
+                const updated = p.updated_at ? new Date(p.updated_at).getTime() : 0;
+                const isDone = ['LAUNCHED', 'ARCHIVED'].includes(p.status);
+                return !isDone && updated && (nowMs - updated) > 30 * 24 * 60 * 60 * 1000;
+            }
+            case 'overdue': {
+                const owed = Number(p.amount_due || 0);
+                const overdueInv = invoices.find(
+                    (i) => i.project_id === p.id && i.status === 'PENDING' && i.due_date && new Date(i.due_date) < now
+                );
+                return owed > 0 || !!overdueInv;
+            }
+            case 'thisweek': {
+                const created = p.created_at ? new Date(p.created_at).getTime() : 0;
+                return created && (nowMs - created) <= sevenDays;
+            }
+            default:
+                return true;
+        }
+    };
+
+    // Count for each smart-view chip — computed by the same predicate
+    // that filters the list, so the badges can never disagree with it.
+    const smartViewCounts = useMemo(() => {
+        const c = { all: projects.length };
+        for (const key of ['active', 'launched', 'stalled', 'overdue', 'thisweek']) {
+            c[key] = projects.filter((p) => matchesSmartView(p, key)).length;
+        }
+        return c;
+    }, [projects, invoices, nowMs, smartView]);
+
     const fetchAll = async () => {
         const res = await api.get('/dashboard');
         if (res.ok && res.data) {
@@ -177,50 +223,6 @@ const AdminDashboard = () => {
     const activeClients = new Set(projects.filter(p => !['LAUNCHED', 'MAINTENANCE', 'ARCHIVED'].includes(p.status)).map(p => p.client_id)).size;
     const activeProjectsCount = projects.filter(p => !['LAUNCHED', 'MAINTENANCE', 'ARCHIVED'].includes(p.status)).length;
     const activePipelineCount = (pipelineStats.active_leads || 0) + (pipelineStats.active_quotations || 0);
-
-    // ── Smart view filter ──────────────────────────────
-    // One-click filters that surface the work the admin actually came here to do.
-    // Takes the view as a parameter so the counts below are computed by the
-    // SAME predicate that filters the list — one definition, no drift.
-    const matchesSmartView = (p, view = smartView) => {
-        switch (view) {
-            case 'all':
-                return true;
-            case 'active':
-                return !['LAUNCHED', 'MAINTENANCE', 'ARCHIVED'].includes(p.status);
-            case 'launched':
-                return p.status === 'LAUNCHED' || p.status === 'MAINTENANCE';
-            case 'stalled': {
-                // No movement in 30+ days, not yet finished.
-                const updated = p.updated_at ? new Date(p.updated_at).getTime() : 0;
-                const isDone = ['LAUNCHED', 'ARCHIVED'].includes(p.status);
-                return !isDone && updated && (nowMs - updated) > 30 * 24 * 60 * 60 * 1000;
-            }
-            case 'overdue': {
-                const owed = Number(p.amount_due || 0);
-                const overdueInv = invoices.find(
-                    (i) => i.project_id === p.id && i.status === 'PENDING' && i.due_date && new Date(i.due_date) < now
-                );
-                return owed > 0 || !!overdueInv;
-            }
-            case 'thisweek': {
-                const created = p.created_at ? new Date(p.created_at).getTime() : 0;
-                return created && (nowMs - created) <= sevenDays;
-            }
-            default:
-                return true;
-        }
-    };
-
-    // Count for each smart-view chip — computed by the same predicate
-    // that filters the list, so the badges can never disagree with it.
-    const smartViewCounts = useMemo(() => {
-        const c = { all: projects.length };
-        for (const key of ['active', 'launched', 'stalled', 'overdue', 'thisweek']) {
-            c[key] = projects.filter((p) => matchesSmartView(p, key)).length;
-        }
-        return c;
-    }, [projects, invoices, nowMs, smartView]);
 
     // Client-side search + smart-view filter
     const q = search.trim().toLowerCase();
