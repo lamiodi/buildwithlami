@@ -6,6 +6,7 @@ import { notify } from '../../services/notify';
 import { toCSV, downloadCSV } from '../../utils/csv.jsx';
 import TodayWidget from '../../components/admin/TodayWidget';
 import CommandCenter from '../../components/admin/CommandCenter';
+import AssistantPanel from '../../components/admin/AssistantPanel';
 import { CoreIcon, DashboardIcon, ActionIcon } from '../../data/adminIcons.jsx';
 import {
     StatCard,
@@ -332,6 +333,10 @@ const AdminDashboard = () => {
                 {/* ── COMMAND CENTER (Admin OS Phase 1) — Tonight Queue,
                     Waiting on Client, Needs Attention, Next Actions ── */}
                 <CommandCenter />
+
+                {/* ── ASSISTANT PANEL (Admin OS Phase 6) — workload
+                    guardrails + "ask your data" NL assistant ── */}
+                <AssistantPanel />
 
                 {/* ── ALERT BANNER (only if there are issues) ───────── */}
                 {needsAttention > 0 && (

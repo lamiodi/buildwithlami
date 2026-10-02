@@ -21,18 +21,17 @@ const About = () => {
           <span className="w-2 h-2 bg-accent inline-block" />
           <span>Studio Leadership & Philosophy</span>
         </motion.div>
-        <motion.h2 variants={item} className="text-4xl md:text-6xl lg:text-7xl font-heading font-bold mb-12 tracking-tight text-black dark:text-white">
+        <motion.h2 variants={item} className="text-4xl md:text-6xl lg:text-7xl font-heading font-bold mb-8 tracking-tight text-black dark:text-white">
           BUILDWITH<span className="text-accent">LAMI</span>
         </motion.h2>
 
         {/* Main Image — aspect-ratio matches the source (1440 / 845) */}
         <motion.div
           variants={item}
-          className="relative w-full max-w-6xl mx-auto bg-gray-950 dark:bg-[#0c0c0c] mb-16 overflow-hidden shadow-2xl rounded-2xl border border-gray-200 dark:border-white/10"
+          className="relative w-full max-w-6xl mx-auto bg-gray-950 dark:bg-[#0c0c0c] mb-8 overflow-hidden shadow-2xl rounded-2xl border border-gray-200 dark:border-white/10"
         >
           <div
-            className="relative w-full max-h-[70svh] sm:max-h-none"
-            style={{ aspectRatio: '1440 / 845' }}
+            className="relative w-full h-[230px] sm:h-[320px] lg:h-[400px]"
           >
             <img
               src="/about-founder.webp"
@@ -41,7 +40,8 @@ const About = () => {
                 e.currentTarget.onerror = null;
                 e.currentTarget.src = "/hero-founder.webp";
               }}
-              className="absolute inset-0 w-full h-full object-cover sm:object-contain opacity-95 dark:opacity-90"
+              className="absolute inset-0 w-full h-full object-cover object-center opacity-95 dark:opacity-90"
+              loading="lazy"
               decoding="async"
               width="1440"
               height="845"
@@ -57,7 +57,7 @@ const About = () => {
           </div>
         </motion.div>
 
-        <div className="flex flex-col md:flex-row text-left max-w-4xl mx-auto space-y-6 md:space-y-0 md:space-x-12 items-center justify-between">
+        <div className="flex flex-col md:flex-row text-left max-w-4xl mx-auto space-y-6 md:space-y-0 md:space-x-12 items-start justify-between">
           <motion.div
             className="md:w-1/2"
             variants={item}
@@ -83,13 +83,13 @@ const About = () => {
               transition={{ duration: shouldReduce ? 0 : 0.8, delay: shouldReduce ? 0 : 0.2 }}
               className="text-gray-700 dark:text-gray-300 leading-relaxed text-base md:text-lg font-light mb-6 opacity-90"
             >
-              BuildWithLami operates as a specialized software studio engineering production web platforms, commerce systems, and operational backends. Fixed milestones, transparent communication, and 100% code ownership on every engagement.
+              I’m Eugene, the founder and lead engineer behind BuildWithLami. I work with you from the first brief to launch, building websites, commerce platforms, and tools that fit your business.
             </motion.p>
             <Link
               to="/about"
               className="inline-flex items-center text-[11px] font-heading font-bold uppercase tracking-[0.15em] text-accent hover:text-black dark:hover:text-white transition-colors gap-1.5"
             >
-              <span>Explore Founder Story & Technical Foundation</span>
+              <span>Meet the founder</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>

@@ -41,6 +41,10 @@ import quotationRoutes from './routes/quotationRoutes.js';
 import taskRoutes from './routes/taskRoutes.js';
 import clientActionRoutes from './routes/clientActionRoutes.js';
 import onboardingRoutes from './routes/onboardingRoutes.js';
+import deliveryRoutes from './routes/deliveryRoutes.js';
+import outreachRoutes from './routes/outreachRoutes.js';
+import intelligenceRoutes from './routes/intelligenceRoutes.js';
+import aftercareRoutes from './routes/aftercareRoutes.js';
 import pool from './config/db.js';
 import { startCronJobs } from './services/cronService.js';
 
@@ -210,6 +214,27 @@ app.use('/api/quotations', apiLimiter, quotationRoutes);
 app.use('/api/tasks', apiLimiter, adminWriteLimiter, taskRoutes);
 app.use('/api/client-actions', apiLimiter, adminWriteLimiter, clientActionRoutes);
 app.use('/api/onboarding', apiLimiter, adminWriteLimiter, onboardingRoutes);
+
+// Admin OS Phase 3a — Delivery Control (approvals, change
+// requests, decision log). All Owner-gated inside the router;
+// client decisions come through /api/client-portal instead.
+app.use('/api/delivery', apiLimiter, adminWriteLimiter, deliveryRoutes);
+
+// Admin OS Phase 4 — Outreach (prospects, cold-email sequences,
+// audits, suppression). The public unsubscribe route inside the
+// router is intentionally unauthenticated — the token is the auth.
+app.use('/api/outreach', apiLimiter, adminWriteLimiter, outreachRoutes);
+
+// Admin OS Phase 6 — Intelligence: scored Tonight Queue,
+// workload guardrails, project profitability, client summaries,
+// quotation drafting and the NL admin assistant. All Owner-only.
+app.use('/api/intelligence', apiLimiter, adminWriteLimiter, intelligenceRoutes);
+
+// Admin OS Phase 5 — Aftercare / Retention: renewals, maintenance,
+// testimonials, referrals, site monitors, handover + post-launch.
+// The public testimonials / referral-code routes inside the router
+// are intentionally unauthenticated (read-only, no secrets).
+app.use('/api/aftercare', apiLimiter, aftercareRoutes);
 
 // ── 404 fallback ─────────────────────────────────────────
 app.use((_req, res) => {

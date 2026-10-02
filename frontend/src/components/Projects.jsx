@@ -1,18 +1,14 @@
-import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { motion, useReducedMotion } from 'framer-motion';
 import CheckIcon from './CheckIcon';
 import { api } from '../services/api';
 import fallbackProjects from '../data/fallbackProjects';
-import { ProjectCardSkeleton, SkeletonTransition } from './Skeleton';
-import { staggerContainer, fadeUpItem, sectionViewport, reducedMotionVariants } from '../utils/motion';
+import { fadeUpItem, reducedMotionVariants } from '../utils/motion';
 
 const Projects = () => {
   const [projects, setProjects] = useState(fallbackProjects);
-  const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
   const shouldReduce = useReducedMotion();
-  const container = shouldReduce ? reducedMotionVariants : staggerContainer;
   const item = shouldReduce ? reducedMotionVariants : fadeUpItem;
 
   useEffect(() => {
@@ -24,11 +20,11 @@ const Projects = () => {
 
         if (cancelled) return;
 
-        const list = res.data?.data ?? [];
+        const list = Array.isArray(res.data) ? res.data : res.data?.data ?? [];
         if (res.ok && Array.isArray(list) && list.length > 0) {
           setProjects(list);
         }
-      } catch (error) {
+      } catch {
         // Silently retain fallback projects
       }
     };
@@ -80,7 +76,7 @@ const Projects = () => {
           variants={item}
           className="text-gray-600 dark:text-gray-300 text-base max-w-md font-light leading-relaxed opacity-90"
         >
-          Explore high-performance web applications, enterprise platforms, and digital commerce systems engineered for real-world business impact.
+          See the products, the problems they solve, and the thinking behind each build.
         </motion.p>
       </div>
 
@@ -94,7 +90,7 @@ const Projects = () => {
             {/* Image Preview */}
             <Link
               to={`/projects/${featuredProject.slug || featuredProject.id}`}
-              className="lg:col-span-7 bg-gray-900 relative overflow-hidden group cursor-pointer min-h-[320px] md:min-h-[440px] block"
+              className="lg:col-span-7 bg-gray-900 relative overflow-hidden group cursor-pointer aspect-[8/5] lg:aspect-auto lg:min-h-[440px] flex items-center p-3 sm:p-5"
             >
               <img
                 src={featuredProject.image_url || featuredProject.image}
@@ -103,7 +99,7 @@ const Projects = () => {
                   e.currentTarget.onerror = null;
                   e.currentTarget.src = getFallbackImage(featuredProject);
                 }}
-                className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700 opacity-95"
+                className="w-full h-full object-contain object-center motion-safe:group-hover:scale-[1.02] transition-transform duration-700"
                 width="800"
                 height="500"
                 loading="lazy"
@@ -117,16 +113,7 @@ const Projects = () => {
             {/* Content Details */}
             <div className="lg:col-span-5 p-8 md:p-10 flex flex-col justify-between">
               <div>
-                <div className="flex flex-wrap items-center gap-2 mb-4">
-                  {(featuredProject.tech_stack || ['React', 'Node.js', 'PostgreSQL']).slice(0, 4).map((tech, idx) => (
-                    <span
-                      key={idx}
-                      className="text-[10px] font-mono uppercase font-bold tracking-wider px-2.5 py-1 bg-gray-100 dark:bg-white/5 text-gray-800 dark:text-gray-300 border border-gray-200 dark:border-white/5"
-                    >
-                      {tech}
-                    </span>
-                  ))}
-                </div>
+
 
                 <Link
                   to={`/projects/${featuredProject.slug || featuredProject.id}`}
@@ -136,10 +123,11 @@ const Projects = () => {
                 </Link>
 
                 <p className="text-gray-600 dark:text-gray-300 text-sm md:text-base leading-relaxed mb-6 font-light">
-                  {featuredProject.summary}
+                  {featuredProject.tagline || featuredProject.summary}
                 </p>
 
-                {/* Features List */}
+                <p className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-3">What it delivers</p>
+                {/* Existing project capabilities, without unsupported performance claims. */}
                 <ul className="space-y-2.5 text-xs md:text-sm text-gray-700 dark:text-gray-300 mb-8">
                   {(featuredProject.features || [
                     'Bespoke software architecture',
@@ -152,6 +140,16 @@ const Projects = () => {
                     </li>
                   ))}
                 </ul>
+                <div className="flex flex-wrap items-center gap-2 mt-6">
+                  {(featuredProject.tech_stack || ['React', 'Node.js', 'PostgreSQL']).slice(0, 4).map((tech, idx) => (
+                    <span
+                      key={idx}
+                      className="text-[10px] font-mono uppercase font-bold tracking-wider px-2.5 py-1 bg-gray-100 dark:bg-white/5 text-gray-800 dark:text-gray-300 border border-gray-200 dark:border-white/5"
+                    >
+                      {tech}
+                    </span>
+                  ))}
+                </div>
               </div>
 
               {/* Action Buttons */}
@@ -188,7 +186,7 @@ const Projects = () => {
               className="bg-white dark:bg-[#141414] border border-gray-200 dark:border-white/10 rounded-2xl overflow-hidden flex flex-col justify-between shadow-sm hover:shadow-xl hover:border-accent/40 transition-all group no-underline"
             >
               <div>
-                <div className="w-full h-48 sm:h-56 bg-gray-900 overflow-hidden relative">
+                <div className="w-full aspect-[8/5] bg-gray-900 overflow-hidden relative p-2">
                   <img
                     src={p.image_url || p.image}
                     alt={p.title}
@@ -196,7 +194,7 @@ const Projects = () => {
                       e.currentTarget.onerror = null;
                       e.currentTarget.src = getFallbackImage(p);
                     }}
-                    className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700 opacity-90 group-hover:opacity-100"
+                    className="w-full h-full object-contain motion-safe:group-hover:scale-[1.02] transition-transform duration-700"
                     width="600"
                     height="350"
                     loading="lazy"
@@ -207,7 +205,14 @@ const Projects = () => {
                 </div>
 
                 <div className="p-6">
-                  <div className="flex flex-wrap items-center gap-1.5 mb-3">
+
+                  <h4 className="text-xl font-heading font-bold text-black dark:text-white group-hover:text-accent transition-colors mb-2">
+                    {p.title}
+                  </h4>
+                  <p className="text-gray-600 dark:text-gray-300 text-sm line-clamp-3 font-light leading-relaxed">
+                    {p.tagline || p.summary}
+                  </p>
+                  <div className="flex flex-wrap items-center gap-1.5 mt-4">
                     {(p.tech_stack || ['React', 'Node.js', 'PostgreSQL']).slice(0, 3).map((t, tIdx) => (
                       <span
                         key={tIdx}
@@ -217,12 +222,6 @@ const Projects = () => {
                       </span>
                     ))}
                   </div>
-                  <h4 className="text-xl font-heading font-bold text-black dark:text-white group-hover:text-accent transition-colors mb-2">
-                    {p.title}
-                  </h4>
-                  <p className="text-gray-600 dark:text-gray-300 text-xs md:text-sm line-clamp-3 font-light leading-relaxed">
-                    {p.summary}
-                  </p>
                 </div>
               </div>
 

@@ -8,6 +8,8 @@ import cron from 'node-cron';
 import pool from '../config/db.js';
 import { sendNotificationEmail } from './emailService.js';
 import { refreshAndApply } from './fxService.js';
+import { processDueFollowUps } from './outreachService.js';
+import { checkRenewalAlerts, runMonitorChecks, pruneMonitorEvents } from './aftercareService.js';
 
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || process.env.EMAIL_TO;
 if (!ADMIN_EMAIL) {
@@ -62,6 +64,11 @@ export const startCronJobs = () => {
         console.log('[Cron] Running daily system checks...');
         await checkDomainExpirations();
         await generateMonthlyInvoices();
+        // Admin OS Phase 5 — renewal alerts (§47) + monitor event trim.
+        const renewals = await checkRenewalAlerts();
+        if (renewals.alerted > 0) console.log(`[Cron] Renewal alerts sent: ${renewals.alerted} (overdue: ${renewals.overdue})`);
+        const pruned = await pruneMonitorEvents();
+        if (pruned.pruned > 0) console.log(`[Cron] Pruned ${pruned.pruned} old site-monitor events.`);
     });
 
     // Database health-check once a day at 8:05 AM — keeps the connection
@@ -90,6 +97,36 @@ export const startCronJobs = () => {
             console.log(`[Cron] FX refresh OK — applied ${summary.applied_count} rate(s): ${summary.currencies.join(', ')}`);
         } catch (err) {
             console.error(`[Cron] FX refresh FAILED — ${err.message}. Existing rates unchanged.`);
+        }
+    });
+
+    // Outreach follow-ups (Admin OS Phase 4, blueprint §88
+    // send_due_followups) — every hour on the clock. All the real
+    // guards live in processDueFollowUps itself: global pause,
+    // sending window, daily send limit, suppression list and
+    // stop-on-reply, so extra runs are harmless by design.
+    cron.schedule('0 * * * *', async () => {
+        try {
+            const summary = await processDueFollowUps();
+            if (summary.checked > 0 || summary.sent > 0 || summary.failed > 0) {
+                console.log(`[Cron] Outreach follow-ups — checked ${summary.checked}, sent ${summary.sent}, skipped ${summary.skipped}, failed ${summary.failed}`);
+            }
+        } catch (err) {
+            console.error('[Cron] Outreach follow-ups failed:', err.message);
+        }
+    });
+
+    // Admin OS Phase 5 — Aftercare (§47, §49). Site monitors every
+    // 15 minutes (deliberately gentle on free tiers); renewal
+    // alerts at T-60/30/14/7 + event pruning in the daily job.
+    cron.schedule('*/15 * * * *', async () => {
+        try {
+            const summary = await runMonitorChecks();
+            if (summary.checked > 0) {
+                console.log(`[Cron] Site monitors — checked ${summary.checked}, down ${summary.down}, alerts ${summary.alerted}`);
+            }
+        } catch (err) {
+            console.error('[Cron] Site monitor checks failed:', err.message);
         }
     });
 

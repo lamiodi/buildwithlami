@@ -62,6 +62,7 @@ export const NavIcon = {
     Satellite:  I(<><circle cx="12" cy="12" r="3"/><path d="M2 12a10 10 0 0 1 20 0"/><path d="M5 12a7 7 0 0 1 14 0"/></>),
     Code:       I(<><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></>),
     CheckSquare: I(<><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></>),
+    Send:       I(<><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></>),
 };
 
 // ── Dashboard-specific ───────────────────────────────────

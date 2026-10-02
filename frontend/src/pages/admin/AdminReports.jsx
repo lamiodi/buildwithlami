@@ -43,6 +43,7 @@ const StatCard = ({ label, value, hint, icon: IconComp, accent = 'blue' }) => {
 
 const AdminReports = () => {
     const [data, setData] = useState(null);
+    const [profitability, setProfitability] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     // Default to the last 12 months, computed once in the initializer —
@@ -79,6 +80,16 @@ const AdminReports = () => {
         fetchReports();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [dateRange]);
+
+    // Phase 6 profitability (§33) — lifetime per-project numbers,
+    // independent of the date filter above.
+    useEffect(() => {
+        let alive = true;
+        api.get('/intelligence/profitability').then((res) => {
+            if (alive && res.ok && res.data) setProfitability(res.data);
+        }).catch(() => {});
+        return () => { alive = false; };
+    }, []);
 
     // ── Chart data preparation ──────────────────────────────
     const revenueChart = useMemo(() => {
@@ -168,6 +179,27 @@ const AdminReports = () => {
         ]);
         downloadCSV(`top-clients-${new Date().toISOString().slice(0, 10)}.csv`, csv);
         notify.success('Clients report exported');
+    };
+
+    // Phase 6 — per-project profitability export (§33).
+    const exportProfitabilityCSV = () => {
+        const rows = (profitability?.projects || []).map((p) => ({
+            ...p,
+            hours: `${p.hours}${p.hours_estimated ? ' (est.)' : ''}`,
+        }));
+        const csv = toCSV(rows, [
+            { label: 'Project', key: 'project_name' },
+            { label: 'Client', key: 'client_name' },
+            { label: 'Status', key: 'status' },
+            { label: 'Contract Value (NGN)', key: 'contract_value' },
+            { label: 'Revenue Collected (NGN)', key: 'revenue' },
+            { label: 'Direct Expenses (NGN)', key: 'expenses' },
+            { label: 'Gross Contribution (NGN)', key: 'gross_contribution' },
+            { label: 'Hours', key: 'hours' },
+            { label: 'Revenue per Hour (NGN)', key: 'revenue_per_hour' },
+        ]);
+        downloadCSV(`project-profitability-${new Date().toISOString().slice(0, 10)}.csv`, csv);
+        notify.success('Profitability report exported');
     };
 
     if (loading) {
@@ -494,6 +526,85 @@ const AdminReports = () => {
                         )}
                     </motion.div>
                 </div>
+
+                {/* ── Project Profitability (Admin OS Phase 6, §33) ── */}
+                <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: 0.25 }}
+                    className="mt-6 bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm"
+                >
+                    <div className="flex justify-between items-center mb-4">
+                        <div>
+                            <h2 className="font-bold text-lg text-gray-900 dark:text-white">Project Profitability</h2>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 font-body">
+                                Revenue collected (NGN base) − project-linked expenses, over hours worked.
+                            </p>
+                        </div>
+                        {profitability?.projects?.length > 0 && (
+                            <button onClick={exportProfitabilityCSV} title="Download as CSV" className="cursor-pointer text-[10px] font-extrabold uppercase tracking-wider text-gray-500 dark:text-gray-400 hover:text-accent inline-flex items-center gap-1">
+                                <Icon.Download className="w-3.5 h-3.5" /> CSV
+                            </button>
+                        )}
+                    </div>
+                    {!profitability || profitability.projects.length === 0 ? (
+                        <div className="text-center py-10 text-gray-400 text-sm">
+                            No active projects yet. Link expenses to a project (Expenses → Project) to see per-project profitability here.
+                        </div>
+                    ) : (
+                        <>
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-left border-collapse">
+                                    <thead>
+                                        <tr className="border-b border-gray-200 dark:border-gray-700 text-xs font-bold text-gray-500 uppercase tracking-wider font-body">
+                                            <th className="py-3 px-3">Project</th>
+                                            <th className="py-3 px-3">Client</th>
+                                            <th className="py-3 px-3 text-right">Contract</th>
+                                            <th className="py-3 px-3 text-right">Collected</th>
+                                            <th className="py-3 px-3 text-right">Expenses</th>
+                                            <th className="py-3 px-3 text-right">Gross</th>
+                                            <th className="py-3 px-3 text-right">Hours</th>
+                                            <th className="py-3 px-3 text-right">Rev / Hour</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+                                        {profitability.projects.map((p) => (
+                                            <tr key={p.id} className="hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors">
+                                                <td className="py-3 px-3 font-bold text-gray-900 dark:text-white text-sm">{p.project_name}</td>
+                                                <td className="py-3 px-3 text-gray-500 dark:text-gray-400 text-sm">{p.client_name || '—'}</td>
+                                                <td className="py-3 px-3 text-right font-mono text-sm text-gray-700 dark:text-gray-300">{formatCurrency(p.contract_value)}</td>
+                                                <td className="py-3 px-3 text-right font-mono text-sm text-emerald-600 dark:text-emerald-400">{formatCurrency(p.revenue)}</td>
+                                                <td className="py-3 px-3 text-right font-mono text-sm text-amber-600 dark:text-amber-400">{formatCurrency(p.expenses)}</td>
+                                                <td className={`py-3 px-3 text-right font-mono text-sm font-bold ${p.gross_contribution >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
+                                                    {formatCurrency(p.gross_contribution)}
+                                                </td>
+                                                <td className="py-3 px-3 text-right text-sm text-gray-700 dark:text-gray-300">
+                                                    {p.hours > 0 ? p.hours : '—'}{p.hours > 0 && p.hours_estimated && <span className="text-[9px] text-gray-400 font-bold ml-0.5">EST</span>}
+                                                </td>
+                                                <td className="py-3 px-3 text-right font-mono text-sm font-bold text-gray-900 dark:text-white">
+                                                    {p.revenue_per_hour != null ? formatCurrency(p.revenue_per_hour) : '—'}
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                    <tfoot>
+                                        <tr className="border-t-2 border-gray-200 dark:border-gray-700 text-sm font-extrabold">
+                                            <td className="py-3 px-3 text-gray-900 dark:text-white" colSpan={2}>All projects</td>
+                                            <td className="py-3 px-3" />
+                                            <td className="py-3 px-3 text-right font-mono text-emerald-600 dark:text-emerald-400">{formatCurrency(profitability.totals.revenue)}</td>
+                                            <td className="py-3 px-3 text-right font-mono text-amber-600 dark:text-amber-400">{formatCurrency(profitability.totals.expenses)}</td>
+                                            <td className="py-3 px-3 text-right font-mono text-gray-900 dark:text-white">{formatCurrency(profitability.totals.gross_contribution)}</td>
+                                            <td className="py-3 px-3 text-right font-mono text-gray-700 dark:text-gray-300">{profitability.totals.hours > 0 ? profitability.totals.hours : '—'}</td>
+                                            <td className="py-3 px-3 text-right font-mono text-gray-900 dark:text-white">
+                                                {profitability.totals.revenue_per_hour != null ? formatCurrency(profitability.totals.revenue_per_hour) : '—'}
+                                            </td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                            <p className="text-[10px] text-gray-400 dark:text-gray-500 font-body mt-3">
+                                Revenue converts foreign-currency invoices at your FX rates into the {profitability.baseCurrency} base. Hours use logged actual time, falling back to estimates of completed tasks (marked EST). Expenses count only rows linked to the project.
+                            </p>
+                        </>
+                    )}
+                </motion.div>
             </div>
         </div>
     );

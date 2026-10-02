@@ -1,14 +1,12 @@
-import React from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { CheckCircle2 } from 'lucide-react';
-import { staggerContainer, fadeUpItem, buttonHover, buttonTap, reducedMotionVariants } from '../utils/motion';
+import { staggerContainer, fadeUpItem, reducedMotionVariants } from '../utils/motion';
 
 const Hero = () => {
   const shouldReduce = useReducedMotion();
   const container = shouldReduce ? reducedMotionVariants : staggerContainer;
   const item = shouldReduce ? reducedMotionVariants : fadeUpItem;
-  const navigate = useNavigate();
 
   return (
     <section id="home" className="px-6 md:px-12 max-w-7xl mx-auto pt-10 pb-20 md:pt-16 md:pb-28 flex flex-col md:flex-row items-center justify-between relative">
@@ -36,7 +34,7 @@ const Hero = () => {
         </motion.h1>
 
         <motion.p variants={item} className="text-gray-700 dark:text-gray-300 text-base sm:text-lg md:text-xl max-w-xl leading-relaxed mb-8 font-light">
-          From concept to production launch, BuildWithLami designs, builds, and deploys high-converting websites, e-commerce stores, business management systems, and custom software for founders and ambitious teams.
+          Websites, online stores, and custom software for founders and growing teams. From your first idea to launch, we turn business needs into products people can use.
         </motion.p>
 
         {/* Reassurance Chips */}
@@ -67,7 +65,7 @@ const Hero = () => {
             to="/contact"
             className="btn-primary w-full sm:w-auto text-center"
           >
-            Request a Scoped Proposal
+            Discuss your project
           </Link>
           <Link
             to="/projects"

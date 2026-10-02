@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { api } from '../../services/api';
 import { notify } from '../../services/notify';
 import { FRONTEND_URL } from '../../config/frontend.js';
+import HandoverTab from '../../components/admin/aftercare/HandoverTab.jsx';
 
 const AdminProjectDetail = () => {
   const { id } = useParams();
@@ -204,7 +205,7 @@ const AdminProjectDetail = () => {
   const inputClass = "w-full p-3 text-sm border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900 outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-colors font-body";
   const labelClass = "block text-[10px] font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2";
 
-  const tabs = ['overview', 'intake', 'credentials', 'invoices', 'feedback', 'files'];
+  const tabs = ['overview', 'intake', 'credentials', 'invoices', 'feedback', 'files', 'handover'];
 
   return (
     <div className="flex flex-col">
@@ -601,6 +602,14 @@ const AdminProjectDetail = () => {
                 {files.length === 0 && (
                   <p className="text-gray-500 text-sm italic text-center py-8">No files have been uploaded to this project yet.</p>
                 )}
+              </div>
+            )}
+
+            {/* HANDOVER TAB — Admin OS Phase 5 (§51–§53) */}
+            {activeTab === 'handover' && (
+              <div className="space-y-6">
+                <h2 className="text-xl font-bold font-heading text-gray-900 dark:text-white">Handover & Post-Launch</h2>
+                <HandoverTab projectId={id} onProjectChanged={fetchProjectData} />
               </div>
             )}
           </div>

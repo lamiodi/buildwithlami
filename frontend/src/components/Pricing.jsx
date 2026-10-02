@@ -134,6 +134,7 @@ const Pricing = ({ isHomepage = false }) => {
                     <span>01 · Web Development</span>
                   </div>
                   <h3 className="text-2xl font-bold font-heading text-gray-900 dark:text-white mb-2">Web Development</h3>
+                  <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed mb-4">Best for businesses establishing their online presence.</p>
                   <p className="text-xs text-gray-600 dark:text-gray-400 mb-6 leading-relaxed font-light">
                     Custom websites built around real goals, content, and customers—not a generic theme.
                   </p>
@@ -170,6 +171,7 @@ const Pricing = ({ isHomepage = false }) => {
                     <span>02 · E-Commerce</span>
                   </div>
                   <h3 className="text-2xl font-bold font-heading text-gray-900 dark:text-white mb-2">E-Commerce Engines</h3>
+                  <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed mb-4">Best for brands selling products online.</p>
                   <p className="text-xs text-gray-600 dark:text-gray-400 mb-6 leading-relaxed font-light">
                     Online stores designed for clearer paths to purchase, multi-channel payments, and fulfillment.
                   </p>
@@ -203,6 +205,7 @@ const Pricing = ({ isHomepage = false }) => {
                     <span>03 · Custom Software</span>
                   </div>
                   <h3 className="text-2xl font-bold font-heading text-gray-900 dark:text-white mb-2">Custom Software & SaaS</h3>
+                  <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed mb-4">Best for teams building a product or automating operations.</p>
                   <p className="text-xs text-gray-600 dark:text-gray-400 mb-6 leading-relaxed font-light">
                     Custom web applications, SaaS prototypes, booking systems, and internal operational portals.
                   </p>
@@ -229,20 +232,12 @@ const Pricing = ({ isHomepage = false }) => {
               </div>
             </div>
 
-            {/* Deep link CTA Banner on Homepage */}
-            <div className="p-8 rounded-3xl bg-gradient-to-r from-gray-900 to-black text-white dark:from-neutral-900 dark:to-[#121212] border border-gray-800 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xl">
-              <div>
-                <span className="text-[10px] font-extrabold uppercase tracking-widest text-accent block mb-1">Studio Pricing Matrix</span>
-                <h4 className="text-xl font-bold font-heading">Compare core build packages and specialist services</h4>
-                <p className="text-xs text-gray-400 mt-1">Start with Websites, E-commerce, Business Software, ERP, or Care. UI/UX, Branding, SEO, Marketing, and AI are grouped as specialist services.</p>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-t border-gray-200 dark:border-white/10 pt-6">
+              <p className="text-sm text-gray-600 dark:text-gray-300">Not sure which package fits? We can help you choose.</p>
+              <div className="flex flex-wrap gap-5 text-sm font-semibold">
+                <Link to="/contact" className="text-gray-900 dark:text-white underline underline-offset-4 hover:text-accent">Discuss your project</Link>
+                <Link to="/pricing" className="text-accent inline-flex items-center gap-1">Compare all packages <ChevronRight className="w-4 h-4" /></Link>
               </div>
-              <Link 
-                to="/pricing" 
-                className="shrink-0 px-6 py-3.5 rounded-full bg-accent text-white font-extrabold text-xs uppercase tracking-wider hover:bg-accent/90 transition-all flex items-center gap-2 shadow-lg cursor-pointer"
-                style={{ touchAction: 'manipulation' }}
-              >
-                Open Full Pricing Page <ChevronRight className="w-4 h-4" />
-              </Link>
             </div>
           </div>
         ) : (

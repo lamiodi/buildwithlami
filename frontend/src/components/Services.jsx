@@ -27,7 +27,7 @@ const Services = () => {
       badge: "Full-Stack Engineering",
       timeline: "3–8 Weeks",
       desc: "For businesses that need a complete website, web app, or internal platform built around real goals.",
-      outcome: "You get a launch-ready product with the pages, flows, and functionality your business actually needs.",
+      outcome: "Launch a website, app, or internal tool built around the way your business works.",
       features: [
         "Business websites and custom platforms",
         "Dashboards, portals, and internal tools",
@@ -53,7 +53,7 @@ const Services = () => {
       badge: "UI/UX & Speed Optimization",
       timeline: "1–3 Weeks",
       desc: "For brands that want a cleaner, faster, and more modern experience for customers and users.",
-      outcome: "You get an interface that feels polished, works smoothly on every screen, and supports conversion.",
+      outcome: "Give customers a clear, fast experience on every screen.",
       features: [
         "Landing pages and marketing websites",
         "Responsive web app interfaces",
@@ -78,7 +78,7 @@ const Services = () => {
       badge: "Backend & Cloud Architecture",
       timeline: "2–5 Weeks",
       desc: "For products that need a reliable backend, structured data, and secure user access.",
-      outcome: "You get backend systems that are stable, scalable, and easier to maintain as the business grows.",
+      outcome: "Connect your data, user accounts, and workflows in a reliable backend.",
       features: [
         "Backend architecture and APIs",
         "Authentication and account security",
@@ -103,7 +103,7 @@ const Services = () => {
       badge: "Engineering Advisory",
       timeline: "3–7 Business Days",
       desc: "For teams that need help defining scope, reviewing an existing product, or planning the right next step.",
-      outcome: "You get clear technical direction, a realistic scope, and practical recommendations you can act on.",
+      outcome: "Know what to build next, what to fix, and how to approach it.",
       features: [
         "Website and platform audits",
         "Technical scope and launch planning",
@@ -127,7 +127,7 @@ const Services = () => {
       badge: "Organic Search & Indexing",
       timeline: "2–4 Weeks + Roadmap",
       desc: "For businesses that want stronger visibility in search and a site structure that supports growth.",
-      outcome: "You get a stronger foundation for ranking, discoverability, and long-term inbound traffic.",
+      outcome: "Make your site easier to discover, understand, and navigate from search.",
       features: [
         "Technical SEO and site audits",
         "Core Web Vitals improvements",
@@ -196,9 +196,8 @@ const Services = () => {
             variants={item}
             whileHover={shouldReduce ? {} : cardHover}
             transition={cardHoverTransition}
-            onClick={() => handleOpenModal(service)}
             style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
-            className="w-full bg-white dark:bg-[#141414] border border-gray-200 dark:border-white/10 hover:border-accent dark:hover:border-accent transition-all p-6 sm:p-7 rounded-2xl relative overflow-hidden group cursor-pointer shadow-sm flex flex-col justify-between"
+            className="w-full bg-white dark:bg-[#141414] border border-gray-200 dark:border-white/10 hover:border-accent dark:hover:border-accent transition-all p-6 sm:p-7 rounded-2xl relative overflow-hidden group shadow-sm flex flex-col justify-between"
           >
             {/* Orange gradient accent on hover */}
             <div className="absolute inset-0 bg-gradient-to-tr from-accent/10 dark:from-accent/15 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
@@ -213,18 +212,13 @@ const Services = () => {
                 </span>
               </div>
 
-              <h4 className="text-xl font-heading font-bold mb-2 text-black dark:text-white group-hover:text-accent transition-colors">
+              <h4 className="text-2xl font-heading font-bold mb-3 text-black dark:text-white group-hover:text-accent transition-colors">
                 {service.title}
               </h4>
-              <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed mb-4 font-light">{service.desc}</p>
-              
-              <div className="bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 p-3 rounded-lg mb-5">
-                <p className="text-[11px] font-bold uppercase tracking-wider text-accent mb-0.5 font-mono">Key Outcome</p>
-                <p className="text-xs text-black dark:text-white font-medium">{service.outcome}</p>
-              </div>
+              <p className="text-sm leading-relaxed text-gray-700 dark:text-gray-300 mb-5">{service.outcome}</p>
 
               <ul className="space-y-2 mb-6 text-xs text-gray-700 dark:text-gray-300">
-                {service.features.map((feature, i) => (
+                {service.features.slice(0, 2).map((feature, i) => (
                   <li key={`feature-${i}`} className="flex items-start">
                     <span className="text-accent mr-2 mt-0.5 font-bold text-xs">✦</span>
                     <span>{feature}</span>
@@ -234,22 +228,16 @@ const Services = () => {
             </div>
 
             <div className="relative z-10 flex items-center justify-between pt-4 border-t border-gray-100 dark:border-white/10 mt-auto">
-              <span className="text-[11px] font-heading font-bold uppercase tracking-[0.15em] text-accent flex items-center gap-1 group-hover:translate-x-1 transition-transform">
-                Explore Scope
-                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" />
-                </svg>
-              </span>
-
               <button
                 type="button"
                 onClick={(e) => {
                   e.stopPropagation();
                   handleOpenModal(service);
                 }}
-                className="btn-dark !px-4 !py-2 !text-[10px]"
+                className="btn-dark w-full !px-4 !py-3 !text-xs"
+                aria-label={`Explore ${service.title}`}
               >
-                Scope & Specs
+                Explore this service →
               </button>
             </div>
           </motion.div>

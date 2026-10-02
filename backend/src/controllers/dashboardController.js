@@ -434,6 +434,8 @@ export async function getCommandCenter(req, res) {
             projectNextActions,
             counters,
             outstandingByCurrency,
+            outreachReplies,
+            outreachDue,
         ] = await Promise.all([
             // Tonight Queue — open work due today or earlier, plus
             // anything URGENT regardless of due date.
@@ -583,6 +585,24 @@ export async function getCommandCenter(req, res) {
                  GROUP BY currency
                  ORDER BY amount DESC
             `),
+            // Admin OS Phase 4 — outreach replies awaiting a response.
+            pool.query(`
+                SELECT id, company_name, contact_name, email, status, updated_at
+                  FROM prospects
+                 WHERE status = 'REPLIED'
+                 ORDER BY updated_at ASC
+                 LIMIT 5
+            `),
+            // Admin OS Phase 4 — sequence follow-ups past due.
+            pool.query(`
+                SELECT id, company_name, contact_name, email, next_follow_up_at
+                  FROM prospects
+                 WHERE next_follow_up_at IS NOT NULL
+                   AND next_follow_up_at <= NOW()
+                   AND status IN ('SENT', 'FOLLOW_UP_1', 'FOLLOW_UP_2', 'FOLLOW_UP_3')
+                 ORDER BY next_follow_up_at ASC
+                 LIMIT 5
+            `),
         ]);
 
         // Blueprint §74 — always show *why* an item ranks high.
@@ -631,6 +651,20 @@ export async function getCommandCenter(req, res) {
                 detail: `${o.completion_percent}% complete — last touched ${new Date(o.updated_at).toLocaleDateString()}`,
                 link: `/admin/clients/${o.client_id}`,
             })),
+            ...outreachReplies.rows.map((p) => ({
+                kind: 'OUTREACH_REPLY',
+                id: p.id,
+                title: `${p.company_name} replied to outreach`,
+                detail: `${p.email} — respond or convert to lead`,
+                link: '/admin/outreach',
+            })),
+            ...outreachDue.rows.map((p) => ({
+                kind: 'OUTREACH_FOLLOWUP_DUE',
+                id: p.id,
+                title: `Follow-up due — ${p.company_name}`,
+                detail: `Sequence follow-up was due ${new Date(p.next_follow_up_at).toLocaleDateString()}`,
+                link: '/admin/outreach',
+            })),
         ];
 
         res.json({
@@ -651,6 +685,8 @@ export async function getCommandCenter(req, res) {
                 upcomingRenewals: counters.rows[0].upcoming_renewals,
                 pendingPaymentProofs: pendingProofs.rows[0].count,
                 overdueInvoices: overdueInvoices.rows.length,
+                outreachReplies: outreachReplies.rows.length,
+                outreachFollowupsDue: outreachDue.rows.length,
             },
             outstandingByCurrency: outstandingByCurrency.rows.map((r) => ({
                 currency: r.currency,

@@ -283,6 +283,51 @@ export default function AdminQuotations() {
         notify.info(`Added: ${addon.label}`);
     };
 
+    // ── AI-assisted draft (Admin OS Phase 6) ────────────────
+    // Asks the backend to propose a package for a lead (rules
+    // catalog, personalised by AI when configured). Nothing is
+    // saved — the result fills this form for review.
+    const [aiDrafting, setAiDrafting] = useState(false);
+    const [aiDraft, setAiDraft] = useState({ lead_id: '', project_type: '', budget: '' });
+
+    const applyAiDraft = async () => {
+        if (aiDrafting) return;
+        setAiDrafting(true);
+        try {
+            const res = await api.post('/intelligence/quotation-draft', {
+                lead_id: aiDraft.lead_id || undefined,
+                project_type: aiDraft.project_type || undefined,
+                budget: aiDraft.budget ? Number(aiDraft.budget) : undefined,
+            });
+            if (res.ok && res.data?.draft) {
+                const d = res.data.draft;
+                setForm(prev => ({
+                    ...prev,
+                    recipientType: d.lead_id ? 'lead' : prev.recipientType,
+                    lead_id: d.lead_id || prev.lead_id,
+                    title: d.title || prev.title,
+                    currency: d.currency || prev.currency,
+                    line_items: (d.line_items || []).map((it, i) => ({
+                        _key: `ai-${Date.now()}-${i}`,
+                        description: it.description,
+                        qty: it.qty || 1,
+                        rate: it.rate || 0,
+                    })),
+                    notes: d.notes || prev.notes,
+                }));
+                notify.success(res.data.source === 'ai'
+                    ? 'AI draft ready — review the lines before saving.'
+                    : 'Draft built from the studio package — review before saving.');
+            } else {
+                notify.error((Array.isArray(res.error) ? 'Invalid request' : res.error) || 'Could not generate a draft.');
+            }
+        } catch {
+            notify.error('Could not generate a draft.');
+        } finally {
+            setAiDrafting(false);
+        }
+    };
+
     // Auto-Generate 50/50 Note
     const apply5050TermsToNotes = () => {
         const symbol = form.currency === 'USD' ? '$' : '₦';
@@ -693,6 +738,54 @@ export default function AdminQuotations() {
                                             <span className="truncate">{preset.label}</span>
                                         </button>
                                     ))}
+                                </div>
+
+                                {/* ── AI-ASSISTED DRAFT (Phase 6) ── */}
+                                <div className="pt-3 border-t border-blue-200/70 dark:border-blue-800/50 space-y-2">
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-[10px] font-extrabold uppercase tracking-widest text-blue-700 dark:text-blue-300">Draft from lead</span>
+                                        <span className="text-[10px] text-gray-500">Proposes a package — you review before saving</span>
+                                    </div>
+                                    <div className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_140px_auto] gap-2">
+                                        <select
+                                            value={aiDraft.lead_id}
+                                            onChange={e => setAiDraft({ ...aiDraft, lead_id: e.target.value })}
+                                            className="p-2 text-xs border border-blue-200 dark:border-blue-800/80 rounded-xl bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 outline-none focus:ring-2 focus:ring-accent font-body"
+                                            aria-label="Lead to draft for (optional)"
+                                        >
+                                            <option value="">No lead (generic)</option>
+                                            {leads.map(l => (
+                                                <option key={l.id} value={l.id}>
+                                                    {l.full_name}{l.division ? ` · ${l.division}` : ''}
+                                                </option>
+                                            ))}
+                                        </select>
+                                        <input
+                                            type="text"
+                                            placeholder="Project type — e.g. ecommerce, booking"
+                                            value={aiDraft.project_type}
+                                            onChange={e => setAiDraft({ ...aiDraft, project_type: e.target.value })}
+                                            className="p-2 text-xs border border-blue-200 dark:border-blue-800/80 rounded-xl bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 outline-none focus:ring-2 focus:ring-accent font-body"
+                                            aria-label="Project type hint (optional)"
+                                        />
+                                        <input
+                                            type="number"
+                                            min="0"
+                                            placeholder="Budget ₦"
+                                            value={aiDraft.budget}
+                                            onChange={e => setAiDraft({ ...aiDraft, budget: e.target.value })}
+                                            className="p-2 text-xs border border-blue-200 dark:border-blue-800/80 rounded-xl bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 outline-none focus:ring-2 focus:ring-accent font-body"
+                                            aria-label="Target budget in naira (optional)"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={applyAiDraft}
+                                            disabled={aiDrafting}
+                                            className="px-4 py-2 rounded-xl bg-accent hover:bg-orange-600 disabled:opacity-50 text-white text-xs font-bold transition-colors whitespace-nowrap"
+                                        >
+                                            {aiDrafting ? 'Drafting…' : '✦ Generate draft'}
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
 

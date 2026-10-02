@@ -37,7 +37,7 @@ const WhatsAppWidget = () => {
 
     return (
       <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end font-sans">
-        <div 
+        <div hidden={!isOpen}
           className={`bg-white text-black rounded-none shadow-2xl mb-4 w-80 sm:w-96 overflow-hidden border-2 border-black transition-all duration-300 origin-bottom-right ${
             isOpen ? 'scale-100 opacity-100' : 'scale-0 opacity-0 pointer-events-none'
           }`}
@@ -305,9 +305,9 @@ const WhatsAppWidget = () => {
   const waLink = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(defaultMessage)}`;
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end font-body">
-      <div 
-        className={`bg-white dark:bg-[#141414] text-black dark:text-white rounded-2xl shadow-2xl mb-4 w-72 sm:w-80 overflow-hidden border border-gray-200 dark:border-white/10 transition-all duration-300 origin-bottom-right ${
+    <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-40 flex flex-col items-end font-body">
+      <div id="software-whatsapp-panel" hidden={!isOpen}
+        className={`bg-white dark:bg-[#141414] text-black dark:text-white rounded-2xl shadow-2xl mb-4 w-[min(20rem,calc(100vw-2rem))] max-h-[calc(100dvh-6rem)] overflow-y-auto border border-gray-200 dark:border-white/10 transition-all duration-300 origin-bottom-right ${
           isOpen ? 'scale-100 opacity-100' : 'scale-0 opacity-0 pointer-events-none'
         }`}
       >
@@ -365,8 +365,10 @@ const WhatsAppWidget = () => {
           isOpen 
             ? 'bg-black dark:bg-[#1a1a1a] text-white scale-90 border border-gray-700 dark:border-white/20 shadow-xl' 
             : 'bg-accent hover:bg-accent/90 text-white shadow-xl shadow-accent/25 hover:scale-105 active:scale-95'
-        } rounded-full p-3.5 sm:p-4 transition-all duration-300 flex items-center justify-center cursor-pointer`}
-        aria-label="Chat on WhatsApp"
+        } rounded-full p-3 sm:p-4 transition-all duration-300 flex items-center justify-center cursor-pointer`}
+        aria-label={isOpen ? "Close WhatsApp chat" : "Chat on WhatsApp"}
+        aria-expanded={isOpen}
+        aria-controls="software-whatsapp-panel"
       >
         {isOpen ? (
           <svg className="w-6 h-6 sm:w-7 sm:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">

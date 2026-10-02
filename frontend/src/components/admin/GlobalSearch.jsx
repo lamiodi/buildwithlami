@@ -16,10 +16,12 @@ const Icon = {
     Contract: CoreIcon.Code,
     Booking: NavIcon.Calendar,
     Expense: CoreIcon.Payments,
+    Send: ActionIcon.Send,
 };
 
 const CATEGORIES = [
     { key: 'leads',      label: 'Leads',      icon: Icon.Lead,      path: (item) => `/admin/crm` },
+    { key: 'prospects',  label: 'Prospects',  icon: Icon.Send,      path: (item) => `/admin/outreach` },
     { key: 'clients',    label: 'Clients',    icon: Icon.Client,    path: (item) => `/admin/clients/${item.id}` },
     { key: 'projects',   label: 'Projects',   icon: Icon.Project,   path: (item) => `/admin/projects/${item.id}` },
     { key: 'quotations', label: 'Quotations', icon: Icon.Quotation, path: (item) => `/admin/quotations` },

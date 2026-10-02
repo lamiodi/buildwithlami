@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 
 const TechStack = lazy(() => import('./TechStack'));
 
-const Footer = () => {
+const Footer = ({ soundOn, onToggleSound }) => {
   const displayYear = 2026;
   const [shouldLoadTechStack, setShouldLoadTechStack] = useState(false);
   const techStackContainerRef = useRef(null);
@@ -135,6 +135,10 @@ const Footer = () => {
               Inquiries
             </Link>
           </div>
+
+          {onToggleSound && <button type="button" onClick={onToggleSound} aria-pressed={soundOn} aria-label={soundOn ? 'Mute click sounds' : 'Enable click sounds'} className="min-h-11 px-3 border border-white/20 rounded-lg text-xs normal-case tracking-normal text-white/80 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent">
+            Click sounds: {soundOn ? 'On' : 'Off'}
+          </button>}
 
           {/* Copyright */}
           <div className="opacity-90 font-mono font-medium lowercase tracking-[0.15em] text-center sm:text-right">

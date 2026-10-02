@@ -7,7 +7,6 @@ import WhatsAppWidget from './components/WhatsAppWidget';
 import ErrorBoundary from './components/ErrorBoundary';
 import Preloader from './components/Preloader';
 import ToastHost from './components/ToastHost';
-import ThemeToast from './components/ThemeToast';
 import { Toaster } from './components/ui/sonner';
 import SoundEffects from './components/SoundEffects';
 import { lazyWithRetry } from './utils/lazyWithRetry';
@@ -53,6 +52,7 @@ const AdminHelp = lazyWithRetry(() => import('./pages/admin/AdminHelp'));
 const AdminPaymentQueue = lazyWithRetry(() => import('./pages/admin/AdminPaymentQueue'));
 const AdminTasks = lazyWithRetry(() => import('./pages/admin/AdminTasks'));
 const AdminClientDetail = lazyWithRetry(() => import('./pages/admin/AdminClientDetail'));
+const AdminAftercare = lazyWithRetry(() => import('./pages/admin/AdminAftercare'));
 const PaymentPage = lazyWithRetry(() => import('./pages/PaymentPage'));
 
 const AdminSurveyBookings = lazyWithRetry(() => import('./pages/admin/survey/AdminSurveyBookings'));
@@ -102,7 +102,6 @@ const PageWrapper = ({ children }) => {
 };
 
 function App() {
-  const [toastMessage, setToastMessage] = useState(null);
   const [showPreloader, setShowPreloader] = useState(true);
   const location = useLocation();
   const prefersReducedMotion = useReducedMotion();
@@ -116,20 +115,6 @@ function App() {
   const [isDark, setIsDark] = useState(() =>
     document.documentElement.classList.contains('dark')
   );
-
-  useEffect(() => {
-    // Show toast only on first load if no saved theme (auto-detected)
-    const savedTheme = localStorage.getItem('theme');
-    if (!savedTheme) {
-      const hour = new Date().getHours();
-      const isDaytime = hour >= 6 && hour < 18;
-      if (!isDaytime) {
-        setToastMessage("Good evening! 🌙 Dark mode enabled based on your local time.");
-      } else {
-        setToastMessage("Good morning! ☀️ Light mode enabled based on your local time.");
-      }
-    }
-  }, []);
 
   // Scroll to top or specific hash on route change
   useEffect(() => {
@@ -278,6 +263,7 @@ function App() {
                   <Route path="inbox" element={<AdminInbox />} />
                   <Route path="contracts" element={<AdminContracts />} />
                   <Route path="payments" element={<AdminPaymentQueue />} />
+                  <Route path="aftercare" element={<AdminAftercare />} />
                   <Route path="security/2fa" element={<AdminTwoFactorSetup />} />
                   <Route path="help" element={<AdminHelp />} />
                 </Route>
@@ -314,16 +300,12 @@ function App() {
             </AnimatePresence>
           </Suspense>
         </main>
-        {!hideGlobalLayout && <Footer />}
+        {!hideGlobalLayout && <Footer soundOn={soundOn} onToggleSound={toggleSound} />}
         {!hideGlobalLayout && <WhatsAppWidget />}
-        <ThemeToast
-          message={toastMessage}
-          onClose={() => setToastMessage(null)}
-        />
         <ToastHost />
         <Toaster position="top-right" richColors />
         <SoundEffects />
-        <button
+        {hideGlobalLayout && <button
           type="button"
           onClick={toggleSound}
           aria-pressed={soundOn}
@@ -336,7 +318,7 @@ function App() {
           ) : (
             <VolumeX className="w-4 h-4" aria-hidden="true" />
           )}
-        </button>
+        </button>}
       </ErrorBoundary>
     </div>
     </ClientAuthProvider>

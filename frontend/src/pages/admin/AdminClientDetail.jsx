@@ -63,6 +63,11 @@ const AdminClientDetail = () => {
   // Actions tab state
   const [actionForm, setActionForm] = useState({ title: '', type: 'INFO', priority: 'MEDIUM', due_at: '', description: '' });
 
+  // Client summary (Admin OS Phase 6, §78)
+  const [summaryBusy, setSummaryBusy] = useState(false);
+  const [summaryEditing, setSummaryEditing] = useState(false);
+  const [summaryDraft, setSummaryDraft] = useState('');
+
   const fetchAll = useCallback(async () => {
     setError(null);
     const [clientRes, projectsRes, invoicesRes, onboardingRes, actionsRes] = await Promise.all([
@@ -122,6 +127,32 @@ const AdminClientDetail = () => {
       setClient(res.data);
     } else {
       notify.error(res.error || 'Error updating client.');
+    }
+  };
+
+  // ── Client summary (Phase 6, §78) ────────────────────────
+  const generateSummary = async () => {
+    setSummaryBusy(true);
+    const res = await api.post(`/intelligence/clients/${id}/summary`);
+    setSummaryBusy(false);
+    if (res.ok && res.data) {
+      setClient((c) => ({ ...c, summary: res.data.summary, summary_source: res.data.source }));
+      notify.success(res.data.source === 'ai'
+        ? 'AI summary generated.'
+        : 'Summary generated from the onboarding answers.');
+    } else {
+      notify.error(res.error || 'Could not generate a summary.');
+    }
+  };
+
+  const saveSummary = async () => {
+    const res = await api.put(`/intelligence/clients/${id}/summary`, { summary: summaryDraft });
+    if (res.ok && res.data) {
+      setClient((c) => ({ ...c, summary: res.data.summary, summary_source: res.data.summary_source }));
+      setSummaryEditing(false);
+      notify.success('Summary saved.');
+    } else {
+      notify.error(res.error || 'Could not save the summary.');
     }
   };
 
@@ -422,6 +453,62 @@ const AdminClientDetail = () => {
                 <div className="flex justify-between"><dt className="text-gray-500 dark:text-gray-400">Client since</dt><dd className="font-bold text-gray-900 dark:text-white">{fmtDate(client.created_at)}</dd></div>
               </dl>
             </div>
+
+            {/* ── Client Summary (Phase 6, §78) — generated from the
+                onboarding answers; AI when configured, rules always.
+                Editable — a manual save pins it as the source. ── */}
+            <div className="bg-white dark:bg-[#1c1c1c] p-6 rounded-2xl border border-gray-100 dark:border-gray-800/60 shadow-sm">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-[10px] font-extrabold text-gray-400 uppercase tracking-widest">Client Summary</h3>
+                {client.summary_source && !summaryEditing && (
+                  <span className={`text-[9px] font-extrabold uppercase tracking-widest px-1.5 py-0.5 rounded ${
+                    client.summary_source === 'ai'
+                      ? 'bg-violet-100 dark:bg-violet-900/40 text-violet-700 dark:text-violet-300'
+                      : client.summary_source === 'manual'
+                        ? 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300'
+                        : 'bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400'
+                  }`}>
+                    {client.summary_source === 'ai' ? 'AI' : client.summary_source === 'manual' ? 'Manual' : 'Auto'}
+                  </span>
+                )}
+              </div>
+              {summaryEditing ? (
+                <div>
+                  <textarea rows="8" value={summaryDraft}
+                    onChange={(e) => setSummaryDraft(e.target.value)}
+                    className={inputClass} />
+                  <div className="flex gap-2 mt-2">
+                    <button onClick={saveSummary}
+                      className="bg-accent hover:bg-orange-600 text-white text-xs font-bold px-3 py-2 rounded-xl transition-colors">
+                      Save
+                    </button>
+                    <button onClick={() => { setSummaryEditing(false); setSummaryDraft(''); }}
+                      className="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 text-xs font-bold px-3 py-2 transition-colors">
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div>
+                  <p className="text-sm text-gray-700 dark:text-gray-200 font-body whitespace-pre-wrap leading-relaxed">
+                    {client.summary || 'No summary yet — generate one from the onboarding answers.'}
+                  </p>
+                  <div className="flex gap-2 mt-3">
+                    <button onClick={generateSummary} disabled={summaryBusy}
+                      className="bg-accent hover:bg-orange-600 disabled:opacity-50 text-white text-xs font-bold px-3 py-2 rounded-xl transition-colors">
+                      {summaryBusy ? 'Generating…' : '✦ Generate'}
+                    </button>
+                    {client.summary && (
+                      <button onClick={() => { setSummaryDraft(client.summary || ''); setSummaryEditing(true); }}
+                        className="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 text-xs font-bold px-3 py-2 transition-colors">
+                        Edit
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+
             {onboarding && (
               <button onClick={() => setTab('onboarding')}
                 className="w-full text-left bg-white dark:bg-[#1c1c1c] p-6 rounded-2xl border border-gray-100 dark:border-gray-800/60 shadow-sm hover:border-accent/40 transition-colors">

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { api } from '../services/api';
 import { staggerContainer, fadeUpItem, sectionViewport, reducedMotionVariants } from '../utils/motion';
@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from './ui/select';
-import { Mail, Send, CheckCircle2, Sparkles, ShieldCheck, Code } from 'lucide-react';
+import { Mail, Send, CheckCircle2, ShieldCheck, Code } from 'lucide-react';
 
 const projectTypes = [
   'Business Website',
@@ -40,33 +40,46 @@ const Contact = () => {
     project_type: '', timeline: '',
     b_website: ''
   });
+  const [errors, setErrors] = useState({});
+  const formRef = useRef(null);
+  const feedbackRef = useRef(null);
+  const submittingRef = useRef(false);
   const [status, setStatus] = useState('idle'); // idle, submitting, success, error
   const shouldReduce = useReducedMotion();
   const container = shouldReduce ? reducedMotionVariants : staggerContainer;
   const item = shouldReduce ? reducedMotionVariants : fadeUpItem;
 
+  useEffect(() => {
+    if (status === 'success' || status === 'error') feedbackRef.current?.focus();
+  }, [status]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (submittingRef.current || status === 'success') return;
+    const invalid = {};
+    if (!formData.name.trim()) invalid.name = 'Please enter your name.';
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) invalid.email = 'Please enter a valid email address.';
+    if (!formData.message.trim()) invalid.message = 'Tell us a little about your project.';
+    setErrors(invalid);
+    if (Object.keys(invalid).length) {
+      formRef.current?.querySelector('[name="' + Object.keys(invalid)[0] + '"]')?.focus();
+      return;
+    }
+    submittingRef.current = true;
     setStatus('submitting');
-
-    const res = await api.post('/contact', {
-      full_name: formData.name,
-      email: formData.email,
-      message: formData.message,
-      project_type: formData.project_type || null,
-      timeline: formData.timeline || null,
-      service: null,
-      tier: null,
-      currency: null,
-      b_website: formData.b_website || null,
-    });
-
-    if (res.ok) {
+    try {
+      const res = await api.post('/contact', {
+        full_name: formData.name.trim(), email: formData.email.trim(), message: formData.message.trim(),
+        project_type: formData.project_type || null, timeline: formData.timeline || null,
+        service: null, tier: null, currency: null, b_website: formData.b_website || null,
+      });
+      if (!res.ok) throw new Error('Submission failed');
       setStatus('success');
       setFormData({ name: '', email: '', message: '', project_type: '', timeline: '', b_website: '' });
-      setTimeout(() => setStatus('idle'), 4000);
-    } else {
+    } catch {
       setStatus('error');
+    } finally {
+      submittingRef.current = false;
     }
   };
 
@@ -88,7 +101,7 @@ const Contact = () => {
             <motion.div variants={item} className="space-y-4">
               <div className="bwl-eyebrow">
                 <span className="w-2 h-2 bg-accent inline-block" />
-                <span>Project Inquiries · 24hr Turnaround</span>
+                <span>Let’s talk about your project</span>
               </div>
               <h2 className="text-3xl sm:text-4xl md:text-5xl font-heading font-extrabold text-white tracking-tight leading-tight">
                 Have a business problem to <span className="text-accent">solve?</span>
@@ -117,6 +130,8 @@ const Contact = () => {
             </motion.div>
             
             <motion.div variants={item} className="space-y-3 pt-4 border-t border-white/10">
+              <h3 className="text-white font-semibold">What happens next?</h3>
+              <p className="text-sm text-gray-300 leading-relaxed">I’ll review your brief, clarify the scope with you, and prepare a proposal. We agree the deliverables and price before work begins.</p>
               <span className="text-[11px] font-mono font-bold uppercase tracking-widest text-gray-300 block">
                 Prefer Direct Email?
               </span>
@@ -136,7 +151,10 @@ const Contact = () => {
               the first tap on form controls. Keeping this plain keeps the
               form fully interactive from the first frame on mobile. */}
           <div className="w-full lg:w-7/12">
-            <form onSubmit={handleSubmit} className="space-y-5 bg-white/[0.04] border border-white/10 p-6 sm:p-8 rounded-2xl">
+            <form ref={formRef} onSubmit={handleSubmit} noValidate aria-label="Software project enquiry" className="space-y-5 bg-white/[0.04] border border-white/10 p-6 sm:p-8 rounded-2xl">
+              <p className="text-sm leading-relaxed text-gray-300">A short outline is enough to start. Fields marked * are required.</p>
+              <fieldset disabled={status === 'submitting' || status === 'success'} className="space-y-5 min-w-0 disabled:opacity-60">
+              <legend className="sr-only">Your contact details and project</legend>
               {/* Spam Honeypot Field — Hidden from humans, traps automated spam bots */}
               <div className="absolute -left-[9999px] top-auto w-px h-px overflow-hidden opacity-0" aria-hidden="true">
                 <label htmlFor="b_website">Leave this field blank</label>
@@ -153,44 +171,44 @@ const Contact = () => {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[10px] font-mono font-bold text-gray-400 uppercase tracking-widest mb-1.5">
-                    Your Name *
-                  </label>
+                  <label htmlFor="home-contact-name" className="block text-sm font-medium text-gray-200 mb-2">Your Name *</label>
                   <input
+                    id="home-contact-name" name="name" maxLength={120} autoComplete="name" aria-invalid={!!errors.name} aria-describedby={errors.name ? 'home-contact-name-error' : undefined}
                     type="text"
                     placeholder="e.g. Alex Morgan"
                     required
                     value={formData.name}
-                    onChange={(e) => setFormData({...formData, name: e.target.value})}
-                    className="bwl-input text-white"
+                    onChange={(e) => { setFormData({...formData, name: e.target.value}); setErrors(current => ({...current, name: ''})); }}
+                    className="bwl-input text-white !text-base"
                   />
+                  {errors.name && <p id="home-contact-name-error" role="alert" className="text-sm text-red-300 mt-2">{errors.name}</p>}
                 </div>
                 <div>
-                  <label className="block text-[10px] font-mono font-bold text-gray-400 uppercase tracking-widest mb-1.5">
-                    Email Address *
-                  </label>
+                  <label htmlFor="home-contact-email" className="block text-sm font-medium text-gray-200 mb-2">Email Address *</label>
                   <input
+                    id="home-contact-email" name="email" maxLength={254} autoComplete="email" aria-invalid={!!errors.email} aria-describedby={errors.email ? 'home-contact-email-error' : undefined}
                     type="email"
                     placeholder="alex@company.com"
                     required
                     value={formData.email}
-                    onChange={(e) => setFormData({...formData, email: e.target.value})}
-                    className="bwl-input text-white"
+                    onChange={(e) => { setFormData({...formData, email: e.target.value}); setErrors(current => ({...current, email: ''})); }}
+                    className="bwl-input text-white !text-base"
                   />
+                  {errors.email && <p id="home-contact-email-error" role="alert" className="text-sm text-red-300 mt-2">{errors.email}</p>}
                 </div>
               </div>
 
               {/* Pre-qualification Selects */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[10px] font-mono font-bold text-gray-400 uppercase tracking-widest mb-1.5">
-                    Project Type
+                  <label htmlFor="home-contact-project_type" className="block text-sm font-medium text-gray-200 mb-2">
+                    Project Type (optional)
                   </label>
                   <Select
                     value={formData.project_type}
                     onValueChange={(val) => setFormData({...formData, project_type: val})}
                   >
-                    <SelectTrigger className="w-full bg-white/5 hover:bg-white/10 border-white/15 text-white rounded-xl h-11 text-xs focus:outline-none focus:border-accent dark:focus:border-accent focus:ring-0 transition-colors">
+                    <SelectTrigger id="home-contact-project_type" className="w-full bg-white/5 hover:bg-white/10 border-white/15 text-white rounded-xl h-12 text-base focus:outline-none focus:border-accent dark:focus:border-accent focus:ring-0 transition-colors">
                       <SelectValue placeholder="Select type" />
                     </SelectTrigger>
                     <SelectContent className="bg-zinc-900 border-zinc-700 text-white shadow-2xl">
@@ -206,14 +224,14 @@ const Contact = () => {
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-mono font-bold text-gray-400 uppercase tracking-widest mb-1.5">
-                    Target Timeline
+                  <label htmlFor="home-contact-timeline" className="block text-sm font-medium text-gray-200 mb-2">
+                    Target Timeline (optional)
                   </label>
                   <Select
                     value={formData.timeline}
                     onValueChange={(val) => setFormData({...formData, timeline: val})}
                   >
-                    <SelectTrigger className="w-full bg-white/5 hover:bg-white/10 border-white/15 text-white rounded-xl h-11 text-xs focus:outline-none focus:border-accent dark:focus:border-accent focus:ring-0 transition-colors">
+                    <SelectTrigger id="home-contact-timeline" className="w-full bg-white/5 hover:bg-white/10 border-white/15 text-white rounded-xl h-12 text-base focus:outline-none focus:border-accent dark:focus:border-accent focus:ring-0 transition-colors">
                       <SelectValue placeholder="Select timeline" />
                     </SelectTrigger>
                     <SelectContent className="bg-zinc-900 border-zinc-700 text-white shadow-2xl">
@@ -230,21 +248,22 @@ const Contact = () => {
               </div>
 
               <div>
-                <label className="block text-[10px] font-mono font-bold text-gray-400 uppercase tracking-widest mb-1.5">
-                  Project Details / Problem to Solve *
-                </label>
-                <textarea 
-                  placeholder="Tell me about what you're building, key features needed, or current bottlenecks..."
+                <label htmlFor="home-contact-message" className="block text-sm font-medium text-gray-200 mb-2">What would you like to build or improve? *</label>
+                <textarea id="home-contact-message" name="message" maxLength={5000}  aria-invalid={!!errors.message} aria-describedby={errors.message ? 'home-contact-message-error' : undefined} 
+                  placeholder="A few sentences about your idea, who it is for, or what is not working today…"
                   rows="4"
                   required
                   value={formData.message}
-                  onChange={(e) => setFormData({...formData, message: e.target.value})}
-                  className="bwl-input text-white min-h-[100px] resize-y"
+                  onChange={(e) => { setFormData({...formData, message: e.target.value}); setErrors(current => ({...current, message: ''})); }}
+                  className="bwl-input text-white !text-base min-h-[100px] resize-y"
                 ></textarea>
+                  {errors.message && <p id="home-contact-message-error" role="alert" className="text-sm text-red-300 mt-2">{errors.message}</p>}
               </div>
               
+              </fieldset>
               <button 
-                type="submit" 
+                type="submit"
+                aria-busy={status === 'submitting'} 
                 disabled={status === 'submitting' || status === 'success'}
                 className="btn-primary w-full"
               >
@@ -254,18 +273,25 @@ const Contact = () => {
                     Message Sent Successfully
                   </span>
                 ) : status === 'submitting' ? (
-                  'Transmitting Brief...'
+                  'Sending your enquiry…'
                 ) : (
                   <span className="flex items-center justify-center gap-2">
                     <Send className="w-3.5 h-3.5" />
-                    Send Project Brief →
+                    Send your enquiry →
                   </span>
                 )}
               </button>
               
+              {status === 'success' && (
+                <div ref={feedbackRef} tabIndex={-1} role="status" className="rounded-xl border border-emerald-400/40 bg-emerald-400/10 p-4 text-sm text-white leading-relaxed">
+                  <p className="font-semibold mb-1">Thank you — your enquiry is in.</p>
+                  <p>I’ll review your brief and reply by email to discuss the next step.</p>
+                  <button type="button" className="underline underline-offset-4 mt-3 min-h-11" onClick={() => { setStatus('idle'); requestAnimationFrame(() => formRef.current?.querySelector('[name="name"]')?.focus()); }}>Send another enquiry</button>
+                </div>
+              )}
               {status === 'error' && (
-                <p className="text-red-400 text-xs text-center font-mono">
-                  There was an error sending your message. Please reach out directly to {CONTACT.email}.
+                <p ref={feedbackRef} tabIndex={-1} role="alert" className="text-red-300 text-sm leading-relaxed">
+                  We couldn’t confirm delivery. Your details are still here — please try again, or <a className="underline" href={`mailto:${CONTACT.email}`}>email us directly</a>.
                 </p>
               )}
 

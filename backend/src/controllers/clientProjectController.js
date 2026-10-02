@@ -107,13 +107,17 @@ export const getProjectDashboard = async (req, res) => {
         const project = projectResult.rows[0];
 
         // Fetch related data in parallel
-        const [secretsResult, templatesResult, submissionsResult, invoicesResult, feedbackResult, filesResult] = await Promise.all([
+        const [secretsResult, templatesResult, submissionsResult, invoicesResult, feedbackResult, filesResult, approvalsResult, changeRequestsResult, decisionsResult] = await Promise.all([
             pool.query('SELECT id, client_id, project_id, key_name, encrypted_value, iv, auth_tag, created_at, updated_at FROM project_secrets WHERE client_id = $1 ORDER BY created_at DESC', [project.client_id]),
             pool.query('SELECT * FROM intake_templates ORDER BY created_at DESC'),
             pool.query('SELECT * FROM intake_submissions WHERE project_id = $1 ORDER BY submitted_at DESC', [id]),
             pool.query('SELECT * FROM invoices WHERE project_id = $1 ORDER BY created_at DESC', [id]),
             pool.query('SELECT * FROM project_feedback WHERE project_id = $1 ORDER BY created_at ASC', [id]),
-            pool.query('SELECT * FROM project_files WHERE project_id = $1 AND deleted_at IS NULL ORDER BY created_at DESC', [id])
+            pool.query('SELECT * FROM project_files WHERE project_id = $1 AND deleted_at IS NULL ORDER BY created_at DESC', [id]),
+            // Admin OS Phase 3a — delivery control records.
+            pool.query(`SELECT * FROM approvals WHERE project_id = $1 ORDER BY (status = 'PENDING') DESC, created_at DESC`, [id]),
+            pool.query(`SELECT * FROM change_requests WHERE project_id = $1 ORDER BY (status = 'SENT') DESC, created_at DESC`, [id]),
+            pool.query(`SELECT * FROM project_decisions WHERE project_id = $1 ORDER BY created_at DESC LIMIT 100`, [id])
         ]);
 
         // Decrypt secrets server-side using the same crypto helper, so admins
@@ -151,7 +155,10 @@ export const getProjectDashboard = async (req, res) => {
             submissions: submissionsResult.rows,
             invoices: invoicesResult.rows,
             feedback: feedbackResult.rows,
-            files: filesResult.rows
+            files: filesResult.rows,
+            approvals: approvalsResult.rows,
+            change_requests: changeRequestsResult.rows,
+            decisions: decisionsResult.rows
         });
     } catch (err) {
         console.error('[ClientProjects] getProjectDashboard error:', err.message);

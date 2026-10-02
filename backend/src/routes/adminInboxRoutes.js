@@ -63,11 +63,12 @@ const search = async (req, res) => {
             contracts: [],
             bookings: [],
             expenses: [],
+            prospects: [],
         });
     }
     const needle = `%${q}%`;
     try {
-        const [leads, clients, projects, invoices, messages, quotations, contracts, bookings, expenses] = await Promise.all([
+        const [leads, clients, projects, invoices, messages, quotations, contracts, bookings, expenses, prospects] = await Promise.all([
             pool.query(
                 // P2-8: leads table uses `full_name` (not `name`) per
                 // the v9_leads migration. The previous query crashed
@@ -140,6 +141,16 @@ const search = async (req, res) => {
                   ORDER BY e.expense_date DESC LIMIT 5`,
                 [needle]
             ),
+            // Admin OS Phase 4 — prospects (§62: search by company,
+            // email, website and Instagram).
+            pool.query(
+                `SELECT id, company_name, contact_name, email, website, instagram, status, created_at
+                   FROM prospects
+                  WHERE company_name ILIKE $1 OR contact_name ILIKE $1 OR email ILIKE $1
+                     OR website ILIKE $1 OR instagram ILIKE $1
+                  ORDER BY created_at DESC LIMIT 5`,
+                [needle]
+            ),
         ]);
         return res.json({
             leads: leads.rows,
@@ -151,6 +162,7 @@ const search = async (req, res) => {
             contracts: contracts.rows,
             bookings: bookings.rows,
             expenses: expenses.rows,
+            prospects: prospects.rows,
         });
     } catch (err) {
         console.error('[Search] error:', err.message);

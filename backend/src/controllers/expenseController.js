@@ -10,6 +10,9 @@ const expenseSchema = z.object({
     division: z.enum(['SOFTWARE', 'SURVEY', 'DRONE']).optional(),
     paymentMethod: z.enum(['CASH', 'BANK_TRANSFER', 'CARD', 'OTHER']).optional(),
     receiptUrl: z.string().url().optional().or(z.literal('')),
+    // Admin OS Phase 6 — optional project link so per-project
+    // profitability (blueprint §33) can subtract direct costs.
+    projectId: z.string().uuid().nullable().optional(),
 });
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -40,6 +43,11 @@ export const getExpenses = async (req, res) => {
             params.push(req.query.endDate);
             conditions.push(`expense_date <= $${params.length}`);
         }
+
+        if (req.query.projectId && isUuid(req.query.projectId)) {
+            params.push(req.query.projectId);
+            conditions.push(`project_id = $${params.length}`);
+        }
         
         const where = conditions.length > 0 ? ' WHERE ' + conditions.join(' AND ') : '';
         
@@ -59,23 +67,24 @@ export const getExpenses = async (req, res) => {
 // Admin: Create expense
 export const createExpense = async (req, res) => {
     try {
-        const { 
-            expenseDate, category, description, amount, 
-            division = 'SOFTWARE', paymentMethod = 'BANK_TRANSFER', receiptUrl 
+        const {
+            expenseDate, category, description, amount,
+            division = 'SOFTWARE', paymentMethod = 'BANK_TRANSFER', receiptUrl,
+            projectId,
         } = expenseSchema.parse(req.body);
 
         const { rows } = await pool.query(
-            `INSERT INTO expenses (expense_date, category, description, amount, division, payment_method, receipt_url)
-             VALUES (COALESCE($1, CURRENT_DATE), $2, $3, $4, $5, $6, $7)
+            `INSERT INTO expenses (expense_date, category, description, amount, division, payment_method, receipt_url, project_id)
+             VALUES (COALESCE($1, CURRENT_DATE), $2, $3, $4, $5, $6, $7, $8)
              RETURNING *`,
-            [expenseDate || null, category, description, amount, division, paymentMethod, receiptUrl || null]
+            [expenseDate || null, category, description, amount, division, paymentMethod, receiptUrl || null, projectId || null]
         );
 
         await writeAuditLog({
             action: 'EXPENSE_CREATED',
             entityType: 'expenses',
             entityId: rows[0].id,
-            details: { amount, category, division },
+            details: { amount, category, division, projectId: projectId || null },
             user: req.user,
             ipAddress: getClientIp(req),
         });
@@ -94,24 +103,25 @@ export const updateExpense = async (req, res) => {
     if (!isUuid(id)) return res.status(400).json({ error: 'Invalid ID format.' });
     
     try {
-        const { 
-            expenseDate, category, description, amount, 
-            division, paymentMethod, receiptUrl 
+        const {
+            expenseDate, category, description, amount,
+            division, paymentMethod, receiptUrl, projectId,
         } = expenseSchema.parse(req.body);
 
         const { rows } = await pool.query(
-            `UPDATE expenses 
-             SET expense_date = COALESCE($1, expense_date), 
-                 category = $2, 
-                 description = $3, 
-                 amount = $4, 
-                 division = COALESCE($5, division), 
-                 payment_method = COALESCE($6, payment_method), 
+            `UPDATE expenses
+             SET expense_date = COALESCE($1, expense_date),
+                 category = $2,
+                 description = $3,
+                 amount = $4,
+                 division = COALESCE($5, division),
+                 payment_method = COALESCE($6, payment_method),
                  receipt_url = $7,
+                 project_id = $8,
                  updated_at = NOW()
-             WHERE id = $8
+             WHERE id = $9
              RETURNING *`,
-            [expenseDate || null, category, description, amount, division, paymentMethod, receiptUrl || null, id]
+            [expenseDate || null, category, description, amount, division, paymentMethod, receiptUrl || null, projectId ?? null, id]
         );
 
         if (rows.length === 0) return res.status(404).json({ error: 'Expense not found.' });

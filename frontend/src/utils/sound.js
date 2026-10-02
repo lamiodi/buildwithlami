@@ -4,7 +4,7 @@
 class SoundManager {
   constructor() {
     this.audioCtx = null;
-    this.enabled = true;
+    this.enabled = false;
     this.isMuted = false;
 
     // Load saved sound preference
@@ -14,7 +14,7 @@ class SoundManager {
         this.enabled = saved === 'true';
       }
     } catch {
-      this.enabled = true;
+      this.enabled = false;
     }
   }
 
