@@ -1,37 +1,32 @@
-// ─── src/controllers/twoFactorController.js ─────────────
-// HTTP layer for TOTP-based 2FA. See twoFactorService.js
-// for the underlying crypto + DB primitives.
+// ─── src/controllers/twoFactorController.js ──────────────────
+// Email-OTP 2FA. No QR codes, no authenticator apps.
 //
-// Endpoints (all require `verifyToken` unless noted):
-//   GET  /api/auth/2fa/status             → { enabled, confirmedAt }
-//   POST /api/auth/2fa/setup              → { secret, otpauth, qrDataUrl }
-//   POST /api/auth/2fa/confirm            → flips enabled=true
-//   POST /api/auth/2fa/disable            → wipes secret + recovery codes
-//   POST /api/auth/2fa/recovery-codes/regenerate → new set
-//   POST /api/auth/login/2fa              → (public) trade challenge token + code for a JWT
-// ──────────────────────────────────────────────────────────
+// Endpoints:
+//   GET  /api/auth/2fa/status              → { enabled, confirmedAt, method: 'email' }
+//   POST /api/auth/2fa/setup               → generates + emails OTP to owner
+//   POST /api/auth/2fa/confirm  { code }   → flips enabled=true
+//   POST /api/auth/2fa/disable  { password }
+//   POST /api/auth/login/2fa (public)      → challengeToken + code → JWT
+//   POST /api/auth/login/2fa/resend (public) → challengeToken → fresh OTP emailed
+// ─────────────────────────────────────────────────────────────
 
 import pool from '../config/db.js';
 import { z } from 'zod';
 import { canonicalRole, divisionsForRole } from '../config/roles.js';
 import {
-    generateSecret,
-    verifyCode,
-    generateRecoveryCodes,
+    generateAndSendOtp,
+    verifyOtp,
     enableTwoFactor,
     disableTwoFactor,
-    consumeTwoFactorCredential,
-    stageTwoFactorSecret,
-    resolveTwoFactorSecret,
 } from '../services/twoFactorService.js';
 import { writeAuditLog, getClientIp } from '../utils/auditLog.js';
 import { COOKIE_OPTIONS } from './authController.js';
 
-// ── Helpers ──────────────────────────────────────────────
+// ── Schemas ───────────────────────────────────────────────────
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const isUuid = (s) => typeof s === 'string' && UUID_REGEX.test(s);
 
-const otpCodeSchema = z.object({
+const codeSchema = z.object({
     code: z.string().regex(/^\d{6}$/, 'Code must be 6 digits.'),
 });
 const disableSchema = z.object({
@@ -41,13 +36,15 @@ const verifyLoginSchema = z.object({
     challengeToken: z.string().min(10).max(4096),
     code: z.string().regex(/^\d{6}$/, 'Code must be 6 digits.'),
 });
+const resendLoginSchema = z.object({
+    challengeToken: z.string().min(10).max(4096),
+});
 
-// ── GET /api/auth/2fa/status ─────────────────────────────
+// ── GET /api/auth/2fa/status ──────────────────────────────────
 export async function getTwoFactorStatus(req, res) {
     try {
         const { rows } = await pool.query(
-            `SELECT two_factor_enabled, two_factor_confirmed_at,
-                    COALESCE(array_length(two_factor_recovery_codes, 1), 0) AS recovery_codes_remaining
+            `SELECT two_factor_enabled, two_factor_confirmed_at
                FROM users WHERE id = $1`,
             [req.user.id]
         );
@@ -56,7 +53,7 @@ export async function getTwoFactorStatus(req, res) {
         return res.json({
             enabled: !!r.two_factor_enabled,
             confirmedAt: r.two_factor_confirmed_at,
-            recoveryCodesRemaining: Number(r.recovery_codes_remaining || 0),
+            method: 'email',
         });
     } catch (err) {
         console.error('[2FA] status error:', err.message);
@@ -64,38 +61,41 @@ export async function getTwoFactorStatus(req, res) {
     }
 }
 
-// ── POST /api/auth/2fa/setup ────────────────────────────
-// Generates a fresh secret + QR for the caller. Does NOT
-// enable 2FA — that only happens after /confirm succeeds.
-//
-// The unconfirmed secret is stored encrypted at rest via
-// stageTwoFactorSecret so a database dump does not leak
-// pending 2FA setups.
+// ── POST /api/auth/2fa/setup ──────────────────────────────────
 export async function setupTwoFactor(req, res) {
     try {
-        const { secret, otpauth, qrDataUrl } = await generateSecret(req.user.email);
-        await stageTwoFactorSecret(req.user.id, secret);
-        return res.json({ secret, otpauth, qrDataUrl });
+        const { rows } = await pool.query(
+            `SELECT email, two_factor_enabled FROM users WHERE id = $1`,
+            [req.user.id]
+        );
+        if (rows.length === 0) return res.status(404).json({ error: 'User not found.' });
+        if (rows[0].two_factor_enabled) {
+            return res.status(409).json({ error: '2FA is already enabled.' });
+        }
+
+        const email = rows[0].email;
+        await generateAndSendOtp(req.user.id, email);
+
+        console.log('[2FA] setup OTP emailed to', email);
+        return res.json({
+            success: true,
+            email,
+            message: `A 6-digit verification code has been sent to ${email}. It expires in 10 minutes.`,
+        });
     } catch (err) {
         console.error('[2FA] setup error:', err.message);
         return res.status(500).json({ error: 'Internal server error.' });
     }
 }
 
-// ── POST /api/auth/2fa/confirm ───────────────────────────
-// First successful TOTP code → 2FA is enabled.
+// ── POST /api/auth/2fa/confirm ────────────────────────────────
 export async function confirmTwoFactor(req, res) {
-    const parsed = otpCodeSchema.safeParse(req.body);
+    const parsed = codeSchema.safeParse(req.body);
     if (!parsed.success) {
-        return res.status(400).json({ error: 'Code must be 6 digits.' });
+        return res.status(400).json({ error: 'Code must be exactly 6 digits.' });
     }
 
     try {
-        const secret = await resolveTwoFactorSecret(req.user.id);
-        if (!secret) {
-            return res.status(400).json({ error: 'No 2FA setup in progress. Call /setup first.' });
-        }
-
         const { rows: meta } = await pool.query(
             `SELECT two_factor_enabled FROM users WHERE id = $1`,
             [req.user.id]
@@ -105,12 +105,12 @@ export async function confirmTwoFactor(req, res) {
             return res.status(409).json({ error: '2FA is already enabled.' });
         }
 
-        if (!verifyCode(secret, parsed.code)) {
-            return res.status(401).json({ error: 'Invalid code. Please try again.' });
+        const ok = await verifyOtp(req.user.id, parsed.data.code);
+        if (!ok) {
+            return res.status(401).json({ error: 'Invalid or expired code. Please request a new code.' });
         }
 
-        const { plain, hashed } = generateRecoveryCodes();
-        await enableTwoFactor(req.user.id, secret, hashed);
+        await enableTwoFactor(req.user.id);
         await writeAuditLog({
             action: 'TWO_FACTOR_ENABLED',
             entityType: 'users',
@@ -119,31 +119,29 @@ export async function confirmTwoFactor(req, res) {
             ipAddress: getClientIp(req),
         });
 
-        // Recovery codes are returned ONCE — never persisted in cleartext.
-        return res.json({ recoveryCodes: plain });
+        return res.json({ success: true, message: 'Two-factor authentication is now active via email OTP.' });
     } catch (err) {
         console.error('[2FA] confirm error:', err.message);
         return res.status(500).json({ error: 'Internal server error.' });
     }
 }
 
-// ── POST /api/auth/2fa/disable ───────────────────────────
+// ── POST /api/auth/2fa/disable ────────────────────────────────
 export async function disableTwoFactorController(req, res) {
     const parsed = disableSchema.safeParse(req.body);
     if (!parsed.success) {
         return res.status(400).json({ error: 'Password required to disable 2FA.' });
     }
-    const { password } = parsed.data;
 
     try {
         const { rows } = await pool.query(
-            `SELECT password, two_factor_enabled FROM users WHERE id = $1`,
+            `SELECT password FROM users WHERE id = $1`,
             [req.user.id]
         );
         if (rows.length === 0) return res.status(404).json({ error: 'User not found.' });
 
         const bcrypt = (await import('bcrypt')).default;
-        const ok = await bcrypt.compare(password, rows[0].password);
+        const ok = await bcrypt.compare(parsed.data.password, rows[0].password);
         if (!ok) return res.status(401).json({ error: 'Incorrect password.' });
 
         await disableTwoFactor(req.user.id);
@@ -154,48 +152,14 @@ export async function disableTwoFactorController(req, res) {
             user: req.user,
             ipAddress: getClientIp(req),
         });
-        return res.json({ success: true });
+        return res.json({ success: true, message: '2FA has been disabled.' });
     } catch (err) {
         console.error('[2FA] disable error:', err.message);
         return res.status(500).json({ error: 'Internal server error.' });
     }
 }
 
-// ── POST /api/auth/2fa/recovery-codes/regenerate ─────────
-export async function regenerateRecoveryCodes(req, res) {
-    try {
-        const { rows } = await pool.query(
-            `SELECT two_factor_enabled FROM users WHERE id = $1`,
-            [req.user.id]
-        );
-        if (rows.length === 0) return res.status(404).json({ error: 'User not found.' });
-        if (!rows[0].two_factor_enabled) {
-            return res.status(400).json({ error: '2FA is not enabled.' });
-        }
-        const { plain, hashed } = generateRecoveryCodes();
-        await pool.query(
-            `UPDATE users SET two_factor_recovery_codes = $1 WHERE id = $2`,
-            [hashed, req.user.id]
-        );
-        await writeAuditLog({
-            action: 'TWO_FACTOR_RECOVERY_CODES_REGENERATED',
-            entityType: 'users',
-            entityId: req.user.id,
-            user: req.user,
-            ipAddress: getClientIp(req),
-        });
-        return res.json({ recoveryCodes: plain });
-    } catch (err) {
-        console.error('[2FA] regenerate recovery codes error:', err.message);
-        return res.status(500).json({ error: 'Internal server error.' });
-    }
-}
-
-// ── POST /api/auth/login/2fa (public) ────────────────────
-// Trade the short-lived `challengeToken` from /login + a
-// TOTP code (or recovery code) for a real JWT. The challenge
-// token only carries `{ id, purpose: '2fa' }` and expires in
-// 5 minutes (see authController for the signing path).
+// ── POST /api/auth/login/2fa (public) ────────────────────────
 export async function verifyLoginTwoFactor(req, res) {
     const parsed = verifyLoginSchema.safeParse(req.body);
     if (!parsed.success) {
@@ -210,19 +174,15 @@ export async function verifyLoginTwoFactor(req, res) {
     } catch {
         return res.status(401).json({ error: 'Invalid or expired challenge token.' });
     }
-    if (payload.purpose !== '2fa' || !payload.id) {
-        return res.status(401).json({ error: 'Invalid challenge token.' });
-    }
-    if (!isUuid(payload.id)) {
+    if (payload.purpose !== '2fa' || !isUuid(payload.id)) {
         return res.status(401).json({ error: 'Invalid challenge token.' });
     }
 
-    const result = await consumeTwoFactorCredential(payload.id, code);
-    if (!result.ok) {
-        return res.status(401).json({ error: 'Invalid 2FA code.' });
+    const ok = await verifyOtp(payload.id, code);
+    if (!ok) {
+        return res.status(401).json({ error: 'Invalid or expired code.' });
     }
 
-    // Issue the real admin JWT now that 2FA is satisfied.
     const { rows } = await pool.query(
         `SELECT id, email, role FROM users WHERE id = $1`,
         [payload.id]
@@ -239,23 +199,46 @@ export async function verifyLoginTwoFactor(req, res) {
     );
 
     await writeAuditLog({
-        action: result.kind === 'recovery' ? 'LOGIN_2FA_VIA_RECOVERY' : 'LOGIN_2FA_SUCCESS',
+        action: 'LOGIN_2FA_SUCCESS',
         entityType: 'users',
         entityId: user.id,
         user: { id: user.id, email: user.email, role: user.role },
         ipAddress: getClientIp(req),
     });
 
-    // Set the HttpOnly access_token cookie on the browser — same as
-    // /api/auth/login does on the first step. Without this, the
-    // browser never receives the JWT and every subsequent /auth/me
-    // call returns 401, which causes a redirect loop on protected
-    // pages.
     res.cookie('access_token', token, COOKIE_OPTIONS);
-
     return res.json({
         token,
         user: { id: user.id, email: user.email, role: user.role, divisions: divisionsForRole(user.role) },
-        method: result.kind, // 'totp' or 'recovery'
+        method: 'email_otp',
     });
+}
+
+// ── POST /api/auth/login/2fa/resend (public) ─────────────────
+export async function resendLoginOtp(req, res) {
+    const parsed = resendLoginSchema.safeParse(req.body);
+    if (!parsed.success) {
+        return res.status(400).json({ error: 'challengeToken is required.' });
+    }
+    const { challengeToken } = parsed.data;
+
+    const jwt = (await import('jsonwebtoken')).default;
+    let payload;
+    try {
+        payload = jwt.verify(challengeToken, process.env.JWT_SECRET);
+    } catch {
+        return res.status(401).json({ error: 'Invalid or expired challenge token.' });
+    }
+    if (payload.purpose !== '2fa' || !isUuid(payload.id)) {
+        return res.status(401).json({ error: 'Invalid challenge token.' });
+    }
+
+    const { rows } = await pool.query(
+        `SELECT email FROM users WHERE id = $1`,
+        [payload.id]
+    );
+    if (rows.length === 0) return res.status(404).json({ error: 'User not found.' });
+
+    await generateAndSendOtp(payload.id, rows[0].email);
+    return res.json({ success: true, message: `New verification code sent to ${rows[0].email}.` });
 }

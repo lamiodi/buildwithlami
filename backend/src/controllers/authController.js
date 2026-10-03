@@ -5,6 +5,7 @@ import { z } from 'zod';
 import pool from '../config/db.js';
 import { canonicalRole, divisionsForRole } from '../config/roles.js';
 import { sendPasswordResetEmail } from '../services/emailService.js';
+import { generateAndSendOtp } from '../services/twoFactorService.js';
 
 // Cookie options for the HttpOnly JWT cookie.
 //
@@ -127,15 +128,15 @@ export async function login(req, res) {
             );
         }
 
-        // 2FA is enabled → mint a short-lived challenge token instead
-        // of the real admin JWT. The frontend exchanges it for the real
-        // token at /api/auth/login/2fa with a TOTP code.
+        // 2FA is enabled → mint a short-lived challenge token and email a 6-digit OTP.
+        // The frontend exchanges it for the real token at /api/auth/login/2fa.
         if (user.two_factor_enabled) {
             const challengeToken = jwt.sign(
                 { id: user.id, purpose: '2fa' },
                 process.env.JWT_SECRET,
                 { expiresIn: '5m' }
             );
+            await generateAndSendOtp(user.id, user.email);
             return res.json({
                 requires2fa: true,
                 challengeToken,

@@ -19,6 +19,8 @@ const LoginPage = () => {
   const [twoFactorCode, setTwoFactorCode] = useState('');
   const [challengeToken, setChallengeToken] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [resending, setResending] = useState(false);
+  const [resendNotice, setResendNotice] = useState('');
   const [error, setError] = useState('');
   const codeInputRef = useRef(null);
 
@@ -43,6 +45,7 @@ const LoginPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setResendNotice('');
     setSubmitting(true);
 
     if (step === 'password') {
@@ -76,10 +79,25 @@ const LoginPage = () => {
     setSubmitting(false);
   };
 
+  const handleResend = async () => {
+    if (!challengeToken || resending) return;
+    setResending(true);
+    setError('');
+    setResendNotice('');
+    const res = await api.post('/auth/login/2fa/resend', { challengeToken });
+    setResending(false);
+    if (res.ok) {
+      setResendNotice(res.data?.message || 'New code sent to your email.');
+    } else {
+      setError(res.error || 'Failed to resend code.');
+    }
+  };
+
   const goBackToPassword = () => {
     setStep('password');
     setTwoFactorCode('');
     setChallengeToken('');
+    setResendNotice('');
     setError('');
   };
 
@@ -96,11 +114,11 @@ const LoginPage = () => {
             Ob
           </div>
           <h1 className="text-2xl font-extrabold font-heading text-gray-900 dark:text-white">
-            {step === '2fa' ? 'Two-Factor Code' : 'Admin Sign In'}
+            {step === '2fa' ? 'Verify Your Identity' : 'Admin Sign In'}
           </h1>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-2 font-body">
             {step === '2fa'
-              ? `Enter the 6-digit code from your authenticator app for ${email}.`
+              ? `We sent a 6-digit code to ${email}. Check your email inbox.`
               : 'Sign in to access the agency dashboard.'}
           </p>
         </div>
@@ -149,7 +167,7 @@ const LoginPage = () => {
           ) : (
             <div>
               <label className="block text-[10px] font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2 font-body">
-                Authentication Code
+                6-Digit Email Code
               </label>
               <input
                 ref={codeInputRef}
@@ -164,13 +182,29 @@ const LoginPage = () => {
                 placeholder="123456"
                 className="w-full p-4 text-center text-2xl font-mono tracking-[0.5em] border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900 outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-colors font-body"
               />
-              <button
-                type="button"
-                onClick={goBackToPassword}
-                className="mt-3 text-xs font-bold text-gray-500 hover:text-accent dark:text-gray-400 dark:hover:text-accent transition-colors font-body"
-              >
-                ← Use a different account
-              </button>
+              <div className="flex items-center justify-between mt-3 text-xs font-body">
+                <button
+                  type="button"
+                  onClick={goBackToPassword}
+                  className="font-bold text-gray-500 hover:text-accent dark:text-gray-400 dark:hover:text-accent transition-colors"
+                >
+                  ← Back to login
+                </button>
+                <button
+                  type="button"
+                  onClick={handleResend}
+                  disabled={resending}
+                  className="font-bold text-accent hover:underline disabled:opacity-50 transition-colors"
+                >
+                  {resending ? 'Sending...' : 'Resend code'}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {resendNotice && (
+            <div className="bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 text-sm p-3 rounded-xl border border-emerald-100 dark:border-emerald-800 font-body">
+              {resendNotice}
             </div>
           )}
 

@@ -1,254 +1,189 @@
-// ─── src/services/twoFactorService.js ────────────────────
-// TOTP-based 2FA (RFC 6238) using `otplib`. Recovery codes
-// are stored as SHA-256 hashes in `users.two_factor_recovery_codes`.
-// The plain codes are returned to the user *once* at setup
-// time and never persisted in clear text.
+// ─── src/services/twoFactorService.js ────────────────────────
+// Email-OTP based 2FA.
 //
-// At-rest protection:
-//   The TOTP secret is persisted in `users.totp_secret_encrypted`
-//   (renamed from `two_factor_secret` in v39) as an
-//   AES-256-GCM envelope via utils/twoFactorCrypto.js. The
-//   plaintext only exists in memory long enough to call
-//   otplib.verify — it is never returned by an API, never
-//   written to logs, and never shown in the admin UI.
+// Flow:
+//   SETUP:
+//     1. POST /api/auth/2fa/setup  → generateAndSendOtp(userId, email)
+//        Generates a 6-digit OTP, SHA-256 hashes it, stores hash +
+//        expiry (10 min) in users.email_otp_hash / email_otp_expires_at,
+//        and sends the plain code to the user's email.
+//     2. POST /api/auth/2fa/confirm { code } → verifyOtp(userId, code) + enableTwoFactor(userId)
+//        Verifies hash, flips two_factor_enabled = true, clears OTP cols.
 //
-// Legacy back-compat: rows that still contain a raw base32
-// secret (no JSON envelope) are treated as plaintext and
-// re-encrypted on the next successful verification.
+//   LOGIN (when two_factor_enabled = true):
+//     1. POST /api/auth/login  → returns { requires2fa: true, challengeToken }
+//        AND calls generateAndSendOtp to email a fresh OTP.
+//     2. POST /api/auth/login/2fa { challengeToken, code }
+//        → verifyOtp(userId, code) — checks hash + expiry, issues JWT.
+//     3. POST /api/auth/login/2fa/resend { challengeToken }
+//        → generateAndSendOtp(userId, email) — sends a new code.
 //
-// 2FA flow:
-//   1. Setup  → generateSecret → user scans QR → confirmSecret
-//   2. Login  → /login returns { requires2fa: true } if the
-//               account has 2FA enabled; the user submits a
-//               TOTP code (or recovery code) to /login/2fa to
-//               mint the real JWT.
-// ──────────────────────────────────────────────────────────
+//   DISABLE:
+//     POST /api/auth/2fa/disable { password } → disableTwoFactor(userId)
+// ─────────────────────────────────────────────────────────────
 
 import crypto from 'crypto';
-import { generateSecret as otpGenerateSecret, generateURI, verifySync } from 'otplib';
-import QRCode from 'qrcode';
 import pool from '../config/db.js';
-import {
-    encryptTotpSecret,
-    decryptTotpSecret,
-} from '../utils/twoFactorCrypto.js';
+import { createTransporter, renderEmailShell, escapeHtml } from './emailLayout.js';
 
-const ISSUER = 'Buildwith_lami';
-const RECOVERY_CODE_COUNT = 8;
-const RECOVERY_CODE_BYTES = 5; // 10 hex chars — easy to type, plenty of entropy.
+const OTP_TTL_MINUTES = 10;
+const OTP_DIGITS = 6;
 
-// Postgres column the encrypted envelope is stored in. Kept
-// as a constant so the back-compat view and tests can refer
-// to the same name without stringly-typed drift.
-const TOTP_COLUMN = 'totp_secret_encrypted';
+// ── Crypto helpers ────────────────────────────────────────────
+
+/** Generate a zero-padded 6-digit numeric OTP. */
+function generateOtpPlain() {
+    const max = 10 ** OTP_DIGITS; // 1_000_000
+    const val = crypto.randomInt(0, max);
+    return String(val).padStart(OTP_DIGITS, '0');
+}
+
+/** SHA-256 hash of the plain code — stored at rest, never the plain code. */
+function hashOtp(plain) {
+    return crypto.createHash('sha256').update(String(plain)).digest('hex');
+}
+
+// ── Email sender ──────────────────────────────────────────────
+
+export async function sendOtpEmail(toEmail, otp) {
+    const transporter = createTransporter();
+    const from = process.env.EMAIL_FROM || '"BuildWith_Lami" <buildwithlami@gmail.com>';
+
+    const bodyHtml = `
+        <p style="margin:0 0 16px 0; font-size:15px; color:#334155;">
+            Your two-factor authentication code is:
+        </p>
+        <div style="text-align:center; margin:28px 0;">
+            <span style="
+                display:inline-block;
+                font-size:36px;
+                font-weight:800;
+                letter-spacing:12px;
+                color:#ff5500;
+                background:#fff7f5;
+                border:2px solid #ff5500;
+                border-radius:12px;
+                padding:16px 32px;
+                font-family:monospace;
+            ">${escapeHtml(otp)}</span>
+        </div>
+        <p style="margin:0 0 8px 0; font-size:14px; color:#64748b;">
+            This code expires in <strong>10 minutes</strong>.
+            If you did not request this code, someone may be attempting
+            to access your account — you can safely ignore this email.
+        </p>`;
+
+    const html = renderEmailShell({
+        preheader: `Your BuildWith_Lami login code: ${otp}`,
+        bodyHtml,
+        footerNote: 'Never share this code with anyone.',
+    });
+
+    await transporter.sendMail({
+        from,
+        to: toEmail,
+        subject: `${otp} — Your BuildWith_Lami sign-in code`,
+        html,
+    });
+}
+
+// ── Core service ──────────────────────────────────────────────
 
 /**
- * Generate a fresh TOTP secret for the given user. Does NOT
- * persist it — the caller must call `confirmSecret` once the
- * user has verified their first code.
+ * Generate a fresh OTP for `userId`, persist the hash + expiry,
+ * and return the plain code.
+ *
+ * @returns {string} plain 6-digit OTP
  */
-export async function generateSecret(email) {
-    const secret = otpGenerateSecret();
-    const otpauth = generateURI({ issuer: ISSUER, label: email, secret });
-    // Render the QR as a data-URL so the setup page can drop it
-    // straight into an <img src=…> without an extra round-trip.
-    const qrDataUrl = await QRCode.toDataURL(otpauth, { errorCorrectionLevel: 'M', margin: 1 });
-    return { secret, otpauth, qrDataUrl };
+export async function generateOtp(userId) {
+    const plain = generateOtpPlain();
+    const hash = hashOtp(plain);
+    const expiresAt = new Date(Date.now() + OTP_TTL_MINUTES * 60 * 1000);
+
+    await pool.query(
+        `UPDATE users
+            SET email_otp_hash       = $1,
+                email_otp_expires_at = $2
+          WHERE id = $3`,
+        [hash, expiresAt, userId]
+    );
+
+    return plain;
 }
 
 /**
- * Verify a TOTP code against the given secret. Returns true on
- * success, false on failure. Used by both setup (confirm the
- * user scanned the right code) and login (re-verify each time).
- *
- * `secret` MUST be a plaintext base32 string — never the
- * ciphertext stored in the DB. Use `resolveTotpSecretForUser`
- * to load + decrypt the per-user value safely.
+ * Generate OTP and immediately dispatch the branded email.
  */
-export function verifyCode(secret, code) {
-    if (!secret || typeof code !== 'string') return false;
-    // Reject anything that isn't 6 digits — saves a round-trip
-    // through the otplib verifier for obvious junk input.
-    if (!/^\d{6}$/.test(code.trim())) return false;
-    try {
-        const res = verifySync({ token: code.trim(), secret, window: 1, step: 30 });
-        console.error('[DEBUG 2FA] verifyCode secret.len=', secret.length, 'code=', code.trim(), 'res=', JSON.stringify(res));
-        return !!res.valid;
-    } catch (e) {
-        console.error('[DEBUG 2FA] verifyCode threw:', e.message, 'secret.len=', secret.length);
+export async function generateAndSendOtp(userId, email) {
+    const plain = await generateOtp(userId);
+    await sendOtpEmail(email, plain);
+    return plain;
+}
+
+/**
+ * Verify a user-supplied OTP. Returns true if the code is correct
+ * and not expired; false otherwise. Clears the OTP regardless of
+ * outcome to prevent brute-force reuse.
+ *
+ * @param {string} userId
+ * @param {string} code   — raw digits from the request body
+ */
+export async function verifyOtp(userId, code) {
+    if (typeof code !== 'string' || !/^\d{6}$/.test(code.trim())) {
         return false;
     }
-}
 
-/**
- * Generate a fresh set of one-time recovery codes. Each code is
- * 10 hex chars (≈40 bits of entropy). The returned array has
- * two parallel views: `plain` (show to the user once) and
- * `hashed` (persist in the DB).
- */
-export function generateRecoveryCodes() {
-    const plain = [];
-    const hashed = [];
-    for (let i = 0; i < RECOVERY_CODE_COUNT; i += 1) {
-        const code = crypto.randomBytes(RECOVERY_CODE_BYTES).toString('hex');
-        plain.push(code);
-        hashed.push(hashRecoveryCode(code));
-    }
-    return { plain, hashed };
-}
-
-export function hashRecoveryCode(code) {
-    return crypto.createHash('sha256').update(String(code).toLowerCase()).digest('hex');
-}
-
-/**
- * Decrypt the stored TOTP secret for `userId`. Returns the
- * plaintext base32 secret, or null if the row is missing,
- * the ciphertext is unreadable, or the column is empty.
- *
- * The plaintext is intended to live only long enough to call
- * `verifyCode` — it must never be returned to the caller of
- * this module's public surface (controllers, logs, API
- * responses, error messages).
- */
-export async function resolveTwoFactorSecret(userId) {
-    return resolveTotpSecretForUser(userId);
-}
-
-/**
- * Encrypt and store an unconfirmed TOTP secret. Used by the
- * /setup endpoint so the next /confirm call can read it back.
- */
-export async function stageTwoFactorSecret(userId, plaintext) {
-    if (typeof plaintext !== 'string' || plaintext.length === 0) {
-        throw new Error('[twoFactorService] stageTwoFactorSecret: plaintext required.');
-    }
-    const envelope = encryptTotpSecret(plaintext);
-    await pool.query(
-        `UPDATE users SET ${TOTP_COLUMN} = $1 WHERE id = $2`,
-        [envelope, userId],
-    );
-}
-
-async function resolveTotpSecretForUser(userId) {
     const { rows } = await pool.query(
-        `SELECT ${TOTP_COLUMN} AS ct FROM users WHERE id = $1`,
-        [userId],
+        `SELECT email_otp_hash, email_otp_expires_at FROM users WHERE id = $1`,
+        [userId]
     );
-    if (rows.length === 0) return null;
-    const stored = rows[0].ct;
-    if (!stored) return null;
 
-    // Heuristic: an envelope is a JSON object with a `v` field.
-    // Anything else is treated as legacy plaintext so the
-    // existing user can still log in while the row is upgraded.
-    const trimmed = String(stored).trim();
-    if (trimmed.startsWith('{')) {
-        return decryptTotpSecret(trimmed);
-    }
-    return trimmed; // legacy plaintext
-}
+    if (rows.length === 0) return false;
+    const { email_otp_hash: stored, email_otp_expires_at: expiresAt } = rows[0];
 
-/**
- * Re-encrypt a legacy plaintext secret in place. Called
- * opportunistically after a successful verification so the
- * database naturally migrates to the new envelope format
- * without a separate, blocking migration step.
- */
-async function upgradeLegacySecretIfNeeded(userId, plaintext) {
-    const { rows } = await pool.query(
-        `SELECT ${TOTP_COLUMN} AS ct FROM users WHERE id = $1`,
-        [userId],
-    );
-    if (rows.length === 0) return;
-    const stored = rows[0].ct;
-    if (!stored) return;
-    const trimmed = String(stored).trim();
-    if (!trimmed.startsWith('{')) {
-        const envelope = encryptTotpSecret(plaintext);
-        await pool.query(
-            `UPDATE users SET ${TOTP_COLUMN} = $1 WHERE id = $2`,
-            [envelope, userId],
-        );
-    }
-}
-
-/**
- * Persist a confirmed secret + recovery codes for the user and
- * flip `two_factor_enabled = true`. This is the only place
- * 2FA is enabled; setup endpoints must call this *after*
- * verifying the user can produce a valid code from the secret.
- */
-export async function enableTwoFactor(userId, secret, recoveryCodesHashed) {
-    const envelope = encryptTotpSecret(secret);
+    // Always clear the OTP after one attempt.
     await pool.query(
         `UPDATE users
-            SET ${TOTP_COLUMN}             = $1,
-                two_factor_enabled         = true,
-                two_factor_confirmed_at    = NOW(),
-                two_factor_recovery_codes  = $2
-          WHERE id = $3`,
-        [envelope, recoveryCodesHashed, userId]
+            SET email_otp_hash       = NULL,
+                email_otp_expires_at = NULL
+          WHERE id = $1`,
+        [userId]
     );
+
+    if (!stored || !expiresAt) return false;
+    if (new Date() > new Date(expiresAt)) return false; // expired
+
+    const incoming = hashOtp(code.trim());
+    return crypto.timingSafeEqual(Buffer.from(incoming), Buffer.from(stored));
 }
 
 /**
- * Disable 2FA. Wipes the secret, recovery codes, and the
- * enabled flag. Idempotent — safe to call on a user without 2FA.
+ * Flip two_factor_enabled = true for the user.
+ * Called by /confirm after a successful OTP verification.
  */
-export async function disableTwoFactor(userId) {
+export async function enableTwoFactor(userId) {
     await pool.query(
         `UPDATE users
-            SET ${TOTP_COLUMN}              = NULL,
-                two_factor_enabled          = false,
-                two_factor_confirmed_at     = NULL,
-                two_factor_recovery_codes   = ARRAY[]::TEXT[]
+            SET two_factor_enabled      = true,
+                two_factor_confirmed_at = NOW()
           WHERE id = $1`,
         [userId]
     );
 }
 
 /**
- * If the supplied token is a valid TOTP code, returns { ok: true, kind: 'totp' }.
- * If it matches a recovery code, consumes it (removes it from the array) and
- * returns { ok: true, kind: 'recovery' }. Returns { ok: false } otherwise.
+ * Disable 2FA — wipes flag, confirmed_at, and any leftover OTP.
+ * Idempotent.
  */
-export async function consumeTwoFactorCredential(userId, token) {
-    if (typeof token !== 'string' || token.length === 0) {
-        return { ok: false };
-    }
-
-    const trimmed = token.trim();
-    const { rows } = await pool.query(
-        `SELECT two_factor_enabled, two_factor_recovery_codes
-           FROM users WHERE id = $1`,
+export async function disableTwoFactor(userId) {
+    await pool.query(
+        `UPDATE users
+            SET two_factor_enabled      = false,
+                two_factor_confirmed_at = NULL,
+                email_otp_hash          = NULL,
+                email_otp_expires_at    = NULL,
+                two_factor_recovery_codes = ARRAY[]::TEXT[]
+          WHERE id = $1`,
         [userId]
     );
-    if (rows.length === 0 || !rows[0].two_factor_enabled) return { ok: false };
-    const recoveryCodes = rows[0].two_factor_recovery_codes;
-
-    // 1. Try TOTP first (it's the normal path).
-    const secret = await resolveTotpSecretForUser(userId);
-    if (secret && verifyCode(secret, trimmed)) {
-        // Opportunistically upgrade legacy plaintext rows.
-        await upgradeLegacySecretIfNeeded(userId, secret);
-        return { ok: true, kind: 'totp' };
-    }
-
-    // 2. Try recovery codes (case-insensitive hex).
-    if (Array.isArray(recoveryCodes) && recoveryCodes.length > 0) {
-        const incomingHash = hashRecoveryCode(trimmed);
-        const idx = recoveryCodes.indexOf(incomingHash);
-        if (idx !== -1) {
-            // Consume the code so it can't be re-used.
-            const next = recoveryCodes.filter((_, i) => i !== idx);
-            await pool.query(
-                `UPDATE users SET two_factor_recovery_codes = $1 WHERE id = $2`,
-                [next, userId]
-            );
-            return { ok: true, kind: 'recovery' };
-        }
-    }
-
-    return { ok: false };
 }
