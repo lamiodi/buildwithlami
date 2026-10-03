@@ -161,14 +161,6 @@ const ServicesPage = () => {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    document.title = 'Services | Buildwith_lami - Strategy, Design and Engineering';
-    const metaDesc = document.querySelector('meta[name="description"]');
-    if (metaDesc) {
-      metaDesc.setAttribute(
-        'content',
-        'Explore Buildwith_lami services for websites, custom software, business systems, APIs, technical audits, and technical SEO.'
-      );
-    }
   }, []);
 
   return (

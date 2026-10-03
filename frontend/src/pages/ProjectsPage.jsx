@@ -20,11 +20,6 @@ const ProjectsPage = () => {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    document.title = "Selected Works | BuildWithLami — Software Portfolio";
-    const metaDesc = document.querySelector('meta[name="description"]');
-    if (metaDesc) {
-      metaDesc.setAttribute("content", "Explore selected software engineering works by BuildWithLami — from custom business ERPs and SaaS platforms to luxury e-commerce and regulatory web portals.");
-    }
     const fetchProjects = async () => {
       try {
         const res = await api.get('/projects/division/SOFTWARE', { timeout: 3000 });

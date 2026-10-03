@@ -17,10 +17,6 @@ import DroneFooter from '../../components/DroneFooter';
 
 const DroneHomePage = () => {
   const reduce = useReducedMotion();
-
-  useEffect(() => {
-    document.title = 'Lami Aerial — Commercial Drone & Aerial Imaging | Chief Pilot Eugene Odibenuah';
-  }, []);
   
   // -- Interactive Modal States --
   const [selectedServiceModal, setSelectedServiceModal] = useState(null);

@@ -1,3 +1,4 @@
+import { useProjectSeo } from '../hooks/useProjectSeo';
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { motion, useReducedMotion, AnimatePresence } from 'framer-motion';
 import { useParams, Link, useNavigate } from 'react-router-dom';
@@ -438,9 +439,10 @@ const ProjectDetailPage = () => {
     const found = fallbackProjects.find(
       (p) => p.id.toString() === id || p.slug === id
     );
-    return found || fallbackProjects[0];
+    return found || null;
   });
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(() => !fallbackProjects.some(p => String(p.id) === id || p.slug === id));
+  useProjectSeo(project, loading);
   const [lightboxIndex, setLightboxIndex] = useState(null);
   const heroImageRef = useRef(null);
   const shouldReduce = useReducedMotion();
@@ -451,40 +453,27 @@ const ProjectDetailPage = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
     let isMounted = true;
+    setProject(fallbackProjects.find(p => String(p.id) === id || p.slug === id) || null);
+    setLoading(!fallbackProjects.some(p => String(p.id) === id || p.slug === id));
     const fetchProject = async () => {
       try {
         const res = await Promise.race([
           api.get(`/projects/${id}`),
           new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 3000))
         ]);
-        if (isMounted && res && res.ok && res.data && typeof res.data === 'object') {
-          setProject(res.data);
+        const result = res?.data?.data || res?.data;
+        if (isMounted && res?.ok && result?.title) {
+          setProject(result);
         }
       } catch {
-        // Fallback already rendered
+        // Keep the matching local case study if the API is unavailable.
+      } finally {
+        if (isMounted) setLoading(false);
       }
     };
     fetchProject();
     return () => { isMounted = false; };
   }, [id]);
-
-  // ── SEO + document title ──
-  useEffect(() => {
-    if (project) {
-      document.title = `${project.title} — Case Study | Buildwith_lami`;
-      const setMeta = (selector, attr, value) => {
-        const el = document.querySelector(selector);
-        if (el) el.setAttribute(attr, value);
-      };
-      setMeta(
-        'meta[name="description"]',
-        'content',
-        project.summary ||
-          project.description ||
-          `Case study of ${project.title} — engineered by Buildwith_lami (Eugene Odibenuah).`
-      );
-    }
-  }, [project]);
 
   // ── Derived data ──
   const imageUrl = useMemo(
@@ -569,6 +558,8 @@ const ProjectDetailPage = () => {
     () => setLightboxIndex((i) => (i === null ? null : (i + 1) % galleryItems.length)),
     [galleryItems.length]
   );
+
+  if (!project && loading) return <div className="min-h-screen grid place-items-center pt-24" role="status">Loading case study…</div>;
 
   if (!project && !loading) {
     return (

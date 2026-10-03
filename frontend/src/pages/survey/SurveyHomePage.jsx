@@ -468,14 +468,6 @@ const SurveyHomePage = () => {
   const [visibleElements, setVisibleElements] = useState(new Set());
   
   useEffect(() => {
-    document.title = "GeoSurvey — Precision Land & Engineering Surveying";
-    const metaDesc = document.querySelector('meta[name="description"]');
-    if (metaDesc) {
-      metaDesc.setAttribute(
-        'content',
-        'GeoSurvey // Buildwith_lami Surveying Division — Professional cadastral boundary demarcation, topographic mapping, construction setting out, and estate subdivision across Nigeria.'
-      );
-    }
     return () => {
       if (observerRef.current) {
         observerRef.current.observer.disconnect();

@@ -122,14 +122,6 @@ const ContactPage = () => {
   // Detect URL parameters from Pricing Page selection (e.g. ?service=ecommerce&tier=Growth)
   useEffect(() => {
     window.scrollTo(0, 0);
-    document.title = "Request a Proposal | Buildwith_lami";
-    const metaDesc = document.querySelector('meta[name="description"]');
-    if (metaDesc) {
-      metaDesc.setAttribute(
-        'content',
-        "Request a scoped proposal from Buildwith_lami for custom software, business websites, e-commerce systems, ERP platforms, or technical consulting."
-      );
-    }
 
     const params = new URLSearchParams(location.search);
     const serviceParam = params.get('service')?.slice(0, 100) || '';

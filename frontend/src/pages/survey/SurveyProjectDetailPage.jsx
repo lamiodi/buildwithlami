@@ -1,3 +1,4 @@
+import { useProjectSeo } from '../../hooks/useProjectSeo';
 // ─── src/pages/survey/SurveyProjectDetailPage.jsx ───────
 // Public detail page for a Survey-division portfolio project.
 //
@@ -533,6 +534,7 @@ const SurveyProjectDetailPage = () => {
   const [related, setRelated] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  useProjectSeo(project, loading, error);
   const [lightboxIndex, setLightboxIndex] = useState(null);
 
   const shouldReduce = useReducedMotion();
@@ -580,16 +582,6 @@ const SurveyProjectDetailPage = () => {
         );
       }
       setLoading(false);
-
-      document.title = `${res.data?.title || 'Project'} | GeoSurvey`;
-      const metaDesc = document.querySelector('meta[name="description"]');
-      if (metaDesc) {
-        metaDesc.setAttribute(
-          'content',
-          res.data?.summary ||
-            `Survey case study — ${res.data?.title || 'project'} by GeoSurvey.`
-        );
-      }
     };
     load();
   }, [id]);

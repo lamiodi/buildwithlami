@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect } from 'react';
+import React, { useLayoutEffect } from 'react';
 import Hero from '../components/Hero';
 import Projects from '../components/Projects';
 import Services from '../components/Services';
@@ -10,13 +10,6 @@ import FAQ from '../components/FAQ';
 import Contact from '../components/Contact';
 
 const HomePage = () => {
-  useEffect(() => {
-    document.title = "Buildwith_lami — Software Studio for Web, Commerce & Custom Platforms";
-    const metaDesc = document.querySelector('meta[name="description"]');
-    if (metaDesc) {
-      metaDesc.setAttribute("content", "Buildwith_lami is the software studio of Eugene Odibenuah — designing, building, and shipping websites, e-commerce stores, business management systems, and custom software for founders and growing teams.");
-    }
-  }, []);
 
   // Scroll to hash anchor after components render (handles navigation from other pages to /#pricing, /#contact, etc.)
   useLayoutEffect(() => {

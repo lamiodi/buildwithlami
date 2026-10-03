@@ -7,14 +7,6 @@ import Pricing from '../components/Pricing';
 
 const PricingPage = () => {
     useEffect(() => {
-        document.title = "Pricing — Buildwith_lami";
-        const metaDescription = document.querySelector('meta[name="description"]');
-        if (metaDescription) {
-            metaDescription.setAttribute(
-                'content',
-                'Compare transparent starting prices for websites, e-commerce, custom software, ERP systems, AI automation, and ongoing Care from Buildwith_lami.'
-            );
-        }
         window.scrollTo(0, 0);
     }, []);
 

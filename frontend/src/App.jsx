@@ -2,6 +2,7 @@ import React, { useState, useEffect, Suspense } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import Navbar from './components/Navbar';
+import Seo from './components/Seo';
 import Footer from './components/Footer';
 import WhatsAppWidget from './components/WhatsAppWidget';
 import ErrorBoundary from './components/ErrorBoundary';
@@ -108,6 +109,7 @@ const PageWrapper = ({ children }) => {
 function App() {
   const [showPreloader, setShowPreloader] = useState(true);
   const location = useLocation();
+  const preloaderPreview = import.meta.env.DEV && new URLSearchParams(location.search).get('preview') === 'preloader';
   const prefersReducedMotion = useReducedMotion();
 
   // Initialize API client: fetch CSRF token on app start
@@ -156,10 +158,10 @@ function App() {
   // surface the app after 4s so the user is never permanently locked out.
   const [preloaderTimedOut, setPreloaderTimedOut] = useState(false);
   useEffect(() => {
-    if (!showPreloader) return;
+    if (!showPreloader || preloaderPreview) return;
     const t = setTimeout(() => setPreloaderTimedOut(true), 4000);
     return () => clearTimeout(t);
-  }, [showPreloader]);
+  }, [showPreloader, preloaderPreview]);
 
   // Site-wide click sounds have a visible mute — soundManager already
   // persists the preference, this just exposes the control.
@@ -209,6 +211,7 @@ function App() {
 
   return (
     <AuthProvider>
+      <Seo />
     <ClientAuthProvider>
     <div className="min-h-screen bg-gray-50 text-gray-900 dark:bg-background dark:text-white font-body selection:bg-accent selection:text-white transition-colors duration-500 relative">
       <a
@@ -218,7 +221,7 @@ function App() {
         Skip to content
       </a>
       {showPreloader && !preloaderTimedOut && isSoftwareRoute && (
-        <Preloader isDark={isDark} onComplete={() => setShowPreloader(false)} />
+        <Preloader preview={preloaderPreview} isDark={isDark} onComplete={() => setShowPreloader(false)} />
       )}
       <ErrorBoundary>
         {!hideGlobalLayout && <Navbar isDark={isDark} toggleTheme={toggleTheme} />}

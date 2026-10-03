@@ -21,7 +21,9 @@ Disallow: /track
 Disallow: /forgot-password
 Disallow: /reset-password
 
-# Crawl-delay polite to common bots (1s for any other crawler)
-Crawl-delay: 1
+# Public pages are available to search crawlers, including OAI-SearchBot.
+# Keep private application routes excluded for every crawler.
+Disallow: /unsubscribe
+Disallow: /seo/
 
 Sitemap: https://buildwithlami.com/sitemap.xml

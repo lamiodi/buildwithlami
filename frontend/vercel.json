@@ -1,21 +1,98 @@
 {
   "rewrites": [
-    { "source": "/favicon.ico", "destination": "/favicon.svg" },
+    {
+      "source": "/favicon.ico",
+      "destination": "/favicon.svg"
+    },
     {
       "source": "/api/:path*",
       "destination": "https://buildwithlami-jb12.onrender.com/api/:path*"
     },
-    { "source": "/(.*)", "destination": "/index.html" }
+    {
+      "source": "/software",
+      "destination": "/seo/software.html"
+    },
+    {
+      "source": "/services",
+      "destination": "/seo/services.html"
+    },
+    {
+      "source": "/projects",
+      "destination": "/seo/projects.html"
+    },
+    {
+      "source": "/pricing",
+      "destination": "/seo/pricing.html"
+    },
+    {
+      "source": "/about",
+      "destination": "/seo/about.html"
+    },
+    {
+      "source": "/contact",
+      "destination": "/seo/contact.html"
+    },
+    {
+      "source": "/survey",
+      "destination": "/seo/survey.html"
+    },
+    {
+      "source": "/drone",
+      "destination": "/seo/drone.html"
+    },
+    {
+      "source": "/projects/vonnex2x-enterprise-erp",
+      "destination": "/seo/projects/vonnex2x-enterprise-erp.html"
+    },
+    {
+      "source": "/projects/tiabrand-ecommerce",
+      "destination": "/seo/projects/tiabrand-ecommerce.html"
+    },
+    {
+      "source": "/projects/wodibenuah-fair",
+      "destination": "/seo/projects/wodibenuah-fair.html"
+    },
+    {
+      "source": "/projects/sourceline-limited",
+      "destination": "/seo/projects/sourceline-limited.html"
+    },
+    {
+      "source": "/projects/eduflow-academic-erp",
+      "destination": "/seo/projects/eduflow-academic-erp.html"
+    },
+    {
+      "source": "/projects/medios-hospital-os",
+      "destination": "/seo/projects/medios-hospital-os.html"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
   ],
   "headers": [
     {
       "source": "/(.*)",
       "headers": [
-        { "key": "Strict-Transport-Security", "value": "max-age=63072000; includeSubDomains; preload" },
-        { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "X-Frame-Options", "value": "DENY" },
-        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
-        { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=()" },
+        {
+          "key": "Strict-Transport-Security",
+          "value": "max-age=63072000; includeSubDomains; preload"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(), microphone=(), geolocation=()"
+        },
         {
           "key": "Content-Security-Policy",
           "value": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https://res.cloudinary.com https://images.unsplash.com https://cdn.simpleicons.org https://cdn.jsdelivr.net; connect-src 'self' https://buildwithlami-jb12.onrender.com https://buildwithlami.com https://*.vercel.app; frame-src 'self';"
@@ -25,32 +102,59 @@
     {
       "source": "/",
       "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate, stale-while-revalidate=60" }
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate, stale-while-revalidate=60"
+        }
       ]
     },
     {
       "source": "/index.html",
       "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate, stale-while-revalidate=60" }
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate, stale-while-revalidate=60"
+        }
       ]
     },
     {
       "source": "/favicon.svg",
       "headers": [
-        { "key": "Content-Type", "value": "image/svg+xml" },
-        { "key": "Cache-Control", "value": "public, max-age=86400" }
+        {
+          "key": "Content-Type",
+          "value": "image/svg+xml"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=86400"
+        }
       ]
     },
     {
       "source": "/assets/(.*)",
       "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
       ]
     },
     {
       "source": "/(.*)\\.(js|css|png|jpg|jpeg|gif|svg|webp|ico|woff|woff2|ttf|otf|pdf)",
       "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/(admin|portal|login|forgot-password|reset-password|track|form|pay|sign|contracts/sign|unsubscribe)(.*)",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
       ]
     }
   ]

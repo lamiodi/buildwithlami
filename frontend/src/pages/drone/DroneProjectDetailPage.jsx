@@ -1,3 +1,4 @@
+import { useProjectSeo } from '../../hooks/useProjectSeo';
 // ─── src/pages/drone/DroneProjectDetailPage.jsx ─────────
 // Public detail page for a Drone-division portfolio project.
 //
@@ -412,6 +413,7 @@ const DroneProjectDetailPage = () => {
   const [related, setRelated] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  useProjectSeo(project, loading, error);
   const [lightboxIndex, setLightboxIndex] = useState(null);
 
   const shouldReduce = useReducedMotion();
@@ -444,16 +446,6 @@ const DroneProjectDetailPage = () => {
         );
       }
       setLoading(false);
-
-      document.title = `${res.data?.title || 'Mission'} | Buildwith_lami Drone`;
-      const metaDesc = document.querySelector('meta[name="description"]');
-      if (metaDesc) {
-        metaDesc.setAttribute(
-          'content',
-          res.data?.summary ||
-            `Drone case study — ${res.data?.title || 'mission'} by Buildwith_lami.`
-        );
-      }
     };
     load();
   }, [id]);

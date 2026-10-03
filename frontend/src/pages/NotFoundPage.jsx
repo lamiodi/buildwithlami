@@ -9,10 +9,6 @@ const NotFoundPage = () => {
   const item = shouldReduce ? reducedMotionVariants : fadeUpItem;
   const navigate = useNavigate();
 
-  useEffect(() => {
-    document.title = "404 — Page Not Found | Buildwith_lami";
-  }, []);
-
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-background text-black dark:text-white pt-32 pb-24 px-6 md:px-12 font-body selection:bg-accent selection:text-white transition-colors duration-300">
       <div className="max-w-6xl mx-auto">

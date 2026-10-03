@@ -277,25 +277,7 @@ const AboutPage = () => {
   // SEO + scroll-to-top
   useEffect(() => {
     window.scrollTo(0, 0);
-    document.title = 'About Eugene Odibenuah | Buildwith_lami — Full-Stack Software Engineer';
 
-    const setMeta = (selector, attr, value) => {
-      const el = document.querySelector(selector);
-      if (el) el.setAttribute(attr, value);
-    };
-
-    setMeta(
-      'meta[name="description"]',
-      'content',
-      'About Buildwith_lami — founded by Eugene Odibenuah, a full-stack software engineer based in Lagos, Nigeria. Custom web platforms, SaaS applications, and enterprise systems built for real-world reliability.'
-    );
-    setMeta('meta[property="og:title"]', 'content', 'About Eugene Odibenuah | Buildwith_lami');
-    setMeta(
-      'meta[property="og:description"]',
-      'content',
-      'Full-stack software engineer & founder of Buildwith_lami. Designing and engineering high-performance web platforms and scalable business systems.'
-    );
-    setMeta('meta[property="og:type"]', 'content', 'profile');
   }, []);
 
   return (
@@ -319,10 +301,10 @@ const AboutPage = () => {
             <StarIcon className="w-5 h-5 sm:w-6 sm:h-6 text-gray-400 dark:text-white/50" />
           </div>
           <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-heading font-bold tracking-tight uppercase leading-none">
-            About Me
+            Eugene Odibenuah
           </h1>
           <p className="mt-5 text-base sm:text-lg md:text-xl text-gray-700 dark:text-gray-300 font-light leading-relaxed">
-            Full-stack software engineer & technology consultant. Designing and engineering software that transforms business operations.
+            Founder of BuildWithLami and full-stack software engineer based in Lagos, Nigeria. I build websites, online stores and custom business software for clients in Nigeria and worldwide.
           </p>
         </motion.header>
 
