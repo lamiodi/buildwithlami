@@ -187,3 +187,12 @@ export async function disableTwoFactor(userId) {
         [userId]
     );
 }
+
+/**
+ * Validate a 2FA credential (used e.g. for step-up auth on high-value payments).
+ * Retained for compatibility with paymentConfirmation.js.
+ */
+export async function consumeTwoFactorCredential(userId, token) {
+    const ok = await verifyOtp(userId, token);
+    return { ok, kind: 'email_otp' };
+}
