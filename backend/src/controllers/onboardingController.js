@@ -480,35 +480,51 @@ export async function saveMyOnboarding(req, res) {
             return res.status(400).json({ error: 'Section data too large.' });
         }
 
-        const current = await pool.query(
-            `SELECT * FROM client_onboardings
-              WHERE client_id = $1
-                AND status IN ('NOT_STARTED','IN_PROGRESS','NEEDS_CHANGES')
-              ORDER BY updated_at DESC
-              LIMIT 1
-              FOR UPDATE`,
-            [req.clientUser.id]
-        );
-        if (current.rows.length === 0) {
-            return res.status(404).json({ error: 'No active onboarding found.' });
+        // Read-merge-write runs in a real transaction: the FOR UPDATE row
+        // lock only lives inside one, and the portal autosaves sections
+        // concurrently — without the transaction two saves can merge
+        // against the same snapshot and one section's answers are lost.
+        const client = await pool.connect();
+        try {
+            await client.query('BEGIN');
+
+            const current = await client.query(
+                `SELECT * FROM client_onboardings
+                  WHERE client_id = $1
+                    AND status IN ('NOT_STARTED','IN_PROGRESS','NEEDS_CHANGES')
+                  ORDER BY updated_at DESC
+                  LIMIT 1
+                  FOR UPDATE`,
+                [req.clientUser.id]
+            );
+            if (current.rows.length === 0) {
+                await client.query('ROLLBACK');
+                return res.status(404).json({ error: 'No active onboarding found.' });
+            }
+            const onboarding = current.rows[0];
+
+            const merged = { ...(onboarding.responses || {}), [section]: data };
+            const percent = computeCompletion(merged, onboarding.project_type);
+
+            const { rows } = await client.query(
+                `UPDATE client_onboardings
+                    SET responses = $1::jsonb,
+                        completion_percent = $2,
+                        status = 'IN_PROGRESS',
+                        updated_at = NOW()
+                  WHERE id = $3
+                  RETURNING *`,
+                [JSON.stringify(merged), percent, onboarding.id]
+            );
+
+            await client.query('COMMIT');
+            return res.json(rows[0]);
+        } catch (e) {
+            await client.query('ROLLBACK');
+            throw e;
+        } finally {
+            client.release();
         }
-        const onboarding = current.rows[0];
-
-        const merged = { ...(onboarding.responses || {}), [section]: data };
-        const percent = computeCompletion(merged, onboarding.project_type);
-
-        const { rows } = await pool.query(
-            `UPDATE client_onboardings
-                SET responses = $1::jsonb,
-                    completion_percent = $2,
-                    status = 'IN_PROGRESS',
-                    updated_at = NOW()
-              WHERE id = $3
-              RETURNING *`,
-            [JSON.stringify(merged), percent, onboarding.id]
-        );
-
-        return res.json(rows[0]);
     } catch (err) {
         console.error('[Onboarding] saveMyOnboarding error:', err.message);
         return res.status(500).json({ error: 'Internal server error.' });

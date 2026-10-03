@@ -44,6 +44,22 @@ export async function submitContactForm(req, res) {
 
         const data = createMessageSchema.parse(req.body);
 
+        // Duplicate guard: the UI blocks double-clicks, but retries,
+        // flaky networks and impatient refreshes can still post the same
+        // enquiry twice. Identical email + message within 10 minutes is
+        // treated as one enquiry.
+        const { rows: dupe } = await pool.query(
+            `SELECT id FROM messages
+              WHERE email = $1
+                AND message = $2
+                AND created_at > NOW() - INTERVAL '10 minutes'
+              LIMIT 1`,
+            [data.email.toLowerCase().trim(), data.message]
+        );
+        if (dupe.length > 0) {
+            return res.status(201).json({ success: true, message: 'Message sent successfully.', duplicate: true });
+        }
+
         // Sanitize the inputs before saving/sending
         const cleanName = DOMPurify.sanitize(data.full_name);
         const cleanMessage = DOMPurify.sanitize(data.message);

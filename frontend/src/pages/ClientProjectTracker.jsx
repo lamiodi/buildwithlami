@@ -173,8 +173,31 @@ const ClientProjectTracker = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center pt-20 text-red-500 font-bold">
-        {error}
+      <div className="min-h-screen bg-gray-50 dark:bg-background pt-24 pb-12 px-6 flex items-center justify-center">
+        <div className="max-w-md w-full bg-white dark:bg-gray-800 p-8 rounded-3xl shadow-xl text-center border border-gray-100 dark:border-gray-700">
+          <div className="text-4xl mb-4">🔗</div>
+          <h1 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+            We couldn't open this project tracker
+          </h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
+            {error}. The link may be incomplete — please double-check the link
+            from your email, or get in touch and we'll resend it.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <a
+              href="/contact"
+              className="px-4 py-2 rounded-xl bg-accent text-white text-sm font-bold hover:bg-orange-600 transition-colors"
+            >
+              Contact us
+            </a>
+            <a
+              href="/"
+              className="px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-700 text-sm font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            >
+              Back to homepage
+            </a>
+          </div>
+        </div>
       </div>
     );
   }

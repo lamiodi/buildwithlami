@@ -315,6 +315,8 @@ export async function onQuotationAccepted({ quotationId, user = null, ipAddress 
         summary.ok = true;
 
         // ── 6. Payment instruction email (fire-and-forget) ──
+        // Deliberately not awaited and not written into `summary` — the
+        // summary is returned before the send settles; failures are logged.
         if (clientEmail) {
             sendInvoiceEmail({
                 clientEmail,
@@ -325,8 +327,9 @@ export async function onQuotationAccepted({ quotationId, user = null, ipAddress 
                 payToken: invoice.pay_token,
                 dueDate: invoice.due_date,
                 projectName: onboardingProject.project?.project_name || null,
-            }).then((r) => { summary.emailStatus = r?.success ? 'sent' : 'failed'; })
-              .catch(() => { summary.emailStatus = 'failed'; });
+            }).then((r) => {
+                if (!r?.success && !r?.mocked) console.error('[Automation] invoice email failed:', r?.error || 'unknown');
+            }).catch((err) => console.error('[Automation] invoice email failed:', err.message));
         }
 
         // ── 7. Audit + admin notification ──
@@ -457,13 +460,17 @@ export async function onInvoicePaid({ invoiceId, via = 'UNKNOWN', user = null, i
         }
 
         // ── 4. Point the project at its next step ──
+        // Only on first run: this chain re-executes on every deposit-payment
+        // replay, and blindly resetting would keep pushing the due date out.
         if (invoice.project_id) {
             await pool.query(
                 `UPDATE client_projects
                     SET next_action = 'Review onboarding responses',
                         next_action_due_at = NOW() + INTERVAL '7 days',
                         updated_at = NOW()
-                  WHERE id = $1 AND status NOT IN ('ARCHIVED')`,
+                  WHERE id = $1
+                    AND status NOT IN ('ARCHIVED')
+                    AND next_action IS NULL`,
                 [invoice.project_id]
             );
         }

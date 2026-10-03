@@ -114,7 +114,7 @@ export const computeContractHash = ({
     signatureData,
     signedAt,
 }) => {
-    const raw = `${contractId}|${title}|${termsContent}|${amount}|${currency}|${signerName}|${signerEmail}|${signatureData?.slice(0, 50)}|${signedAt}`;
+    const raw = `${contractId}|${title}|${termsContent}|${amount}|${currency}|${signerName}|${signerEmail}|${signatureData}|${signedAt}`;
     return crypto.createHash('sha256').update(raw).digest('hex');
 };
 

@@ -26,13 +26,18 @@ const createBookingSchema = z.object({
     // P2-7: preferred_date must be a parseable date string. Without
     // this guard a typo like "next tuesday" would reach the DB and
     // throw a Postgres DATE parse error, returning a generic 500
-    // instead of a friendly 400.
+    // instead of a friendly 400. Must also not be in the past — the
+    // UI enforces this but the API is public.
     preferred_date: z.string()
         .optional()
         .nullable()
         .refine(
             (val) => !val || !Number.isNaN(Date.parse(val)),
             { message: 'preferred_date must be a valid date (YYYY-MM-DD or ISO 8601).' }
+        )
+        .refine(
+            (val) => !val || Date.parse(val) >= Date.now() - 24 * 60 * 60 * 1000,
+            { message: 'preferred_date cannot be in the past.' }
         ),
     notes: z.string().optional().nullable(),
 });

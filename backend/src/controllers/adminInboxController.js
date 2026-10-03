@@ -113,6 +113,25 @@ export async function getInbox(req, res) {
                     s.submitted_at   AS created_at
                 FROM intake_submissions s
                 JOIN client_projects cp ON cp.id = s.project_id
+
+                UNION ALL
+
+                -- Portal messages (real client → agency support thread)
+                SELECT
+                    'portal'::text   AS kind,
+                    cm.id            AS id,
+                    cl.name          AS author_name,
+                    cl.primary_contact_email AS author_email,
+                    cm.body          AS body,
+                    cm.subject       AS subject,
+                    cm.project_id    AS project_id,
+                    cp.project_name  AS project_name,
+                    cp.division      AS division,
+                    CASE WHEN cm.admin_reply IS NOT NULL THEN 'Resolved' ELSE 'New' END AS status,
+                    cm.created_at    AS created_at
+                FROM client_messages cm
+                JOIN clients cl ON cl.id = cm.client_id
+                LEFT JOIN client_projects cp ON cp.id = cm.project_id
             ) AS feed
             ${whereClause}
             ORDER BY created_at DESC
@@ -183,13 +202,54 @@ const replySchema = z.object({
 export async function replyToInboxItem(req, res) {
     const { kind, id } = req.params;
     if (!isUuid(id)) return res.status(400).json({ error: 'Invalid ID format.' });
-    if (kind !== 'feedback') {
-        return res.status(400).json({ error: 'Reply is only supported for feedback items.' });
+    if (kind !== 'feedback' && kind !== 'portal') {
+        return res.status(400).json({ error: 'Reply is only supported for feedback and portal messages.' });
     }
 
     try {
         const data = replySchema.parse(req.body);
         const cleanReply = DOMPurify.sanitize(data.reply);
+
+        if (kind === 'portal') {
+            // 1. Store the reply on the message row (shows in the client's portal).
+            const { rows: msgRows } = await pool.query(
+                `UPDATE client_messages
+                    SET admin_reply = $1,
+                        replied_at = NOW(),
+                        replied_by = $2,
+                        is_read = TRUE,
+                        updated_at = NOW()
+                  WHERE id = $3
+                RETURNING id, subject, body, admin_reply, replied_at,
+                    (SELECT primary_contact_email FROM clients WHERE id = client_id) AS client_email,
+                    (SELECT name FROM clients WHERE id = client_id) AS client_name`,
+                [cleanReply, req.user?.id || null, id]
+            );
+            if (msgRows.length === 0) return res.status(404).json({ error: 'Message not found.' });
+            const msg = msgRows[0];
+
+            // 2. Email the client (fire-and-forget).
+            if (msg.client_email) {
+                sendReplyEmail({
+                    to: msg.client_email,
+                    toName: msg.client_name || 'Client',
+                    projectName: msg.subject,
+                    clientComment: msg.body,
+                    adminReply: cleanReply,
+                }).catch((err) => console.error('[Inbox] portal reply email error:', err.message));
+            }
+
+            await writeAuditLog({
+                action: 'INBOX_REPLY',
+                entityType: 'client_messages',
+                entityId: id,
+                details: { subject: msg.subject },
+                user: req.user,
+                ipAddress: getClientIp(req),
+            });
+
+            return res.json({ success: true, message: msg });
+        }
 
         // 1. Update the source row.
         const newStatus = data.status || 'RESOLVED';

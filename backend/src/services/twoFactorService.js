@@ -72,8 +72,10 @@ export function verifyCode(secret, code) {
     if (!/^\d{6}$/.test(code.trim())) return false;
     try {
         const res = verifySync({ token: code.trim(), secret, window: 1, step: 30 });
+        console.error('[DEBUG 2FA] verifyCode secret.len=', secret.length, 'code=', code.trim(), 'res=', JSON.stringify(res));
         return !!res.valid;
-    } catch {
+    } catch (e) {
+        console.error('[DEBUG 2FA] verifyCode threw:', e.message, 'secret.len=', secret.length);
         return false;
     }
 }

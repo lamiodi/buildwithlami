@@ -177,13 +177,13 @@ router.get('/search', searchLimiter, search);
 
 // ── Bulk actions ─────────────────────────────────────────
 // POST /api/admin/bulk/invoices
-// body: { ids: [uuid, …], action: 'markPaid' | 'refund' | 'export' }
+// body: { ids: [uuid, …], action: 'markPaid' | 'export' }   (no refund — PAID is terminal)
 // POST /api/admin/bulk/clients
 // body: { ids: [uuid, …], action: 'archive' | 'reassign' | 'export', assignTo?: uuid }
 
 const bulkInvoiceSchema = z.object({
     ids: z.array(z.string().uuid()).min(1).max(200),
-    action: z.enum(['markPaid', 'refund', 'export']),
+    action: z.enum(['markPaid', 'export']),
 });
 
 router.post('/invoices', async (req, res) => {
@@ -211,16 +211,13 @@ router.post('/invoices', async (req, res) => {
             return res.json({ success: true, rows });
         }
 
-        const setClause = data.action === 'markPaid'
-            ? `status = 'PAID', paid_at = NOW()`
-            : `status = 'REFUNDED', paid_at = NULL`;
         const { rowCount } = await pool.query(
-            `UPDATE invoices SET ${setClause}
+            `UPDATE invoices SET status = 'PAID', paid_at = NOW()
               WHERE id = ANY($1::uuid[])`,
             [data.ids]
         );
         await writeAuditLog({
-            action: data.action === 'markPaid' ? 'BULK_INVOICE_MARKED_PAID' : 'BULK_INVOICE_REFUNDED',
+            action: 'BULK_INVOICE_MARKED_PAID',
             entityType: 'invoices',
             details: { count: rowCount, ids: data.ids },
             user: req.user,

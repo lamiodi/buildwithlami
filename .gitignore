@@ -43,3 +43,6 @@ skills/
 .skills/
 skills-lock.json
 
+
+# Local audit/test temp files
+.tmp/

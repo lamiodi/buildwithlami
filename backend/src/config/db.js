@@ -16,6 +16,15 @@ const { Pool } = pg;
 //   still work correctly.
 const isPooler = process.env.DATABASE_URL?.includes('pooler.supabase.com');
 
+// Local development against a plain (non-SSL) Postgres — e.g. a
+// native install on localhost — cannot complete the TLS handshake
+// the unconditional `ssl` option below demands. Allow opting out
+// explicitly (PGSSL=disable) or implicitly for localhost URLs.
+// Production Supabase URLs are unaffected.
+const sslDisabled =
+    process.env.PGSSL === 'disable' ||
+    /^postgres(ql)?:\/\/[^@]*@?(localhost|127\.0\.0\.1|::1)[:/]/.test(process.env.DATABASE_URL || '');
+
 // Pool sizing — overridable per environment.
 // Default: max=10, min=0, idleTimeoutMillis=30s. These are the
 // values recommended for Supabase/Neon shared poolers where
@@ -26,7 +35,7 @@ const isPooler = process.env.DATABASE_URL?.includes('pooler.supabase.com');
 // pooler to release sockets faster between traffic bursts.
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
-    ssl: isPooler ? { rejectUnauthorized: false } : { rejectUnauthorized: true },
+    ssl: sslDisabled ? false : isPooler ? { rejectUnauthorized: false } : { rejectUnauthorized: true },
     connectionTimeoutMillis: Number(process.env.PG_CONNECTION_TIMEOUT_MS) || 10_000,
     idleTimeoutMillis:    Number(process.env.PG_IDLE_TIMEOUT_MS)        || 30_000,
     max:                   Number(process.env.PG_POOL_MAX)              || 10,

@@ -58,6 +58,7 @@ const AdminOutreach = lazyWithRetry(() => import('./pages/admin/AdminOutreach'))
 const AdminAftercare = lazyWithRetry(() => import('./pages/admin/AdminAftercare'));
 const ReferralLanding = lazyWithRetry(() => import('./pages/ReferralLanding'));
 const PaymentPage = lazyWithRetry(() => import('./pages/PaymentPage'));
+const PaymentSuccessPage = lazyWithRetry(() => import('./pages/PaymentSuccessPage'));
 
 const AdminSurveyBookings = lazyWithRetry(() => import('./pages/admin/survey/AdminSurveyBookings'));
 const AdminSurveyProjects = lazyWithRetry(() => import('./pages/admin/survey/AdminSurveyProjects'));
@@ -284,6 +285,8 @@ function App() {
 
                 {/* Client Public Routes */}
                 <Route path="/ref/:code" element={<PageWrapper><ReferralLanding /></PageWrapper>} />
+                {/* Paystack hosted-checkout callback — MUST be matched before /track/:trackingId */}
+                <Route path="/track/payment-success" element={<PageWrapper><PaymentSuccessPage /></PageWrapper>} />
                 <Route path="/track/:trackingId" element={<ClientProjectTracker />} />
                 <Route path="/form/:formId" element={<ClientIntakeForm />} />
                 <Route path="/pay/:token" element={<PaymentPage />} />

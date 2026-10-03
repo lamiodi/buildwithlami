@@ -178,7 +178,14 @@ async function parse(res) {
         }
     }
     if (res.ok) return { ok: true, status: res.status, data };
-    let message = (data && (data.error?.message || data.message)) || res.statusText || 'Request failed';
+    // Backend error bodies are usually `{ error: "a message string" }`
+    // (Express convention) or `{ error: { message } }` / `{ message }`.
+    // HTTP/2 responses carry no statusText, so without the string case
+    // every failure surfaced as the generic "Request failed".
+    let message =
+        (data && (data.error?.message || (typeof data.error === 'string' && data.error) || data.message)) ||
+        res.statusText ||
+        'Request failed';
     // 413 — Payload Too Large. Express' built-in body parser emits a
     // generic "request entity too large" message. Replace it with an
     // explicit, human-readable string the UI can show verbatim.

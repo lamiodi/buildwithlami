@@ -1,6 +1,7 @@
 import pool from '../config/db.js';
 import bcrypt from 'bcrypt';
 import { z } from 'zod';
+import { sendNotificationEmail } from '../services/emailService.js';
 
 export async function getDashboard(req, res) {
     const clientId = req.clientUser.id;
@@ -174,13 +175,14 @@ export async function getDocuments(req, res) {
 const updateProfileSchema = z.object({
     phone: z.string().optional(),
     name: z.string().optional(),
-    password: z.string().min(6).optional()
+    password: z.string().min(6).optional(),
+    currentPassword: z.string().optional()
 });
 
 export async function updateProfile(req, res) {
     const clientId = req.clientUser.id;
     try {
-        const { phone, name, password } = updateProfileSchema.parse(req.body);
+        const { phone, name, password, currentPassword } = updateProfileSchema.parse(req.body);
 
         let queryParams = [clientId];
         let setClauses = [];
@@ -195,6 +197,22 @@ export async function updateProfile(req, res) {
             queryParams.push(name);
         }
         if (password) {
+            // A stolen portal session must not be able to silently take
+            // over the account: password changes require the current one.
+            const { rows: cur } = await pool.query(
+                `SELECT password_hash FROM clients WHERE id = $1`,
+                [clientId]
+            );
+            if (!cur[0]?.password_hash) {
+                return res.status(400).json({ error: 'No portal password is set yet — use the set-password flow from your tracking link first.' });
+            }
+            if (!currentPassword) {
+                return res.status(400).json({ error: 'Enter your current password to change it.' });
+            }
+            const ok = await bcrypt.compare(currentPassword, cur[0].password_hash);
+            if (!ok) {
+                return res.status(401).json({ error: 'Current password is incorrect.' });
+            }
             const hash = await bcrypt.hash(password, 12);
             setClauses.push(`password_hash = $${paramIndex++}`);
             queryParams.push(hash);
@@ -220,11 +238,19 @@ export async function updateProfile(req, res) {
 export async function getClientContracts(req, res) {
     const clientId = req.clientUser.id;
     try {
+        // Explicit column list — never c.*: the row carries the audit
+        // trail, signer IP and integrity hash the portal has no use for.
+        // signing_token IS included: it is the bearer credential the
+        // "Review & Sign" link and the token-gated PDF download need.
         const { rows } = await pool.query(
-            `SELECT c.*, p.project_name 
+            `SELECT c.id, c.project_id, c.title, c.contract_type, c.status,
+                    c.amount, c.currency, c.deposit_amount, c.duration,
+                    c.signatory_email, c.signer_name, c.signing_token,
+                    c.sent_at, c.signed_at, c.expires_at, c.created_at,
+                    p.project_name
              FROM contracts c
              LEFT JOIN client_projects p ON c.project_id = p.id
-             WHERE c.client_id = $1 
+             WHERE c.client_id = $1
              ORDER BY c.created_at DESC`,
             [clientId]
         );
@@ -239,8 +265,8 @@ export async function getClientQuotations(req, res) {
     const clientId = req.clientUser.id;
     try {
         const { rows } = await pool.query(
-            `SELECT id, title, amount, status, line_items, notes, valid_until, created_at 
-             FROM quotations 
+            `SELECT id, title, amount, status, line_items, notes, valid_until, created_at
+             FROM quotations
              WHERE client_id = $1 AND status != 'DRAFT'
              ORDER BY created_at DESC`,
             [clientId]
@@ -248,6 +274,84 @@ export async function getClientQuotations(req, res) {
         res.json(rows);
     } catch (err) {
         console.error('[ClientPortal] getClientQuotations error:', err);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+}
+
+// ── Portal messaging (real, replaces the old simulated page) ──
+const messageSchema = z.object({
+    subject: z.string().min(1).max(200),
+    body: z.string().min(1).max(5000),
+    projectId: z.string().uuid().optional().nullable()
+});
+
+export async function getMyMessages(req, res) {
+    const clientId = req.clientUser.id;
+    try {
+        const { rows } = await pool.query(
+            `SELECT m.id, m.subject, m.body, m.admin_reply, m.replied_at, m.created_at,
+                    m.project_id, p.project_name
+             FROM client_messages m
+             LEFT JOIN client_projects p ON p.id = m.project_id
+             WHERE m.client_id = $1
+             ORDER BY m.created_at DESC
+             LIMIT 100`,
+            [clientId]
+        );
+        res.json(rows);
+    } catch (err) {
+        console.error('[ClientPortal] getMyMessages error:', err);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+}
+
+export async function sendMessage(req, res) {
+    const clientId = req.clientUser.id;
+    try {
+        const { subject, body, projectId } = messageSchema.parse(req.body);
+
+        // Project link must belong to this client.
+        if (projectId) {
+            const { rows: own } = await pool.query(
+                `SELECT id FROM client_projects WHERE id = $1 AND client_id = $2`,
+                [projectId, clientId]
+            );
+            if (own.length === 0) return res.status(400).json({ error: 'Project not found.' });
+        }
+
+        const { rows } = await pool.query(
+            `INSERT INTO client_messages (client_id, project_id, subject, body)
+             VALUES ($1, $2, $3, $4)
+             RETURNING id, subject, body, admin_reply, replied_at, created_at, project_id`,
+            [clientId, projectId || null, subject.trim(), body.trim()]
+        );
+        const message = rows[0];
+
+        // Owner name/email for the alert — fire-and-forget, never blocks.
+        const { rows: ownerRows } = await pool.query(
+            `SELECT id, email FROM users ORDER BY created_at ASC LIMIT 1`
+        ).catch(() => ({ rows: [] }));
+        const owner = ownerRows[0];
+
+        if (owner) {
+            await pool.query(
+                `INSERT INTO notifications (user_id, type, title, body, link)
+                 VALUES ($1, 'PORTAL_MESSAGE', $2, $3, '/admin/inbox')`,
+                [owner.id, `Portal message: ${message.subject}`, `${req.clientUser.name || req.clientUser.email}: ${message.body.slice(0, 140)}`]
+            ).catch(err => console.error('[ClientPortal] notify insert failed:', err.message));
+
+            sendNotificationEmail({
+                name: req.clientUser.name || 'Portal client',
+                email: req.clientUser.email,
+                subject: `Portal message: ${message.subject}`,
+                message: message.body,
+            }).catch(err => console.error('[ClientPortal] message alert email failed:', err.message));
+        }
+
+        res.status(201).json(message);
+    } catch (err) {
+        if (err instanceof z.ZodError) return res.status(400).json({ error: err.errors });
+        console.error('[ClientPortal] sendMessage error:', err);
         res.status(500).json({ error: 'Internal server error' });
     }
 }

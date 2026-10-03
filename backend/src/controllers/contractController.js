@@ -4,6 +4,8 @@
 // ──────────────────────────────────────────────────────────
 
 import { z } from 'zod';
+import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
 import pool from '../config/db.js';
 import {
     CONTRACT_TEMPLATES,
@@ -13,6 +15,39 @@ import {
     sendContractSignedNotification,
 } from '../services/contractService.js';
 import { writeAuditLog, getClientIp } from '../utils/auditLog.js';
+import { canonicalRole } from '../config/roles.js';
+
+const UUID_REGEX_PDF = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+// Timing-safe compare that does not crash on length mismatch.
+function safeEqualStr(a, b) {
+    if (typeof a !== 'string' || typeof b !== 'string' || !a.length || !b.length) return false;
+    const bufA = Buffer.from(a.padEnd(Math.max(a.length, b.length)).slice(0, Math.max(a.length, b.length)));
+    const bufB = Buffer.from(b.padEnd(bufA.length).slice(0, bufA.length));
+    return crypto.timingSafeEqual(bufA, bufB) && a.length === b.length;
+}
+
+// The executed-contract document is sensitive (terms, amounts, signer
+// identity, signature image). Two legitimate consumers:
+//   1. the Owner (admin surface, Bearer/cookie JWT), and
+//   2. the signer, by presenting the contract's own signing token
+//      (?token=… — the same 256-bit token the /sign/:token page uses).
+// Everyone else — including anyone who merely knows the contract UUID —
+// is denied.
+function authorizeContractDocument(req, contract) {
+    const header = req.headers.authorization || '';
+    if (header.startsWith('Bearer ')) {
+        try {
+            const payload = jwt.verify(header.slice(7), process.env.JWT_SECRET);
+            if (canonicalRole(payload.role) === 'Owner') return true;
+        } catch {
+            // fall through to token check
+        }
+    }
+    const provided = typeof req.query.token === 'string' ? req.query.token : '';
+    if (provided && safeEqualStr(provided, contract.signing_token)) return true;
+    return false;
+}
 
 // ── 1. Create Contract (Admin) ─────────────────────────────
 export async function createContract(req, res) {
@@ -291,6 +326,16 @@ export async function signContract(req, res) {
             return res.status(400).json({ error: 'This signing link has expired. Please request a new agreement.' });
         }
 
+        // The signing token proves possession of the link; the email binds
+        // the signature to the intended signatory. Without this check the
+        // document could be executed under any identity.
+        if (contract.signatory_email &&
+            data.signerEmail.trim().toLowerCase() !== String(contract.signatory_email).trim().toLowerCase()) {
+            return res.status(403).json({
+                error: 'This email does not match the signatory the agreement was sent to. Use the email address the contract was sent to.',
+            });
+        }
+
         const clientIp = getClientIp(req);
         const userAgent = (req.headers['user-agent'] || 'Unknown').slice(0, 200);
         const signedAt = new Date().toISOString();
@@ -396,6 +441,9 @@ export async function signContract(req, res) {
 export async function downloadContractPDF(req, res) {
     try {
         const { id } = req.params;
+        if (!UUID_REGEX_PDF.test(id)) {
+            return res.status(400).json({ error: 'Invalid ID format.' });
+        }
         const { rows } = await pool.query(
             `SELECT c.*, cl.name AS client_name, p.project_name
              FROM contracts c
@@ -410,6 +458,9 @@ export async function downloadContractPDF(req, res) {
         }
 
         const c = rows[0];
+        if (!authorizeContractDocument(req, c)) {
+            return res.status(401).json({ error: 'Unauthorized. Sign in as the owner or present the signing token.' });
+        }
         const formattedAmount = c.amount > 0
             ? new Intl.NumberFormat('en-NG', { style: 'currency', currency: c.currency || 'NGN' }).format(Number(c.amount))
             : 'As agreed per milestone';

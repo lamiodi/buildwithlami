@@ -49,14 +49,14 @@ export const createInvoice = async (req, res) => {
             return res.status(400).json({ error: 'Invalid ID format.' });
         }
 
-        // Fetch client email for Paystack
-        const clientResult = await pool.query('SELECT primary_contact_email FROM clients WHERE id = $1', [clientId]);
+        // Fetch client email (and display name for the invoice email)
+        const clientResult = await pool.query('SELECT primary_contact_email, name FROM clients WHERE id = $1', [clientId]);
         if (clientResult.rows.length === 0) return res.status(404).json({ error: 'Client not found' });
         const email = clientResult.rows[0].primary_contact_email;
 
         // Verify the project exists and is linked to this client before inserting.
         const projectResult = await pool.query(
-            'SELECT id, client_id, amount_due, payment_status FROM client_projects WHERE id = $1',
+            'SELECT id, client_id, amount_due, payment_status, project_name FROM client_projects WHERE id = $1',
             [projectId]
         );
         if (projectResult.rows.length === 0) {
@@ -195,7 +195,7 @@ export const getAllInvoices = async (req, res) => {
         const where = conditions.length > 0 ? ' WHERE ' + conditions.join(' AND ') : '';
         
         const { rows } = await pool.query(`
-            SELECT i.id, i.project_id, i.client_id, i.amount, i.currency, i.status,
+            SELECT i.id, i.project_id, i.client_id, i.quotation_id, i.amount, i.currency, i.status,
                    i.due_date, i.payment_url, i.paystack_reference, i.paid_at,
                    i.division, i.created_at, i.tax_rate, i.discount_amount, i.deposit_required, i.notes, i.line_items,
                    c.name AS client_name,
@@ -215,15 +215,31 @@ export const getAllInvoices = async (req, res) => {
     }
 };
 
-// Admin/Client: Get invoices for a project
+// Admin/Client: Get invoices for a project.
+// Clients carry a trackingId-bound JWT: they may only ever read the
+// invoices of the project their token was minted for — never another
+// client's project, even if they learn its UUID.
 export const getInvoicesByProject = async (req, res) => {
     const { projectId } = req.params;
     if (!isUuid(projectId)) return res.status(400).json({ error: 'Invalid ID format.' });
     try {
-        const { rows } = await pool.query(
-            `SELECT * FROM invoices WHERE project_id = $1 ORDER BY created_at DESC`,
-            [projectId]
-        );
+        let rows;
+        if (req.user?.role === 'Client') {
+            const { trackingId } = req.user;
+            if (!trackingId) return res.status(403).json({ error: 'Forbidden' });
+            ({ rows } = await pool.query(
+                `SELECT i.* FROM invoices i
+                 JOIN client_projects cp ON cp.id = i.project_id
+                 WHERE i.project_id = $1 AND cp.tracking_id = $2
+                 ORDER BY i.created_at DESC`,
+                [projectId, trackingId]
+            ));
+        } else {
+            ({ rows } = await pool.query(
+                `SELECT * FROM invoices WHERE project_id = $1 ORDER BY created_at DESC`,
+                [projectId]
+            ));
+        }
         res.json(rows);
     } catch (err) {
         console.error('[Invoices] getInvoicesByProject error:', err.message);
@@ -347,34 +363,10 @@ export const markInvoicePaid = async (req, res) => {
     }
 };
 
-// Admin: Issue refund (sets invoice to REFUNDED, clears paid_at)
-export const refundInvoice = async (req, res) => {
-    const { id } = req.params;
-    if (!isUuid(id)) return res.status(400).json({ error: 'Invalid ID format.' });
-    try {
-        const { rows } = await pool.query(
-            `UPDATE invoices SET status = 'REFUNDED', paid_at = NULL WHERE id = $1 AND status = 'PAID' RETURNING *`,
-            [id]
-        );
-        if (rows.length === 0) return res.status(404).json({ error: 'Invoice not found or cannot be refunded.' });
-        await writeAuditLog({
-            action: 'INVOICE_REFUNDED',
-            entityType: 'invoices',
-            entityId: id,
-            details: {
-                amount: rows[0].amount,
-                clientId: rows[0].client_id,
-                projectId: rows[0].project_id,
-            },
-            user: req.user,
-            ipAddress: getClientIp(req),
-        });
-        res.json(rows[0]);
-    } catch (err) {
-        console.error('[Invoices] refundInvoice error:', err.message);
-        res.status(500).json({ error: 'Internal server error' });
-    }
-};
+// NOTE: the refund endpoint was removed by owner decision — the studio
+// does not refund, so PAID is a terminal invoice state. Disputes are
+// handled outside the system. (Webhook/proof guards still defensively
+// exclude non-payable states.)
 
 // Paystack Webhook to automatically mark invoice as PAID
 export const paystackWebhook = async (req, res) => {
@@ -406,65 +398,86 @@ export const paystackWebhook = async (req, res) => {
         }
 
         // Mark invoice as paid and verify the amount matches what we expected.
+        // Only PENDING/OVERDUE/PARTIAL invoices may flip: a replayed or
+        // out-of-order charge.success must never resurrect a REFUNDED or
+        // CANCELLED invoice (money-integrity guard).
+        const paidAmount = (event.data.amount || 0) / 100;
+        const paidCurrency = String(event.data.currency || '').toUpperCase();
         const { rows } = await pool.query(
             `UPDATE invoices
                 SET status = 'PAID', paid_at = NOW()
               WHERE id = $1
-                AND status <> 'PAID'
+                AND status IN ('PENDING', 'OVERDUE', 'PARTIAL')
                 AND amount = $2
+                AND ($3::text = '' OR UPPER(currency) = $3::text)
               RETURNING *`,
-            [reference, (event.data.amount || 0) / 100]
+            [reference, paidAmount, paidCurrency]
         );
 
-        if (rows.length > 0) {
-            const invoice = rows[0];
-
-            // 3.4 Invoice to Project: Ensure payment confirmation spins up a project if none exists.
-            if (!invoice.project_id) {
-                const projRes = await pool.query(`
-                    INSERT INTO client_projects (client_id, project_name, status, division, payment_status, offboarding_status, tracking_id)
-                    VALUES ($1, $2, 'PLANNING', 'SOFTWARE', 'PAID', 'PENDING', encode(gen_random_bytes(16), 'hex'))
-                    RETURNING id
-                `, [invoice.client_id, `Project for ${invoice.invoice_number}`]);
-
-                await pool.query(`UPDATE invoices SET project_id = $1 WHERE id = $2`, [projRes.rows[0].id, invoice.id]);
-                invoice.project_id = projRes.rows[0].id;
-            }
-
-            // Only flip the project to PAID when the *sum* of paid invoices
-            // covers the project's amount_due. Otherwise leave it as-is
-            // (PENDING / PARTIAL / OVERDUE).
-            const { rows: agg } = await pool.query(
-                `SELECT
-                    COALESCE(SUM(amount) FILTER (WHERE status = 'PAID'), 0) AS paid_total,
-                    (SELECT amount_due FROM client_projects WHERE id = $1) AS amount_due
-                 FROM invoices
-                 WHERE project_id = $1`,
-                [invoice.project_id]
+        if (rows.length === 0) {
+            // Distinguish "already processed / not payable" from an amount
+            // mismatch: Paystack does not retry 200s, so a mismatched amount
+            // must be logged loudly for manual reconciliation instead of
+            // being silently dropped.
+            const { rows: current } = await pool.query(
+                `SELECT id, status, amount, currency FROM invoices WHERE id = $1`,
+                [reference]
             );
-
-            const paidTotal = parseFloat(agg[0]?.paid_total || 0);
-            const amountDue = parseFloat(agg[0]?.amount_due || 0);
-
-            let newStatus = null;
-            if (amountDue > 0 && paidTotal + 0.0001 >= amountDue) {
-                newStatus = 'PAID';
-            } else if (paidTotal > 0) {
-                newStatus = 'PARTIAL';
+            if (current.length === 0) {
+                console.error(`[Invoices] Webhook for unknown invoice reference ${reference} — check for a deleted invoice or environment mismatch.`);
+            } else if (Number(current[0].amount) !== paidAmount || (paidCurrency && String(current[0].currency).toUpperCase() !== paidCurrency)) {
+                console.error(`[Invoices] Webhook mismatch for invoice ${current[0].id}: expected ${current[0].amount} ${current[0].currency}, Paystack reported ${paidAmount} ${paidCurrency || '?'}. Payment NOT recorded — reconcile manually.`);
             }
-
-            if (newStatus) {
-                await pool.query(
-                    `UPDATE client_projects SET payment_status = $1, updated_at = NOW() WHERE id = $2`,
-                    [newStatus, invoice.project_id]
-                );
-            }
-
-            // Admin OS Phase 2 — receipt for every paid invoice,
-            // then the deposit chain for quotation-linked ones.
-            await ensureReceiptForInvoice({ invoiceId: invoice.id, paidVia: 'PAYSTACK' });
-            await onInvoicePaid({ invoiceId: invoice.id, via: 'PAYSTACK' });
+            return res.sendStatus(200);
         }
+
+        const invoice = rows[0];
+
+        // 3.4 Invoice to Project: Ensure payment confirmation spins up a project if none exists.
+        if (!invoice.project_id) {
+            const projRes = await pool.query(`
+                INSERT INTO client_projects (client_id, project_name, status, division, payment_status, offboarding_status, tracking_id)
+                VALUES ($1, $2, 'PLANNING', 'SOFTWARE', 'PAID', 'PENDING', encode(gen_random_bytes(16), 'hex'))
+                RETURNING id
+            `, [invoice.client_id, `Project for ${invoice.invoice_number}`]);
+
+            await pool.query(`UPDATE invoices SET project_id = $1 WHERE id = $2`, [projRes.rows[0].id, invoice.id]);
+            invoice.project_id = projRes.rows[0].id;
+        }
+
+        // Only flip the project to PAID when the *sum* of paid invoices
+        // covers the project's amount_due. Otherwise leave it as-is
+        // (PENDING / PARTIAL / OVERDUE).
+        const { rows: agg } = await pool.query(
+            `SELECT
+                COALESCE(SUM(amount) FILTER (WHERE status = 'PAID'), 0) AS paid_total,
+                (SELECT amount_due FROM client_projects WHERE id = $1) AS amount_due
+             FROM invoices
+             WHERE project_id = $1`,
+            [invoice.project_id]
+        );
+
+        const paidTotal = parseFloat(agg[0]?.paid_total || 0);
+        const amountDue = parseFloat(agg[0]?.amount_due || 0);
+
+        let newStatus = null;
+        if (amountDue > 0 && paidTotal + 0.0001 >= amountDue) {
+            newStatus = 'PAID';
+        } else if (paidTotal > 0) {
+            newStatus = 'PARTIAL';
+        }
+
+        if (newStatus) {
+            await pool.query(
+                `UPDATE client_projects SET payment_status = $1, updated_at = NOW() WHERE id = $2`,
+                [newStatus, invoice.project_id]
+            );
+        }
+
+        // Admin OS Phase 2 — receipt for every paid invoice,
+        // then the deposit chain for quotation-linked ones.
+        await ensureReceiptForInvoice({ invoiceId: invoice.id, paidVia: 'PAYSTACK' });
+        await onInvoicePaid({ invoiceId: invoice.id, via: 'PAYSTACK' });
 
         res.sendStatus(200);
     } catch (err) {

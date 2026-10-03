@@ -126,17 +126,39 @@ export const updateQuotationStatus = async (req, res) => {
         return res.status(400).json({ error: 'Invalid status' });
     }
 
+    // Status machine, keyed by TARGET status → the current statuses it
+    // may come from. Terminal states stay terminal: ACCEPTED scope
+    // changes go through change requests, CONVERTED is final, and a
+    // SUPERSEDED row only moves via versioning. Enforced atomically in
+    // the UPDATE's WHERE clause so two racing changes cannot both win.
+    const SOURCES_FOR_TARGET = {
+        DRAFT: ['DRAFT'],
+        SENT: ['DRAFT', 'SENT', 'REJECTED'],
+        ACCEPTED: ['DRAFT', 'SENT', 'ACCEPTED'],
+        REJECTED: ['DRAFT', 'SENT', 'REJECTED'],
+        CONVERTED: ['ACCEPTED', 'CONVERTED'],
+    };
+
     try {
+        // Guarded on the current status so two racing status changes
+        // cannot both win.
         const { rows } = await pool.query(`
             UPDATE quotations
             SET status = $1,
                 sent_at = CASE WHEN $1 = 'SENT' THEN COALESCE(sent_at, NOW()) ELSE sent_at END,
                 updated_at = NOW()
             WHERE id = $2
+              AND status = ANY($3::text[])
             RETURNING *
-        `, [status, id]);
+        `, [status, id, SOURCES_FOR_TARGET[status]]);
 
-        if (rows.length === 0) return res.status(404).json({ error: 'Quotation not found' });
+        if (rows.length === 0) {
+            const { rows: current } = await pool.query(`SELECT status FROM quotations WHERE id = $1`, [id]);
+            if (current.length === 0) return res.status(404).json({ error: 'Quotation not found' });
+            return res.status(409).json({
+                error: `Cannot move a ${current[0].status} quotation to ${status}. Accepted scope changes go through a change request; converted quotations are final.`,
+            });
+        }
 
         // Admin OS Phase 2 — acceptance kicks off the automation
         // chain (client link-up, WON lead, deposit invoice, email).
@@ -282,37 +304,62 @@ export const createQuotationVersion = async (req, res) => {
 export const convertQuotationToContract = async (req, res) => {
     const { id } = req.params;
     if (!isUuid(id)) return res.status(400).json({ error: 'Invalid ID' });
-    
+
+    const client = await pool.connect();
     try {
-        // Fetch quotation
-        const { rows: qRows } = await pool.query('SELECT * FROM quotations WHERE id = $1', [id]);
-        if (qRows.length === 0) return res.status(404).json({ error: 'Quotation not found' });
-        
+        await client.query('BEGIN');
+
+        // Lock the row: two racing converts must not create two contracts.
+        const { rows: qRows } = await client.query('SELECT * FROM quotations WHERE id = $1 FOR UPDATE', [id]);
+        if (qRows.length === 0) {
+            await client.query('ROLLBACK');
+            return res.status(404).json({ error: 'Quotation not found' });
+        }
+
         const quotation = qRows[0];
         if (quotation.status !== 'ACCEPTED') {
+            await client.query('ROLLBACK');
             return res.status(400).json({ error: 'Quotation must be ACCEPTED to convert to a contract.' });
         }
-        
-        // In a real app, here we would call Zoho Sign or Docusign. 
-        // For Agency OS, we just create a contract record.
-        const { rows: cRows } = await pool.query(`
-            INSERT INTO contracts (client_id, quotation_id, contract_type, status, value, sent_at)
-            VALUES ($1, $2, $3, $4, $5, NOW())
+
+        // Create the contract record. Currency is carried over from the
+        // quotation — without it a USD quote silently becomes an NGN
+        // contract (DB default). No terms/signing token are generated
+        // here yet: the contract stays a record until the admin sends
+        // it through the contract builder (portal shows it as
+        // "Processing", never signable without a token).
+        const { rows: cRows } = await client.query(`
+            INSERT INTO contracts (client_id, quotation_id, contract_type, status, value, amount, currency, title, sent_at)
+            VALUES ($1, $2, $3, $4, $5, $5, $6, $7, NOW())
             RETURNING *
         `, [
-            quotation.client_id, 
-            quotation.id, 
-            'PROJECT_AGREEMENT', 
-            'SENT', 
-            quotation.amount
+            quotation.client_id,
+            quotation.id,
+            'PROJECT_AGREEMENT',
+            'SENT',
+            quotation.amount,
+            quotation.currency || 'NGN',
+            quotation.title,
         ]);
-        
-        // Mark quotation as converted
-        await pool.query(`UPDATE quotations SET status = 'CONVERTED', updated_at = NOW() WHERE id = $1`, [id]);
-        
+
+        // Status-guarded flip: only an ACCEPTED row can become CONVERTED.
+        const { rowCount } = await client.query(
+            `UPDATE quotations SET status = 'CONVERTED', updated_at = NOW() WHERE id = $1 AND status = 'ACCEPTED'`,
+            [id]
+        );
+        if (rowCount === 0) {
+            await client.query('ROLLBACK');
+            return res.status(409).json({ error: 'Quotation is no longer convertible.' });
+        }
+
+        await client.query('COMMIT');
+
         res.json({ message: 'Successfully converted to Contract', contract: cRows[0] });
     } catch (err) {
+        await client.query('ROLLBACK');
         console.error('[Quotations] convertQuotationToContract error:', err.message);
         res.status(500).json({ error: 'Internal server error' });
+    } finally {
+        client.release();
     }
 };

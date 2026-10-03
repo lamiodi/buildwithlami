@@ -120,7 +120,7 @@ export async function getTasks(req, res) {
         const where = conditions.length > 0 ? ' WHERE ' + conditions.join(' AND ') : '';
         const { rows } = await pool.query(
             `${TASK_SELECT}${where}
-             ORDER BY t.priority_rank ASC,
+             ORDER BY priority_rank ASC,
                       (t.due_at IS NULL) ASC,
                       t.due_at ASC,
                       t.created_at DESC

@@ -1,5 +1,5 @@
 import express from 'express';
-import { login, getMe, changePassword, refresh, forgotPassword, resetPassword } from '../controllers/authController.js';
+import { login, getMe, changePassword, refresh, forgotPassword, resetPassword, COOKIE_OPTIONS } from '../controllers/authController.js';
 import { verifyToken } from '../middlewares/authMiddleware.js';
 import twoFactorRoutes from './twoFactorRoutes.js';
 
@@ -12,13 +12,9 @@ router.get('/me', verifyToken, getMe);
 router.post('/refresh', verifyToken, refresh);
 router.put('/password', verifyToken, changePassword);
 router.post('/logout', verifyToken, (req, res) => {
-    // Clear the HttpOnly access_token cookie with same options as when set
-    res.clearCookie('access_token', {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-        path: '/'
-    });
+    // Clear with exactly the attributes the cookie was set with —
+    // mismatched attributes leave the HttpOnly cookie stranded.
+    res.clearCookie('access_token', { ...COOKIE_OPTIONS, maxAge: undefined });
     res.json({ success: true, message: 'Logged out successfully' });
 });
 

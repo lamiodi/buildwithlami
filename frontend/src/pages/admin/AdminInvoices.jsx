@@ -234,17 +234,6 @@ const AdminInvoices = () => {
         }
     };
 
-    const handleRefund = async (id) => {
-        if (!window.confirm('Refund this invoice? This will mark it as refunded.')) return;
-        const res = await api.patch(`/invoices/${id}/refund`);
-        if (res.ok) {
-            notify.success('Invoice refunded');
-            fetchInvoices();
-        } else {
-            notify.error(res.error || 'Failed to refund invoice');
-        }
-    };
-
     const handleDelete = async (id) => {
         if (!window.confirm('Delete this invoice? This action cannot be undone.')) return;
         const res = await api.delete(`/invoices/${id}`);
@@ -595,11 +584,6 @@ const AdminInvoices = () => {
                                                         {inv.status === 'PENDING' && (
                                                             <button onClick={() => handleMarkPaid(inv.id)} className="text-xs font-bold text-emerald-600 hover:text-emerald-700 flex items-center gap-1" title="Mark as paid">
                                                                 <Icon.Check className="w-3.5 h-3.5" /> Paid
-                                                            </button>
-                                                        )}
-                                                        {inv.status === 'PAID' && (
-                                                            <button onClick={() => handleRefund(inv.id)} className="text-xs font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1" title="Issue refund">
-                                                                <Icon.Refresh className="w-3.5 h-3.5" /> Refund
                                                             </button>
                                                         )}
                                                         <button onClick={() => handleDelete(inv.id)} className="text-xs font-bold text-red-500 hover:text-red-600" title="Delete invoice">

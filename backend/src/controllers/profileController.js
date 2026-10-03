@@ -11,12 +11,14 @@ const updateProfileSchema = z.object({
     social_links: z.any().optional().nullable()
 });
 
-// The profile table is constrained to a single row with id = 1.
-const PROFILE_ID = 1;
-
+// The profile is a singleton, but the row's id is a UUID
+// (init.sql: `id UUID PRIMARY KEY DEFAULT gen_random_uuid()`), so it
+// must never be addressed by a literal id — resolve the single row
+// instead. (Querying `WHERE id = 1` throws `uuid = integer` on every
+// deployment built from the repo schema.)
 export async function getProfile(req, res) {
     try {
-        const { rows } = await pool.query(`SELECT * FROM profile WHERE id = $1`, [PROFILE_ID]);
+        const { rows } = await pool.query(`SELECT * FROM profile ORDER BY updated_at ASC LIMIT 1`);
         if (rows.length === 0) return res.status(404).json({ error: 'Profile not found.' });
         return res.json(rows[0]);
     } catch (err) {
@@ -29,18 +31,20 @@ export async function updateProfile(req, res) {
     try {
         const data = updateProfileSchema.parse(req.body);
 
-        const { rows: existing } = await pool.query(`SELECT id FROM profile WHERE id = $1`, [PROFILE_ID]);
+        const { rows: existing } = await pool.query(`SELECT id FROM profile ORDER BY updated_at ASC LIMIT 1`);
 
         if (existing.length === 0) {
             if (!data.full_name) return res.status(400).json({ error: 'full_name is required for initial profile creation.' });
 
+            // Let the DB default generate the UUID primary key.
             const { rows } = await pool.query(
-                `INSERT INTO profile (id, full_name, headline, bio, resume_url, avatar_url, social_links)
-                 VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
-                [PROFILE_ID, data.full_name, data.headline, data.bio, data.resume_url, data.avatar_url, data.social_links]
+                `INSERT INTO profile (full_name, headline, bio, resume_url, avatar_url, social_links)
+                 VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+                [data.full_name, data.headline, data.bio, data.resume_url, data.avatar_url, data.social_links]
             );
             return res.status(201).json(rows[0]);
         } else {
+            const profileId = existing[0].id;
             const fields = [];
             const values = [];
             let idx = 1;
@@ -52,7 +56,7 @@ export async function updateProfile(req, res) {
             if (fields.length === 0) return res.status(400).json({ error: 'No fields to update.' });
 
             fields.push(`updated_at = NOW()`);
-            values.push(PROFILE_ID);
+            values.push(profileId);
 
             const { rows } = await pool.query(
                 `UPDATE profile SET ${fields.join(', ')} WHERE id = $${idx} RETURNING *`,

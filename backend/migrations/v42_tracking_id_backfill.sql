@@ -10,6 +10,22 @@
 -- the UPDATE is retried with a fresh value.
 -- ─────────────────────────────────────────────────────────────
 
+-- Fresh databases (vanilla Postgres) lack pgcrypto, which this
+-- migration and v50 rely on for gen_random_bytes. Supabase ships
+-- with it, so this is a no-op there.
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_proc p
+        JOIN pg_namespace n ON p.pronamespace = n.oid
+        WHERE p.proname = 'gen_random_bytes' AND n.nspname = 'public'
+    ) THEN
+        CREATE EXTENSION IF NOT EXISTS pgcrypto;
+    END IF;
+EXCEPTION WHEN OTHERS THEN
+    RAISE NOTICE 'Could not ensure pgcrypto: %', SQLERRM;
+END $$;
+
 DO $$
 DECLARE
     r RECORD;

@@ -43,7 +43,10 @@ import pool from '../config/db.js';
 import { writeAuditLog } from './auditLog.js';
 import { consumeTwoFactorCredential } from '../services/twoFactorService.js';
 
-const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+// Five hyphen-separated segments — must match the UUID checks in the
+// route layer. (A 4-segment variant was shipped in 0497bc6 and rejected
+// every real invoice id, silently killing manual payment confirmation.)
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const isUuid = (s) => typeof s === 'string' && UUID_REGEX.test(s);
 
 /**

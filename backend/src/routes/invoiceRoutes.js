@@ -1,5 +1,5 @@
 import express from 'express';
-import { createInvoice, getAllInvoices, getInvoicesByProject, deleteInvoice, markInvoicePaid, refundInvoice, paystackWebhook } from '../controllers/invoiceController.js';
+import { createInvoice, getAllInvoices, getInvoicesByProject, deleteInvoice, markInvoicePaid, paystackWebhook } from '../controllers/invoiceController.js';
 import { verifyToken, requireRole } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
@@ -22,7 +22,8 @@ router.get('/', verifyToken, requireRole('Owner'), getAllInvoices);
 router.post('/', verifyToken, requireRole('Owner'), createInvoice);
 router.delete('/:id', verifyToken, requireRole('Owner'), deleteInvoice);
 router.patch('/:id/pay', verifyToken, requireRole('Owner'), markInvoicePaid);
-router.patch('/:id/refund', verifyToken, requireRole('Owner'), refundInvoice);
+// No refund endpoint: the studio does not refund. Paid is terminal —
+// disputes are handled outside the system (see docs/WEBSITE_AUDIT_2026-10-03.md).
 // Both Admin and Client can view invoices (Clients use JWT bound to trackingId)
 router.get('/project/:projectId', verifyToken, requireRole('Client', 'Owner'), getInvoicesByProject);
 

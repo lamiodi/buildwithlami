@@ -1,5 +1,5 @@
 import express from 'express';
-import { getDashboard, getProjects, getProjectDetails, getInvoices, getDocuments, updateProfile, getClientContracts, getClientQuotations } from '../controllers/clientPortalController.js';
+import { getDashboard, getProjects, getProjectDetails, getInvoices, getDocuments, updateProfile, getClientContracts, getClientQuotations, getMyMessages, sendMessage } from '../controllers/clientPortalController.js';
 import { getMyActions, completeMyAction } from '../controllers/clientActionController.js';
 import { getMyOnboarding, saveMyOnboarding, submitMyOnboarding } from '../controllers/onboardingController.js';
 import { getMyApprovals, decideMyApproval, decideMyChangeRequest } from '../controllers/deliveryController.js';
@@ -17,6 +17,10 @@ router.get('/contracts', getClientContracts);
 router.get('/quotations', getClientQuotations);
 router.get('/documents', getDocuments);
 router.put('/profile', updateProfile);
+
+// Real portal messaging (posts land in the unified admin inbox as kind 'portal').
+router.get('/messages', getMyMessages);
+router.post('/messages', sendMessage);
 
 // Admin OS Phase 1 — Action Required panel + onboarding wizard.
 router.get('/actions', getMyActions);

@@ -86,6 +86,8 @@ const Navbar = ({ isDark, toggleTheme }) => {
             className="flex items-center gap-2 sm:gap-2.5 group active:scale-95 transition-all"
             aria-label="Buildwith_lami Home"
           >
+            {/* The lockup image already carries the full name — the extra
+                text span used to render beside it and read as a collision. */}
             <img
               src="/2.png"
               alt="Buildwith_lami"
@@ -96,12 +98,8 @@ const Navbar = ({ isDark, toggleTheme }) => {
               alt="Buildwith_lami"
               className="h-12 sm:h-14 md:h-12 w-auto hidden dark:block group-hover:opacity-90 transition-opacity object-contain"
             />
-            <span className="font-heading font-extrabold text-base sm:text-lg tracking-[-0.01em] whitespace-nowrap leading-none">
-              <span className="text-accent">BuildWith</span>
-              <span className="text-gray-900 dark:text-white">_Lami</span>
-            </span>
           </Link>
-          
+
           {/* Desktop Navigation Links */}
           <div className="hidden md:flex space-x-6 lg:space-x-8 text-xs uppercase tracking-wider items-center text-gray-800 dark:text-gray-200 font-bold">
             {NAV_LINKS.map(link => {
@@ -188,8 +186,8 @@ const Navbar = ({ isDark, toggleTheme }) => {
           >
             {/* Top Bar inside Mobile Drawer */}
             <div className="flex items-center justify-between border-b border-gray-100 dark:border-white/10 pb-4">
-              <Link 
-                to="/" 
+              <Link
+                to="/"
                 onClick={closeMenu}
                 className="flex items-center gap-2"
               >
@@ -203,10 +201,6 @@ const Navbar = ({ isDark, toggleTheme }) => {
                   alt="Buildwith_lami"
                   className="h-10 w-auto hidden dark:block object-contain"
                 />
-                <span className="font-heading font-extrabold text-base tracking-[-0.01em] whitespace-nowrap leading-none">
-                  <span className="text-accent">BuildWith</span>
-                  <span className="text-gray-900 dark:text-white">_Lami</span>
-                </span>
               </Link>
               
               <div className="flex items-center space-x-2">

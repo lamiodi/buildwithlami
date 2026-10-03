@@ -284,28 +284,54 @@ export const reviewProof = async (req, res) => {
                 error: `Currency mismatch: invoice is ${row.invoice_currency}, proof is ${row.currency}.`,
             });
         }
+        // The proof must claim the invoiced amount — a different figure
+        // means partial/incorrect payment and needs a human decision
+        // (reject the proof or adjust the invoice), never a silent PAID.
+        if (newStatus === 'CONFIRMED' && row.amount_paid != null && row.invoice_amount != null) {
+            const claimed = Number(row.amount_paid);
+            const invoiced = Number(row.invoice_amount);
+            if (Math.abs(claimed - invoiced) > 0.01) {
+                return res.status(400).json({
+                    error: `Amount mismatch: invoice is ${invoiced} ${row.invoice_currency}, proof claims ${claimed} ${row.currency}. Reject this proof or adjust the invoice first.`,
+                });
+            }
+        }
 
         const client = await pool.connect();
         let updatedProof;
         try {
             await client.query('BEGIN');
-            await client.query(
+            // Status guards: a decided proof (CONFIRMED/REJECTED) can never
+            // be flipped afterwards, and two racing reviews cannot both win.
+            const proofRes = await client.query(
                 `UPDATE payment_proofs
                     SET status = $1, admin_notes = $2,
                         reviewed_by = $3, reviewed_at = NOW(), updated_at = NOW()
-                  WHERE id = $4`,
+                  WHERE id = $4 AND status = 'PENDING'
+                RETURNING id`,
                 [newStatus, admin_notes || null, req.user?.id || null, id]
             );
+            if (proofRes.rowCount === 0) {
+                await client.query('ROLLBACK');
+                return res.status(409).json({ error: 'This proof has already been reviewed.' });
+            }
 
             if (newStatus === 'CONFIRMED') {
+                // Only PENDING/OVERDUE/PARTIAL invoices may flip; REFUNDED,
+                // CANCELLED and already-PAID invoices keep their state.
                 const invRes = await client.query(
                     `UPDATE invoices
                         SET status = 'PAID', paid_via = 'BANK_TRANSFER', paid_at = NOW(),
                             updated_at = NOW()
-                      WHERE id = $1 RETURNING project_id, client_id, invoice_number`,
+                      WHERE id = $1 AND status IN ('PENDING', 'OVERDUE', 'PARTIAL')
+                      RETURNING project_id, client_id, invoice_number`,
                     [row.invoice_id]
                 );
-                
+                if (invRes.rowCount === 0) {
+                    await client.query('ROLLBACK');
+                    return res.status(409).json({ error: 'Invoice is not awaiting payment (already paid, refunded or cancelled).' });
+                }
+
                 // 3.4 Invoice to Project: Ensure payment confirmation spins up a project if none exists.
                 const updatedInvoice = invRes.rows[0];
                 if (updatedInvoice && !updatedInvoice.project_id) {

@@ -85,7 +85,7 @@ export default function ClientContracts() {
                                         </td>
                                         <td className="p-4 text-right space-x-3">
                                             {c.status === 'SIGNED' ? (
-                                                <a href={`/api/contracts/${c.id}/pdf`} target="_blank" rel="noreferrer" className="text-xs font-bold text-accent hover:underline inline-flex items-center gap-1.5">
+                                                <a href={`/api/contracts/${c.id}/pdf?token=${encodeURIComponent(c.signing_token || '')}`} target="_blank" rel="noreferrer" className="text-xs font-bold text-accent hover:underline inline-flex items-center gap-1.5">
                                                     Download PDF <Download size={13} />
                                                 </a>
                                             ) : c.status === 'SENT' && c.signing_token ? (

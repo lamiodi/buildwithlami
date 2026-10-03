@@ -271,8 +271,10 @@ export const deleteClientProject = async (req, res) => {
 export const getProjectByTrackingId = async (req, res) => {
     const { trackingId } = req.params;
     try {
+        // No client_id in the public projection — internal identifiers
+        // stay out of the unauthenticated surface.
         const result = await pool.query(
-            `SELECT p.id, p.client_id, p.project_name, p.tracking_id, p.progress, p.status,
+            `SELECT p.id, p.project_name, p.tracking_id, p.progress, p.status,
                     p.domain_name, p.domain_expiration, p.stages, p.milestones,
                     p.intake_form_id, p.intake_completed,
                     p.assets_url, p.training_video_url, p.maintenance_plan_url,

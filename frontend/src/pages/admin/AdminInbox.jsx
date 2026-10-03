@@ -17,6 +17,7 @@ const KIND_ICON = {
     message:  Icon.Mail,
     feedback: Icon.Chat,
     intake:   Icon.Form,
+    portal:   Icon.Chat,
 };
 
 const STATUS_PILL = {
@@ -32,6 +33,7 @@ const KIND_OPTIONS = [
     { id: 'message',  label: 'Messages' },
     { id: 'feedback', label: 'Feedback' },
     { id: 'intake',   label: 'Intake' },
+    { id: 'portal',   label: 'Portal' },
 ];
 
 function timeAgo(iso) {
@@ -255,7 +257,7 @@ const AdminInbox = () => {
                                 <p className="text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap">{selected.body}</p>
                             </div>
                         </div>
-                        {selected.kind === 'feedback' && (
+                        {(selected.kind === 'feedback' || selected.kind === 'portal') && (
                             <form onSubmit={sendReply} className="p-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/30">
                                 <textarea
                                     value={reply}

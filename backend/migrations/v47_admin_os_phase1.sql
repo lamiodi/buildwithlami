@@ -25,20 +25,34 @@
 -- data can never be silently discarded. If a populated legacy
 -- table ever appears, this migration intentionally fails and
 -- a human decides.
+-- NOTE: the table-existence checks must stay inside nested IFs
+-- — a bare `(SELECT COUNT(*) FROM tasks)` in the IF condition
+-- is planned eagerly and crashes on any database where `tasks`
+-- has never been created (fresh installs / restores).
 DO $$
+DECLARE
+    tasks_table_exists BOOLEAN;
+    legacy_shape BOOLEAN;
+    legacy_row_count BIGINT;
 BEGIN
-    IF EXISTS (
-            SELECT 1 FROM information_schema.tables
-             WHERE table_schema = 'public' AND table_name = 'tasks'
-        )
-        AND EXISTS (
+    SELECT EXISTS (
+        SELECT 1 FROM information_schema.tables
+         WHERE table_schema = 'public' AND table_name = 'tasks'
+    ) INTO tasks_table_exists;
+
+    IF tasks_table_exists THEN
+        SELECT EXISTS (
             SELECT 1 FROM information_schema.columns
              WHERE table_schema = 'public' AND table_name = 'tasks'
                AND column_name = 'assigned_to'
-        )
-        AND (SELECT COUNT(*) FROM tasks) = 0
-    THEN
-        DROP TABLE tasks CASCADE;
+        ) INTO legacy_shape;
+
+        IF legacy_shape THEN
+            EXECUTE 'SELECT COUNT(*) FROM tasks' INTO legacy_row_count;
+            IF legacy_row_count = 0 THEN
+                DROP TABLE tasks CASCADE;
+            END IF;
+        END IF;
     END IF;
 END $$;
 
