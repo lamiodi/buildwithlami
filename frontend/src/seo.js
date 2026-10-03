@@ -3,7 +3,7 @@ import { CONTACT } from './config/contact.js';
 
 export const FOUNDER = { name: 'Eugene Odibenuah', givenName: 'Eugene', familyName: 'Odibenuah', alternateName: ['Odibenuah Eugene'] };
 
-export const SITE_URL = 'https://buildwithlami.com';
+export const SITE_URL = 'https://www.buildwithlami.com';
 export const pages = {
   '/': ['Web Development & Custom Software in Lagos | BuildWithLami', 'Eugene Odibenuah leads BuildWithLami in Lagos, Nigeria, building business websites, online stores and custom software for founders and growing teams worldwide.'],
   '/software': ['Software Engineering & SaaS Development | BuildWithLami', 'Custom web platforms, secure APIs, SaaS products and business systems designed and engineered by Eugene Odibenuah at BuildWithLami.'],

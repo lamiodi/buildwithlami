@@ -9,6 +9,32 @@ const NotFoundPage = () => {
   const item = shouldReduce ? reducedMotionVariants : fadeUpItem;
   const navigate = useNavigate();
 
+  useEffect(() => {
+    const prevTitle = document.title;
+    document.title = '404 — Page Not Found | BuildWithLami';
+    let metaRobots = document.querySelector('meta[name="robots"]');
+    let created = false;
+    let prevRobots = 'index, follow';
+    if (!metaRobots) {
+      metaRobots = document.createElement('meta');
+      metaRobots.name = 'robots';
+      document.head.appendChild(metaRobots);
+      created = true;
+    } else {
+      prevRobots = metaRobots.getAttribute('content') || 'index, follow';
+    }
+    metaRobots.setAttribute('content', 'noindex, nofollow');
+
+    return () => {
+      document.title = prevTitle;
+      if (created && metaRobots.parentNode) {
+        metaRobots.parentNode.removeChild(metaRobots);
+      } else if (metaRobots) {
+        metaRobots.setAttribute('content', prevRobots);
+      }
+    };
+  }, []);
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-background text-black dark:text-white pt-32 pb-24 px-6 md:px-12 font-body selection:bg-accent selection:text-white transition-colors duration-300">
       <div className="max-w-6xl mx-auto">

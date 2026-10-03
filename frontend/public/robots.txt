@@ -26,4 +26,4 @@ Disallow: /reset-password
 Disallow: /unsubscribe
 Disallow: /seo/
 
-Sitemap: https://buildwithlami.com/sitemap.xml
+Sitemap: https://www.buildwithlami.com/sitemap.xml
