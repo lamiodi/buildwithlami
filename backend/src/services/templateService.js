@@ -15,6 +15,7 @@
 // ──────────────────────────────────────────────────────────
 
 import nodemailer from 'nodemailer';
+import { getMailFrom } from './emailLayout.js';
 
 const PLACEHOLDER_RE = /{{\s*([a-zA-Z0-9_]+)\s*}}/g;
 
@@ -60,7 +61,7 @@ export async function sendTemplatedEmail({ to, subject, body }) {
         });
 
         const mailOptions = {
-            from: process.env.EMAIL_FROM || '"Buildwith_lami" <no-reply@buildwithlami.com>',
+            from: getMailFrom(),
             to,
             subject,
             text: body,

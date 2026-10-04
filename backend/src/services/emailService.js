@@ -8,10 +8,10 @@ import {
     renderEmailShell,
     createTransporter,
     getLogoAttachments,
+    getMailFrom,
 } from './emailLayout.js';
 
-const getFromAddress = () =>
-    process.env.EMAIL_FROM || '"BuildWith_Lami" <buildwithlami@gmail.com>';
+const getFromAddress = getMailFrom;
 
 /**
  * Sends a contact inquiry or operational alert notification to admin,

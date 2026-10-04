@@ -6,7 +6,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
-import { createTransporter, renderEmailShell, getLogoAttachments } from '../services/emailLayout.js';
+import { createTransporter, renderEmailShell, getLogoAttachments, getMailFrom } from '../services/emailLayout.js';
 
 async function main() {
     const targetEmail = process.argv[2] || 'buildwithlami@gmail.com';
@@ -57,7 +57,7 @@ async function main() {
     });
 
     const mailOptions = {
-        from: process.env.EMAIL_FROM || '"BuildWith_Lami" <buildwithlami@gmail.com>',
+        from: getMailFrom(),
         to: targetEmail,
         subject: '🚀 BuildWith_Lami — System Verification & Test Email',
         text: `Hello Lami,\n\nThis is a verified live test of the BuildWith_Lami transactional email system.\n\nAll transactional emails are active and verified.\n\nThanks,\nBuildWith_Lami Studio`,

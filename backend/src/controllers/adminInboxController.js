@@ -16,6 +16,7 @@ import DOMPurify from 'isomorphic-dompurify';
 import nodemailer from 'nodemailer';
 import pool from '../config/db.js';
 import { writeAuditLog, getClientIp } from '../utils/auditLog.js';
+import { getMailFrom } from '../services/emailLayout.js';
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const isUuid = (s) => typeof s === 'string' && UUID_REGEX.test(s);
@@ -315,7 +316,7 @@ async function sendReplyEmail({ to, toName, projectName, clientComment, adminRep
     );
 
     const mail = {
-        from: process.env.EMAIL_FROM || '"Buildwith_lami" <no-reply@buildwithlami.com>',
+        from: getMailFrom(),
         to,
         subject: `Update on ${projectName}`,
         text: `Hi ${toName},\n\nHere's the update you asked about on ${projectName}:\n\n${adminReply}\n\n— Lami Odi`,

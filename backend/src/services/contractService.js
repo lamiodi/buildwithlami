@@ -4,7 +4,7 @@
 // ──────────────────────────────────────────────────────────
 
 import crypto from 'crypto';
-import { renderEmailShell, createTransporter, getLogoAttachments, escapeHtml } from './emailLayout.js';
+import { renderEmailShell, createTransporter, getLogoAttachments, escapeHtml, getMailFrom } from './emailLayout.js';
 
 export const CONTRACT_TEMPLATES = {
     SOFTWARE: {
@@ -171,7 +171,7 @@ export const sendContractSigningInvite = async ({
         });
 
         const mailOptions = {
-            from: process.env.EMAIL_FROM || '"BuildWith_Lami" <buildwithlami@gmail.com>',
+            from: getMailFrom(),
             to: clientEmail,
             subject: `Action Required: Review & Sign — ${safeTitle}`,
             text: `Hi ${clientName},\n\nYour contract "${contractTitle}" is ready for signature.\n\nReview & Sign online:\n${signUrl}\n\nThanks,\nBuildWith_Lami`,
@@ -246,7 +246,7 @@ export const sendContractSignedNotification = async ({
         });
 
         const mailOptions = {
-            from: process.env.EMAIL_FROM || '"BuildWith_Lami" <buildwithlami@gmail.com>',
+            from: getMailFrom(),
             to: clientEmail,
             cc: adminEmail,
             subject: `Signed: ${safeTitle} — BuildWith_Lami`,

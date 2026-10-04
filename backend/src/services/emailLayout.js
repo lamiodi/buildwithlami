@@ -37,6 +37,16 @@ export const getLogoAttachments = () => {
 };
 
 /**
+ * Resolves the From address for outgoing mail. Some SMTP relays
+ * (Resend included) reject quoted display names ("Name" <a@b>) with a
+ * 550, so surrounding quotes are stripped before sending.
+ */
+export const getMailFrom = () => {
+    const raw = process.env.EMAIL_FROM || 'BuildWith_Lami <buildwithlami@gmail.com>';
+    return raw.replace(/^"([^"]*)"\s+</, '$1 <');
+};
+
+/**
  * Factory for creating configured Nodemailer transport using Brevo or custom SMTP.
  */
 export const createTransporter = () => {

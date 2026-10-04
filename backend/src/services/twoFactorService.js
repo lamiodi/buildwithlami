@@ -24,7 +24,7 @@
 
 import crypto from 'crypto';
 import pool from '../config/db.js';
-import { createTransporter, renderEmailShell, escapeHtml } from './emailLayout.js';
+import { createTransporter, renderEmailShell, escapeHtml, getMailFrom } from './emailLayout.js';
 
 const OTP_TTL_MINUTES = 10;
 const OTP_DIGITS = 6;
@@ -47,7 +47,7 @@ function hashOtp(plain) {
 
 export async function sendOtpEmail(toEmail, otp) {
     const transporter = createTransporter();
-    const from = process.env.EMAIL_FROM || '"BuildWith_Lami" <buildwithlami@gmail.com>';
+    const from = getMailFrom();
 
     const bodyHtml = `
         <p style="margin:0 0 16px 0; font-size:15px; color:#334155;">

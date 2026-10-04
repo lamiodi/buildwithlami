@@ -12,6 +12,7 @@ import {
     renderEmailShell,
     createTransporter,
     getLogoAttachments,
+    getMailFrom,
 } from './emailLayout.js';
 
 const fmtAmount = (amount, currency) => {
@@ -44,8 +45,7 @@ const sendOrLog = async (mailOptions) => {
     }
 };
 
-const fromAddress = () =>
-    process.env.EMAIL_FROM || '"BuildWith_Lami" <buildwithlami@gmail.com>';
+const fromAddress = getMailFrom;
 
 const adminAddress = () =>
     process.env.ADMIN_EMAIL || process.env.EMAIL_TO || 'buildwithlami@gmail.com';
