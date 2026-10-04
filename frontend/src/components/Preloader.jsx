@@ -1,95 +1,232 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { motion, useReducedMotion } from 'framer-motion';
-import * as Dialog from '@radix-ui/react-dialog';
-import { ArrowUpRight } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { DotLoader } from '@/components/ui/dot-loader';
+import { game } from '@/components/ui/demo';
 
-// A brief brand introduction, not a simulated asset-download percentage.
-const INTRO_MS = 520;
-const EXIT_MS = 240;
-
-export default function Preloader({ onComplete, isDark = false, preview = false }) {
-  const reducedMotion = useReducedMotion();
+/**
+ * BuildWith_Lami Software Studio Minimalist Preloader
+ * - Fully responsive to Dark Mode and Light Mode
+ * - 7x7 cybernetic DotLoader matrix (adaptive dot colors)
+ * - Actual uncropped brand logo (/1.png dark, /2.png light)
+ * - Hardware-accelerated GPU scaleX progress bar (60fps / 120fps liquid smooth)
+ * - requestAnimationFrame synchronized monospace percentage readout
+ * - Split architectural shutter departure reveal
+ */
+const Preloader = ({ onComplete, isDark: propIsDark }) => {
+  const [progress, setProgress] = useState(0);
   const [isExiting, setIsExiting] = useState(false);
-  const completeRef = useRef(onComplete);
-  const completedRef = useRef(false);
-  const previewTheme = import.meta.env.DEV && preview
-    ? new URLSearchParams(window.location.search).get('theme')
-    : null;
-  const dark = previewTheme === 'dark' || (previewTheme !== 'light' && isDark);
 
-  useEffect(() => { completeRef.current = onComplete; }, [onComplete]);
+  // Support ?preview=preloader and optional &theme=light or &theme=dark for instant verification
+  const searchParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+  const isPreviewMode = searchParams?.get('preview') === 'preloader';
+  const forcedTheme = searchParams?.get('theme');
 
-  const finish = useCallback(() => {
-    if (completedRef.current) return;
-    completedRef.current = true;
-    completeRef.current?.();
-  }, []);
+  // Track active theme state with DOM MutationObserver fallback
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    if (forcedTheme === 'light') return false;
+    if (forcedTheme === 'dark') return true;
+    if (typeof propIsDark === 'boolean') return propIsDark;
+    if (typeof document !== 'undefined') {
+      return document.documentElement.classList.contains('dark');
+    }
+    return true;
+  });
 
   useEffect(() => {
-    if (preview) return;
-    // No waiting for images, fonts, network requests, or animation callbacks.
-    // Reduced-motion visitors go straight to the page.
-    const reveal = setTimeout(() => setIsExiting(true), reducedMotion ? 0 : INTRO_MS);
-    const complete = setTimeout(finish, reducedMotion ? 0 : INTRO_MS + EXIT_MS);
-    return () => { clearTimeout(reveal); clearTimeout(complete); };
-  }, [preview, reducedMotion, finish]);
+    if (forcedTheme === 'light') {
+      setIsDarkMode(false);
+      return;
+    }
+    if (forcedTheme === 'dark') {
+      setIsDarkMode(true);
+      return;
+    }
+    if (typeof propIsDark === 'boolean') {
+      setIsDarkMode(propIsDark);
+    }
+  }, [propIsDark, forcedTheme]);
+
+  // Synchronize with external DOM class changes on <html>
+  useEffect(() => {
+    if (forcedTheme) return;
+    if (typeof document === 'undefined') return;
+
+    const observer = new MutationObserver(() => {
+      setIsDarkMode(document.documentElement.classList.contains('dark'));
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    return () => observer.disconnect();
+  }, [forcedTheme]);
+
+  // Fast, punchy cinematic duration (~500ms) for snappy first-load UX
+  const duration = 500;
+
+  useEffect(() => {
+    if (isPreviewMode) {
+      setProgress(68);
+      return;
+    }
+
+    let animationFrameId;
+    let startTime = null;
+
+    const step = (timestamp) => {
+      if (!startTime) startTime = timestamp;
+      const elapsed = timestamp - startTime;
+      const t = Math.min(elapsed / duration, 1);
+
+      // Natural cubic ease-out matching the hardware-accelerated bar
+      const eased = 1 - Math.pow(1 - t, 2.5);
+      const current = Math.min(Math.round(eased * 100), 100);
+      setProgress(current);
+
+      if (t < 1) {
+        animationFrameId = requestAnimationFrame(step);
+      } else {
+        const dwellTime = 40;
+        setTimeout(() => {
+          setIsExiting(true);
+          const exitDuration = 360;
+          setTimeout(() => {
+            if (onComplete) onComplete();
+          }, exitDuration);
+        }, dwellTime);
+      }
+    };
+
+    animationFrameId = requestAnimationFrame(step);
+
+    return () => {
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
+    };
+  }, [onComplete, isPreviewMode, duration]);
+
+  const shutterEase = [0.76, 0, 0.24, 1];
 
   return (
-    <Dialog.Root open onOpenChange={(open) => { if (!open) finish(); }}>
-      <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-[9998]" />
-        <Dialog.Content asChild onCloseAutoFocus={(event) => {
-          event.preventDefault();
-          document.getElementById('main')?.focus({ preventScroll: true });
-        }}>
-          <motion.div
-            data-testid="studio-preloader"
-            initial={false}
-            animate={{ opacity: isExiting ? 0 : 1 }}
-            transition={{ duration: reducedMotion ? 0 : EXIT_MS / 1000, ease: 'easeOut' }}
-            className={`fixed inset-0 z-[9999] flex min-h-[100dvh] flex-col justify-between overflow-y-auto px-6 py-6 sm:px-12 sm:py-10 select-none font-body outline-none ${dark ? 'bg-[#101010] text-white' : 'bg-[#f8f8f5] text-[#171717]'}`}
+    <div
+      role="status"
+      aria-live="polite"
+      className="fixed inset-0 z-[9999] pointer-events-auto select-none overflow-hidden w-full h-full min-h-[100dvh] flex items-center justify-center"
+    >
+      <span className="sr-only">Loading BuildWithLami: {progress}%</span>
+
+      {/* ─────────────────────────────────────────────────────────────
+          SPLIT ARCHITECTURAL SHUTTERS (Dark Mode: #09090b / Light: #ffffff)
+         ───────────────────────────────────────────────────────────── */}
+      {/* Top Half */}
+      <motion.div
+        className={`absolute inset-x-0 top-0 h-1/2 z-10 will-change-transform transition-colors duration-300 ${
+          isDarkMode ? 'bg-[#09090b] border-b border-white/[0.04]' : 'bg-white border-b border-gray-100'
+        }`}
+        initial={{ y: '0%' }}
+        animate={{ y: isExiting ? '-100%' : '0%' }}
+        transition={{ duration: 0.52, ease: shutterEase }}
+      />
+
+      {/* Bottom Half */}
+      <motion.div
+        className={`absolute inset-x-0 bottom-0 h-1/2 z-10 will-change-transform transition-colors duration-300 ${
+          isDarkMode ? 'bg-[#09090b] border-t border-white/[0.04]' : 'bg-white border-t border-gray-100'
+        }`}
+        initial={{ y: '0%' }}
+        animate={{ y: isExiting ? '100%' : '0%' }}
+        transition={{ duration: 0.52, ease: shutterEase }}
+      />
+
+      {/* ─────────────────────────────────────────────────────────────
+          MINIMALIST CENTERPIECE (Identical proportions & animation across mobile & desktop)
+         ───────────────────────────────────────────────────────────── */}
+      <motion.div
+        className="relative z-30 flex flex-col items-center px-4 will-change-transform"
+        initial={{ opacity: 0, scale: 0.96 }}
+        animate={{
+          opacity: isExiting ? 0 : 1,
+          scale: isExiting ? 0.98 : 1,
+        }}
+        transition={{ duration: isExiting ? 0.25 : 0.4, ease: 'easeOut' }}
+      >
+        {/* Lockup Card */}
+        <div
+          className={`inline-flex items-center gap-4 rounded-2xl px-6 py-3.5 backdrop-blur-xl transition-all duration-300 ${
+            isDarkMode
+              ? 'border border-white/10 bg-[#121214]/90 shadow-lg shadow-black/40 text-white'
+              : 'border border-gray-200/80 bg-white/90 shadow-lg shadow-black/[0.03] text-gray-900'
+          }`}
+        >
+          {/* 7x7 DotLoader Matrix with theme-adaptive dots */}
+          <div
+            className={`flex items-center justify-center p-1 rounded-lg ${
+              isDarkMode ? 'bg-white/[0.04]' : 'bg-gray-100/90'
+            }`}
           >
-            <Dialog.Title className="sr-only">BuildWithLami software studio</Dialog.Title>
-            <Dialog.Description className="sr-only">Opening the studio. Select Enter site or press Escape to continue immediately.</Dialog.Description>
+            <DotLoader
+              frames={game}
+              duration={75}
+              className="gap-0.5"
+              dotClassName={`${
+                isDarkMode ? 'bg-white/15' : 'bg-black/10'
+              } [&.active]:bg-accent size-1.5 rounded-[1px]`}
+            />
+          </div>
 
-            <div className={`flex items-center justify-between gap-6 border-b pb-5 ${dark ? 'border-white/10' : 'border-black/10'}`} aria-hidden="true">
-              <span className="flex items-center gap-2 text-[10px] sm:text-xs font-medium uppercase tracking-[0.18em]">
-                <span className="h-1.5 w-1.5 bg-accent" /> Independent software studio
-              </span>
-              <span className={`hidden sm:block text-[10px] uppercase tracking-[0.18em] ${dark ? 'text-white/55' : 'text-black/55'}`}>Lagos · Working worldwide</span>
-            </div>
+          <div className={`h-6 w-[1px] ${isDarkMode ? 'bg-white/10' : 'bg-gray-200'}`} />
 
-            <div className="mx-auto w-full max-w-3xl py-12 text-center">
-              <img src={dark ? '/1.png' : '/2.png'} alt="" width="100" height="64" className="mx-auto mb-7 h-14 w-24 object-contain sm:h-16" />
-              <p aria-hidden="true" className="font-heading text-[clamp(2.5rem,8vw,6rem)] font-normal leading-[1.05] tracking-[-0.04em]">
-                BuildWith<span className="text-accent">Lami</span><span className="text-accent">.</span>
-              </p>
-              <p className={`mt-5 text-sm sm:text-base tracking-wide ${dark ? 'text-white/65' : 'text-black/65'}`}>
-                Thoughtful design. Purposeful software.
-              </p>
+          {/* Actual Uncropped Brand Logo (Adaptive Light / Dark Mode) */}
+          <div className="flex items-center gap-2.5">
+            {isDarkMode ? (
+              <img
+                src="/1.png"
+                alt="BuildWithLami"
+                className="h-8 w-auto object-contain drop-shadow-[0_2px_12px_rgba(244,74,34,0.35)]"
+              />
+            ) : (
+              <img
+                src="/2.png"
+                alt="BuildWithLami"
+                className="h-8 w-auto object-contain drop-shadow-sm"
+              />
+            )}
+            <span
+              className={`font-heading font-extrabold text-lg tracking-tight whitespace-nowrap leading-none ${
+                isDarkMode ? 'text-white' : 'text-gray-900'
+              }`}
+            >
+              <span className="text-accent">BuildWith</span>
+              <span>Lami</span>
+            </span>
+          </div>
+        </div>
 
-              <div className="mx-auto mt-10 w-full max-w-[260px] sm:mt-12">
-                <div aria-hidden="true" className={`h-px overflow-hidden ${dark ? 'bg-white/15' : 'bg-black/15'}`}>
-                  <motion.div
-                    className="h-full w-full origin-left bg-accent"
-                    initial={reducedMotion || preview ? false : { scaleX: 0 }}
-                    animate={{ scaleX: preview ? 0.68 : 1 }}
-                    transition={{ duration: reducedMotion || preview ? 0 : INTRO_MS / 1000, ease: [0.22, 1, 0.36, 1] }}
-                  />
-                </div>
-                <p role="status" className={`mt-4 text-[11px] font-medium tracking-[0.12em] uppercase ${dark ? 'text-white/60' : 'text-black/60'}`}>Opening the studio</p>
-              </div>
-            </div>
+        {/* Hardware-Accelerated Progress Gauge */}
+        <div className="w-56 mt-6 flex flex-col items-center">
+          <div
+            className={`h-[2px] w-full rounded-full overflow-hidden relative ${
+              isDarkMode ? 'bg-white/10' : 'bg-gray-200/80'
+            }`}
+          >
+            <motion.div
+              className="h-full w-full bg-accent rounded-full origin-left will-change-transform"
+              initial={{ scaleX: 0 }}
+              animate={{ scaleX: isPreviewMode ? 0.68 : 1 }}
+              transition={{
+                duration: isPreviewMode ? 0 : duration / 1000,
+                ease: [0.22, 1, 0.36, 1],
+              }}
+            />
+          </div>
 
-            <div className={`flex flex-wrap items-center justify-between gap-4 border-t pt-4 ${dark ? 'border-white/10' : 'border-black/10'}`}>
-              <p className={`text-[10px] sm:text-xs tracking-wide ${dark ? 'text-white/55' : 'text-black/55'}`}>Design. Build. Launch.</p>
-              <button type="button" onClick={finish} className={`flex min-h-11 items-center gap-2 rounded px-3 text-xs font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent ${dark ? 'hover:bg-white/10' : 'hover:bg-black/5'}`}>
-                Enter site <ArrowUpRight size={15} aria-hidden="true" />
-              </button>
-            </div>
-          </motion.div>
-        </Dialog.Content>
-      </Dialog.Portal>
-    </Dialog.Root>
+          <span
+            className={`font-mono text-[10px] tabular-nums tracking-widest mt-2 ${
+              isDarkMode ? 'text-white/40' : 'text-gray-400'
+            }`}
+          >
+            {progress}%
+          </span>
+        </div>
+      </motion.div>
+    </div>
   );
-}
+};
+
+export default Preloader;
