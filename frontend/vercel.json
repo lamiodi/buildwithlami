@@ -65,8 +65,224 @@
       "destination": "/seo/projects/medios-hospital-os.html"
     },
     {
-      "source": "/(.*)",
-      "destination": "/index.html"
+      "source": "/admin",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/admin/crm",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/admin/email-templates",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/admin/survey/bookings",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/admin/survey/projects",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/admin/survey/portfolio",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/admin/drone/bookings",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/admin/drone/missions",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/admin/drone/portfolio",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/admin/portfolio",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/admin/projects",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/admin/clients",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/admin/clients/:id",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/admin/tasks",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/admin/quotations",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/admin/outreach",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/admin/projects/:id",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/admin/invoices",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/admin/expenses",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/admin/reports",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/admin/templates",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/admin/settings",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/admin/logs",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/admin/inbox",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/admin/contracts",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/admin/payments",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/admin/aftercare",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/admin/security/2fa",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/admin/help",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/portal",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/portal/login",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/portal/onboarding",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/portal/approvals",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/portal/projects",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/portal/quotations",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/portal/contracts",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/portal/invoices",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/portal/documents",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/portal/messages",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/portal/timeline",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/portal/profile",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/login",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/forgot-password",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/reset-password/:token",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/ref/:code",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/track/payment-success",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/track/:trackingId",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/form/:formId",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/pay/:token",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/unsubscribe/:token",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/sign/:token",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/contracts/sign/:token",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/projects/:id",
+      "destination": "/api/project-page?id=:id&division=SOFTWARE"
+    },
+    {
+      "source": "/survey/projects/:id",
+      "destination": "/api/project-page?id=:id&division=SURVEY"
+    },
+    {
+      "source": "/drone/projects/:id",
+      "destination": "/api/project-page?id=:id&division=DRONE"
     }
   ],
   "headers": [
@@ -156,6 +372,25 @@
           "value": "noindex, nofollow"
         }
       ]
+    },
+    {
+      "source": "/app.html",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "no-store"
+        }
+      ]
     }
-  ]
+  ],
+  "trailingSlash": false,
+  "functions": {
+    "api/project-page.js": {
+      "includeFiles": "dist/app.html"
+    }
+  }
 }

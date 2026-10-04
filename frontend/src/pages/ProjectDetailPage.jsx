@@ -458,7 +458,7 @@ const ProjectDetailPage = () => {
     const fetchProject = async () => {
       try {
         const res = await Promise.race([
-          api.get(`/projects/${id}`),
+          api.get(`/projects/${/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id) ? '' : 'slug/'}${encodeURIComponent(id)}`),
           new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 3000))
         ]);
         const result = res?.data?.data || res?.data;

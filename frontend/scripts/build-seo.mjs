@@ -7,6 +7,7 @@ const root = resolve(import.meta.dirname, '..');
 const output = resolve(root, process.argv[2] || 'dist');
 const template = await readFile(resolve(output, 'index.html'), 'utf8');
 const replaceHead = (html, seo) => html.replace(/<!-- SEO:START -->[\s\S]*?<!-- SEO:END -->/, `<!-- SEO:START -->\n${renderSeo(seo)}\n<!-- SEO:END -->`);
+await writeFile(resolve(output, 'app.html'), replaceHead(template, getSeo('/login')));
 if (!template.includes('<!-- SEO:START -->')) throw new Error('SEO markers missing');
 for (const path of publicPaths) {
   const target = resolve(output, path === '/' ? 'index.html' : `seo${path}.html`);

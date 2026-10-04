@@ -2,24 +2,24 @@
 
 `src/seo.js` owns public page titles, descriptions, canonicals, social previews and structured data. Project pages update metadata from the displayed project. Internal and missing pages use noindex and omit canonical links.
 
-`npm run build` creates initial HTML metadata for the nine main pages and six local software case studies. Explicit Vercel rewrites serve these files while preserving the API proxy. The initial HTML also contains a visible, linked summary of the page and its relevant project/founder information. React replaces this with the full interactive design when it starts. This is not full server rendering. API-only case studies receive metadata after loading in the browser; add published case studies to the build catalog to provide their social tags without JavaScript.
+`npm run build` creates initial HTML metadata for the nine main pages and six local software case studies. Explicit Vercel rewrites serve these files while preserving the API proxy. The initial HTML also contains a linked fallback summary of the page and its relevant project/founder information. React replaces this with the full interactive design when it starts. This is not full server rendering. API-only project requests now receive metadata through api/project-page.js after publication and division checks.
 
 Run `node scripts/seo.test.mjs` after a production build. When adding a static public route, update `src/seo.js` and its Vercel rewrite together. Social images are in `public/images/social`, with editable SVG sources and 1200×630 PNG outputs.
 
 After deployment:
 
 1. Check the actual response HTML for `/`, `/survey`, `/drone` and a case study. Confirm one canonical and correct social image.
-2. Verify the domain in Google Search Console and submit `https://buildwithlami.com/sitemap.xml`. No account verification or submission was performed locally.
+2. Verify the domain in Google Search Console and submit `https://www.buildwithlami.com/sitemap.xml`. No account verification or submission was performed locally.
 3. Use URL Inspection and monitor indexing, search queries and Core Web Vitals. Structured data does not guarantee a rich result or a ranking.
 4. Keep business details and case studies accurate. Add real project evidence and client-approved testimonials as they become available.
 
-Unknown SPA routes receive a browser-rendered noindex. The SPA catch-all still returns HTTP 200; true server-side 404 responses and full body prerendering would need a further routing/rendering change.
+Unknown routes now fall through to the static 404.html response. Explicit app routes use app.html with noindex. Dynamic project pages validate published records before returning HTML: missing records return 404, and upstream outages return 503. Run node --test scripts/routing.test.mjs when changing routes.
 
 Guidance: https://developers.google.com/search/docs/crawling-indexing/javascript/javascript-seo-basics and https://vercel.com/docs/project-configuration/vercel-json
 
 ## Personal-name visibility and qualified enquiries
 
-The existing professional spelling, Eugene Odibenuah, remains the primary name until confirmed by the owner. The reverse order Odibenuah Eugene is a structured-data name variant. No unconfirmed misspelling is added. The founder entity is connected to the business, About page, portrait and existing LinkedIn/GitHub links.
+The existing professional spelling, Eugene Odibenuah, is the owner-confirmed primary name. The reverse order Odibenuah Eugene is a structured-data name variant. No unconfirmed misspelling is added. The founder entity is connected to the business, About page, portrait and existing LinkedIn/GitHub links.
 
 Public pages are permitted under the shared robots.txt rule, including search crawlers such as OAI-SearchBot. This does not guarantee AI citations or prove that the production host allows these crawlers. Verify any host/CDN bot restrictions after publishing.
 

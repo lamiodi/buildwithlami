@@ -566,7 +566,7 @@ const SurveyProjectDetailPage = () => {
     const load = async () => {
       setLoading(true);
       setError(null);
-      const res = await api.get(`/projects/${id}`);
+      const res = await api.get(`/projects/${/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id) ? '' : 'slug/'}${encodeURIComponent(id)}`);
       if (!res.ok) {
         setError(res.error || 'Project not found.');
         setLoading(false);
