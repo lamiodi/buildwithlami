@@ -10,6 +10,7 @@ import {
 import { api } from '../../services/api';
 import { dronePlaceholder, equipmentPlaceholder } from '../../utils/placeholders';
 import { CONTACT } from '../../config/contact';
+import { droneFaqs as faqs } from '../../data/faqs';
 import DivisionQuoteForm from '../../components/DivisionQuoteForm';
 import { ServiceShortcuts, MobileQuoteBar } from '../../components/DivisionConversion';
 import '../../styles/division-pages.css';
@@ -299,38 +300,6 @@ const DroneHomePage = () => {
       title: "Post-Processing & Turnaround",
       description: "Standard 3–5 business day delivery vs. express rush turnarounds, specialized color grading, or 9:16 vertical social cutdowns."
     }
-  ];
-
-  // -- Realistic client questions & authoritative answers --
-  const faqs = [
-    { 
-      q: "Can you fly anywhere in Nigeria?",          
-      a: "Missions are conducted across Nigeria (frequently in Lagos, Ogun, Oyo, and FCT Abuja) subject to Nigerian Civil Aviation Authority (NCAA) airspace restrictions, necessary local authorisations/clearances where applicable, weather windows, and on-site safety assessments. Longer-distance regional deployments are quoted with standard mobilization." 
-    },
-    { 
-      q: "How does pricing and quotation work?",       
-      a: "Every flight mission is quoted individually based on site location, flight complexity, required deliverables (48MP RAW stills, 4K 10-bit video, or photogrammetry basemaps), battery cycle requirements, and editing turnaround. Request a quote with your site details for a clear, transparent scope." 
-    },
-    { 
-      q: "How long does post-processing and delivery take?", 
-      a: "Standard photo packages are delivered within 2–3 business days. Cinematic 4K video edits and photogrammetry orthomosaics typically take 3–5 business days. Express same-day or 24-hour turnaround is available on request for urgent marketing campaigns." 
-    },
-    { 
-      q: "Do you provide RAW stills and log footage?", 
-      a: "Yes. Clients can request 48MP RAW stills (DNG) and 10-bit D-Log M master video files captured on our flagship DJI Mini 4 Pro alongside the final graded deliverables." 
-    },
-    { 
-      q: "What is the difference between your drone mapping and your survey division?", 
-      a: "Drone mapping delivers high-resolution aerial imagery, 2D orthomosaics, and photogrammetric digital surface models (DSM) for planning, agriculture, and construction visuals. For legally binding boundary demarcation, registered cadastral surveys, ground control, and certified engineering setting out, our professional Survey Division executes full SURCON-supervised services." 
-    },
-    { 
-      q: "Can you work with construction companies on milestone schedules?", 
-      a: "Yes. We offer recurring monthly or milestone-based construction progress flyovers, high-resolution facade/roof visual audits, and stakeholder-ready video reels with fixed scheduled deployment windows." 
-    },
-    { 
-      q: "How do weather and wind affect flight operations?", 
-      a: "High winds exceeding aircraft safety limits, heavy rain, or severe low-visibility conditions can delay flights. We monitor weather windows closely in the 48 hours prior to takeoff and reschedule at no additional cost if conditions compromise safety." 
-    },
   ];
 
   // -- State Management --

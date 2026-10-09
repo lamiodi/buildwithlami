@@ -1,5 +1,7 @@
 import projects from './data/fallbackProjects.js';
 import { CONTACT } from './config/contact.js';
+import { faqsByPath } from './data/faqs.js';
+import { divisionServices } from './data/divisionServices.js';
 
 export const FOUNDER = { name: 'Eugene Odibenuah', givenName: 'Eugene', familyName: 'Odibenuah', alternateName: ['Odibenuah Eugene'] };
 
@@ -64,7 +66,25 @@ export function getSeo(pathname, options = {}) {
     crumbs.push({ '@type': 'ListItem', position: crumbs.length + 1, name: clean(project?.title || title.split('|')[0]), item: canonical });
     graph.push({ '@type': 'BreadcrumbList', itemListElement: crumbs });
   }
-  if (['/software', '/survey', '/drone'].includes(path)) graph.push({ '@type': 'Service', name: title.split('|')[0].trim(), description, url: canonical, provider: { '@id': organization['@id'] } });
+  if (['/software', '/survey', '/drone'].includes(path)) {
+    const serviceName = title.split('|')[0].trim();
+    graph.push({
+      '@type': 'Service', name: serviceName, description, url: canonical,
+      provider: { '@id': organization['@id'] },
+      areaServed: path === '/software' ? 'Worldwide' : ['Lagos, Nigeria', 'Nigeria'],
+      ...(divisionServices[path] ? {
+        hasOfferCatalog: {
+          '@type': 'OfferCatalog', name: `${serviceName} services`,
+          itemListElement: divisionServices[path].map(s => ({ '@type': 'Offer', itemOffered: { '@type': 'Service', name: s.headline, description: s.description } })),
+        },
+      } : {}),
+    });
+  }
+  const faqs = indexable ? faqsByPath[path] : null;
+  if (faqs?.length) graph.push({
+    '@type': 'FAQPage', '@id': `${canonical}#faq`,
+    mainEntity: faqs.map(f => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })),
+  });
   if (project?.title && indexable) graph.push({ '@type': 'CreativeWork', name: clean(project.title), description, url: canonical, image, creator: { '@id': organization['@id'] } });
   return { title, description, canonical, image, imageAlt: project?.title ? `${clean(project.title)} project preview` : `${path === '/survey' ? 'GeoSurvey' : path === '/drone' ? 'Lami Aerial' : 'BuildWithLami'} services`, robots: indexable ? 'index, follow, max-image-preview:large' : 'noindex, nofollow', structuredData: { '@context': 'https://schema.org', '@graph': graph } };
 }

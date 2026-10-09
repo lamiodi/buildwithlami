@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { api } from '../../services/api';
 import { CONTACT } from '../../config/contact';
+import { surveyFaqs as faqs } from '../../data/faqs';
 import DivisionQuoteForm from '../../components/DivisionQuoteForm';
 import { ServiceShortcuts, MobileQuoteBar } from '../../components/DivisionConversion';
 import '../../styles/division-pages.css';
@@ -418,34 +419,6 @@ const SurveyHomePage = () => {
   }, [fetchProjects]);
 
   const projects = apiProjects.length > 0 ? apiProjects : fallbackProjects;
-
-  // Comprehensive client FAQs
-  const faqs = [
-    {
-      q: "How are your surveys supervised and prepared for statutory lodgement?",
-      a: "All survey field observations, boundary measurements, and technical drafting are executed by Eugene Odibenuah. Statutory survey plans, official lodgement, and cadastral title documentations are prepared and delivered under the direct supervision of licensed SURCON-registered surveyors in full compliance with Nigerian survey regulations."
-    },
-    {
-      q: "How long does a typical land survey take from start to finish?",
-      a: "Standard residential boundary demarcation and perimeter surveys typically require 1–2 days of field observations, followed by 2–3 business days for computation, drafting, and plan preparation. Larger agricultural or estate subdivision projects (5+ hectares) generally require 1–2 weeks depending on site access, terrain, and weather conditions."
-    },
-    {
-      q: "What deliverables will I receive upon project completion?",
-      a: "Depending on your project scope, you will receive: Survey Plans prepared under registered supervision (suitable for title deed annexure and Governor's Consent), Tabulated Beacon Coordinate Schedules, Layered AutoCAD (.DWG / .DXF) vector files, Digital Terrain Models (DTM/DEM), and georeferenced aerial orthomosaics."
-    },
-    {
-      q: "What coordinate systems and reference datums do you use?",
-      a: "We deploy project-specific coordinate reference systems: Minna Datum (Clarke 1880 spheroid) projected to UTM Zone 31N or 32N for Nigerian national cadastral lodgements, WGS 84 for satellite GIS workflows, or custom local site coordinate grids for engineering and construction layout setting out."
-    },
-    {
-      q: "What information is needed to begin a survey and receive a quote?",
-      a: "To provide an accurate scope and quotation, we require: site location (Google Maps pin or landmark address), approximate plot count or land acreage, title or purchase documentation (if available), and the intended purpose of the survey (boundary title, architectural design, subdivision, or construction)."
-    },
-    {
-      q: "Do you execute land survey projects outside Lagos State?",
-      a: "Yes. While our primary base is Lagos, we regularly deploy across Ogun, Oyo, Delta, Edo, Ondo, and Abuja (FCT). Mobilization logistics and statutory state survey requirements are factored into our transparent project proposals."
-    }
-  ];
 
   // Accordion state
   const [openFaq, setOpenFaq] = useState(null);

@@ -1,0 +1,68 @@
+{
+  "/": {
+    "hash": "cf095fdf5c033bc6e371c0b145a9a78768bcfeb98af0fb21bb1a89854813c0d4",
+    "lastmod": "2026-10-09"
+  },
+  "/software": {
+    "hash": "00c47551fd9affa633b976ec2bccd56899f1ccb2fbcf02cb76b63cea4db20893",
+    "lastmod": "2026-10-09"
+  },
+  "/services": {
+    "hash": "d8b2a719a96fb65bbd56e9b7c210409ad42218f64a7244cd2be2dcef507beaca",
+    "lastmod": "2026-10-09"
+  },
+  "/projects": {
+    "hash": "50a71711c70001b7fffb2122a97ef206e799aaca3143338419e7577ddeb9ccf9",
+    "lastmod": "2026-10-09"
+  },
+  "/pricing": {
+    "hash": "2e78781c3b5c0c78f2398c197a5652900dabc4442aac1c3b6bb360db1c9bbf54",
+    "lastmod": "2026-10-09"
+  },
+  "/about": {
+    "hash": "1cf9b25a6b735cfb1dad74e2a8d6a7b7302b1711091837a4f3abe28b13f3967a",
+    "lastmod": "2026-10-09"
+  },
+  "/contact": {
+    "hash": "6a946ec2c0ca4a62558321979ad4f04980305633b9cb619d1888ff6da18b18ad",
+    "lastmod": "2026-10-09"
+  },
+  "/survey": {
+    "hash": "60056d40a31d2ca20eec4cebdd61bb1486bb821973f9aac25733703f33d39449",
+    "lastmod": "2026-10-09"
+  },
+  "/drone": {
+    "hash": "0649ae1810e60f3d829a712fcba9369677a6aec87c03d7f22a6e67263898b167",
+    "lastmod": "2026-10-09"
+  },
+  "/projects/vonnex2x-enterprise-erp": {
+    "hash": "6e9d97852f8bb1543802cfef18bc2a67ef64927ddaebed9356682ca8b5751615",
+    "lastmod": "2026-10-09",
+    "image": "https://www.buildwithlami.com/images/projects/case/vonnex2x-screenshot.webp"
+  },
+  "/projects/tiabrand-ecommerce": {
+    "hash": "912b16a0510850fb905d5c836fea44f745fd04ca7eb9bfa1e399f0b9886e7048",
+    "lastmod": "2026-10-09",
+    "image": "https://www.buildwithlami.com/images/projects/case/tiabrand-screenshot.webp"
+  },
+  "/projects/wodibenuah-fair": {
+    "hash": "adea67d7ad9e32c51c69b594f8082c669e3a930363cfdd05919f440d707fa4c5",
+    "lastmod": "2026-10-09",
+    "image": "https://www.buildwithlami.com/images/projects/case/wodibenuah-screenshot.webp"
+  },
+  "/projects/sourceline-limited": {
+    "hash": "241e7a315c4bdea5b1f671d322ab0d96a8641cfe9a427eceb89793cb5b5a754a",
+    "lastmod": "2026-10-09",
+    "image": "https://www.buildwithlami.com/images/projects/case/sourceline-screenshot.webp"
+  },
+  "/projects/eduflow-academic-erp": {
+    "hash": "38aaa8e9cf1119f413b997a998134fa3c2cb9400e1e5ea36755d4abe63930314",
+    "lastmod": "2026-10-09",
+    "image": "https://www.buildwithlami.com/images/projects/case/eduflow-screenshot.webp"
+  },
+  "/projects/medios-hospital-os": {
+    "hash": "8e3e32f44c70cf74a53157d8d8672b2371ba21ad3fa63d54fb91cfdd049554b1",
+    "lastmod": "2026-10-09",
+    "image": "https://www.buildwithlami.com/images/projects/case/medios-screenshot.webp"
+  }
+}

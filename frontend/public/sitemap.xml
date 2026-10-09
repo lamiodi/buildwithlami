@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://www.buildwithlami.com/</loc></url>
-  <url><loc>https://www.buildwithlami.com/software</loc></url>
-  <url><loc>https://www.buildwithlami.com/services</loc></url>
-  <url><loc>https://www.buildwithlami.com/projects</loc></url>
-  <url><loc>https://www.buildwithlami.com/pricing</loc></url>
-  <url><loc>https://www.buildwithlami.com/about</loc></url>
-  <url><loc>https://www.buildwithlami.com/contact</loc></url>
-  <url><loc>https://www.buildwithlami.com/survey</loc></url>
-  <url><loc>https://www.buildwithlami.com/drone</loc></url>
-  <url><loc>https://www.buildwithlami.com/projects/vonnex2x-enterprise-erp</loc></url>
-  <url><loc>https://www.buildwithlami.com/projects/tiabrand-ecommerce</loc></url>
-  <url><loc>https://www.buildwithlami.com/projects/wodibenuah-fair</loc></url>
-  <url><loc>https://www.buildwithlami.com/projects/sourceline-limited</loc></url>
-  <url><loc>https://www.buildwithlami.com/projects/eduflow-academic-erp</loc></url>
-  <url><loc>https://www.buildwithlami.com/projects/medios-hospital-os</loc></url>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  <url><loc>https://www.buildwithlami.com/</loc><lastmod>2026-10-09</lastmod></url>
+  <url><loc>https://www.buildwithlami.com/software</loc><lastmod>2026-10-09</lastmod></url>
+  <url><loc>https://www.buildwithlami.com/services</loc><lastmod>2026-10-09</lastmod></url>
+  <url><loc>https://www.buildwithlami.com/projects</loc><lastmod>2026-10-09</lastmod></url>
+  <url><loc>https://www.buildwithlami.com/pricing</loc><lastmod>2026-10-09</lastmod></url>
+  <url><loc>https://www.buildwithlami.com/about</loc><lastmod>2026-10-09</lastmod></url>
+  <url><loc>https://www.buildwithlami.com/contact</loc><lastmod>2026-10-09</lastmod></url>
+  <url><loc>https://www.buildwithlami.com/survey</loc><lastmod>2026-10-09</lastmod></url>
+  <url><loc>https://www.buildwithlami.com/drone</loc><lastmod>2026-10-09</lastmod></url>
+  <url><loc>https://www.buildwithlami.com/projects/vonnex2x-enterprise-erp</loc><lastmod>2026-10-09</lastmod><image:image><image:loc>https://www.buildwithlami.com/images/projects/case/vonnex2x-screenshot.webp</image:loc></image:image></url>
+  <url><loc>https://www.buildwithlami.com/projects/tiabrand-ecommerce</loc><lastmod>2026-10-09</lastmod><image:image><image:loc>https://www.buildwithlami.com/images/projects/case/tiabrand-screenshot.webp</image:loc></image:image></url>
+  <url><loc>https://www.buildwithlami.com/projects/wodibenuah-fair</loc><lastmod>2026-10-09</lastmod><image:image><image:loc>https://www.buildwithlami.com/images/projects/case/wodibenuah-screenshot.webp</image:loc></image:image></url>
+  <url><loc>https://www.buildwithlami.com/projects/sourceline-limited</loc><lastmod>2026-10-09</lastmod><image:image><image:loc>https://www.buildwithlami.com/images/projects/case/sourceline-screenshot.webp</image:loc></image:image></url>
+  <url><loc>https://www.buildwithlami.com/projects/eduflow-academic-erp</loc><lastmod>2026-10-09</lastmod><image:image><image:loc>https://www.buildwithlami.com/images/projects/case/eduflow-screenshot.webp</image:loc></image:image></url>
+  <url><loc>https://www.buildwithlami.com/projects/medios-hospital-os</loc><lastmod>2026-10-09</lastmod><image:image><image:loc>https://www.buildwithlami.com/images/projects/case/medios-screenshot.webp</image:loc></image:image></url>
 </urlset>

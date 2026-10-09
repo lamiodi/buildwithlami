@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { api } from '../../services/api';
 import fallbackProjects from '../../data/fallbackProjects';
+import { softwareFaqs as FAQS } from '../../data/faqs';
 
 const TECH_CATEGORIES = [
   {
@@ -35,25 +36,6 @@ const TECH_CATEGORIES = [
     icon: Workflow,
     description: 'Seamless payment gateways, media delivery, and communications.',
     items: ['Paystack', 'Stripe', 'Cloudinary', 'Resend', 'WhatsApp API']
-  }
-];
-
-const FAQS = [
-  {
-    q: 'Do I own 100% of the code and intellectual property?',
-    a: 'Yes, unconditionally. Upon final milestone payment, full copyright and repository ownership (GitHub transfer) is assigned to you with comprehensive documentation.'
-  },
-  {
-    q: 'How are payments structured for software projects?',
-    a: 'Software projects are structured with a transparent 50/50 milestone payment model: 50% upfront to reserve your schedule and begin architecture & development, and the remaining 50% upon final delivery, testing, and production deployment. I accept NGN via Paystack and international bank transfer.'
-  },
-  {
-    q: 'What post-launch support and warranty is included?',
-    a: 'Every custom software build includes 90 days of complimentary bug fixes, performance monitoring, and security patching after launch.'
-  },
-  {
-    q: 'Can you work with existing codebases and legacy systems?',
-    a: 'Yes. I frequently conduct code audits, refactoring, performance optimizations, and feature expansions for existing React, Node, Python, and PostgreSQL systems.'
   }
 ];
 
