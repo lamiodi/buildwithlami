@@ -121,7 +121,7 @@ const Footer = ({ soundOn, onToggleSound }) => {
         <div className="mb-10 sm:mb-16 select-none pointer-events-none w-full text-center overflow-hidden">
           <h2
             className="font-black leading-[0.85] uppercase text-white whitespace-nowrap"
-            style={{ fontSize: 'clamp(25px, 9.72vw, 146px)', letterSpacing: '-0.04em' }}
+            style={{ fontSize: 'clamp(25px, 9.72vw, 138px)', letterSpacing: '-0.04em' }}
           >
             &lt;BUILDWITH_LAMI /&gt;
           </h2>
