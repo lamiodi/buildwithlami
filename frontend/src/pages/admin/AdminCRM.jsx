@@ -194,7 +194,7 @@ const LeadDrawer = ({ lead, stages, onClose, onUpdate, onConvert, onSendTemplate
                         {/* Stage transition */}
                         <section>
                             <h3 className="text-[10px] font-extrabold uppercase tracking-widest text-gray-500 mb-2">Stage</h3>
-                            <div className="grid grid-cols-4 gap-1.5">
+                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
                                 {stages.map(s => (
                                     <button
                                         key={s.id}

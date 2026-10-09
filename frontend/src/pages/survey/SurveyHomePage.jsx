@@ -1080,7 +1080,7 @@ const SurveyHomePage = () => {
                 </button>
                 <div 
                   className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                    openFaq === idx ? 'max-h-60 pb-6' : 'max-h-0'
+                    openFaq === idx ? 'max-h-[40rem] pb-6' : 'max-h-0'
                   }`}
                 >
                   <p className="text-xs font-medium text-gray-700 leading-relaxed pr-8">

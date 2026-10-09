@@ -142,7 +142,7 @@ const MaintenanceTab = ({ clients, projects }) => {
                 </select>
               </div>
             </div>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
                 <label className={labelClass}>Billing</label>
                 <select name="billing_cycle" value={form.billing_cycle} onChange={handleChange} className={inputClass}>

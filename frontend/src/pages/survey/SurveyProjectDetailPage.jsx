@@ -752,7 +752,7 @@ const SurveyProjectDetailPage = () => {
             initial={shouldReduce ? {} : { opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: shouldReduce ? 0 : 0.7, delay: shouldReduce ? 0 : 0.1, ease: 'easeOut' }}
-            className="survey-heading text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl text-black leading-[0.95] tracking-tight max-w-6xl"
+            className="survey-heading text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl text-black leading-[0.95] tracking-tight max-w-6xl break-words"
           >
             {titleLine1}
             {titleLine2 && (

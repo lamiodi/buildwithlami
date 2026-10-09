@@ -38,7 +38,7 @@ const WhatsAppWidget = () => {
     return (
       <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end font-sans">
         <div hidden={!isOpen}
-          className={`bg-white text-black rounded-none shadow-2xl mb-4 w-80 sm:w-96 overflow-hidden border-2 border-black transition-all duration-300 origin-bottom-right ${
+          className={`bg-white text-black rounded-none shadow-2xl mb-4 w-[min(20rem,calc(100vw-3rem))] sm:w-96 overflow-hidden border-2 border-black transition-all duration-300 origin-bottom-right ${
             isOpen ? 'scale-100 opacity-100' : 'scale-0 opacity-0 pointer-events-none'
           }`}
         >
@@ -172,7 +172,7 @@ const WhatsAppWidget = () => {
     return (
       <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end font-sans">
         <div 
-          className={`bg-[#121212] text-white rounded-[2rem] shadow-2xl mb-4 w-80 sm:w-96 overflow-hidden border border-white/10 transition-all duration-300 origin-bottom-right ${
+          className={`bg-[#121212] text-white rounded-[2rem] shadow-2xl mb-4 w-[min(20rem,calc(100vw-3rem))] sm:w-96 overflow-hidden border border-white/10 transition-all duration-300 origin-bottom-right ${
             isOpen ? 'scale-100 opacity-100' : 'scale-0 opacity-0 pointer-events-none'
           }`}
         >

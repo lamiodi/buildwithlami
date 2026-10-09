@@ -40,9 +40,7 @@ const TechStack = () => {
     const section = sectionRef.current;
     if (!scene || !section || typeof window === 'undefined') return undefined;
 
-    const capabilityQuery = window.matchMedia(
-      '(min-width: 769px) and (pointer: fine) and (prefers-reduced-motion: no-preference)'
-    );
+    const capabilityQuery = window.matchMedia('(prefers-reduced-motion: no-preference)');
     const saveDataEnabled = navigator.connection?.saveData === true;
     let disposed = false;
     let loadObserver;
@@ -124,6 +122,37 @@ const TechStack = () => {
       Composite.add(engine.world, cards);
 
       const mouse = Mouse.create(scene);
+      // matter's built-in touch/wheel handlers preventDefault every event on
+      // the scene, which would block page scrolling across the whole section;
+      // replace them with routed touch handlers that only feed touches which
+      // start on a card into the physics engine
+      scene.removeEventListener('touchstart', mouse.mousedown);
+      scene.removeEventListener('touchmove', mouse.mousemove);
+      scene.removeEventListener('touchend', mouse.mouseup);
+      scene.removeEventListener('wheel', mouse.mousewheel);
+
+      let touchDragActive = false;
+      const routeTouchStart = (event) => {
+        if (touchDragActive) return;
+        const touch = event.changedTouches[0];
+        const hit = touch && document.elementFromPoint(touch.clientX, touch.clientY);
+        if (!hit || !hit.closest('.tech-card')) return;
+        touchDragActive = true;
+        mouse.mousedown(event);
+      };
+      const routeTouchMove = (event) => {
+        if (!touchDragActive) return;
+        mouse.mousemove(event);
+      };
+      const routeTouchEnd = (event) => {
+        if (!touchDragActive) return;
+        touchDragActive = false;
+        mouse.mouseup(event);
+      };
+      scene.addEventListener('touchstart', routeTouchStart, { passive: false });
+      scene.addEventListener('touchmove', routeTouchMove, { passive: false });
+      scene.addEventListener('touchend', routeTouchEnd, { passive: false });
+      scene.addEventListener('touchcancel', routeTouchEnd, { passive: false });
       const mouseConstraint = MouseConstraint.create(engine, {
         mouse,
         constraint: { stiffness: 0.25, render: { visible: false } }
@@ -169,6 +198,7 @@ const TechStack = () => {
       Events.on(mouseConstraint, 'enddrag', handleEndDrag);
 
       scene.classList.add('physics-ready');
+      section.classList.add('physics-ready');
       syncCardPositions();
 
       const visibilityObserver = new IntersectionObserver(
@@ -213,9 +243,14 @@ const TechStack = () => {
         Events.off(mouseConstraint, 'enddrag', handleEndDrag);
         if (runnerIsActive) Runner.stop(runner);
         Mouse.clearSourceEvents(mouse);
+        scene.removeEventListener('touchstart', routeTouchStart);
+        scene.removeEventListener('touchmove', routeTouchMove);
+        scene.removeEventListener('touchend', routeTouchEnd);
+        scene.removeEventListener('touchcancel', routeTouchEnd);
         Composite.clear(engine.world, false);
         Engine.clear(engine);
         scene.classList.remove('physics-ready');
+        section.classList.remove('physics-ready');
         cardRefs.current.forEach((element) => {
           if (element) {
             element.classList.remove('dragging');

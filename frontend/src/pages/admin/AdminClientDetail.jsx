@@ -532,6 +532,7 @@ const AdminClientDetail = () => {
           {projects.length === 0 ? (
             <p className="p-12 text-center text-gray-500 font-body">No projects for this client yet.</p>
           ) : (
+            <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 text-xs font-bold text-gray-500 uppercase tracking-wider font-body">
@@ -576,6 +577,7 @@ const AdminClientDetail = () => {
                 ))}
               </tbody>
             </table>
+            </div>
           )}
         </div>
       )}
@@ -821,6 +823,7 @@ const AdminClientDetail = () => {
           {invoices.length === 0 ? (
             <p className="p-12 text-center text-gray-500 font-body">No invoices for this client yet.</p>
           ) : (
+            <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 text-xs font-bold text-gray-500 uppercase tracking-wider font-body">
@@ -853,6 +856,7 @@ const AdminClientDetail = () => {
                 ))}
               </tbody>
             </table>
+            </div>
           )}
         </div>
       )}

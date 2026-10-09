@@ -269,7 +269,7 @@ export default function AdminBookingsWorkspace({ config }) {
 
                                 <div>
                                     <div className="text-[10px] font-extrabold uppercase tracking-widest text-gray-400 mb-2">{labels.statusLabel}</div>
-                                    <div className="grid grid-cols-4 gap-2">
+                                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                                         {['PENDING', 'CONFIRMED', 'COMPLETED', 'CANCELLED'].map(st => (
                                             <button
                                                 key={st}

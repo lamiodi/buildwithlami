@@ -104,6 +104,7 @@ const AdminPaymentQueue = () => {
                             {statusFilter === 'PENDING' ? '🎉 No proofs to review.' : 'No proofs match this filter.'}
                         </div>
                     ) : (
+                        <div className="overflow-x-auto">
                         <table className="w-full text-left text-sm text-gray-600 dark:text-gray-300">
                             <thead className="bg-gray-50 dark:bg-gray-900/50 text-gray-700 dark:text-gray-400 uppercase font-extrabold text-[10px] tracking-widest">
                                 <tr>
@@ -157,6 +158,7 @@ const AdminPaymentQueue = () => {
                                 ))}
                             </tbody>
                         </table>
+                        </div>
                     )}
                 </div>
             </div>

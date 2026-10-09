@@ -335,7 +335,7 @@ const PaymentPage = () => {
                         </div>
                         <div className="text-right">
                             <p className="text-[10px] font-extrabold uppercase tracking-widest text-gray-500 mb-1">Amount Due</p>
-                            <p className="text-4xl font-extrabold font-mono text-accent">
+                            <p className="text-2xl sm:text-3xl md:text-4xl font-extrabold font-mono text-accent break-all">
                                 {invoice.currency === 'NGN' ? '₦' : invoice.currency === 'USD' ? '$' : invoice.currency === 'GBP' ? '£' : ''}
                                 {Number(invoice.amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                             </p>

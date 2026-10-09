@@ -137,7 +137,7 @@ const ReferralsTab = ({ clients }) => {
               <label className={labelClass}>Referred Email</label>
               <input type="email" name="referred_email" value={form.referred_email} onChange={handleChange} className={inputClass} />
             </div>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
                 <label className={labelClass}>Status</label>
                 <select name="status" value={form.status} onChange={handleChange} className={inputClass}>

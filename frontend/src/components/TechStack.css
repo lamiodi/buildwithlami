@@ -100,7 +100,6 @@
     inset: 0;
     display: block;
     margin: 0;
-    touch-action: none;
 }
 
 .tech-stack-section .stack-scene.physics-ready .tech-card {
@@ -111,6 +110,7 @@
     height: 58px;
     min-height: 0;
     cursor: grab;
+    touch-action: none;
     will-change: transform;
 }
 
@@ -133,6 +133,12 @@
         min-height: 0;
         padding: 24px;
         contain-intrinsic-size: auto 430px;
+    }
+
+    /* physics mode turns the scene into an absolute overlay, so it needs a
+       host height to fall into; the grid fallback still sizes naturally */
+    .tech-stack-section.physics-ready {
+        min-height: 430px;
     }
 
     .tech-stack-section .stack-title {

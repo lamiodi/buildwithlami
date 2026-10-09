@@ -1184,7 +1184,7 @@ const DroneHomePage = () => {
                   </button>
                   <div
                     className={`overflow-hidden transition-all duration-500 ease-in-out ${
-                      openFaq === idx ? 'max-h-64 pb-6' : 'max-h-0'
+                      openFaq === idx ? 'max-h-[40rem] pb-6' : 'max-h-0'
                     }`}
                   >
                     <p className="text-gray-600 text-sm leading-relaxed pr-12 font-medium">
