@@ -1,6 +1,6 @@
 "use client";
 
-import { ComponentProps, useCallback, useEffect, useRef } from "react";
+import { ComponentProps, memo, useCallback, useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
 
 export type DotLoaderProps = {
@@ -12,7 +12,9 @@ export type DotLoaderProps = {
     onComplete?: () => void;
 } & ComponentProps<"div">;
 
-export const DotLoader = ({
+// Memoized: the Preloader re-renders on every percentage tick, and without
+// this the 49-dot grid reconciles ~60x/sec on phones.
+export const DotLoader = memo(function DotLoader({
     frames,
     isPlaying = true,
     duration = 100,
@@ -21,7 +23,7 @@ export const DotLoader = ({
     repeatCount = -1,
     onComplete,
     ...props
-}: DotLoaderProps) => {
+}: DotLoaderProps) {
     const gridRef = useRef<HTMLDivElement>(null);
     const currentIndex = useRef(0);
     const repeats = useRef(0);
@@ -79,6 +81,6 @@ export const DotLoader = ({
             ))}
         </div>
     );
-};
+});
 
 export default DotLoader;

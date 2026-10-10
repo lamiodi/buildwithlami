@@ -69,6 +69,10 @@ const Preloader = ({ onComplete, isDark: propIsDark }) => {
 
     let animationFrameId;
     let startTime = null;
+    // Only re-render when the rounded percentage actually changes — a
+    // setState per rAF frame re-renders the 49-dot matrix 60x/sec and
+    // drops frames on phones.
+    let lastReported = -1;
 
     const step = (timestamp) => {
       if (!startTime) startTime = timestamp;
@@ -78,7 +82,10 @@ const Preloader = ({ onComplete, isDark: propIsDark }) => {
       // Natural cubic ease-out matching the hardware-accelerated bar
       const eased = 1 - Math.pow(1 - t, 2.5);
       const current = Math.min(Math.round(eased * 100), 100);
-      setProgress(current);
+      if (current !== lastReported) {
+        lastReported = current;
+        setProgress(current);
+      }
 
       if (t < 1) {
         animationFrameId = requestAnimationFrame(step);
@@ -86,7 +93,9 @@ const Preloader = ({ onComplete, isDark: propIsDark }) => {
         const dwellTime = 40;
         setTimeout(() => {
           setIsExiting(true);
-          const exitDuration = 360;
+          // Let both 520ms shutter halves finish sliding before the app
+          // unmounts this overlay — cutting them at 360ms pops on mobile.
+          const exitDuration = 560;
           setTimeout(() => {
             if (onComplete) onComplete();
           }, exitDuration);
@@ -148,7 +157,7 @@ const Preloader = ({ onComplete, isDark: propIsDark }) => {
       >
         {/* Lockup Card */}
         <div
-          className={`inline-flex items-center gap-4 rounded-2xl px-6 py-3.5 backdrop-blur-xl transition-all duration-300 ${
+          className={`inline-flex items-center gap-4 rounded-2xl px-6 py-3.5 md:backdrop-blur-xl transition-all duration-300 ${
             isDarkMode
               ? 'border border-white/10 bg-[#121214]/90 shadow-lg shadow-black/40 text-white'
               : 'border border-gray-200/80 bg-white/90 shadow-lg shadow-black/[0.03] text-gray-900'
