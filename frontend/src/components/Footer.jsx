@@ -117,11 +117,16 @@ const Footer = ({ soundOn, onToggleSound }) => {
           </a>
         </nav>
 
-        {/* Massive Branding Headline */}
-        <div className="mb-10 sm:mb-16 select-none pointer-events-none w-full text-center overflow-hidden">
+        {/* Massive Branding Headline — sized in container query units so the
+            full "<BUILDWITH_LAMI />" always fits with ~5% side margin,
+            independent of viewport scrollbars or the max-w-7xl cap. */}
+        <div
+          className="mb-10 sm:mb-16 select-none pointer-events-none w-full text-center overflow-hidden"
+          style={{ containerType: 'inline-size' }}
+        >
           <h2
             className="font-black leading-[0.85] uppercase text-white whitespace-nowrap"
-            style={{ fontSize: 'clamp(25px, 9.72vw, 138px)', letterSpacing: '-0.04em' }}
+            style={{ fontSize: 'clamp(25px, 10.4cqw, 136px)', letterSpacing: '-0.04em' }}
           >
             &lt;BUILDWITH_LAMI /&gt;
           </h2>
