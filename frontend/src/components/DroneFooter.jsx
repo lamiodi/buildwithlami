@@ -272,7 +272,7 @@ const DroneFooter = () => {
               Instagram
             </a>
             <a
-              href="https://linkedin.com"
+              href={CONTACT.social.linkedin}
               target="_blank"
               rel="noopener noreferrer"
               className="text-gray-400 hover:text-white transition-colors"

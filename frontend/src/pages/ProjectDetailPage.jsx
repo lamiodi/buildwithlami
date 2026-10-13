@@ -4,6 +4,7 @@ import { motion, useReducedMotion, AnimatePresence } from 'framer-motion';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 import fallbackProjects from '../data/fallbackProjects';
+import { normalizePublicProject, selectRelatedProjects, isConceptProject } from '../utils/publicProjects';
 import { projectPlaceholder } from '../utils/placeholders';
 import { Skeleton, SkeletonTransition } from '../components/Skeleton';
 import {
@@ -463,7 +464,7 @@ const ProjectDetailPage = () => {
         ]);
         const result = res?.data?.data || res?.data;
         if (isMounted && res?.ok && result?.title) {
-          setProject(result);
+          setProject(normalizePublicProject(result));
         }
       } catch {
         // Keep the matching local case study if the API is unavailable.
@@ -513,7 +514,7 @@ const ProjectDetailPage = () => {
       { label: 'Database Tables', value: s.tables, suffix: '' },
       {
         label: 'Lighthouse',
-        value: project.metrics?.lighthouse,
+        value: project.metrics?.evidenceUrl ? project.metrics?.lighthouse : undefined,
         suffix: '/100',
       },
       { label: 'Launch Year', value: project.year, suffix: '' },
@@ -524,28 +525,7 @@ const ProjectDetailPage = () => {
   // Related projects — resolved from the full fallback list (or any project
   // list passed in via window state). If `relatedSlugs` is not defined we
   // derive a sensible default by category.
-  const relatedProjects = useMemo(() => {
-    if (!project) return [];
-    const source = fallbackProjects.filter((p) => p.id !== project.id);
-    if (Array.isArray(project.relatedSlugs) && project.relatedSlugs.length > 0) {
-      const resolved = project.relatedSlugs
-        .map((slug) => source.find((p) => p.slug === slug || p.id.toString() === String(slug)))
-        .filter(Boolean);
-      // Top up with same-category projects if the explicit list is short.
-      if (resolved.length < 2) {
-        const sameCategory = source
-          .filter((p) => p.category === project.category && !resolved.includes(p))
-          .slice(0, 2 - resolved.length);
-        resolved.push(...sameCategory);
-      }
-      return resolved.slice(0,2);
-    }
-    return source
-      .filter((p) => p.category === project.category)
-      .slice(0, 2)
-      .concat(source.filter((p) => p.category !== project.category).slice(0, 2))
-      .slice(0, 2);
-  }, [project]);
+  const relatedProjects = useMemo(() => project ? selectRelatedProjects(project) : [], [project]);
 
   // Lightbox handlers
   const openLightbox = useCallback((i) => setLightboxIndex(i), []);
@@ -636,7 +616,8 @@ const ProjectDetailPage = () => {
                     {[
                       { label: 'Industry', value: project.industry || project.category || 'Software' },
                       { label: 'Client', value: project.client || (project.division === 'SOFTWARE' ? 'Confidential Client' : 'Private Client') },
-                      { label: 'Status', value: project.status || 'Completed & Delivered' },
+                      { label: 'Project type', value: project.project_status || 'Project' },
+                      { label: 'Status', value: project.status || 'Case study' },
                       { label: 'Duration', value: project.duration || '—' },
                       { label: 'Role', value: project.role || 'Lead Engineer' },
                     ].map((row) => (
@@ -651,6 +632,7 @@ const ProjectDetailPage = () => {
                     ))}
                   </div>
 
+                  <a href="#project-gallery" className="inline-flex items-center justify-center min-h-11 px-5 py-3 border border-gray-300 dark:border-white/20 rounded-xl text-sm font-bold hover:border-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent">View {isConceptProject(project) ? "prototype" : "product"} screenshots</a>
                   {project.live_url && typeof project.live_url === 'string' && project.live_url.startsWith('http') && (
                     <div className="mt-8 flex flex-col sm:flex-row gap-3">
                       <a
@@ -937,8 +919,8 @@ const ProjectDetailPage = () => {
                 <SectionHeader
                   number="04"
                   eyebrow="Results"
-                  title="Measurable outcomes & operational impact."
-                  lede="Concrete improvements delivered once the system was deployed to production."
+                  title={isConceptProject(project) ? "What the prototype demonstrates." : "What the system supports."}
+                  lede={isConceptProject(project) ? "Prototype capabilities; these are not measured client outcomes." : "Key workflows and capabilities demonstrated in this case study."}
                 />
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 md:gap-6">
@@ -1098,7 +1080,7 @@ const ProjectDetailPage = () => {
                 8. RESPONSIVE GALLERY — desktop / tablet / phone mockups
                 ═══════════════════════════════════════════════════════════════ */}
             {galleryItems.length > 0 && (
-              <motion.section
+              <motion.section id="project-gallery" style={{ scrollMarginTop: 100 }}
                 className="max-w-7xl mx-auto px-6 md:px-12 py-16 md:py-24 border-t border-gray-200 dark:border-gray-800"
                 initial="hidden"
                 whileInView="visible"
@@ -1108,8 +1090,8 @@ const ProjectDetailPage = () => {
                 <SectionHeader
                   number="07"
                   eyebrow="Product Screenshots"
-                  title="The product, as shipped."
-                  lede="Real captures from the deployed application — desktop and mobile, exactly as users see it."
+                  title={isConceptProject(project) ? "Explore the prototype." : "Explore the product interface."}
+                  lede="Desktop and mobile interface captures. Open any image for a closer look."
                 />
 
                 <div className="space-y-8 md:space-y-12">
@@ -1184,7 +1166,7 @@ const ProjectDetailPage = () => {
                       <div className="mb-6">
                         <span className="text-xs uppercase tracking-[0.25em] font-bold text-accent">System Architecture</span>
                         <h4 className="text-xl md:text-2xl font-heading font-bold text-black dark:text-white mt-1">
-                          Production Topology & Data Flow
+                          System Topology & Data Flow
                         </h4>
                       </div>
                       <div className="space-y-3">

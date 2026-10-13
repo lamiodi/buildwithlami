@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
+import * as Dialog from '@radix-ui/react-dialog';
 import { 
   Menu, 
   X, 
@@ -43,20 +44,13 @@ const Navbar = ({ isDark, toggleTheme }) => {
     setIsOpen(false);
   }, [location.pathname]);
 
-  // Lock background scroll when mobile menu is open
+  // Radix manages focus, Escape, scroll locking and focus restoration.
   useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-      document.documentElement.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-      document.documentElement.style.overflow = '';
-    }
-    return () => {
-      document.body.style.overflow = '';
-      document.documentElement.style.overflow = '';
-    };
-  }, [isOpen]);
+    const desktop = window.matchMedia('(min-width: 768px)');
+    const onChange = () => { if (desktop.matches) setIsOpen(false); };
+    desktop.addEventListener('change', onChange);
+    return () => desktop.removeEventListener('change', onChange);
+  }, []);
 
   const closeMenu = () => setIsOpen(false);
 
@@ -72,7 +66,7 @@ const Navbar = ({ isDark, toggleTheme }) => {
   };
 
   return (
-    <>
+    <Dialog.Root open={isOpen} onOpenChange={setIsOpen}>
       <header className="sticky top-0 z-40 bg-white/95 dark:bg-[#0a0a0a]/95 supports-[backdrop-filter]:bg-white/80 supports-[backdrop-filter]:dark:bg-[#0a0a0a]/80 supports-[backdrop-filter]:backdrop-blur-md border-b border-gray-200/50 dark:border-white/5 transition-colors duration-300">
         <nav className="flex items-center justify-between px-6 py-3.5 md:px-12 max-w-7xl mx-auto">
           {/* Brand Logo */}
@@ -156,9 +150,8 @@ const Navbar = ({ isDark, toggleTheme }) => {
             <ThemeToggle isDark={isDark} toggleTheme={toggleTheme} />
             
             {/* Mobile Hamburger Button */}
-            <button 
+            <Dialog.Trigger asChild><button 
               type="button"
-              onClick={() => setIsOpen(!isOpen)}
               className="w-10 h-10 rounded-xl flex items-center justify-center border border-gray-200 dark:border-white/10 bg-white dark:bg-[#1a1a1a] text-gray-900 dark:text-white hover:text-accent dark:hover:text-accent shadow-sm active:scale-90 transition-all touch-manipulation cursor-pointer"
               aria-label={isOpen ? "Close navigation menu" : "Open navigation menu"}
               aria-expanded={isOpen}
@@ -168,14 +161,15 @@ const Navbar = ({ isDark, toggleTheme }) => {
               ) : (
                 <Menu className="w-5 h-5" />
               )}
-            </button>
+            </button></Dialog.Trigger>
           </div>
         </nav>
       </header>
 
       {/* ── FULLSCREEN RESPONSIVE MOBILE MENU DRAWER ── */}
-      <AnimatePresence>
+      <Dialog.Portal>
         {isOpen && (
+          <Dialog.Content asChild aria-describedby={undefined}>
           <motion.div 
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -184,6 +178,7 @@ const Navbar = ({ isDark, toggleTheme }) => {
             className="fixed inset-0 z-[100] w-full h-[100dvh] bg-white/98 dark:bg-[#0d0d0d]/98 backdrop-blur-2xl md:hidden flex flex-col justify-between overflow-y-auto text-black dark:text-white p-6"
             style={{ overscrollBehavior: 'contain' }}
           >
+            <Dialog.Title className="sr-only">Navigation menu</Dialog.Title>
             {/* Top Bar inside Mobile Drawer */}
             <div className="flex items-center justify-between border-b border-gray-100 dark:border-white/10 pb-4">
               <Link
@@ -294,9 +289,10 @@ const Navbar = ({ isDark, toggleTheme }) => {
               </div>
             </div>
           </motion.div>
+          </Dialog.Content>
         )}
-      </AnimatePresence>
-    </>
+      </Dialog.Portal>
+    </Dialog.Root>
   );
 };
 

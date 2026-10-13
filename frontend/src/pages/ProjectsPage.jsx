@@ -3,13 +3,11 @@ import { Link } from 'react-router-dom';
 import { motion, useReducedMotion } from 'framer-motion';
 import { api } from '../services/api';
 import fallbackProjects from '../data/fallbackProjects';
+import { normalizePublicProject, projectTypeLabel } from '../utils/publicProjects';
 import { CONTACT } from '../config/contact';
 import { staggerContainer, fadeUpItem, cardHover, cardHoverTransition, sectionViewport, reducedMotionVariants } from '../utils/motion';
 
-const projectStatusLabel = (status) => ({
-  'Client Project': 'Client Work',
-  'Concept Prototype': 'Concept'
-}[status] || status || 'Client Work');
+const projectStatusLabel = projectTypeLabel;
 
 const ProjectsPage = () => {
   const [projects, setProjects] = useState(fallbackProjects);
@@ -23,9 +21,9 @@ const ProjectsPage = () => {
     const fetchProjects = async () => {
       try {
         const res = await api.get('/projects/division/SOFTWARE', { timeout: 3000 });
-        const list = res.data?.data ?? [];
+        const list = Array.isArray(res.data) ? res.data : res.data?.data ?? [];
         if (res.ok && list.length > 0) {
-          setProjects(list);
+          setProjects(list.map(normalizePublicProject));
         }
       } catch {
         // Retain fallback
@@ -275,7 +273,7 @@ const ProjectsPage = () => {
                   <div className="flex items-center justify-between border-b border-gray-200 dark:border-white/10 pb-4">
                     <div className="flex items-center gap-3">
                       <h3 className="text-lg md:text-xl font-heading font-bold text-black dark:text-white">
-                        Production Deployments
+                        More selected work
                       </h3>
                       <span className="text-xs font-mono font-bold text-accent bg-accent/10 px-2 py-0.5 border border-accent/20">
                         {activeFilter}

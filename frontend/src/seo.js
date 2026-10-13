@@ -2,6 +2,7 @@ import projects from './data/fallbackProjects.js';
 import { CONTACT } from './config/contact.js';
 import { faqsByPath } from './data/faqs.js';
 import { divisionServices } from './data/divisionServices.js';
+import { normalizePublicProject } from './utils/publicProjects.js';
 
 export const FOUNDER = { name: 'Eugene Odibenuah', givenName: 'Eugene', familyName: 'Odibenuah', alternateName: ['Odibenuah Eugene'] };
 
@@ -31,7 +32,8 @@ const absoluteImage = value => {
 export function getSeo(pathname, options = {}) {
   const path = normalizePath(pathname);
   const fallback = path.startsWith('/projects/') && projects.find(p => p.slug === path.split('/').pop() || String(p.id) === path.split('/').pop());
-  const project = options.project === undefined ? fallback : options.project;
+  const rawProject = options.project === undefined ? fallback : options.project;
+  const project = rawProject ? normalizePublicProject(rawProject) : rawProject;
   const known = pages[path];
   const pendingProject = isProjectPath(path) && options.loading;
   const indexable = Boolean(known || project?.title || pendingProject) && !options.missing;
@@ -40,7 +42,7 @@ export function getSeo(pathname, options = {}) {
   const canonical = indexable ? `${SITE_URL}${canonicalPath}` : null;
   const title = project?.title ? `${clean(project.title)} | BuildWithLami Case Study` : known?.[0] || (pendingProject ? 'Project Case Study | BuildWithLami' : 'Page unavailable | BuildWithLami');
   const description = project?.title ? clean(project.summary || project.tagline || `Explore ${project.title}, a project by BuildWithLami.`).slice(0, 180) : known?.[1] || 'BuildWithLami software, survey and drone services.';
-  const image = absoluteImage(project?.image_url || project?.image || `/images/social/${path === '/survey' ? 'survey' : path === '/drone' ? 'drone' : 'studio'}.png`);
+  const image = absoluteImage(project?.image_url || project?.image || (path === '/about' ? '/eugene-hero.webp' : null) || `/images/social/${path === '/survey' ? 'survey' : path === '/drone' ? 'drone' : 'studio'}.png`);
   const organization = {
     '@type': 'Organization', '@id': `${SITE_URL}/#organization`, name: 'BuildWithLami', url: SITE_URL,
     logo: `${SITE_URL}/2.png`, email: CONTACT.email, telephone: `+${CONTACT.phoneE164}`,
@@ -48,12 +50,12 @@ export function getSeo(pathname, options = {}) {
     founder: { '@id': `${SITE_URL}/about#eugene` },
     sameAs: [CONTACT.social.twitter],
   };
-  const person = { '@type': 'Person', '@id': `${SITE_URL}/about#eugene`, ...FOUNDER, jobTitle: 'Full-stack Software Engineer', url: `${SITE_URL}/about`, image: `${SITE_URL}/eugene-hero.webp`, worksFor: { '@id': organization['@id'] }, sameAs: [CONTACT.social.linkedin, CONTACT.social.github], knowsAbout: ['Web development', 'E-commerce development', 'Custom software', 'API engineering'] };
+  const person = { '@type': 'Person', '@id': `${SITE_URL}/about#eugene`, ...FOUNDER, jobTitle: 'Full-stack Software Engineer', url: `${SITE_URL}/about`, image: `${SITE_URL}/eugene-hero.webp`, worksFor: { '@id': organization['@id'] }, sameAs: [CONTACT.social.linkedin], knowsAbout: ['Web development', 'E-commerce development', 'Custom software', 'API engineering'] };
   const graph = indexable ? [organization, person, {
     '@type': 'WebSite', '@id': `${SITE_URL}/#website`, name: 'BuildWithLami', url: SITE_URL,
     publisher: { '@id': organization['@id'] }, inLanguage: 'en',
   }, {
-    '@type': path === '/about' ? 'AboutPage' : path === '/contact' ? 'ContactPage' : 'WebPage',
+    '@type': path === '/about' ? ['AboutPage', 'ProfilePage'] : path === '/contact' ? 'ContactPage' : 'WebPage',
     '@id': `${canonical}#webpage`, url: canonical, name: title, description,
     isPartOf: { '@id': `${SITE_URL}/#website` }, inLanguage: 'en',
     ...(path === '/about' ? { mainEntity: { '@id': person['@id'] } } : {}),
@@ -87,7 +89,7 @@ export function getSeo(pathname, options = {}) {
     mainEntity: faqs.map(f => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })),
   });
   if (project?.title && indexable) graph.push({ '@type': 'CreativeWork', name: clean(project.title), description, url: canonical, image, creator: { '@id': organization['@id'] } });
-  return { title, description, canonical, image, imageAlt: project?.title ? `${clean(project.title)} project preview` : `${path === '/survey' ? 'GeoSurvey' : path === '/drone' ? 'Lami Aerial' : 'BuildWithLami'} services`, robots: indexable ? 'index, follow, max-image-preview:large' : 'noindex, nofollow', structuredData: { '@context': 'https://schema.org', '@graph': graph } };
+  return { title, description, canonical, image, imageAlt: path === '/about' ? 'Eugene Odibenuah, founder of BuildWithLami' : project?.title ? `${clean(project.title)} project preview` : `${path === '/survey' ? 'GeoSurvey' : path === '/drone' ? 'Lami Aerial' : 'BuildWithLami'} services`, robots: indexable ? 'index, follow, max-image-preview:large' : 'noindex, nofollow', structuredData: { '@context': 'https://schema.org', '@graph': graph } };
 }
 
 export function applySeo(seo) {

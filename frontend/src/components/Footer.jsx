@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, Suspense, lazy } from 'react';
 import { Link } from 'react-router-dom';
+import { CONTACT } from '../config/contact';
 
 const TechStack = lazy(() => import('./TechStack'));
 
@@ -106,6 +107,7 @@ const Footer = ({ soundOn, onToggleSound }) => {
           <Link to="/pricing" className="hover:text-accent transition-colors">Pricing</Link>
           <Link to="/about" className="hover:text-accent transition-colors">About</Link>
           <Link to="/contact" className="hover:text-accent transition-colors">Contact</Link>
+          <a href={CONTACT.social.linkedin} target="_blank" rel="noopener noreferrer" className="hover:text-accent transition-colors">LinkedIn ↗</a>
           <a 
             href="https://www.tiktok.com/@buildwithlami?_r=1&_t=ZS-99D0TjifdM9" 
             target="_blank" 

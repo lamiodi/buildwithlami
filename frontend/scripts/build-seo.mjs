@@ -28,7 +28,7 @@ for (const path of publicPaths) {
   await writeFile(target, replaceHead(template, seo).replace('<div id="root"></div>', `<div id="root">${summary}</div>`));
   const hash = createHash('sha256').update(`${renderSeo(seo)}\0${summary}`).digest('hex');
   const previous = state[path];
-  facts[path] = { hash, lastmod: previous?.hash === hash && previous?.lastmod ? previous.lastmod : today, image: path.startsWith('/projects/') ? seo.image : undefined };
+  facts[path] = { hash, lastmod: previous?.hash === hash && previous?.lastmod ? previous.lastmod : today, image: path.startsWith('/projects/') || path === '/about' ? seo.image : undefined };
 }
 await writeFile(stateFile, `${JSON.stringify(facts, null, 2)}\n`);
 

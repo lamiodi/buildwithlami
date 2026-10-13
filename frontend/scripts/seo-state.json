@@ -1,67 +1,68 @@
 {
   "/": {
-    "hash": "2316d39f704f9599ae57e0dc909be8812989018f940af75259321de68f5c659f",
+    "hash": "930913a833b5a12cbd1e4126086bf9f6b41d95022869464e309cb22bc1407647",
     "lastmod": "2026-10-13"
   },
   "/software": {
-    "hash": "39294480058869df69062612bab1a70f4bab6056f9e4f2a20009a0a85eaf22ea",
+    "hash": "c1cb15f721620d2dc73c4c97e28bd0971443f58f3e49e886dea5e8def457ba6a",
     "lastmod": "2026-10-13"
   },
   "/services": {
-    "hash": "0b783f79f734b93708d75525021001067a4097668caf97009c7e402a7d286b64",
+    "hash": "63d2cc41cf0cf2369f65020703864cdc0f29a9f81a1a5072111407606ebe5da3",
     "lastmod": "2026-10-13"
   },
   "/projects": {
-    "hash": "1bbbc9aaa8ef7c4b2a918b1f4e3292b9eacbc701d155181b36ad2ba2db054798",
+    "hash": "4aa66ff70400a130a58e9a51ffd75e28e4918367db857825f66c3d1a65fe7e3a",
     "lastmod": "2026-10-13"
   },
   "/pricing": {
-    "hash": "9331139b9bb6c8d7fcb79888ee30dc39059e011de2e9475350b6410f5031da45",
+    "hash": "c3049ba6ab07a7cb92272a4bda974b05f06ca1169a2604444eeaf2d9163065e2",
     "lastmod": "2026-10-13"
   },
   "/about": {
-    "hash": "1dd56152ef73b73c6d0c87ca273c9daeacb00cc6b435989e280d585ccc95460e",
-    "lastmod": "2026-10-13"
+    "hash": "37743fb1dd2e5bf96b761ae0696f6f4863165a38db427b65e3f2a79185db9f4c",
+    "lastmod": "2026-10-13",
+    "image": "https://www.buildwithlami.com/eugene-hero.webp"
   },
   "/contact": {
-    "hash": "3a073184e1894abfac76ab3168c75d357882c603980e0a04cddee4b14222585b",
+    "hash": "9685b834d7d2ca960aa285d4b34fa1179d5367f0758eb382a83283bcc90af7a5",
     "lastmod": "2026-10-13"
   },
   "/survey": {
-    "hash": "9ef3f8a41a7024a2965d052a0e35e0bb636e70599b6ee58f4bcf78a2bdd53dba",
+    "hash": "8f9cb2e9370039874c30ab44daa1711754a6e3b2a8454cd5d498581e5486332d",
     "lastmod": "2026-10-13"
   },
   "/drone": {
-    "hash": "d56025a1f0e016c198a38100a6f50e84777d5bb4c0c24287c7d007c8a9a8869b",
+    "hash": "3b4dff40176bbef15a5a0aa53954053aea1fe7950224a6ad52db53fb7fc3d67e",
     "lastmod": "2026-10-13"
   },
   "/projects/vonnex2x-enterprise-erp": {
-    "hash": "7064d235f14ef982f98e461cf871ce3070614117b2e50b8feb1d6d0b77f505b2",
+    "hash": "a536064d8bf3f15e8858fb883a9ad6b1b389638337d1da8e3b8784b6afa68b71",
     "lastmod": "2026-10-13",
     "image": "https://www.buildwithlami.com/images/projects/case/vonnex2x-screenshot.webp"
   },
   "/projects/tiabrand-ecommerce": {
-    "hash": "2e4f3a9c6f6562615d9012d05cc72722bf97b925b9bce7e09b198800ab6681e4",
+    "hash": "4379d7bd7c49f6a112a3c00fce6a7ad9afc7cfb4350cfd55f53b700fc2e096d0",
     "lastmod": "2026-10-13",
     "image": "https://www.buildwithlami.com/images/projects/case/tiabrand-screenshot.webp"
   },
   "/projects/wodibenuah-fair": {
-    "hash": "2e51cedf154bd0f1d86a777fa30f950a4bcb9ffbb01334c46fdd078f7b79b2bd",
+    "hash": "59c9f36c16981321784d69d24031244ac92c64ed3792099946982e0372587aec",
     "lastmod": "2026-10-13",
     "image": "https://www.buildwithlami.com/images/projects/case/wodibenuah-screenshot.webp"
   },
   "/projects/sourceline-limited": {
-    "hash": "edf2bbbaeb1620a6f76367336bc1001af76e72989f9270b69a90a9d9c3aaba9c",
+    "hash": "a7cf33d8aab245c4717c70b8ae4de4564364c525b7942c8f5590b68ae4b07f72",
     "lastmod": "2026-10-13",
     "image": "https://www.buildwithlami.com/images/projects/case/sourceline-screenshot.webp"
   },
   "/projects/eduflow-academic-erp": {
-    "hash": "2644dd48b06efdc385439a34d90b424b593e465a6602a0ba8190b2c1fedeceea",
+    "hash": "82273a751ce756c5af251a387de3061d78f49f92472645fee1900985903c8017",
     "lastmod": "2026-10-13",
     "image": "https://www.buildwithlami.com/images/projects/case/eduflow-screenshot.webp"
   },
   "/projects/medios-hospital-os": {
-    "hash": "845022ef163d042a50fb7d113c1a2b922ae4ad9d1c455b43b8c7dc15ccb74ce1",
+    "hash": "19c0a07e2d4c875a9fda2e2941c6ac1784ed9eb277055eea6401c10ca032474d",
     "lastmod": "2026-10-13",
     "image": "https://www.buildwithlami.com/images/projects/case/medios-screenshot.webp"
   }

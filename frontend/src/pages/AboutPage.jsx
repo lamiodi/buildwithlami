@@ -331,7 +331,8 @@ const AboutPage = () => {
                 <img
                   src="/eugene-hero.webp"
                   alt="Eugene Odibenuah — Founder of Buildwith_lami"
-                  loading="lazy"
+                  loading="eager"
+                  fetchPriority="high"
                   decoding="async"
                   width="800"
                   height="1200"

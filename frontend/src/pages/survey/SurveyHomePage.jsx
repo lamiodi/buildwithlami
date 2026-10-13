@@ -562,12 +562,16 @@ const SurveyHomePage = () => {
             <div className="survey-hero-proof"><span><Check size={16} /> Defined scope &amp; deliverables</span><span><Check size={16} /> Direct project contact</span></div>
           </div>
           <figure className="survey-hero-image">
-            <img src="/images/survey/survey_hero_field.webp" alt="Surveying equipment in the field" fetchPriority="high" decoding="async" />
+            <img src="/images/survey/real/survey_real_field_1.webp" alt="Survey field team taking measurements on site" fetchPriority="high" decoding="async" />
             <figcaption><span className="division-eyebrow">Land &amp; engineering division</span><strong>From field measurements to your next decision.</strong><p>Boundary surveys · Topographic surveys · Construction setting out · Land subdivision</p></figcaption>
           </figure>
         </div>
       </section>
 
+      <section className="division-work-preview" aria-labelledby="survey-work-preview">
+        <div><p className="division-eyebrow">From the field</p><h2 id="survey-work-preview" className="survey-heading">See how your survey takes shape.</h2><p>Field observations, site records and a deliverable scope agreed before work starts.</p><button type="button" onClick={() => scrollTo('projects')}>Explore survey case studies <ArrowRight size={18} /></button></div>
+        <figure><img src="/images/survey/real/survey_real_site_1.webp" alt="Survey site field record" loading="lazy" width="1400" height="1867" /><figcaption>Site documentation from the existing field portfolio.</figcaption></figure>
+      </section>
       <ServiceShortcuts division="SURVEY" services={servicePillars} onSelect={(service) => { setSelectedQuoteService({ service }); scrollTo('contact'); }} />
 
       <section className="px-6 md:px-12 py-12 max-w-[1400px] mx-auto border-y border-gray-300">
@@ -650,14 +654,14 @@ const SurveyHomePage = () => {
                     {service.description}
                   </p>
 
-                  <ul className="space-y-2 border-t border-gray-200 pt-4 mb-6">
+                  <details className="division-technical"><summary>Measurements &amp; deliverables</summary><ul className="space-y-2 border-t border-gray-200 pt-4 mb-6">
                     {service.subItems.map((sub, i) => (
                       <li key={i} className="flex items-center gap-2.5 text-xs font-semibold text-gray-800">
                         <Check className="w-3.5 h-3.5 text-black shrink-0" />
                         <span>{sub}</span>
                       </li>
                     ))}
-                  </ul>
+                  </ul></details>
                 </div>
 
                 <div className="pt-4 border-t border-gray-200 flex items-center justify-between">

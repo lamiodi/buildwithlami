@@ -4,6 +4,7 @@ import { motion, useReducedMotion } from 'framer-motion';
 import CheckIcon from './CheckIcon';
 import { api } from '../services/api';
 import fallbackProjects from '../data/fallbackProjects';
+import { normalizePublicProject } from '../utils/publicProjects';
 import { fadeUpItem, reducedMotionVariants } from '../utils/motion';
 
 const Projects = () => {
@@ -22,7 +23,7 @@ const Projects = () => {
 
         const list = Array.isArray(res.data) ? res.data : res.data?.data ?? [];
         if (res.ok && Array.isArray(list) && list.length > 0) {
-          setProjects(list);
+          setProjects(list.map(normalizePublicProject));
         }
       } catch {
         // Silently retain fallback projects

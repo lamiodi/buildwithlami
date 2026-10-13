@@ -56,7 +56,7 @@ const SOCIAL_LINKS = [
   {
     name: 'LinkedIn',
     desc: 'Connect professionally',
-    url: 'https://linkedin.com/in/eugene-odibenuah',
+    url: CONTACT.social.linkedin,
     icon: (
       <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
         <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 10.9v8.37H9.2V10.9H6.46M7.83 6.45a1.6 1.6 0 0 0-1.6 1.6 1.6 1.6 0 0 0 1.6 1.6 1.6 1.6 0 0 0 1.6-1.6 1.6 1.6 0 0 0-1.6-1.6z" />
@@ -263,7 +263,7 @@ const ContactPage = () => {
               {/* Name & Email Row */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label htmlFor="name" className="block text-xs uppercase tracking-wider font-bold text-gray-700 dark:text-gray-300 mb-1.5">
+                  <label htmlFor="name" className="block text-sm uppercase tracking-wider font-bold text-gray-700 dark:text-gray-300 mb-1.5">
                     Your Name <span className="text-accent">*</span>
                   </label>
                   <input
@@ -279,7 +279,7 @@ const ContactPage = () => {
                   />
                 </div>
                 <div>
-                  <label htmlFor="email" className="block text-xs uppercase tracking-wider font-bold text-gray-700 dark:text-gray-300 mb-1.5">
+                  <label htmlFor="email" className="block text-sm uppercase tracking-wider font-bold text-gray-700 dark:text-gray-300 mb-1.5">
                     Email Address <span className="text-accent">*</span>
                   </label>
                   <input
@@ -310,7 +310,7 @@ const ContactPage = () => {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label htmlFor="project_type" className="block text-xs uppercase tracking-wider font-bold text-gray-700 dark:text-gray-300 mb-1.5">
+                  <label htmlFor="project_type" className="block text-sm uppercase tracking-wider font-bold text-gray-700 dark:text-gray-300 mb-1.5">
                     Closest Service
                   </label>
                   <select
@@ -332,7 +332,7 @@ const ContactPage = () => {
                 </div>
 
                 <div>
-                  <label htmlFor="budget" className="block text-xs uppercase tracking-wider font-bold text-gray-700 dark:text-gray-300 mb-1.5">
+                  <label htmlFor="budget" className="block text-sm uppercase tracking-wider font-bold text-gray-700 dark:text-gray-300 mb-1.5">
                     Investment Range <span className="normal-case tracking-normal font-medium text-gray-400">(optional)</span>
                   </label>
                   <select
@@ -375,7 +375,7 @@ const ContactPage = () => {
 
               {/* Message */}
               <div>
-                <label htmlFor="message" className="block text-xs uppercase tracking-wider font-bold text-gray-700 dark:text-gray-300 mb-1.5">
+                <label htmlFor="message" className="block text-sm uppercase tracking-wider font-bold text-gray-700 dark:text-gray-300 mb-1.5">
                   Project Details & Key Goals <span className="text-accent">*</span>
                 </label>
                 <textarea

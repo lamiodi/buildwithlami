@@ -11,7 +11,6 @@ export const CONTACT = {
     social: {
         tiktok: 'https://www.tiktok.com/@buildwithlami?_r=1&_t=ZS-99D0TjifdM9',
         twitter: 'https://twitter.com/buildwithlami',
-        github: 'https://github.com/buildwithlami',
-        linkedin: 'https://linkedin.com/in/buildwithlami',
+        linkedin: 'https://www.linkedin.com/in/eugene-odibenuah-38a448293/',
     },
 };

@@ -12,7 +12,7 @@ const fallbackProjects = [
     title: "VonneX2X Enterprise ERP",
     slug: "vonnex2x-enterprise-erp",
     summary: "A bespoke business operations ecosystem featuring intelligent scheduling, GPS-fenced workforce management, and real-time retail/service POS integration.",
-    description: "Vonne X2x is a production-ready management platform built to solve the operational chaos of businesses that combine retail and services. I engineered a custom scheduling algorithm that handles variable service durations, implemented a GPS-fenced attendance system for staff accountability, and built a unified POS that syncs inventory in real-time. The result is an 85% reduction in manual booking errors and a centralized hub for all business data.",
+    description: "Vonne X2x is a production-ready management platform built to solve the operational chaos of businesses that combine retail and services. I engineered a custom scheduling algorithm that handles variable service durations, implemented a GPS-fenced attendance system for staff accountability, and built a unified POS that syncs inventory in real-time. The system brings booking, workforce and point-of-sale workflows into a centralized hub.",
     features: ["Intelligent Scheduling Engine", "GPS-Verified Attendance", "Unified Retail & Service POS", "Data-Driven Analytics Suite"],
     category: "Business Systems",
     project_status: "Client Work",
@@ -58,10 +58,21 @@ const fallbackProjects = [
       accessibility: "Color-blind safe status palette, full keyboard reachability for the POS, and screen-reader labels on every data grid."
     },
     results: [
-      { value: "Centralized", label: "Booking Workflow", description: "Variable-duration appointments & conflict detection in one calendar." },
-      { value: "Unified", label: "POS & Inventory", description: "Retail and service transactions consolidated into a single ledger." },
-      { value: "1", label: "Single Source of Truth", description: "Rosters, sales, and appointments managed in one hub." },
-      { value: "GPS-Verified", label: "Attendance Tracking", description: "Audited clock-ins tied to verifiable geofences." }
+      {
+        "value": "Centralized",
+        "label": "Booking workflow",
+        "description": "Variable-duration appointments and conflict detection in one calendar."
+      },
+      {
+        "value": "Unified",
+        "label": "POS & inventory",
+        "description": "Retail and service transactions consolidated into one ledger."
+      },
+      {
+        "value": "GPS-verified",
+        "label": "Attendance",
+        "description": "Clock-ins tied to configured geofences."
+      }
     ],
     featureCategories: [
       {
@@ -206,10 +217,21 @@ const fallbackProjects = [
       accessibility: "High-contrast focus rings, alt text on every product image, and a fully keyboard-navigable checkout."
     },
     results: [
-      { value: "+42%", label: "International conversion", description: "Region-aware currency drove measurable lift." },
-      { value: "2.1s", label: "Time to interactive", description: "On a mid-range Android over 3G." },
-      { value: "0", label: "Stock oversells", description: "Reservation queue eliminated race conditions." },
-      { value: "98", label: "Lighthouse score", description: "Performance, a11y, SEO — all green." }
+      {
+        "value": "Regional",
+        "label": "Currency display",
+        "description": "Location-aware storefront pricing and currency options."
+      },
+      {
+        "value": "Integrated",
+        "label": "Checkout",
+        "description": "Paystack payments connected to order management."
+      },
+      {
+        "value": "Managed",
+        "label": "Product catalogue",
+        "description": "Products, bundles and stock managed from an admin interface."
+      }
     ],
     featureCategories: [
       {
@@ -337,9 +359,21 @@ const fallbackProjects = [
       accessibility: "Editorial layout is fully responsive and keyboard-friendly; color palette is AA-compliant."
     },
     results: [
-      { value: "12s", label: "Median checkout", description: "From landing page to confirmed ticket." },
-      { value: "0", label: "Downtime on launch day", description: "Through a 50x traffic spike." },
-      { value: "100%", label: "Vendor automation", description: "Onboarding, approvals, and notifications — no manual back-and-forth." }
+      {
+        "value": "Online",
+        "label": "Ticket checkout",
+        "description": "Paystack checkout connected to event tickets."
+      },
+      {
+        "value": "Structured",
+        "label": "Vendor onboarding",
+        "description": "Registration, review and approval in one workflow."
+      },
+      {
+        "value": "Centralized",
+        "label": "Organizer dashboard",
+        "description": "Ticket sales, vendors and event content managed together."
+      }
     ],
     featureCategories: [
       {
@@ -469,9 +503,21 @@ const fallbackProjects = [
       accessibility: "Strong contrast, full keyboard reachability, and screen-reader friendly lead form errors."
     },
     results: [
-      { value: "+3.4x", label: "Qualified leads", description: "Compared to the previous corporate site." },
-      { value: "100%", label: "License transparency", description: "SURCON number verifiable on every page." },
-      { value: "0", label: "Engineering tickets", description: "For content updates since launch." }
+      {
+        "value": "Accessible",
+        "label": "Company information",
+        "description": "Services and verification information presented in one place."
+      },
+      {
+        "value": "Editable",
+        "label": "Content management",
+        "description": "An admin dashboard for company resources and content."
+      },
+      {
+        "value": "Direct",
+        "label": "Project enquiries",
+        "description": "Service-specific lead capture for prospective clients."
+      }
     ],
     featureCategories: [
       {
@@ -599,9 +645,21 @@ const fallbackProjects = [
       accessibility: "Print-first CSS, high contrast, and bilingual labels where appropriate."
     },
     results: [
-      { value: "70%", label: "Less admin work", description: "Reported by school administrators." },
-      { value: "95%", label: "SMS delivery rate", description: "To parents, even on weak networks." },
-      { value: "500+", label: "Students supported", description: "Across multiple schools on the platform." }
+      {
+        "value": "Organized",
+        "label": "Academic records",
+        "description": "Student records and grading workflows in one interface."
+      },
+      {
+        "value": "Tracked",
+        "label": "Fee instalments",
+        "description": "Payment schedules and balances recorded in a ledger."
+      },
+      {
+        "value": "Connected",
+        "label": "Parent notifications",
+        "description": "SMS workflows for school communication."
+      }
     ],
     featureCategories: [
       {
@@ -684,8 +742,8 @@ const fallbackProjects = [
     id: 6,
     title: "MediOS Hospital OS",
     slug: "medios-hospital-os",
-    summary: "An offline-first clinic and hospital management system featuring zero-downtime offline charts and an automated HMO insurance claims scrubber.",
-    description: "I engineered MediOS, an offline-first Hospital Management System built to function in low-connectivity environments. Using a PWA architecture with IndexedDB, I ensured zero-downtime for clinical operations during network outages. I also developed a specialized HMO Claims Engine that automates insurance tariff validation, reducing claim rejection rates by 40%. This project demonstrates my ability to build mission-critical systems that prioritize reliability and data integrity.",
+    summary: "An offline-first hospital management concept exploring local patient charts and an HMO insurance claims workflow.",
+    description: "MediOS is an internal hospital management concept exploring clinical workflows in low-connectivity environments. The prototype combines a PWA interface and local browser storage with a claims tariff-checking workflow. It demonstrates the interface and architecture approach; clinical deployment and measured client outcomes are not claimed.",
     features: ["Offline-First PWA", "HMO Claims Scrubber", "ICD-10 Validation", "Sync-Enabled Architecture"],
     category: "SaaS",
     project_status: "Concept",
@@ -730,9 +788,21 @@ const fallbackProjects = [
       accessibility: "High-contrast clinical palette, large hit targets, and full keyboard reachability for emergency use."
     },
     results: [
-      { value: "100%", label: "Clinical uptime", description: "Zero downtime during network outages." },
-      { value: "40%", label: "Fewer claim rejections", description: "Tariff validation before submission." },
-      { value: "0", label: "Data loss incidents", description: "Across pilot clinics." }
+      {
+        "value": "Offline-first",
+        "label": "Patient charts",
+        "description": "Prototype workflows use a local browser data store."
+      },
+      {
+        "value": "Validated",
+        "label": "Claims workflow",
+        "description": "A prototype tariff-checking workflow before submission."
+      },
+      {
+        "value": "Sync-ready",
+        "label": "Data reconciliation",
+        "description": "The concept demonstrates reconciliation when connectivity returns."
+      }
     ],
     featureCategories: [
       {
@@ -787,8 +857,7 @@ const fallbackProjects = [
       { phase: "UI Design", detail: "Calm clinical interface in Figma." },
       { phase: "Development", detail: "Offline-first vertical slices." },
       { phase: "Testing", detail: "Network-drop simulations in QA." },
-      { phase: "Pilot", detail: "Three pilot clinics for two months." },
-      { phase: "Launch", detail: "Production rollout with on-site training." }
+      { phase: "Prototype review", detail: "Review of interface flows and offline architecture; not a clinical production rollout." }
     ],
     responsibilities: [
       "UX Research",

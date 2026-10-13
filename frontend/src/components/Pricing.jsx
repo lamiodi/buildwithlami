@@ -151,8 +151,8 @@ const Pricing = ({ isHomepage = false }) => {
                   </div>
                   <ul className="space-y-2.5 text-xs text-gray-700 dark:text-gray-300 mb-6">
                     <li className="flex items-center gap-2.5"><CheckIcon className="text-accent" /> <span>Responsive custom interface</span></li>
-                    <li className="flex items-center gap-2.5"><CheckIcon className="text-accent" /> <span>Editable CMS content integration</span></li>
-                    <li className="flex items-center gap-2.5"><CheckIcon className="text-accent" /> <span>Up to 30 days post-launch support</span></li>
+                    <li className="flex items-center gap-2.5"><CheckIcon className="text-accent" /> <span>Editable CMS available on Growth and Pro</span></li>
+                    <li className="flex items-center gap-2.5"><CheckIcon className="text-accent" /> <span>Starter: {BUILD_PRICING.websites.tiers[0].support}</span></li>
                   </ul>
                 </div>
                 <Link to="/pricing#websites" className="btn-dark w-full text-center" style={{ touchAction: 'manipulation' }}>
@@ -187,9 +187,9 @@ const Pricing = ({ isHomepage = false }) => {
                     <span className="text-xs text-gray-600 dark:text-gray-400 block mt-1 font-medium">Starter · Growth (Best Value) · Pro Custom</span>
                   </div>
                   <ul className="space-y-2.5 text-xs text-gray-700 dark:text-gray-300 mb-6">
-                    <li className="flex items-center gap-2.5"><CheckIcon className="text-accent" /> <span>Paystack checkout & bank transfer (NGN, USD, EUR, GBP)</span></li>
-                    <li className="flex items-center gap-2.5"><CheckIcon className="text-accent" /> <span>Abandoned cart recovery & accounts</span></li>
-                    <li className="flex items-center gap-2.5"><CheckIcon className="text-accent" /> <span>30 days priority bug-fix support</span></li>
+                    <li className="flex items-center gap-2.5"><CheckIcon className="text-accent" /> <span>Checkout with an agreed primary payment gateway</span></li>
+                    <li className="flex items-center gap-2.5"><CheckIcon className="text-accent" /> <span>Starter: up to 25 products &amp; order management</span></li>
+                    <li className="flex items-center gap-2.5"><CheckIcon className="text-accent" /> <span>Starter: {BUILD_PRICING.ecommerce.tiers[0].support}</span></li>
                   </ul>
                 </div>
                 <Link to="/pricing#ecommerce" className="btn-primary w-full text-center" style={{ touchAction: 'manipulation' }}>
@@ -222,8 +222,8 @@ const Pricing = ({ isHomepage = false }) => {
                   </div>
                   <ul className="space-y-2.5 text-xs text-gray-700 dark:text-gray-300 mb-6">
                     <li className="flex items-center gap-2.5"><CheckIcon className="text-accent" /> <span>Secure sign-in, user roles, and business data workflows</span></li>
-                    <li className="flex items-center gap-2.5"><CheckIcon className="text-accent" /> <span>100% IP & GitHub repository transfer</span></li>
-                    <li className="flex items-center gap-2.5"><CheckIcon className="text-accent" /> <span>90 days warranty support</span></li>
+                    <li className="flex items-center gap-2.5"><CheckIcon className="text-accent" /> <span>Source code and IP handover</span></li>
+                    <li className="flex items-center gap-2.5"><CheckIcon className="text-accent" /> <span>MVP: {BUILD_PRICING.software.tiers[0].support}</span></li>
                   </ul>
                 </div>
                 <Link to="/pricing#software" className="btn-dark w-full text-center" style={{ touchAction: 'manipulation' }}>

@@ -572,8 +572,8 @@ const DroneHomePage = () => {
                   style={{ boxShadow: '0 30px 80px -20px rgba(0,0,0,0.65), 0 0 0 1px rgba(255,255,255,0.06)' }}
                 >
                   <img
-                    src="/images/drone/drone_proj_hospitality.webp"
-                    alt="Aerial photograph of a coastal resort at sunset, captured on a commercial drone mission"
+                    src="/images/drone/drone_real_dji_capture.webp"
+                    alt="Drone photograph of a construction site and its surroundings"
                     className="absolute inset-0 w-full h-full object-cover"
                     loading="eager"
                     decoding="async"
@@ -639,8 +639,8 @@ const DroneHomePage = () => {
               style={{ boxShadow: '0 20px 50px -10px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.06)' }}
             >
               <img
-                src="/images/drone/drone_proj_hospitality.webp"
-                alt="Aerial photograph captured on a commercial drone mission"
+                src="/images/drone/drone_real_dji_capture.webp"
+                alt="Drone photograph of a construction site and its surroundings"
                 className="absolute inset-0 w-full h-full object-cover"
                 loading="eager"
                 decoding="async"
@@ -661,6 +661,10 @@ const DroneHomePage = () => {
           </div>
         </section>
 
+        <section className="division-work-preview" aria-labelledby="drone-work-preview">
+          <div><p className="division-eyebrow">Aerial capture</p><h2 id="drone-work-preview" className="drone-heading">See the site from above.</h2><p>A construction-site aerial photograph from the existing portfolio. Agree the shot list, edited outputs and delivery schedule before your flight.</p><button type="button" onClick={() => scrollTo('contact')}>Plan a capture like this <ArrowRight size={18} /></button></div>
+          <figure><img src="/images/drone/drone_real_dji_capture.webp" alt="Drone photograph of a construction site and its surroundings" loading="lazy" width="1280" height="720" /><figcaption>Aerial site photograph. Sample mission scenarios below are labelled separately.</figcaption></figure>
+        </section>
         <ServiceShortcuts division="DRONE" services={servicePillars} onSelect={(service) => { setSelectedQuoteService({ service }); scrollTo('contact'); }} />
 
         {/* ==== CAPABILITIES BANNER ==== */}
@@ -746,14 +750,14 @@ const DroneHomePage = () => {
                     <h3 className="drone-heading text-xl font-black text-gray-900 mb-3 tracking-tight">{service.headline}</h3>
                     <p className="text-gray-600 text-sm leading-relaxed font-medium mb-6">{service.description}</p>
                     
-                    <ul className="space-y-2 border-t border-gray-200/60 pt-4 mb-6">
+                    <details className="division-technical"><summary>Capture details &amp; deliverables</summary><ul className="space-y-2 border-t border-gray-200/60 pt-4 mb-6">
                       {service.subServices.map((sub, i) => (
                         <li key={i} className="flex items-center gap-2 text-xs font-semibold text-gray-700">
                           <Check className="w-3.5 h-3.5 text-accent shrink-0" />
                           <span>{sub}</span>
                         </li>
                       ))}
-                    </ul>
+                    </ul></details>
                   </div>
 
                   <div className="pt-4 border-t border-gray-200 flex items-center justify-between">
