@@ -4,7 +4,7 @@ Website: https://www.buildwithlami.com
 
 ## Conclusion
 
-The Search Console summary supplied by the owner reports 19 **Discovered – currently not indexed** URLs, 11 **Page with redirect** URLs and 0 **Crawled – currently not indexed** URLs. Discovered means Google knows the URL but has not crawled it. The summary alone does not establish why crawling has been postponed, whether these are the current canonical URLs, or the index status of the homepage. Individual URL examples and URL Inspection are needed for that.
+The corrected Search Console report supplied by the owner shows 8 **Discovered – currently not indexed** URLs and 2 **Page with redirect** URLs. The eight example URLs all have no last-crawled date. Discovered means Google knows the URL but has not crawled it. This report does not establish why crawling has been postponed or the index status of the homepage. These are the corrected counts; the earlier 19/11 figures are superseded.
 
 Redirecting URLs are not intended to be indexed themselves. The site's apex domain redirects to www, which matches its canonical URLs and sitemap. Keep these domain redirects. Inspect the destination URLs rather than trying to index HTTP, non-www, trailing-slash or legacy-ID variants.
 
@@ -25,6 +25,27 @@ Redirecting URLs are not intended to be indexed themselves. The site's apex doma
 - Project HTML lookup supports both frontend and repository-root deployment layouts and logs rendering failures for diagnosis.
 - Survey and drone project canonical URLs also use their published slug.
 - Fixed static summary escaping and added regression coverage for redirects, drafts, unsafe slugs, shell lookup, shell failures and division canonicals.
+
+## Production verification after deployment
+
+Vercel reported successful deployment of commit `a38f8a9`. Checked the eight exact examples from the corrected report after deployment:
+
+| Public URL path | HTTP | Canonical | Robots / content |
+| --- | --- | --- | --- |
+| /contact | 200 | Matches URL | Indexable; initial HTML present |
+| /drone | 200 | Matches URL | Indexable; initial HTML present |
+| /projects | 200 | Matches URL | Indexable; initial HTML present |
+| /projects/sourceline-limited | 200 | Matches URL | Indexable; initial HTML present |
+| /projects/tiabrand-ecommerce | 200 | Matches URL | Indexable; initial HTML present |
+| /projects/vonnex2x-enterprise-erp | 200 | Matches URL | Indexable; initial HTML present |
+| /projects/wodibenuah-fair | 200 | Matches URL | Indexable; initial HTML present |
+| /survey | 200 | Matches URL | Indexable; initial HTML present |
+
+All these URLs use https://www.buildwithlami.com, have no noindex response header, and are included in the live sitemap. The sitemap returned HTTP 200, contained 15 canonical URLs and reflected the updated HTML content date of 2026-10-13. Three requests encountered a brief local DNS lookup failure on the first pass; retries succeeded. This does not establish a DNS failure at Google's crawler.
+
+The formerly failing published UUID URL now returns HTTP 308 with Location `/projects/medios-hospital-os`; following it returns HTTP 200 with that canonical. This verifies the production fix for the alternate URL. It does not show that this separate error caused the eight discovered-page entries, nor that Google has indexed them since deployment.
+
+The two redirecting example URLs were not supplied, so their exact destinations remain unverified. Domain and legitimate legacy-ID redirects should be retained. For the eight discovered URLs, use Search Console's live URL test and request indexing of the canonical pages once; their current HTTP/metadata checks do not show an indexing prohibition.
 
 ## Owner actions in Search Console
 
