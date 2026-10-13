@@ -4,7 +4,7 @@ import { CONTACT } from '../src/config/contact.js';
 import { faqsByPath } from '../src/data/faqs.js';
 import { divisionServices } from '../src/data/divisionServices.js';
 
-const esc = value => String(value).replace(/[&<>"']/g, char => ({'&':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+const esc = value => String(value).replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 const escMultiline = value => esc(value).replace(/\n/g, '<br />');
 // Useful visible HTML before React starts, also available without JavaScript.
 // It describes the same services, projects and FAQs as the interactive page,

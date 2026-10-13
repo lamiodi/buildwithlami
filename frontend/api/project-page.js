@@ -6,7 +6,22 @@ import projects from '../src/data/fallbackProjects.js';
 const escape = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const errorHtml = (status, message) => `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex, nofollow"><title>${status} | BuildWithLami</title></head><body><main><h1>${message}</h1><p><a href="/projects">View projects</a> · <a href="/contact">Contact us</a></p></main></body></html>`;
 
-export function createProjectHandler({ fetchImpl = fetch, readShell = () => readFile(resolve(process.cwd(), 'dist/app.html'), 'utf8') } = {}) {
+// Vercel may run a monorepo function from the repository root rather than
+// the frontend project directory. Locate the packaged shell in either layout.
+export async function readProjectShell({ cwd = process.cwd(), readFileImpl = readFile } = {}) {
+  const locations = [
+    resolve(cwd, 'dist/app.html'),
+    resolve(cwd, 'frontend/dist/app.html'),
+    new URL('../dist/app.html', import.meta.url),
+  ];
+  for (const location of locations) {
+    try { return await readFileImpl(location, 'utf8'); }
+    catch (error) { if (error.code !== 'ENOENT') throw error; }
+  }
+  throw new Error('Packaged project HTML shell is missing');
+}
+
+export function createProjectHandler({ fetchImpl = fetch, readShell = readProjectShell, logError = error => console.error('[project-page]', error.message) } = {}) {
   return async (req, res) => {
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     res.setHeader('Cache-Control', 'no-store');
@@ -27,13 +42,19 @@ export function createProjectHandler({ fetchImpl = fetch, readShell = () => read
       const actualDivision = String(project?.division || '').toUpperCase();
       const matchesDivision = actualDivision === division || (division === 'SOFTWARE' && ['TECHNOLOGY','TECH'].includes(actualDivision));
       if (!project?.title || project.status !== 'PUBLISHED' || !matchesDivision) return fail(404,'Project not found');
-      const path = `${prefix}/projects/${id}`;
+      // Resolve alternate IDs to the published slug before loading the HTML shell.
+      // This also sends existing software case studies to their static HTML.
+      const slug = project.slug || id;
+      if (typeof slug !== 'string' || !/^[a-zA-Z0-9_-]{1,160}$/.test(slug)) return fail(404,'Project not found');
+      const path = `${prefix}/projects/${slug}`;
+      if (slug !== id) { res.setHeader('Location', path); return res.status(308).end(); }
       const seo = getSeo(path, { project });
       const shell = await readShell();
       const summary = `<main id="initial-page"><h1>${escape(project.title)}</h1><p>${escape(seo.description)}</p><a href="${prefix || '/projects'}">View projects</a><a href="/contact">Discuss your project</a></main>`;
       const html = shell.replace(/<!-- SEO:START -->[\s\S]*?<!-- SEO:END -->/, `<!-- SEO:START -->${renderSeo(seo)}<!-- SEO:END -->`).replace('<div id="root"></div>', `<div id="root">${summary}</div>`);
       return res.status(200).send(html);
-    } catch {
+    } catch (error) {
+      logError(error);
       // An upstream outage is temporary, not evidence that a published page was deleted.
       res.setHeader('Retry-After','60');
       return fail(503,'Project temporarily unavailable. Please try again shortly.');

@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFile, access } from 'node:fs/promises';
 import { resolve } from 'node:path';
+import { renderSummary } from './static-summary.js';
 import { getSeo, renderSeo, publicPaths, SITE_URL } from '../src/seo.js';
 
 const root = resolve(import.meta.dirname, '..');
@@ -42,3 +43,10 @@ const sitemap = await readFile(resolve(output, 'sitemap.xml'), 'utf8');
 assert.equal((sitemap.match(/<loc>/g) || []).length, publicPaths.length);
 assert.ok(!sitemap.includes('/admin'));
 console.log(`Passed: ${publicPaths.length} built pages, canonical uniqueness, metadata, schema, image assets, private/404 noindex, escaping and sitemap.`);
+
+for (const division of ['survey', 'drone']) {
+ assert.equal(getSeo('/'+division+'/projects/legacy-id',{project:{title:'Published',slug:'published-project'}}).canonical,SITE_URL+'/'+division+'/projects/published-project');
+}
+const summary = renderSummary('/');
+assert.ok(!summary.includes('undefined'), 'Fallback summary must not contain broken HTML escaping');
+assert.ok(summary.includes('Web Development &amp; Custom Software'), 'Escape ampersands in page links');
