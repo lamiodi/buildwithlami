@@ -650,7 +650,7 @@ const SurveyHomePage = () => {
                     </span>
                   </div>
                   <h3 className="survey-heading text-xl md:text-2xl font-black uppercase tracking-tight mb-3 text-gray-900">{service.category}</h3>
-                  <p className="text-xs font-medium text-gray-600 leading-relaxed mb-6">
+                  <p className="text-sm font-medium text-gray-600 leading-relaxed mb-6">
                     {service.description}
                   </p>
 

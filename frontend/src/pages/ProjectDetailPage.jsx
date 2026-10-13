@@ -4,7 +4,7 @@ import { motion, useReducedMotion, AnimatePresence } from 'framer-motion';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 import fallbackProjects from '../data/fallbackProjects';
-import { normalizePublicProject, selectRelatedProjects, isConceptProject } from '../utils/publicProjects';
+import { normalizePublicProject, selectRelatedProjects, isConceptProject, publicEvidenceUrl } from '../utils/publicProjects';
 import { projectPlaceholder } from '../utils/placeholders';
 import { Skeleton, SkeletonTransition } from '../components/Skeleton';
 import {
@@ -514,7 +514,7 @@ const ProjectDetailPage = () => {
       { label: 'Database Tables', value: s.tables, suffix: '' },
       {
         label: 'Lighthouse',
-        value: project.metrics?.evidenceUrl ? project.metrics?.lighthouse : undefined,
+        value: publicEvidenceUrl(project.metrics?.evidenceUrl) ? project.metrics?.lighthouse : undefined,
         suffix: '/100',
       },
       { label: 'Launch Year', value: project.year, suffix: '' },
@@ -947,6 +947,12 @@ const ProjectDetailPage = () => {
                           <p className="mt-2 text-xs md:text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
                             {r.description}
                           </p>
+                        )}
+                        {publicEvidenceUrl(r.evidenceUrl) && r.measurementContext && (
+                          <div className="mt-4 text-sm leading-relaxed text-gray-700 dark:text-gray-300">
+                            <p>{r.measurementContext}</p>
+                            <a href={publicEvidenceUrl(r.evidenceUrl)} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center font-bold text-accent underline underline-offset-4">View supporting evidence ↗</a>
+                          </div>
                         )}
                       </div>
                     </motion.div>

@@ -169,7 +169,7 @@ const Navbar = ({ isDark, toggleTheme }) => {
       {/* ── FULLSCREEN RESPONSIVE MOBILE MENU DRAWER ── */}
       <Dialog.Portal>
         {isOpen && (
-          <Dialog.Content asChild aria-describedby={undefined}>
+          <Dialog.Content asChild aria-modal="true" aria-describedby={undefined}>
           <motion.div 
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}

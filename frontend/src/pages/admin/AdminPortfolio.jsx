@@ -34,7 +34,7 @@ const CATEGORY_PRESETS = {
 const JSONB_FIELDS = [
     { key: 'challenge',            label: 'Challenge',     placeholder: '{ "problem": "...", "constraints": ["..."], "goals": ["..."] }' },
     { key: 'solution',             label: 'Solution',      placeholder: '{ "architecture": "...", "ui": "...", "backend": "...", "performance": "...", "security": "...", "accessibility": "..." }' },
-    { key: 'results',              label: 'Results',       placeholder: '[ { "value": "+42%", "label": "Conversion lift", "description": "..." } ]' },
+    { key: 'results',              label: 'Results',       placeholder: '[ { "value": "Measured result", "label": "Outcome", "description": "...", "evidenceUrl": "https://...", "measurementContext": "Period, baseline and method" } ]' },
     { key: 'feature_categories',   label: 'Feature Categories', placeholder: '[ { "name": "Auth", "icon": "shield", "items": [ { "title": "...", "description": "..." } ] } ]' },
     { key: 'flow',                 label: 'Application Flow',   placeholder: '[ { "step": "Login", "detail": "..." } ]' },
     { key: 'tech_categories',      label: 'Tech Categories',    placeholder: '[ { "name": "Frontend", "icon": "monitor", "items": ["React", "Vite"] } ]' },
