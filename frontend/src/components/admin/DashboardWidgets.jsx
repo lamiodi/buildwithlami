@@ -6,9 +6,9 @@
 // query doesn't block the user from seeing the rest of the page.
 // ──────────────────────────────────────────────────────────
 
-import React, { useState, useEffect, useMemo, lazy } from 'react';
-import { motion } from 'framer-motion';
-import { api } from '../../services/api';
+import React, { lazy } from 'react';
+
+
 import Skeleton from '../Skeleton';
 
 // ── Generic skeleton block — used while data is loading ──
@@ -41,30 +41,18 @@ export const StatCard = ({ label, value, hint, icon: IconComp, accent = 'blue', 
                     {IconComp && <IconComp className="size-5" aria-hidden="true" />}
                 </div>
                 {isCurrency && (
-                    <span className="text-[9px] uppercase tracking-widest px-2 py-0.5 rounded-full border border-gray-200 dark:border-gray-700 text-gray-500">NGN / FX</span>
+                    <span className="text-xs uppercase tracking-widest px-2 py-0.5 rounded-full border border-gray-200 dark:border-gray-700 text-gray-500">NGN / FX</span>
                 )}
             </div>
             <div className={`text-2xl md:text-3xl font-heading font-bold text-gray-900 dark:text-white ${isCurrency ? 'whitespace-nowrap' : ''}`}>{value}</div>
             <div className="flex items-center justify-between mt-1">
                 <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">{label}</p>
-                {hint && <p className="text-[10px] text-gray-400 font-semibold">{hint}</p>}
+                {hint && <p className="text-xs text-gray-400 font-semibold">{hint}</p>}
             </div>
         </div>
     );
 };
 
-
-// ── Time-of-day greeting (deterministic from the local hour) ──
-export const useGreeting = () => {
-    return useMemo(() => {
-        const h = new Date().getHours();
-        if (h < 5) return 'Working late';
-        if (h < 12) return 'Good morning';
-        if (h < 17) return 'Good afternoon';
-        if (h < 22) return 'Good evening';
-        return 'Working late';
-    }, []);
-};
 
 // ── Status Pill (extracted for reuse + memoization) ──────
 const STATUS_STYLES = {
@@ -79,7 +67,7 @@ const STATUS_STYLES = {
 };
 
 export const StatusPill = React.memo(({ status }) => (
-    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-heading font-bold uppercase tracking-wider whitespace-nowrap border ${STATUS_STYLES[status] || STATUS_STYLES.PLANNING}`}>
+    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-heading font-bold uppercase tracking-wider whitespace-nowrap border ${STATUS_STYLES[status] || STATUS_STYLES.PLANNING}`}>
         {status}
     </span>
 ));

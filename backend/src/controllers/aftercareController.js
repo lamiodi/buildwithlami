@@ -25,7 +25,6 @@ import {
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const isUuid = (s) => typeof s === 'string' && UUID_REGEX.test(s);
-const isDate = (s) => /^\d{4}-\d{2}-\d{2}$/.test(s);
 
 const badId = (res) => res.status(400).json({ error: 'Invalid ID format.' });
 const serverError = (res, err, tag) => {
@@ -804,6 +803,7 @@ export async function toggleHandoverItem(req, res) {
         const result = await setChecklistItem(req.params.projectId, data.key, data.done, data.note ?? null);
         if (result?.notFound) return res.status(404).json({ error: 'Project not found.' });
         if (result?.badKey) return res.status(400).json({ error: 'Unknown checklist item.' });
+        if (result?.completed) return res.status(409).json({ error: 'This handover is complete. Reopen the project before changing its checklist.' });
         return res.json({ checklist: result.checklist, missing_required: result.missing, all_required_done: result.allRequiredDone });
     } catch (err) {
         if (err instanceof z.ZodError) return res.status(400).json({ error: err.errors });
@@ -820,7 +820,7 @@ export async function completeHandoverAction(req, res) {
         if (result?.notFound) return res.status(404).json({ error: 'Project not found.' });
         if (result?.blocked) {
             return res.status(400).json({
-                error: 'Handover blocked — required checklist items outstanding.',
+                error: `Handover blocked: ${result.missing.join(' ')}`,
                 missing: result.missing,
             });
         }

@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useMemo, useRef, useCallback, Suspense } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useState, useEffect, useMemo, useCallback, Suspense } from 'react';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { api } from '../../services/api';
 import { notify } from '../../services/notify';
 import { toCSV, downloadCSV } from '../../utils/csv.jsx';
-import TodayWidget from '../../components/admin/TodayWidget';
+import useAdminWorkspace from '../../hooks/useAdminWorkspace';
+import { isOverdueInvoice, formatMoney } from '../../utils/adminWorkflow';
 import CommandCenter from '../../components/admin/CommandCenter';
 import AssistantPanel from '../../components/admin/AssistantPanel';
 import { CoreIcon, DashboardIcon, ActionIcon } from '../../data/adminIcons.jsx';
@@ -13,15 +14,12 @@ import {
     WidgetSkeleton,
     StatusPill,
     RevenueChart as LazyRevenueChart,
-    RecentFeedback as LazyRecentFeedback,
-    RecentInvoices as LazyRecentInvoices,
     ProjectsByStage as LazyProjectsByStage,
-    ActivityFeed as LazyActivityFeed,
 } from '../../components/admin/DashboardWidgets';
 
 // Simple Naira formatter (stored amounts are already in NGN in the DB).
 import { formatNaira as formatCurrency } from '../../utils/currency';
-import { useGreeting } from '../../components/admin/DashboardWidgets';
+import { useGreeting } from '../../hooks/useGreeting';
 
 // ── Icon aliases ──────────────────────────────────────────
 const Icon = {
@@ -47,46 +45,26 @@ const Icon = {
     FileText: CoreIcon.FileText,
 };
 
+const EMPTY = [];
 const AdminDashboard = () => {
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [refreshKey, setRefreshKey] = useState(0);
     const [search, setSearch] = useState('');
     const [now, setNow] = useState(new Date());
     const [smartView, setSmartView] = useState('all');
-    const [selectedDivision, setSelectedDivision] = useState(() => {
-        try {
-            const saved = localStorage.getItem('bwl:admin:workspace');
-            if (saved && ['software', 'survey', 'drone'].includes(saved)) {
-                return saved.toUpperCase();
-            }
-        } catch (_err) {
-            // localStorage may be disabled (private mode, quota, etc.) — fall through to default.
-        }
-        return 'ALL';
-    });
-    const [paletteOpen, setPaletteOpen] = useState(false);
-    const navigate = useNavigate();
+    const { division: selectedDivision, setWorkspace } = useAdminWorkspace();
+    const [showAssistant, setShowAssistant] = useState(false);
     const greeting = useGreeting();
-
-    // Close command palette on Escape (⌘K is handled globally by GlobalSearch).
-    useEffect(() => {
-        const onKey = (e) => {
-            if (e.key === 'Escape') {
-                setPaletteOpen(false);
-            }
-        };
-        window.addEventListener('keydown', onKey);
-        return () => window.removeEventListener('keydown', onKey);
-    }, []);
 
     // ── ALL useMemo calls must live above any early return so the hook order
     // stays stable across renders (loading → loaded, data: null → object).
     const nowMs = now.getTime();
     const sevenDays = 7 * 24 * 60 * 60 * 1000;
-    const allProjects = data?.projects || [];
-    const allInvoices = data?.invoices || [];
-    const clients = data?.clients || [];
+    const allProjects = data?.projects || EMPTY;
+    const allInvoices = data?.invoices || EMPTY;
+    const clients = (data?.clients || []).filter((client) => (client.division || 'SOFTWARE') === selectedDivision);
     const templates = data?.templates || [];
     const feedback = data?.feedback || [];
 
@@ -99,22 +77,6 @@ const AdminDashboard = () => {
         if (selectedDivision === 'ALL') return allInvoices;
         return allInvoices.filter(i => (i.division || 'SOFTWARE').toUpperCase() === selectedDivision);
     }, [allInvoices, selectedDivision]);
-
-    // Monthly Revenue for Chart
-    const monthlyRevenue = useMemo(() => {
-        const months = {};
-        for (let i = 5; i >= 0; i--) {
-            const d = new Date();
-            d.setMonth(d.getMonth() - i);
-            months[d.toLocaleString('default', { month: 'short' })] = 0;
-        }
-        invoices.filter(i => i.status === 'PAID').forEach(inv => {
-            const m = new Date(inv.paid_at || inv.created_at).toLocaleString('default', { month: 'short' });
-            if (months[m] !== undefined) months[m] += Number(inv.amount || 0);
-        });
-        const max = Math.max(...Object.values(months), 1);
-        return Object.entries(months).map(([m, val]) => ({ month: m, value: val, height: (val / max) * 100 }));
-    }, [invoices]);
 
     // ── Smart view filter ──────────────────────────────
     // One-click filters that surface the work the admin actually came here to do.
@@ -136,13 +98,8 @@ const AdminDashboard = () => {
                 const isDone = ['LAUNCHED', 'ARCHIVED'].includes(p.status);
                 return !isDone && updated && (nowMs - updated) > 30 * 24 * 60 * 60 * 1000;
             }
-            case 'overdue': {
-                const owed = Number(p.amount_due || 0);
-                const overdueInv = invoices.find(
-                    (i) => i.project_id === p.id && i.status === 'PENDING' && i.due_date && new Date(i.due_date) < now
-                );
-                return owed > 0 || !!overdueInv;
-            }
+            case 'overdue':
+                return invoices.some((invoice) => invoice.project_id === p.id && isOverdueInvoice(invoice, now));
             case 'thisweek': {
                 const created = p.created_at ? new Date(p.created_at).getTime() : 0;
                 return created && (nowMs - created) <= sevenDays;
@@ -154,30 +111,35 @@ const AdminDashboard = () => {
 
     // Count for each smart-view chip — computed by the same predicate
     // that filters the list, so the badges can never disagree with it.
-    const smartViewCounts = useMemo(() => {
+    const smartViewCounts = (() => {
         const c = { all: projects.length };
         for (const key of ['active', 'launched', 'stalled', 'overdue', 'thisweek']) {
             c[key] = projects.filter((p) => matchesSmartView(p, key)).length;
         }
         return c;
-    }, [projects, invoices, nowMs, smartView]);
+    })();
 
-    const fetchAll = async () => {
+    const fetchAll = useCallback(async () => {
         const res = await api.get('/dashboard');
         if (res.ok && res.data) {
             setData(res.data);
+            setRefreshKey(Date.now());
+            setError(null);
         } else {
             setError(res.error || 'Failed to load dashboard.');
             notify.error(res.error || 'Failed to load dashboard.');
         }
         setLoading(false);
-    };
+    }, []);
 
     useEffect(() => {
         fetchAll();
         const t = setInterval(() => setNow(new Date()), 60_000);
-        return () => clearInterval(t);
-    }, []);
+        const refresh = () => { if (document.visibilityState !== 'hidden') fetchAll(); };
+        const poll = setInterval(refresh, 120000);
+        document.addEventListener('visibilitychange', refresh);
+        return () => { clearInterval(t); clearInterval(poll); document.removeEventListener('visibilitychange', refresh); };
+    }, [fetchAll]);
 
     if (loading) {
         return (
@@ -187,10 +149,10 @@ const AdminDashboard = () => {
         );
     }
 
-    if (error || !data) {
+    if (!data) {
         return (
             <div className="flex-1 flex items-center justify-center">
-                <div className="text-red-500">{error || 'No data'}</div>
+                <div className="text-red-500">{error || 'No data'} <button type="button" onClick={fetchAll} className="underline font-bold">Retry</button></div>
             </div>
         );
     }
@@ -198,9 +160,7 @@ const AdminDashboard = () => {
     const recentFeedback = [...feedback].sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 5);
     const recentInvoices = [...invoices].sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 5);
     const openFeedback = feedback.filter(f => f.status === 'OPEN');
-    const pendingInvoices = invoices.filter(i => i.status === 'PENDING');
-    const overdueInvoices = pendingInvoices.filter(i => i.due_date && new Date(i.due_date) < new Date());
-    const needsAttention = openFeedback.length + overdueInvoices.length;
+
 
     // Financial calculations
     const financialSummary = data.financialSummary || {};
@@ -213,7 +173,7 @@ const AdminDashboard = () => {
     const apiRevenue = financialSummary.total_revenue;
     const totalRevenue = apiRevenue !== undefined && apiRevenue !== null && Number.isFinite(Number(apiRevenue))
         ? Number(apiRevenue)
-        : invoices.filter(i => i.status === 'PAID').reduce((sum, i) => sum + Number(i.amount || 0), 0);
+        : invoices.filter(i => i.status === 'PAID' && (i.currency || 'NGN') === 'NGN').reduce((sum, i) => sum + Number(i.amount || 0), 0);
     const revenueThisMonth = Number(financialSummary.revenue_this_month || 0);
     const totalExpenses = Number(financialSummary.total_expenses || 0);
     const expensesThisMonth = Number(financialSummary.expenses_this_month || 0);
@@ -329,57 +289,16 @@ const AdminDashboard = () => {
                     </div>
                 </motion.div>
 
-                {/* ── TODAY WIDGET (Phase 2) — actionable at-a-glance counters ── */}
-                <TodayWidget />
-
-                {/* ── COMMAND CENTER (Admin OS Phase 1) — Tonight Queue,
-                    Waiting on Client, Needs Attention, Next Actions ── */}
-                <CommandCenter />
-
-                {/* ── ASSISTANT PANEL (Admin OS Phase 6) — workload
-                    guardrails + "ask your data" NL assistant ── */}
-                <AssistantPanel />
-
-                {/* ── ALERT BANNER (only if there are issues) ───────── */}
-                {needsAttention > 0 && (
-                    <motion.div
-                        initial={{ opacity: 0, y: -8 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="mb-6 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/50 rounded-2xl p-4 flex flex-wrap items-center gap-3"
-                    >
-                        <div className="w-9 h-9 rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-300 flex items-center justify-center flex-shrink-0">
-                            <Icon.Alert className="w-5 h-5" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                            <p className="text-sm font-bold text-amber-900 dark:text-amber-200">
-                                {needsAttention} {needsAttention === 1 ? 'item needs' : 'items need'} your attention
-                            </p>
-                            <p className="text-xs text-amber-700 dark:text-amber-300/80 mt-0.5">
-                                {openFeedback.length > 0 && <span>{openFeedback.length} open feedback</span>}
-                                {openFeedback.length > 0 && overdueInvoices.length > 0 && <span> · </span>}
-                                {overdueInvoices.length > 0 && <span>{overdueInvoices.length} overdue invoice{overdueInvoices.length === 1 ? '' : 's'}</span>}
-                            </p>
-                        </div>
-                        <div className="flex gap-2">
-                            {overdueInvoices.length > 0 && (
-                                <a href="#invoices" className="cursor-pointer text-xs font-bold bg-amber-600 hover:bg-amber-700 text-white px-3 py-2 rounded-lg transition-colors">
-                                    Review invoices
-                                </a>
-                            )}
-                            {openFeedback.length > 0 && (
-                                <a href="#feedback" className="cursor-pointer text-xs font-bold bg-white dark:bg-gray-800 border border-amber-300 dark:border-amber-700 text-amber-800 dark:text-amber-200 hover:bg-amber-100 dark:hover:bg-amber-900/40 px-3 py-2 rounded-lg transition-colors">
-                                    Review feedback
-                                </a>
-                            )}
-                        </div>
-                    </motion.div>
-                )}
-
+                {error && <div role="alert" className="mb-4 p-4 bg-amber-50 dark:bg-amber-900/20 rounded-xl text-sm">Dashboard information may be out of date: {error} <button type="button" onClick={fetchAll} className="font-bold underline">Retry</button></div>}
+                <CommandCenter refreshKey={refreshKey} />
+                <details className="mb-6 rounded-xl border border-gray-200 dark:border-gray-800 p-4" onToggle={(event) => setShowAssistant(event.currentTarget.open)}>
+                    <summary className="text-sm font-bold cursor-pointer">Optional assistant & workload</summary>
+                    {showAssistant && <div className="mt-4"><AssistantPanel /></div>}
+                </details>
                 {/* ── DIVISION / WORKSPACE SCOPING & QUICK LINKS ────── */}
                 <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
                     <div className="flex items-center gap-1.5 p-1 bg-gray-100 dark:bg-gray-800/80 rounded-xl border border-gray-200 dark:border-gray-700/60">
                         {[
-                            { id: 'ALL', label: 'All Divisions' },
                             { id: 'SOFTWARE', label: 'Software' },
                             { id: 'SURVEY', label: 'Survey' },
                             { id: 'DRONE', label: 'Drone' },
@@ -387,7 +306,7 @@ const AdminDashboard = () => {
                             <button
                                 key={div.id}
                                 type="button"
-                                onClick={() => setSelectedDivision(div.id)}
+                                onClick={() => setWorkspace(div.id.toLowerCase())}
                                 className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${
                                     selectedDivision === div.id
                                         ? 'bg-white dark:bg-gray-700 text-blue-600 dark:text-blue-400 shadow-sm'
@@ -418,9 +337,9 @@ const AdminDashboard = () => {
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5 mb-6">
                     <StatCard label="Total Projects" value={projects.length} hint={`${activeProjectsCount} active`} icon={Icon.Rocket} accent="blue" />
                     <StatCard label="Active Clients" value={activeClients} hint="With active projects" icon={Icon.Clients} accent="purple" />
-                    <StatCard label="Total Revenue" value={formatCurrency(totalRevenue)} hint={revenueThisMonth > 0 ? `+${formatCurrency(revenueThisMonth)} this month` : "From paid invoices"} icon={Icon.Money} accent="emerald" isCurrency />
-                    <StatCard label="Total Expenses" value={formatCurrency(totalExpenses)} hint={expensesThisMonth > 0 ? `${formatCurrency(expensesThisMonth)} this month` : "Recorded expenses"} icon={Icon.Payments} accent="amber" isCurrency />
-                    <StatCard label="Net Profit" value={formatCurrency(netProfit)} hint={`${profitMargin}% margin`} icon={Icon.BarChart} accent={netProfit >= 0 ? "emerald" : "rose"} isCurrency />
+                    <StatCard label="Collected · NGN equivalent" value={formatCurrency(totalRevenue)} hint={revenueThisMonth > 0 ? `All divisions · ${formatCurrency(revenueThisMonth)} this month` : "All divisions · paid invoices"} icon={Icon.Money} accent="emerald" isCurrency />
+                    <StatCard label="Expenses · all divisions" value={formatCurrency(totalExpenses)} hint={expensesThisMonth > 0 ? `${formatCurrency(expensesThisMonth)} this month` : "Recorded expenses"} icon={Icon.Payments} accent="amber" isCurrency />
+                    <StatCard label="Net profit · all divisions" value={formatCurrency(netProfit)} hint={`${profitMargin}% margin`} icon={Icon.BarChart} accent={netProfit >= 0 ? "emerald" : "rose"} isCurrency />
                     <StatCard label="Active Pipeline" value={activePipelineCount} hint={`${pipelineStats.active_leads || 0} leads · ${pipelineStats.active_quotations || 0} quotes`} icon={Icon.Kanban} accent="indigo" />
                 </div>
 
@@ -437,7 +356,7 @@ const AdminDashboard = () => {
                 {/* ── SMART VIEW FILTERS + SEARCH ────────────────────── */}
                 <div className="mb-6 flex flex-col gap-3">
                     <div className="flex flex-wrap items-center gap-2">
-                        <div className="flex items-center gap-1.5 text-[10px] font-extrabold uppercase tracking-widest text-gray-400 dark:text-gray-500 mr-1">
+                        <div className="flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-widest text-gray-400 dark:text-gray-500 mr-1">
                             <Icon.Filter className="w-3.5 h-3.5" /> Smart views
                         </div>
                         {[
@@ -464,7 +383,7 @@ const AdminDashboard = () => {
                                     className={`cursor-pointer inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full transition-colors ${toneClasses}`}
                                 >
                                     {v.label}
-                                    <span className={`text-[10px] font-extrabold px-1.5 py-0.5 rounded-full ${isActive ? 'bg-white/20' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300'}`}>
+                                    <span className={`text-xs font-extrabold px-1.5 py-0.5 rounded-full ${isActive ? 'bg-white/20' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300'}`}>
                                         {count}
                                     </span>
                                 </button>
@@ -481,17 +400,11 @@ const AdminDashboard = () => {
                                 placeholder="Search projects or clients…"
                                 className="w-full pl-9 pr-24 py-2.5 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
                             />
-                            <kbd className="hidden sm:flex absolute right-2 top-1/2 -translate-y-1/2 items-center gap-1 text-[10px] font-mono font-bold text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-gray-700/60 border border-gray-200 dark:border-gray-600 px-1.5 py-0.5 rounded">
+                            <kbd className="hidden sm:flex absolute right-2 top-1/2 -translate-y-1/2 items-center gap-1 text-xs font-mono font-bold text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-gray-700/60 border border-gray-200 dark:border-gray-600 px-1.5 py-0.5 rounded">
                                 <Icon.Command className="w-3 h-3" />K
                             </kbd>
                         </div>
-                        <button
-                            onClick={() => setPaletteOpen(true)}
-                            className="cursor-pointer hidden sm:inline-flex items-center gap-1.5 text-xs font-bold px-3 py-2.5 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-blue-500 text-gray-700 dark:text-gray-200 transition-colors"
-                            title="Open command palette"
-                        >
-                            <Icon.Command className="w-4 h-4" /> Jump to…
-                        </button>
+
                     </div>
                 </div>
 
@@ -514,7 +427,7 @@ const AdminDashboard = () => {
                                 <button
                                     onClick={exportProjectsCSV}
                                     title="Download all projects as CSV"
-                                    className="cursor-pointer text-[10px] font-extrabold uppercase tracking-wider text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 inline-flex items-center gap-1"
+                                    className="cursor-pointer text-xs font-extrabold uppercase tracking-wider text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 inline-flex items-center gap-1"
                                 >
                                     <Icon.Download className="w-3.5 h-3.5" /> CSV
                                 </button>
@@ -574,7 +487,7 @@ const AdminDashboard = () => {
                                 <button
                                     onClick={exportClientsCSV}
                                     title="Download all clients as CSV"
-                                    className="cursor-pointer text-[10px] font-extrabold uppercase tracking-wider text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 inline-flex items-center gap-1"
+                                    className="cursor-pointer text-xs font-extrabold uppercase tracking-wider text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 inline-flex items-center gap-1"
                                 >
                                     <Icon.Download className="w-3.5 h-3.5" /> CSV
                                 </button>
@@ -621,12 +534,12 @@ const AdminDashboard = () => {
                                 <button
                                     onClick={exportFeedbackCSV}
                                     title="Download all feedback as CSV"
-                                    className="cursor-pointer text-[10px] font-extrabold uppercase tracking-wider text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 inline-flex items-center gap-1"
+                                    className="cursor-pointer text-xs font-extrabold uppercase tracking-wider text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 inline-flex items-center gap-1"
                                 >
                                     <Icon.Download className="w-3.5 h-3.5" /> CSV
                                 </button>
                                 {openFeedback.length > 0 && (
-                                    <span className="cursor-default text-[10px] font-extrabold uppercase tracking-wider bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300 px-2 py-0.5 rounded-full">
+                                    <span className="cursor-default text-xs font-extrabold uppercase tracking-wider bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300 px-2 py-0.5 rounded-full">
                                         {openFeedback.length} open
                                     </span>
                                 )}
@@ -641,13 +554,13 @@ const AdminDashboard = () => {
                                     return (
                                         <div key={f.id} className={`p-3 rounded-xl border ${f.status === 'OPEN' ? 'bg-rose-50/40 dark:bg-rose-900/10 border-rose-200/60 dark:border-rose-800/40' : 'bg-gray-50 dark:bg-gray-900/40 border-gray-100 dark:border-gray-700'}`}>
                                             <div className="flex justify-between items-start gap-2 mb-1">
-                                                <span className="text-[10px] font-extrabold uppercase tracking-wider text-purple-600 dark:text-purple-300">Stage {f.stage_index + 1}</span>
-                                                <span className={`text-[10px] font-extrabold uppercase tracking-wider px-1.5 py-0.5 rounded ${f.status === 'RESOLVED' ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}`}>
+                                                <span className="text-xs font-extrabold uppercase tracking-wider text-purple-600 dark:text-purple-300">Stage {f.stage_index + 1}</span>
+                                                <span className={`text-xs font-extrabold uppercase tracking-wider px-1.5 py-0.5 rounded ${f.status === 'RESOLVED' ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}`}>
                                                     {f.status}
                                                 </span>
                                             </div>
                                             <p className="text-xs text-gray-700 dark:text-gray-300 line-clamp-2 italic">"{f.client_comment}"</p>
-                                            {project && <p className="text-[10px] text-gray-400 mt-2 truncate">— {project.project_name}</p>}
+                                            {project && <p className="text-xs text-gray-400 mt-2 truncate">— {project.project_name}</p>}
                                         </div>
                                     );
                                 })}
@@ -665,17 +578,17 @@ const AdminDashboard = () => {
                         <div className="flex justify-between items-center mb-4">
                             <div>
                                 <h2 className="font-bold text-lg text-gray-900 dark:text-white">Recent Invoices</h2>
-                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{invoices.length} total · billed via Paystack</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{invoices.length} total · original currencies</p>
                             </div>
                             <div className="flex items-center gap-2">
                                 <button
                                     onClick={exportInvoicesCSV}
                                     title="Download all invoices as CSV"
-                                    className="cursor-pointer text-[10px] font-extrabold uppercase tracking-wider text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 inline-flex items-center gap-1"
+                                    className="cursor-pointer text-xs font-extrabold uppercase tracking-wider text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 inline-flex items-center gap-1"
                                 >
                                     <Icon.Download className="w-3.5 h-3.5" /> CSV
                                 </button>
-                                <span className="text-[10px] font-extrabold uppercase tracking-wider bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 px-2 py-0.5 rounded-full">
+                                <span className="text-xs font-extrabold uppercase tracking-wider bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 px-2 py-0.5 rounded-full">
                                     Paystack
                                 </span>
                             </div>
@@ -689,15 +602,15 @@ const AdminDashboard = () => {
                                     return (
                                         <div key={inv.id} className={`p-3 rounded-xl border ${isOverdue ? 'bg-rose-50/40 dark:bg-rose-900/10 border-rose-200/60 dark:border-rose-800/40' : 'bg-gray-50 dark:bg-gray-900/40 border-gray-100 dark:border-gray-700'}`}>
                                             <div className="flex justify-between items-center mb-1">
-                                                <span className="font-bold text-gray-900 dark:text-white whitespace-nowrap">{formatCurrency(inv.amount)}</span>
-                                                <span className={`text-[10px] font-extrabold uppercase tracking-wider px-1.5 py-0.5 rounded ${inv.status === 'PAID' ? 'bg-emerald-100 text-emerald-700' : isOverdue ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-700'}`}>
+                                                <span className="font-bold text-gray-900 dark:text-white whitespace-nowrap">{formatMoney(inv.amount, inv.currency)}</span>
+                                                <span className={`text-xs font-extrabold uppercase tracking-wider px-1.5 py-0.5 rounded ${inv.status === 'PAID' ? 'bg-emerald-100 text-emerald-700' : isOverdue ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-700'}`}>
                                                     {isOverdue ? 'OVERDUE' : inv.status}
                                                 </span>
                                             </div>
-                                            <p className="text-[10px] text-gray-400">Created {new Date(inv.created_at).toLocaleDateString()}</p>
-                                            {inv.due_date && <p className="text-[10px] text-gray-400">Due {new Date(inv.due_date).toLocaleDateString()}</p>}
+                                            <p className="text-xs text-gray-400">Created {new Date(inv.created_at).toLocaleDateString()}</p>
+                                            {inv.due_date && <p className="text-xs text-gray-400">Due {new Date(inv.due_date).toLocaleDateString()}</p>}
                                             {inv.payment_url && inv.status === 'PENDING' && (
-                                                <a href={inv.payment_url} target="_blank" rel="noreferrer" className="cursor-pointer block mt-2 text-center text-[10px] font-bold bg-emerald-600 hover:bg-emerald-700 text-white py-1.5 rounded-md transition-colors">
+                                                <a href={inv.payment_url} target="_blank" rel="noreferrer" className="cursor-pointer block mt-2 text-center text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white py-1.5 rounded-md transition-colors">
                                                     Pay via Paystack →
                                                 </a>
                                             )}
@@ -732,10 +645,10 @@ const AdminDashboard = () => {
                                         <p className="font-bold text-sm text-gray-900 dark:text-white">{t.name}</p>
                                         <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2 mt-0.5">{t.description}</p>
                                         <div className="flex justify-between items-center mt-2">
-                                            <span className="text-[10px] font-bold bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded">
+                                            <span className="text-xs font-bold bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded">
                                                 {t.schema?.length || 0} fields
                                             </span>
-                                            <a href={`/form/${t.id}`} target="_blank" rel="noreferrer" className="cursor-pointer text-[10px] font-bold text-blue-600 dark:text-blue-400 hover:underline inline-flex items-center gap-1">
+                                            <a href={`/form/${t.id}`} target="_blank" rel="noreferrer" className="cursor-pointer text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline inline-flex items-center gap-1">
                                                 Preview <Icon.Arrow className="w-3 h-3" />
                                             </a>
                                         </div>
@@ -746,177 +659,8 @@ const AdminDashboard = () => {
                     </motion.div>
                 </div>
 
-                {/* ── LAZY-LOADED SIDEBAR WIDGETS (invoices, feedback, activity) ── */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                    <Suspense fallback={<WidgetSkeleton height="h-48" lines={4} />}>
-                        <LazyRecentInvoices invoices={invoices} />
-                    </Suspense>
-                    <Suspense fallback={<WidgetSkeleton height="h-48" lines={4} />}>
-                        <LazyRecentFeedback feedback={feedback} />
-                    </Suspense>
-                    <Suspense fallback={<WidgetSkeleton height="h-48" lines={4} />}>
-                        <LazyActivityFeed />
-                    </Suspense>
-                </div>
 
-            {/* ── COMMAND PALETTE (Cmd/Ctrl + K) ─────────────────────── */}
-            {paletteOpen && (
-                <CommandPalette
-                    projects={projects}
-                    clients={clients}
-                    templates={templates}
-                    onClose={() => setPaletteOpen(false)}
-                    onNavigate={(path) => { setPaletteOpen(false); navigate(path); }}
-                />
-            )}
-        </div>
-    );
-};
 
-// ── Command palette ───────────────────────────────────────────
-// Renders nothing more than a single modal that searches across clients,
-// projects, templates, and admin actions. No router lookup, no fancy state —
-// just a filter against the data already on screen.
-const CommandPalette = ({ projects, clients, templates, onClose, onNavigate }) => {
-    const [q, setQ] = useState('');
-    const [debouncedQ, setDebouncedQ] = useState('');
-    const [active, setActive] = useState(0);
-    const inputRef = useRef(null);
-
-    useEffect(() => {
-        inputRef.current?.focus();
-    }, []);
-
-    useEffect(() => {
-        const timer = setTimeout(() => setDebouncedQ(q), 150);
-        return () => clearTimeout(timer);
-    }, [q]);
-
-    const items = useMemo(() => {
-        const navActions = [
-            { kind: 'action', label: 'Go to Dashboard', path: '/admin', hint: 'Nav' },
-            { kind: 'action', label: 'Go to Projects', path: '/admin/projects', hint: 'Nav' },
-            { kind: 'action', label: 'Go to Clients', path: '/admin/clients', hint: 'Nav' },
-            { kind: 'action', label: 'Go to Invoices', path: '/admin/invoices', hint: 'Nav' },
-            { kind: 'action', label: 'Go to Templates', path: '/admin/templates', hint: 'Nav' },
-            { kind: 'action', label: 'Create new Project', path: '/admin/projects', hint: 'Nav' },
-            { kind: 'action', label: 'Create new Invoice', path: '/admin/invoices', hint: 'Nav' },
-        ];
-        const fromClients = clients.map((c) => ({
-            kind: 'client',
-            label: c.name,
-            sub: c.primary_contact_email,
-            path: '/admin/clients',
-            id: c.id,
-        }));
-        const fromProjects = projects.map((p) => ({
-            kind: 'project',
-            label: p.project_name,
-            sub: p.client_name || 'No client',
-            path: `/admin/projects/${p.id}`,
-            id: p.id,
-        }));
-        const fromTemplates = templates.map((t) => ({
-            kind: 'template',
-            label: t.name,
-            sub: t.description || `${t.schema?.length || 0} fields`,
-            path: '/admin/templates',
-            id: t.id,
-        }));
-        return [...navActions, ...fromClients, ...fromProjects, ...fromTemplates];
-    }, [projects, clients, templates]);
-
-    const filtered = useMemo(() => {
-        const term = debouncedQ.trim().toLowerCase();
-        if (!term) return items.slice(0, 10);
-        return items.filter((i) => i.label.toLowerCase().includes(term) || (i.sub || '').toLowerCase().includes(term)).slice(0, 12);
-    }, [debouncedQ, items]);
-
-    useEffect(() => {
-        setActive(0);
-    }, [debouncedQ]);
-
-    const onKeyDown = useCallback((e) => {
-        if (e.key === 'ArrowDown') {
-            e.preventDefault();
-            setActive((a) => Math.min(filtered.length - 1, a + 1));
-        } else if (e.key === 'ArrowUp') {
-            e.preventDefault();
-            setActive((a) => Math.max(0, a - 1));
-        } else if (e.key === 'Enter') {
-            e.preventDefault();
-            const target = filtered[active];
-            if (target) onNavigate(target.path);
-        } else if (e.key === 'Escape') {
-            onClose();
-        }
-    }, [filtered, active, onNavigate, onClose]);
-
-    const kindBadge = (kind) => {
-        const map = {
-            action: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
-            client: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300',
-            project: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300',
-            template: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300',
-        };
-        return map[kind] || map.action;
-    };
-
-    return (
-        <div
-            className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-start justify-center pt-24 px-4"
-            onClick={onClose}
-        >
-            <div
-                className="w-full max-w-xl bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden"
-                onClick={(e) => e.stopPropagation()}
-            >
-                <div className="flex items-center gap-2 px-4 py-3 border-b border-gray-100 dark:border-gray-800">
-                    <Icon.Command className="w-4 h-4 text-gray-400" />
-                    <input
-                        ref={inputRef}
-                        value={q}
-                        onChange={(e) => setQ(e.target.value)}
-                        onKeyDown={onKeyDown}
-                        placeholder="Jump to a client, project, template, or action…"
-                        className="flex-1 bg-transparent text-sm outline-none placeholder:text-gray-400"
-                    />
-                    <button onClick={onClose} className="cursor-pointer p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800">
-                        <Icon.X className="w-4 h-4 text-gray-400" />
-                    </button>
-                </div>
-                <div className="max-h-80 overflow-y-auto">
-                    {filtered.length === 0 ? (
-                        <div className="px-4 py-10 text-center text-sm text-gray-400">No matches.</div>
-                    ) : (
-                        filtered.map((item, i) => (
-                            <button
-                                key={`${item.kind}-${item.id || item.path}`}
-                                onClick={() => onNavigate(item.path)}
-                                onMouseEnter={() => setActive(i)}
-                                className={`w-full cursor-pointer flex items-center gap-3 px-4 py-2.5 text-left transition-colors ${i === active ? 'bg-blue-50 dark:bg-blue-900/30' : 'hover:bg-gray-50 dark:hover:bg-gray-800/60'}`}
-                            >
-                                <span className={`text-[9px] font-extrabold uppercase tracking-widest px-1.5 py-0.5 rounded ${kindBadge(item.kind)}`}>
-                                    {item.kind}
-                                </span>
-                                <div className="min-w-0 flex-1">
-                                    <p className="text-sm font-bold text-gray-900 dark:text-white truncate">{item.label}</p>
-                                    {item.sub && <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{item.sub}</p>}
-                                </div>
-                                {i === active && <Icon.CornerDownLeft className="w-3.5 h-3.5 text-blue-500" />}
-                            </button>
-                        ))
-                    )}
-                </div>
-                <div className="flex items-center justify-between gap-3 px-4 py-2 border-t border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/60 text-[10px] text-gray-500 dark:text-gray-400">
-                    <div className="flex items-center gap-3">
-                        <span className="flex items-center gap-1"><kbd className="font-mono font-bold bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 px-1 rounded">↑↓</kbd> navigate</span>
-                        <span className="flex items-center gap-1"><kbd className="font-mono font-bold bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 px-1 rounded">↵</kbd> open</span>
-                        <span className="flex items-center gap-1"><kbd className="font-mono font-bold bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 px-1 rounded">esc</kbd> close</span>
-                    </div>
-                    <span className="font-bold">{filtered.length} result{filtered.length === 1 ? '' : 's'}</span>
-                </div>
-            </div>
         </div>
     );
 };

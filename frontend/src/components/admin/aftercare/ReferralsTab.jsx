@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { api } from '../../../services/api';
 import { notify } from '../../../services/notify';
-import { inputClass, labelClass, fmtDate, fmtMoney, Badge, cardClass, thClass } from './shared.jsx';
+import { inputClass, labelClass, fmtDate, fmtMoney, Badge, cardClass, thClass } from './shared.js';
 
 // ─── ReferralsTab (§55) ───────────────────────────────────
 // Each client can get a /ref/:code link. The public page thanks
@@ -226,11 +226,11 @@ const ReferralsTab = ({ clients }) => {
                       <td className="py-4 px-4">
                         <button onClick={() => copyLink(r)} title="Copy referral link"
                           className="font-mono font-bold text-accent hover:text-orange-600 text-sm">{r.code} ⧉</button>
-                        <p className="text-[11px] text-gray-400 font-body mt-1">{r.hits} hit{r.hits === 1 ? '' : 's'}{r.last_hit_at ? ` · last ${fmtDate(r.last_hit_at)}` : ''}</p>
+                        <p className="text-xs text-gray-400 font-body mt-1">{r.hits} hit{r.hits === 1 ? '' : 's'}{r.last_hit_at ? ` · last ${fmtDate(r.last_hit_at)}` : ''}</p>
                       </td>
                       <td className="py-4 px-4">
                         <p className="text-sm font-bold text-gray-900 dark:text-white font-body">{r.referrer_name || '—'}</p>
-                        <p className="text-[11px] text-gray-400 font-body">{[r.referred_name, r.referred_business].filter(Boolean).join(' · ') || '—'}</p>
+                        <p className="text-xs text-gray-400 font-body">{[r.referred_name, r.referred_business].filter(Boolean).join(' · ') || '—'}</p>
                       </td>
                       <td className="py-4 px-4 text-center"><Badge tone={STATUS_TONES[r.status] || 'gray'}>{r.status}</Badge></td>
                       <td className="py-4 px-4 text-center text-sm text-gray-600 dark:text-gray-300 font-body">{fmtMoney(r.revenue, r.currency)}</td>

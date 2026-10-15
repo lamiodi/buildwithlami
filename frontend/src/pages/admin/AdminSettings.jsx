@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { api } from '../../services/api';
 import { notify } from '../../services/notify';
@@ -48,7 +48,7 @@ const PasswordSection = () => {
     return (
         <form onSubmit={handlePasswordChange} className="space-y-4 max-w-md">
             <div>
-                <label className="block text-[10px] font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2">Current Password</label>
+                <label className="block text-xs font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2">Current Password</label>
                 <input
                     type="password"
                     required
@@ -59,7 +59,7 @@ const PasswordSection = () => {
                 />
             </div>
             <div>
-                <label className="block text-[10px] font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2">New Password</label>
+                <label className="block text-xs font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2">New Password</label>
                 <input
                     type="password"
                     required
@@ -70,7 +70,7 @@ const PasswordSection = () => {
                 />
             </div>
             <div>
-                <label className="block text-[10px] font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2">Confirm New Password</label>
+                <label className="block text-xs font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2">Confirm New Password</label>
                 <input
                     type="password"
                     required
@@ -144,7 +144,7 @@ const AdminSettings = () => {
     };
 
     const inputClass = "w-full p-3 text-sm border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900 outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-colors font-body";
-    const labelClass = "block text-[10px] font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2";
+    const labelClass = "block text-xs font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2";
 
     if (loading) {
         return (
@@ -349,12 +349,12 @@ const FxRatesSection = () => {
     const sourceBadge = (info) => {
         if (!info) return null;
         if (info.source === 'LIVE') {
-            return <span className="text-[9px] font-extrabold text-green-700 bg-green-50 border border-green-200 px-1.5 py-0.5 rounded-full uppercase tracking-widest" title={`Live from API · ${formatRelative(info.fetched_at)}`}>● LIVE</span>;
+            return <span className="text-xs font-extrabold text-green-700 bg-green-50 border border-green-200 px-1.5 py-0.5 rounded-full uppercase tracking-widest" title={`Live from API · ${formatRelative(info.fetched_at)}`}>● LIVE</span>;
         }
         if (info.source === 'SEED') {
-            return <span className="text-[9px] font-extrabold text-gray-500 bg-gray-50 border border-gray-200 px-1.5 py-0.5 rounded-full uppercase tracking-widest">SEED</span>;
+            return <span className="text-xs font-extrabold text-gray-500 bg-gray-50 border border-gray-200 px-1.5 py-0.5 rounded-full uppercase tracking-widest">SEED</span>;
         }
-        return <span className="text-[9px] font-extrabold text-amber-700 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded-full uppercase tracking-widest" title={`Manual edit · ${formatRelative(info.updated_at)}`}>MANUAL</span>;
+        return <span className="text-xs font-extrabold text-amber-700 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded-full uppercase tracking-widest" title={`Manual edit · ${formatRelative(info.updated_at)}`}>MANUAL</span>;
     };
 
     if (loading) {
@@ -367,7 +367,7 @@ const FxRatesSection = () => {
     return (
         <div className="bg-gray-50 dark:bg-gray-900/40 rounded-2xl border border-gray-200 dark:border-gray-700 p-4 space-y-3">
             <div className="flex items-start justify-between gap-3 flex-wrap">
-                <p className="text-[10px] text-gray-500 font-body">
+                <p className="text-xs text-gray-500 font-body">
                     {lastFetched
                         ? <>Last live fetch: <strong>{formatRelative(lastFetched)}</strong> · {liveCount} LIVE · {manualCount} MANUAL</>
                         : <>No live fetch yet · {manualCount} MANUAL</>}
@@ -376,7 +376,7 @@ const FxRatesSection = () => {
                     type="button"
                     onClick={handleRefresh}
                     disabled={refreshing}
-                    className="text-[10px] font-extrabold text-white bg-blue-600 hover:bg-blue-700 px-3 py-1.5 rounded-lg transition-colors disabled:opacity-50 inline-flex items-center gap-1.5"
+                    className="text-xs font-extrabold text-white bg-blue-600 hover:bg-blue-700 px-3 py-1.5 rounded-lg transition-colors disabled:opacity-50 inline-flex items-center gap-1.5"
                     title="Fetch latest rates from open.er-api.com"
                 >
                     <svg className={`w-3 h-3 ${refreshing ? 'animate-spin' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
@@ -408,7 +408,7 @@ const FxRatesSection = () => {
                                 className="flex-1 p-2 text-sm border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 outline-none focus:ring-2 focus:ring-accent focus:border-accent font-mono disabled:opacity-60"
                                 placeholder="rate"
                             />
-                            <span className="text-[10px] text-gray-400 font-mono w-20 text-right">
+                            <span className="text-xs text-gray-400 font-mono w-20 text-right">
                                 1 {baseCurrency} = {isBase ? '1' : (info.rate || '?')} {code}
                             </span>
                         </div>
@@ -416,7 +416,7 @@ const FxRatesSection = () => {
                 })}
             </div>
             <div className="flex items-center justify-between pt-2">
-                <p className="text-[10px] text-gray-400 font-body">
+                <p className="text-xs text-gray-400 font-body">
                     {lastUpdated ? `Last update: ${new Date(lastUpdated).toLocaleString()}` : 'Never updated'}
                 </p>
                 <button
@@ -489,8 +489,8 @@ const BankAccountsSection = () => {
                         <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-1">
                                 <span className="font-extrabold text-sm">{acc.currency}</span>
-                                <span className="text-[10px] uppercase tracking-widest text-gray-500">{acc.provider}</span>
-                                {!acc.is_active && <span className="text-[10px] font-bold text-red-500">INACTIVE</span>}
+                                <span className="text-xs uppercase tracking-widest text-gray-500">{acc.provider}</span>
+                                {!acc.is_active && <span className="text-xs font-bold text-red-500">INACTIVE</span>}
                             </div>
                             <p className="text-sm font-bold">{acc.bank_name} · {acc.account_name}</p>
                             <p className="text-xs text-gray-500 font-mono">
@@ -612,7 +612,7 @@ const BackupStatusWidget = () => {
     return (
         <div className="bg-gray-50 dark:bg-gray-900/40 rounded-2xl border border-gray-200 dark:border-gray-700 p-4">
             <div className="flex items-center justify-between mb-3">
-                <p className="text-[10px] font-extrabold uppercase tracking-widest text-gray-500 dark:text-gray-400">
+                <p className="text-xs font-extrabold uppercase tracking-widest text-gray-500 dark:text-gray-400">
                     {data ? `${data.totalRows.toLocaleString()} rows · last checked ${new Date(data.timestamp).toLocaleString()}` : error || 'Press Refresh to check'}
                 </p>
                 <button
@@ -628,7 +628,7 @@ const BackupStatusWidget = () => {
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 text-xs">
                     {Object.entries(data.counts).map(([table, n]) => (
                         <div key={table} className="flex items-center justify-between gap-2 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 px-2.5 py-1.5">
-                            <span className="font-mono text-[11px] text-gray-600 dark:text-gray-400 truncate">{table}</span>
+                            <span className="font-mono text-xs text-gray-600 dark:text-gray-400 truncate">{table}</span>
                             <span className="font-extrabold tabular-nums text-gray-900 dark:text-white">{Number(n).toLocaleString()}</span>
                         </div>
                     ))}

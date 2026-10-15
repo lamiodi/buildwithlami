@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { api } from '../../services/api';
 import { notify } from '../../services/notify';
@@ -199,7 +199,7 @@ const AdminTwoFactorSetup = () => {
 
                         <form onSubmit={handleConfirm} className="space-y-5">
                             <div>
-                                <label className="block text-[10px] font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2 font-body">
+                                <label className="block text-xs font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2 font-body">
                                     6-digit verification code
                                 </label>
                                 <input
@@ -263,7 +263,7 @@ const AdminTwoFactorSetup = () => {
 
                             <form onSubmit={handleDisable} className="space-y-4">
                                 <div>
-                                    <label className="block text-[10px] font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-1 font-body">
+                                    <label className="block text-xs font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-1 font-body">
                                         Password
                                     </label>
                                     <input

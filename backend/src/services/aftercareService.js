@@ -126,8 +126,11 @@ export const HANDOVER_TEMPLATE = [
     { key: 'repo_access',             label: 'Repository ownership / access confirmed',               required: false },
 ];
 
-const checklistFromTemplate = () =>
-    HANDOVER_TEMPLATE.map((item) => ({ ...item, done: false, done_at: null, note: null }));
+const checklistFromTemplate = (saved = []) =>
+    HANDOVER_TEMPLATE.map((item) => {
+        const existing = Array.isArray(saved) ? saved.find((entry) => entry.key === item.key) : null;
+        return { ...item, done: existing?.done === true, done_at: existing?.done_at || null, note: existing?.note || null };
+    });
 
 const PROJECT_FOR_HANDOVER_SQL = `
     SELECT cp.id, cp.project_name, cp.status, cp.payment_status,
@@ -149,8 +152,7 @@ export async function getHandoverState(projectId) {
     const project = rows[0];
     if (!project) return null;
 
-    let checklist = Array.isArray(project.offboarding_checklist) ? project.offboarding_checklist : [];
-    if (checklist.length === 0) checklist = checklistFromTemplate();
+    const checklist = checklistFromTemplate(project.offboarding_checklist);
 
     return {
         project: {
@@ -162,7 +164,8 @@ export async function getHandoverState(projectId) {
             client_name: project.client_name,
             client_email: project.primary_contact_email,
             domain_name: project.domain_name,
-            offboarding_status: project.offboarding_status,
+            offboarding_status: ['NOT_STARTED', 'IN_PROGRESS', 'COMPLETED'].includes(project.offboarding_status)
+                ? project.offboarding_status : project.offboarding_completed_at ? 'COMPLETED' : project.offboarding_started_at ? 'IN_PROGRESS' : 'NOT_STARTED',
             offboarding_started_at: project.offboarding_started_at,
             offboarding_completed_at: project.offboarding_completed_at,
             next_action: project.next_action,
@@ -177,7 +180,7 @@ export async function startHandover(projectId) {
     if (!state) return null;
 
     // Don't clobber an in-flight checklist — idempotent start (§89).
-    const { rows } = await pool.query(
+    await pool.query(
         `UPDATE client_projects
             SET offboarding_status = CASE
                     WHEN offboarding_status = 'COMPLETED' THEN 'COMPLETED'
@@ -210,10 +213,11 @@ export async function setChecklistItem(projectId, key, done, note = null) {
             await client.query('ROLLBACK');
             return { notFound: true };
         }
-        let checklist = Array.isArray(rows[0].offboarding_checklist)
-            ? rows[0].offboarding_checklist
-            : checklistFromTemplate();
-        if (checklist.length === 0) checklist = checklistFromTemplate();
+        if (rows[0].offboarding_status === 'COMPLETED') {
+            await client.query('ROLLBACK');
+            return { completed: true };
+        }
+        const checklist = checklistFromTemplate(rows[0].offboarding_checklist);
 
         const item = checklist.find((i) => i.key === key);
         if (!item) {
@@ -253,46 +257,44 @@ export async function setChecklistItem(projectId, key, done, note = null) {
  * move a project off the active queue as part of offboarding.
  */
 export async function completeHandover(projectId, nextStatus, actor) {
-    const state = await getHandoverState(projectId);
-    if (!state) return { notFound: true };
-    if (state.missing_required.length > 0) {
-        return { blocked: true, missing: state.missing_required };
-    }
-
-    const nextAction = nextStatus === 'MAINTENANCE'
-        ? 'Monthly maintenance check'
-        : null;
-
-    const { rows } = await pool.query(
-        `UPDATE client_projects
-            SET status = $2,
-                offboarding_status = 'COMPLETED',
-                offboarding_completed_at = NOW(),
-                next_action = $3::text,
-                next_action_due_at = CASE WHEN $3::text IS NULL THEN NULL
-                                          ELSE NOW() + INTERVAL '30 days' END,
-                updated_at = NOW()
-          WHERE id = $1
-         RETURNING id, project_name, status`,
-        [projectId, nextStatus, nextAction]
-    );
-
-    writeAuditLog({
-        action: 'HANDOVER_COMPLETED',
-        entityType: 'client_projects',
-        entityId: projectId,
-        details: { nextStatus, project: rows[0]?.project_name },
-        user: actor,
-    }).catch(() => {});
-
+    if (!['MAINTENANCE', 'ARCHIVED'].includes(nextStatus)) return { blocked: true, missing: ['Choose a valid handover destination.'] };
+    const client = await pool.connect();
+    let project;
+    try {
+        await client.query('BEGIN');
+        const { rows } = await client.query('SELECT * FROM client_projects WHERE id = $1 FOR UPDATE', [projectId]);
+        if (!rows[0]) { await client.query('ROLLBACK'); return { notFound: true }; }
+        if (rows[0].offboarding_status === 'COMPLETED') {
+            await client.query('ROLLBACK');
+            return { project: rows[0], alreadyCompleted: true };
+        }
+        const missing = missingRequired(checklistFromTemplate(rows[0].offboarding_checklist));
+        const { rows: unpaid } = await client.query(`SELECT COUNT(*)::int AS count FROM invoices
+            WHERE project_id = $1 AND amount > 0 AND status IN ('PENDING', 'PARTIAL', 'OVERDUE')`, [projectId]);
+        if (unpaid[0].count > 0) missing.push('Confirm the outstanding project invoices before completing handover.');
+        if (Number(rows[0].amount_due || 0) > 0 && rows[0].payment_status !== 'PAID') missing.push('The project balance must be confirmed through invoices.');
+        if (missing.length) { await client.query('ROLLBACK'); return { blocked: true, missing }; }
+        const nextAction = nextStatus === 'MAINTENANCE' ? 'Monthly maintenance check' : null;
+        const result = await client.query(
+            `UPDATE client_projects SET status = $2, offboarding_status = 'COMPLETED',
+                offboarding_completed_at = NOW(), next_action = $3::text,
+                next_action_due_at = CASE WHEN $3::text IS NULL THEN NULL ELSE NOW() + INTERVAL '30 days' END,
+                updated_at = NOW() WHERE id = $1 RETURNING id, project_name, status`,
+            [projectId, nextStatus, nextAction]
+        );
+        project = result.rows[0];
+        await client.query('COMMIT');
+    } catch (err) {
+        await client.query('ROLLBACK').catch(() => {});
+        throw err;
+    } finally { client.release(); }
+    await writeAuditLog({ action: 'HANDOVER_COMPLETED', entityType: 'client_projects', entityId: projectId, details: { nextStatus, project: project.project_name }, user: actor });
     await notifyOwnerOnce('project', projectId, 'handover_completed', {
-        type: 'project',
-        title: 'Handover completed',
-        body: `${rows[0]?.project_name || 'Project'} handed over — status is now ${nextStatus}.${nextStatus === 'MAINTENANCE' ? ' Monthly maintenance check scheduled.' : ''}`,
+        type: 'project', title: 'Handover completed',
+        body: `${project.project_name} handed over — status is now ${nextStatus}.`,
         link: `/admin/projects/${projectId}`,
     });
-
-    return { project: rows[0] };
+    return { project };
 }
 
 // ══════════════════════════════════════════════════════════
@@ -390,7 +392,7 @@ export async function launchProject(projectId, actor) {
             SET status = 'LAUNCHED',
                 updated_at = NOW()
           WHERE id = $1
-            AND status NOT IN ('LAUNCHED', 'ARCHIVED')
+            AND status NOT IN ('LAUNCHED', 'MAINTENANCE', 'ARCHIVED')
          RETURNING id, project_name, status`,
         [projectId]
     );

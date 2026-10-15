@@ -1,16 +1,21 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { useParams, Link, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { api } from '../../services/api';
 import { notify } from '../../services/notify';
 import { FRONTEND_URL } from '../../config/frontend.js';
 import HandoverTab from '../../components/admin/aftercare/HandoverTab.jsx';
 import AdminDeliveryPanel from '../../components/admin/AdminDeliveryPanel.jsx';
+import { CURRENCIES, formatMoney, projectStages, isOverdueInvoice } from '../../utils/adminWorkflow';
+import useAdminWorkspace from '../../hooks/useAdminWorkspace';
 
 const AdminProjectDetail = () => {
   const { id } = useParams();
+  const { setBreadcrumbName } = useAdminWorkspace();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [project, setProject] = useState(null);
-  const [activeTab, setActiveTab] = useState('overview');
+  const activeTab = searchParams.get('tab') || 'overview';
+  const setActiveTab = (tab) => setSearchParams({ tab });
   const [templates, setTemplates] = useState([]);
   const [submissions, setSubmissions] = useState([]);
   const [secrets, setSecrets] = useState([]);
@@ -20,14 +25,18 @@ const AdminProjectDetail = () => {
   const [feedback, setFeedback] = useState([]);
   const [files, setFiles] = useState([]);
   const [uploadForm, setUploadForm] = useState({ category: 'Asset', file: null, uploading: false });
-  const [invoiceForm, setInvoiceForm] = useState({ amount: '', dueDate: '' });
+  const [invoiceForm, setInvoiceForm] = useState({ amount: '', dueDate: '', currency: '' });
   const [invoiceSubmitting, setInvoiceSubmitting] = useState(false);
   const [revealedSecrets, setRevealedSecrets] = useState({});
   const [loadError, setLoadError] = useState(null);
+  const loadSequence = useRef(0);
+  const invalidateLoads = useCallback(() => { loadSequence.current++; }, []);
 
-  const fetchProjectData = async () => {
+  const fetchProjectData = useCallback(async () => {
+    const sequence = ++loadSequence.current;
     setLoadError(null);
     const res = await api.get(`/client-projects/${id}/dashboard`);
+    if (sequence !== loadSequence.current) return;
     if (res.ok && res.data) {
       setProject(res.data.project);
       setSecrets(res.data.secrets || []);
@@ -36,12 +45,17 @@ const AdminProjectDetail = () => {
       setInvoices(res.data.invoices || []);
       setFeedback(res.data.feedback || []);
       setFiles(res.data.files || []);
+      setInvoiceForm((form) => ({ ...form, currency: form.currency || res.data.invoices?.[0]?.currency || 'NGN' }));
     } else if (!res.ok) {
       setLoadError(res.error || 'Failed to load project');
     }
-  };
+  }, [id]);
 
-  useEffect(() => { fetchProjectData(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [id]);
+  useEffect(() => {
+    setProject(null); setInvoiceForm({ amount: '', dueDate: '', currency: '' }); fetchProjectData();
+    return invalidateLoads;
+  }, [fetchProjectData, invalidateLoads]);
+  useEffect(() => { setBreadcrumbName(project?.project_name); return () => setBreadcrumbName(null); }, [project?.project_name, setBreadcrumbName]);
 
   const handleAssignTemplate = async (e) => {
     const templateId = e.target.value;
@@ -70,26 +84,16 @@ const AdminProjectDetail = () => {
     else notify.error(res.error || 'Failed to regenerate link');
   };
 
-  // Milestones may arrive as a JSON string, an array, or (after a bad
-  // write) something unparseable. One safe reader for render + mutation —
-  // an unguarded JSON.parse in render white-screened the whole page.
-  const safeMilestones = (raw) => {
-    if (Array.isArray(raw)) return raw;
-    if (typeof raw === 'string') {
-      try {
-        const parsed = JSON.parse(raw);
-        return Array.isArray(parsed) ? parsed : [];
-      } catch {
-        return [];
-      }
-    }
-    return [];
+  const reopenProject = async () => {
+    const reason = window.prompt('What new work requires reopening this project? The previous handover will remain in activity history.');
+    if (!reason?.trim()) return;
+    const res = await api.post(`/client-projects/${id}/reopen`, { reason: reason.trim() });
+    if (res.ok) { notify.success('Project reopened for planning.'); fetchProjectData(); }
+    else notify.error(res.error || 'Could not reopen project.');
   };
 
   const advanceMilestone = async (index) => {
-    if (!project?.milestones) return;
-
-    const currentMilestones = safeMilestones(project.milestones).map(m => ({ ...m }));
+    const currentMilestones = projectStages(project).map(m => ({ ...m }));
 
     if (!currentMilestones.length) return;
 
@@ -100,14 +104,14 @@ const AdminProjectDetail = () => {
       currentMilestones[index].status = 'COMPLETED';
       // Automatically set the next milestone to IN_PROGRESS
       if (index + 1 < currentMilestones.length) {
-        currentMilestones[index + 1].status = 'IN_PROGRESS';
+        if (currentMilestones[index + 1].status === 'PENDING') currentMilestones[index + 1].status = 'IN_PROGRESS';
       }
     } else {
       // Revert to pending
       currentMilestones[index].status = 'PENDING';
     }
 
-    const res = await api.put(`/client-projects/${id}`, { milestones: currentMilestones });
+    const res = await api.put(`/client-projects/${id}`, { stages: currentMilestones });
     if (res.ok) {
       notify.success('Milestone updated!');
       fetchProjectData();
@@ -132,9 +136,9 @@ const AdminProjectDetail = () => {
     setInvoiceSubmitting(true);
     const res = await api.post('/invoices', {
       clientId: project.client_id, projectId: id,
-      amount: Number(invoiceForm.amount), dueDate: invoiceForm.dueDate || undefined
+      amount: Number(invoiceForm.amount), currency: invoiceForm.currency, dueDate: invoiceForm.dueDate || undefined
     });
-    if (res.ok) { setInvoiceForm({ amount: '', dueDate: '' }); fetchProjectData(); notify.success('Invoice generated!'); }
+    if (res.ok) { setInvoiceForm((form) => ({ ...form, amount: '', dueDate: '' })); fetchProjectData(); notify.success('Invoice generated!'); }
     else notify.error(res.error || 'Failed to create invoice');
     setInvoiceSubmitting(false);
   };
@@ -204,7 +208,7 @@ const AdminProjectDetail = () => {
   }
 
   const inputClass = "w-full p-3 text-sm border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900 outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-colors font-body";
-  const labelClass = "block text-[10px] font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2";
+  const labelClass = "block text-xs font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2";
 
   const tabs = ['overview', 'intake', 'credentials', 'invoices', 'feedback', 'files', 'handover', 'delivery'];
 
@@ -218,14 +222,20 @@ const AdminProjectDetail = () => {
                 ← Back to Projects
               </Link>
               <h1 className="text-3xl font-extrabold font-heading text-gray-900 dark:text-white">{project.project_name}</h1>
-              <span className={`inline-block mt-2 px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider ${
+              <span className={`inline-block mt-2 px-3 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider ${
                 project.status === 'LAUNCHED' ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300' : 'bg-accent/10 text-accent'
               }`}>
                 {project.status}
               </span>
+              {['LAUNCHED', 'MAINTENANCE', 'ARCHIVED'].includes(project.status) && <button type="button" onClick={reopenProject} className="ml-3 text-sm font-bold text-accent underline">Reopen for new work</button>}
             </div>
           </div>
 
+          {loadError && <div role="alert" className="mb-4 p-4 bg-amber-50 dark:bg-amber-900/20 text-amber-800 dark:text-amber-200 rounded-xl text-sm">{loadError} Previously loaded information may be out of date. <button type="button" onClick={fetchProjectData} className="font-bold underline">Retry</button></div>}
+          <div className="mb-5 p-4 bg-accent/5 border border-accent/20 rounded-xl flex flex-wrap gap-4 justify-between text-sm">
+            <div><p className="font-bold">{project.next_action || (project.status === 'ONBOARDING' ? 'Review the client brief' : project.status === 'REVIEW' ? 'Request client approval' : project.status === 'LAUNCHED' ? 'Complete the handover checklist' : 'Update the current delivery stage')}</p><p className="text-gray-500 mt-1">Stage: {project.status}{project.next_action_due_at ? ` · Due ${new Date(project.next_action_due_at).toLocaleDateString()}` : ''} · Payment: {project.payment_status}</p></div>
+            <div className="flex flex-wrap gap-3 items-center"><Link to={`/admin/clients/${project.client_id}?tab=onboarding`} className="font-bold text-accent">Client brief →</Link><button type="button" onClick={() => setActiveTab(project.status === 'LAUNCHED' ? 'handover' : 'delivery')} className="font-bold text-accent">{project.status === 'LAUNCHED' ? 'Open handover' : 'Approvals & delivery'} →</button></div>
+          </div>
           {/* Tabs */}
           <div className="flex space-x-1 p-1 bg-gray-100 dark:bg-gray-800 rounded-xl overflow-x-auto mb-6">
             {tabs.map(tab => (
@@ -247,15 +257,15 @@ const AdminProjectDetail = () => {
                 <h2 className="text-xl font-bold font-heading text-gray-900 dark:text-white">Client Information</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-xl">
-                    <p className="text-[10px] font-extrabold uppercase tracking-wider text-gray-500 mb-1">Client Name</p>
+                    <p className="text-xs font-extrabold uppercase tracking-wider text-gray-500 mb-1">Client Name</p>
                     <p className="font-medium font-body text-gray-900 dark:text-white">{project.client_name}</p>
                   </div>
                   <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-xl">
-                    <p className="text-[10px] font-extrabold uppercase tracking-wider text-gray-500 mb-1">Domain Name</p>
+                    <p className="text-xs font-extrabold uppercase tracking-wider text-gray-500 mb-1">Domain Name</p>
                     <p className="font-medium font-body text-gray-900 dark:text-white">{project.domain_name || 'N/A'}</p>
                   </div>
                   <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-xl">
-                    <p className="text-[10px] font-extrabold uppercase tracking-wider text-gray-500 mb-1">Progress</p>
+                    <p className="text-xs font-extrabold uppercase tracking-wider text-gray-500 mb-1">Progress</p>
                     <div className="flex items-center gap-3">
                       <div className="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                         <div className="h-2 rounded-full bg-accent" style={{ width: `${project.progress}%` }} />
@@ -264,7 +274,7 @@ const AdminProjectDetail = () => {
                     </div>
                   </div>
                   <div className="bg-accent/5 dark:bg-accent/10 p-4 rounded-xl border border-accent/20">
-                    <p className="text-[10px] font-extrabold uppercase tracking-wider text-accent mb-1">Tracking Link</p>
+                    <p className="text-xs font-extrabold uppercase tracking-wider text-accent mb-1">Tracking Link</p>
                     <div className="flex items-center gap-2">
                       <a href={`/track/${project.tracking_id}`} target="_blank" rel="noreferrer"
                         className="text-accent hover:underline text-sm font-mono break-all">
@@ -282,7 +292,7 @@ const AdminProjectDetail = () => {
                   <h3 className="text-xl font-bold font-heading text-gray-900 dark:text-white mb-4">Milestone Tracker</h3>
                   <div className="bg-gray-50 dark:bg-gray-900 rounded-xl p-4 md:p-6 border border-gray-200 dark:border-gray-700">
                     <div className="space-y-4">
-                      {safeMilestones(project.milestones).map((milestone, idx) => (
+                      {projectStages(project).map((milestone, idx) => (
                         <div key={idx} className="flex items-center justify-between p-4 bg-white dark:bg-card border border-gray-100 dark:border-white/10 rounded-lg shadow-sm">
                           <div className="flex items-center gap-4">
                             <button 
@@ -297,7 +307,7 @@ const AdminProjectDetail = () => {
                                 {milestone.status === 'COMPLETED' ? '✓' : idx + 1}
                             </button>
                             <div>
-                                <p className="font-semibold text-gray-900 dark:text-white">{milestone.title}</p>
+                                <p className="font-semibold text-gray-900 dark:text-white">{milestone.name}</p>
                                 <p className="text-xs text-gray-500 uppercase tracking-wider font-medium mt-1">{milestone.status.replace('_', ' ')}</p>
                             </div>
                           </div>
@@ -306,8 +316,8 @@ const AdminProjectDetail = () => {
                           </button>
                         </div>
                       ))}
-                      {(!project.milestones || project.milestones.length === 0) && (
-                        <p className="text-sm text-gray-500 italic">No milestones defined. Run DB migration to populate default milestones.</p>
+                      {projectStages(project).length === 0 && (
+                        <p className="text-sm text-gray-500 italic">No stages defined. Add the delivery stages in the project editor.</p>
                       )}
                     </div>
                   </div>
@@ -337,11 +347,11 @@ const AdminProjectDetail = () => {
                     <div className="space-y-4">
                       {submissions.map(sub => (
                         <div key={sub.id} className="border border-gray-200 dark:border-gray-700 rounded-xl p-4">
-                          <p className="text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-3">Submitted: {new Date(sub.submitted_at).toLocaleString()}</p>
+                          <p className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-3">Submitted: {new Date(sub.submitted_at).toLocaleString()}</p>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {Object.entries(sub.responses).map(([key, val]) => (
                               <div key={key} className="bg-gray-50 dark:bg-gray-900 p-3 rounded-xl">
-                                <p className="text-[10px] text-gray-500 uppercase font-bold mb-1">{key}</p>
+                                <p className="text-xs text-gray-500 uppercase font-bold mb-1">{key}</p>
                                 <p className="text-sm font-body text-gray-900 dark:text-white break-words">{val.toString()}</p>
                               </div>
                             ))}
@@ -418,7 +428,7 @@ const AdminProjectDetail = () => {
                     </div>
                   )}
                 </div>
-                <p className="text-[10px] text-gray-400 mt-4 font-body">
+                <p className="text-xs text-gray-400 mt-4 font-body">
                   * Credentials are encrypted using AES-256-CBC at rest.
                 </p>
               </div>
@@ -427,14 +437,15 @@ const AdminProjectDetail = () => {
             {/* INVOICES TAB */}
             {activeTab === 'invoices' && (
               <div className="space-y-6">
-                <h2 className="text-xl font-bold font-heading text-gray-900 dark:text-white">Project Invoices (Paystack)</h2>
+                <h2 className="text-xl font-bold font-heading text-gray-900 dark:text-white">Project invoices</h2>
                 <div className="bg-gray-50 dark:bg-gray-900/50 p-6 rounded-xl border border-gray-200 dark:border-gray-700">
                   <h3 className="font-bold font-heading mb-4 text-gray-900 dark:text-white">Generate New Invoice</h3>
                   <form onSubmit={handleCreateInvoice} className="flex flex-col md:flex-row gap-4 items-end">
                     <div className="flex-1 w-full">
-                      <label className={labelClass}>Amount (₦)</label>
-                      <input type="number" value={invoiceForm.amount} onChange={e => setInvoiceForm({...invoiceForm, amount: e.target.value})} placeholder="e.g. 50000" required className={inputClass} />
+                      <label className={labelClass}>Amount ({invoiceForm.currency})</label>
+                      <input type="number" min="0.01" step="0.01" value={invoiceForm.amount} onChange={e => setInvoiceForm({...invoiceForm, amount: e.target.value})} placeholder="Agreed amount" required className={inputClass} />
                     </div>
+                    <div className="w-full md:w-28"><label className={labelClass}>Currency</label><select aria-label="Invoice currency" required value={invoiceForm.currency} onChange={(e) => setInvoiceForm({ ...invoiceForm, currency: e.target.value })} className={inputClass}>{CURRENCIES.map((currency) => <option key={currency}>{currency}</option>)}</select></div>
                     <div className="flex-1 w-full">
                       <label className={labelClass}>Due Date (Optional)</label>
                       <input type="date" value={invoiceForm.dueDate} onChange={e => setInvoiceForm({...invoiceForm, dueDate: e.target.value})} className={inputClass} />
@@ -451,16 +462,16 @@ const AdminProjectDetail = () => {
                   ) : (
                     <div className="space-y-4">
                       {invoices.map(inv => {
-                        const isOverdue = inv.status === 'PENDING' && inv.due_date && new Date(inv.due_date) < new Date();
+                        const isOverdue = isOverdueInvoice(inv);
                         return (
                           <div key={inv.id} className={`flex flex-col md:flex-row md:items-center justify-between p-4 rounded-xl border ${isOverdue ? 'bg-rose-50/40 dark:bg-rose-900/10 border-rose-200/60 dark:border-rose-800/40' : 'bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700'}`}>
                             <div>
-                              <p className="font-bold text-lg font-heading text-gray-900 dark:text-white">₦{Number(inv.amount).toLocaleString()}</p>
-                              <p className="text-[10px] text-gray-500 font-body">Created: {new Date(inv.created_at).toLocaleDateString()}</p>
-                              {inv.due_date && <p className="text-[10px] text-gray-500 font-body">Due: {new Date(inv.due_date).toLocaleDateString()}</p>}
+                              <p className="font-bold text-lg font-heading text-gray-900 dark:text-white">{formatMoney(inv.amount, inv.currency)}</p>
+                              <p className="text-xs text-gray-500 font-body">Created: {new Date(inv.created_at).toLocaleDateString()}</p>
+                              {inv.due_date && <p className="text-xs text-gray-500 font-body">Due: {new Date(inv.due_date).toLocaleDateString()}</p>}
                             </div>
                             <div className="flex items-center gap-4 mt-4 md:mt-0">
-                              <span className={`px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider ${
+                              <span className={`px-3 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider ${
                                 inv.status === 'PAID' ? 'bg-emerald-100 text-emerald-800' : isOverdue ? 'bg-rose-100 text-rose-800' : 'bg-amber-100 text-amber-800'
                               }`}>
                                 {isOverdue ? 'OVERDUE' : inv.status}
@@ -492,10 +503,10 @@ const AdminProjectDetail = () => {
                       <div key={f.id} className="bg-gray-50 dark:bg-gray-900/50 p-4 rounded-xl border border-gray-200 dark:border-gray-700">
                         <div className="flex justify-between items-start mb-3">
                           <div>
-                            <span className="text-[10px] font-extrabold text-accent uppercase tracking-wider">Stage {f.stage_index + 1}</span>
+                            <span className="text-xs font-extrabold text-accent uppercase tracking-wider">Stage {f.stage_index + 1}</span>
                             <p className="text-xs text-gray-500 font-body">{new Date(f.created_at).toLocaleString()}</p>
                           </div>
-                          <span className={`px-2 py-1 rounded-lg text-[10px] font-extrabold uppercase tracking-wider ${
+                          <span className={`px-2 py-1 rounded-lg text-xs font-extrabold uppercase tracking-wider ${
                             f.status === 'RESOLVED' ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'
                           }`}>
                             {f.status}
@@ -504,7 +515,7 @@ const AdminProjectDetail = () => {
                         <p className="font-medium text-gray-900 dark:text-gray-100 mb-4 font-body italic">"{f.client_comment}"</p>
                         {f.admin_reply ? (
                           <div className="bg-accent/5 dark:bg-accent/10 p-3 rounded-xl border border-accent/20">
-                            <p className="text-[10px] font-extrabold text-accent mb-1">Your Reply:</p>
+                            <p className="text-xs font-extrabold text-accent mb-1">Your Reply:</p>
                             <p className="text-sm text-gray-700 dark:text-gray-300 font-body">{f.admin_reply}</p>
                           </div>
                         ) : (
@@ -575,7 +586,7 @@ const AdminProjectDetail = () => {
                           <div key={f.id} className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4 flex flex-col justify-between">
                             <div className="flex items-start justify-between mb-3">
                               <p className="font-semibold text-sm truncate pr-2 text-gray-900 dark:text-white" title={f.file_name}>{f.file_name}</p>
-                              <span className="text-[10px] text-gray-400 font-mono">{(f.file_size / 1024).toFixed(1)} KB</span>
+                              <span className="text-xs text-gray-400 font-mono">{(f.file_size / 1024).toFixed(1)} KB</span>
                             </div>
                             <div className="flex items-center justify-between mt-2">
                               <a 

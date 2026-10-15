@@ -4,6 +4,8 @@ import { motion, useReducedMotion, AnimatePresence } from 'framer-motion';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 import fallbackProjects from '../data/fallbackProjects';
+import { projectService } from '../data/serviceDetails.js';
+import { guides, guidePath } from '../data/guides.js';
 import { normalizePublicProject, selectRelatedProjects, isConceptProject, publicEvidenceUrl } from '../utils/publicProjects';
 import { projectPlaceholder } from '../utils/placeholders';
 import { Skeleton, SkeletonTransition } from '../components/Skeleton';
@@ -604,6 +606,9 @@ const ProjectDetailPage = () => {
                       {project.tagline}
                     </p>
                   )}
+                  <p className="mt-5 text-sm text-gray-600 dark:text-gray-300">Project work by <Link to="/about" className="underline underline-offset-4">Eugene Odibenuah</Link> at BuildWithLami.</p>
+                  {projectService[project.slug] && <Link to={`/services#${projectService[project.slug]}`} className="mt-3 inline-flex min-h-11 items-center text-sm font-semibold underline decoration-accent underline-offset-4">Explore the related service</Link>}
+                  {guides.filter(guide => guide.projectSlug === project.slug).map(guide => <Link key={guide.slug} to={guidePath(guide)} className="mt-2 block py-2 text-sm underline underline-offset-4">Read: {guide.title}</Link>)}
                 </motion.div>
 
                 <motion.div

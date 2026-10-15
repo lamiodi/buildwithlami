@@ -13,8 +13,8 @@
 // its own authoritative list in `email_templates.placeholders`.
 // ──────────────────────────────────────────────────────────
 
-import React, { useEffect, useMemo, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useEffect, useMemo, useState } from 'react';
+import { motion } from 'framer-motion';
 import { api } from '../../services/api';
 import { notify } from '../../services/notify';
 
@@ -64,7 +64,7 @@ function renderPreview(text, data) {
 }
 
 const inputClass = "w-full p-3 text-sm border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900 outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-colors font-body";
-const labelClass = "block text-[10px] font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2";
+const labelClass = "block text-xs font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2";
 
 const AdminEmailTemplates = () => {
     const [templates, setTemplates] = useState([]);
@@ -239,8 +239,8 @@ const AdminEmailTemplates = () => {
                                         }`}
                                     >
                                         <p className="text-sm font-bold text-gray-900 dark:text-white truncate">{t.name}</p>
-                                        <p className="text-[10px] text-gray-500 dark:text-gray-400 truncate mt-0.5">{t.subject}</p>
-                                        <p className="text-[10px] text-gray-400 mt-0.5">
+                                        <p className="text-xs text-gray-500 dark:text-gray-400 truncate mt-0.5">{t.subject}</p>
+                                        <p className="text-xs text-gray-400 mt-0.5">
                                             {(t.placeholders || []).length} placeholder{(t.placeholders || []).length === 1 ? '' : 's'}
                                         </p>
                                     </button>
@@ -327,7 +327,7 @@ const AdminEmailTemplates = () => {
                                                 <label className={labelClass}>Detected placeholders</label>
                                                 <div className="flex flex-wrap gap-1.5">
                                                     {detectedPlaceholders.map(p => (
-                                                        <code key={p} className="text-[10px] font-extrabold uppercase tracking-wider bg-accent/10 text-accent px-2 py-1 rounded">
+                                                        <code key={p} className="text-xs font-extrabold uppercase tracking-wider bg-accent/10 text-accent px-2 py-1 rounded">
                                                             {`{{${p}}}`}
                                                         </code>
                                                     ))}
@@ -342,7 +342,7 @@ const AdminEmailTemplates = () => {
                                             <div className="space-y-2 mb-4">
                                                 {detectedPlaceholders.map(p => (
                                                     <div key={p}>
-                                                        <label className="text-[10px] font-bold text-gray-500 dark:text-gray-400">{p}</label>
+                                                        <label className="text-xs font-bold text-gray-500 dark:text-gray-400">{p}</label>
                                                         <input
                                                             value={sampleData[p] || ''}
                                                             onChange={(e) => setSampleData({ ...sampleData, [p]: e.target.value })}
@@ -359,7 +359,7 @@ const AdminEmailTemplates = () => {
                                             <label className={labelClass}>Live preview</label>
                                             <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
                                                 <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
-                                                    <p className="text-[10px] text-gray-500 uppercase tracking-widest font-extrabold">Subject</p>
+                                                    <p className="text-xs text-gray-500 uppercase tracking-widest font-extrabold">Subject</p>
                                                     <p className="text-sm font-bold text-gray-900 dark:text-white mt-0.5">
                                                         {renderPreview(editSubject, sampleData)}
                                                     </p>

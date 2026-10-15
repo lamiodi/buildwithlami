@@ -6,6 +6,8 @@ import {
     getProjectDashboard,
     createClientProject,
     updateClientProject,
+    archiveClientProject,
+    reopenClientProject,
     deleteClientProject, 
     getProjectByTrackingId,
     authClientPortal,
@@ -45,6 +47,8 @@ router.get('/:id', verifyToken, adminRole, getClientProjectById);
 router.post('/', verifyToken, adminRole, logActivity('CREATE_PROJECT', 'client_project'), createClientProject);
 router.put('/:id', verifyToken, adminRole, updateClientProject);
 router.patch('/:id', verifyToken, adminRole, updateClientProject);
+router.post('/:id/archive', verifyToken, adminRole, archiveClientProject);
+router.post('/:id/reopen', verifyToken, adminRole, reopenClientProject);
 router.delete('/:id', verifyToken, requireRole('Owner'), deleteClientProject);
 router.post('/:id/regenerate-tracking', verifyToken, requireRole('Owner'), regenerateTrackingId);
 router.get('/:id/portal-link', verifyToken, adminRole, generatePortalLink);

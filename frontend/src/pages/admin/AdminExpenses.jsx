@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { api } from '../../services/api';
@@ -126,7 +126,7 @@ export default function AdminExpenses() {
     };
 
     const inputClass = "w-full p-3 text-sm border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-colors font-body";
-    const labelClass = "block text-[10px] font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-1.5";
+    const labelClass = "block text-xs font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-1.5";
 
     return (
         <div className="flex flex-col max-w-7xl mx-auto w-full">
@@ -188,7 +188,7 @@ export default function AdminExpenses() {
                                                 ₦{Number(ex.amount || 0).toLocaleString()}
                                             </td>
                                             <td className="py-4 px-6 text-center">
-                                                <span className={`text-[9px] font-extrabold uppercase tracking-widest px-2 py-0.5 rounded ${
+                                                <span className={`text-xs font-extrabold uppercase tracking-widest px-2 py-0.5 rounded ${
                                                     ex.division === 'SURVEY' ? 'bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300' :
                                                     ex.division === 'DRONE' ? 'bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300' :
                                                     'bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300'

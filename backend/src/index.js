@@ -248,7 +248,7 @@ app.use((err, _req, res, _next) => {
 });
 
 // ── Start ────────────────────────────────────────────────
-const server = app.listen(PORT, () => {
+const server = app.listen(PORT, process.env.HOST || '0.0.0.0', () => {
     console.log(`\n🚀 buildwithlami.com API running on http://localhost:${PORT}\n`);
     startCronJobs();
 });

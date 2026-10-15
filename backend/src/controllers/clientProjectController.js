@@ -4,6 +4,8 @@ import crypto from 'crypto';
 import { z } from 'zod';
 import { decrypt } from '../utils/crypto.js';
 import cloudinary from '../utils/cloudinary.js';
+import { normalizeStages, progressFromStages, WORK_STATUSES } from '../utils/projectWorkflow.js';
+import { writeAuditLog, getClientIp } from '../utils/auditLog.js';
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const isUuid = (s) => typeof s === 'string' && UUID_REGEX.test(s);
@@ -29,7 +31,6 @@ const UPDATABLE_COLUMNS = new Set([
     'amount_due',
     'payment_type',
     'monthly_fee',
-    'payment_status',
     'stages',
     'milestones',
     'intake_form_id',
@@ -37,8 +38,6 @@ const UPDATABLE_COLUMNS = new Set([
     'assets_url',
     'training_video_url',
     'maintenance_plan_url',
-    'offboarding_status',
-    'offboarding_checklist',
     'client_id',
     // Admin OS Phase 1 — next action (blueprint §30).
     'next_action',
@@ -49,6 +48,11 @@ export const getClientProjects = async (req, res) => {
     try {
         const conditions = [];
         const params = [];
+        if (req.query.client_id) {
+            if (!isUuid(req.query.client_id)) return res.status(400).json({ error: 'Invalid client_id.' });
+            params.push(req.query.client_id);
+            conditions.push(`p.client_id = $${params.length}`);
+        }
         
         // Add division filter if provided
         if (req.query.division && ['SOFTWARE', 'SURVEY', 'DRONE'].includes(req.query.division)) {
@@ -166,27 +170,24 @@ export const getProjectDashboard = async (req, res) => {
     }
 };
 
-const calculateProgress = (stages) => {
-    if (!stages || !Array.isArray(stages) || stages.length === 0) return 0;
-    const completed = stages.filter(s => s.status === 'COMPLETED').length;
-    return Math.round((completed / stages.length) * 100);
-};
-
 export const createClientProject = async (req, res) => {
     const {
-        client_id, project_name, status, notes,
+        client_id, project_name, status: requestedStatus, notes,
         domain_name, domain_expiration, amount_due, payment_type, monthly_fee, payment_status, stages,
         intake_form_id, intake_completed, assets_url, training_video_url, maintenance_plan_url
     } = req.body;
+    const status = requestedStatus === 'IN_PROGRESS' ? 'DEVELOPMENT' : requestedStatus;
 
     if (!isUuid(client_id)) return res.status(400).json({ error: 'Invalid client_id.' });
     if (!project_name || typeof project_name !== 'string') {
         return res.status(400).json({ error: 'project_name is required.' });
     }
 
-    const calculatedProgress = calculateProgress(stages);
-
     try {
+        if (status && !WORK_STATUSES.includes(status)) return res.status(409).json({ error: 'Create an active project first, then use Launch or Handover to complete it.' });
+        if (payment_status && payment_status !== 'PENDING') return res.status(409).json({ error: 'Record payments through an invoice to update payment status.' });
+        const normalizedStages = normalizeStages(stages || []);
+        const calculatedProgress = progressFromStages(normalizedStages);
         const result = await pool.query(
             `INSERT INTO client_projects
             (client_id, project_name, progress, status, notes,
@@ -196,11 +197,12 @@ export const createClientProject = async (req, res) => {
             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17,
                     encode(gen_random_bytes(16), 'hex')) RETURNING *`,
             [client_id, project_name, calculatedProgress, status || 'PLANNING', notes,
-             domain_name, domain_expiration || null, amount_due || 0, payment_type || 'ONE_TIME', monthly_fee || 0, payment_status || 'PENDING', JSON.stringify(stages || []),
+             domain_name, domain_expiration || null, amount_due || 0, payment_type || 'ONE_TIME', monthly_fee || 0, 'PENDING', JSON.stringify(normalizedStages),
              isUuid(intake_form_id) ? intake_form_id : null, !!intake_completed, assets_url, training_video_url, maintenance_plan_url]
         );
         res.status(201).json(result.rows[0]);
     } catch (err) {
+        if (err instanceof z.ZodError || err instanceof TypeError) return res.status(400).json({ error: 'Each stage needs a name and a valid status.' });
         console.error('[ClientProjects] createClientProject error:', err.message);
         res.status(500).json({ error: 'Internal server error.' });
     }
@@ -211,16 +213,37 @@ export const updateClientProject = async (req, res) => {
     if (!isUuid(id)) return res.status(400).json({ error: 'Invalid ID format.' });
 
     const fields = { ...req.body };
-
-    // If stages are updated, recalculate progress server-side so it can't be
-    // tampered with via the body.
-    if (fields.stages) {
-        fields.progress = calculateProgress(fields.stages);
-        fields.stages = JSON.stringify(fields.stages);
-    }
-    
-    if (fields.milestones) {
-        fields.milestones = JSON.stringify(fields.milestones);
+    if (fields.status === 'IN_PROGRESS') fields.status = 'DEVELOPMENT';
+    try {
+        const { rows } = await pool.query('SELECT status, payment_status FROM client_projects WHERE id = $1', [id]);
+        if (!rows[0]) return res.status(404).json({ error: 'Project not found.' });
+        if ('offboarding_status' in fields || 'offboarding_checklist' in fields) {
+            return res.status(409).json({ error: 'Update the checklist through the Handover panel.' });
+        }
+        if (fields.payment_status && fields.payment_status !== rows[0].payment_status) {
+            return res.status(409).json({ error: 'Record payments through an invoice to update payment status.' });
+        }
+        delete fields.payment_status;
+        if (fields.status === rows[0].status) delete fields.status;
+        if (fields.status && !WORK_STATUSES.includes(fields.status)) {
+            return res.status(409).json({ error: 'Use Launch, Complete Handover, or Archive with a reason to finish a project.' });
+        }
+        const currentStatus = rows[0].status === 'IN_PROGRESS' ? 'DEVELOPMENT' : rows[0].status;
+        if (fields.status && !WORK_STATUSES.includes(currentStatus)) {
+            return res.status(409).json({ error: 'A launched or closed project cannot be moved back through the ordinary stage editor.' });
+        }
+        delete fields.progress;
+        if ('stages' in fields || 'milestones' in fields) {
+            const stages = normalizeStages(fields.stages ?? fields.milestones);
+            fields.progress = progressFromStages(stages);
+            fields.stages = JSON.stringify(stages);
+            // Keep the legacy portal representation in sync with the same tracker.
+            fields.milestones = JSON.stringify(stages.map((s) => ({ ...s, title: s.name })));
+        }
+    } catch (err) {
+        if (err instanceof z.ZodError || err instanceof TypeError) return res.status(400).json({ error: 'Each stage needs a name and a valid status.' });
+        console.error('[ClientProjects] validation failed:', err.message);
+        return res.status(500).json({ error: 'Could not validate the project update.' });
     }
 
     const setClause = [];
@@ -249,6 +272,56 @@ export const updateClientProject = async (req, res) => {
         console.error('[ClientProjects] updateClientProject error:', err.message);
         res.status(500).json({ error: 'Internal server error.' });
     }
+};
+
+export const archiveClientProject = async (req, res) => {
+    const { id } = req.params;
+    if (!isUuid(id)) return res.status(400).json({ error: 'Invalid ID format.' });
+    const reason = typeof req.body.reason === 'string' ? req.body.reason.trim().slice(0, 1000) : '';
+    if (reason.length < 3) return res.status(400).json({ error: 'Explain why this project is being archived.' });
+    try {
+        const { rows } = await pool.query(`UPDATE client_projects SET status = 'ARCHIVED',
+            notes = concat_ws(E'\\n', NULLIF(notes, ''), $2::text), next_action = NULL,
+            next_action_due_at = NULL, updated_at = NOW()
+            WHERE id = $1 AND status <> 'ARCHIVED' RETURNING *`, [id, `Archived: ${reason}`]);
+        if (!rows[0]) return res.status(409).json({ error: 'Project is missing or already archived.' });
+        await writeAuditLog({ action: 'PROJECT_ARCHIVED', entityType: 'client_projects', entityId: id,
+            user: req.user, ipAddress: getClientIp(req), details: { reason, handoverCompleted: rows[0].offboarding_status === 'COMPLETED' } });
+        return res.json(rows[0]);
+    } catch (err) {
+        console.error('[ClientProjects] archive failed:', err.message);
+        return res.status(500).json({ error: 'Could not archive project.' });
+    }
+};
+
+export const reopenClientProject = async (req, res) => {
+    const { id } = req.params;
+    if (!isUuid(id)) return res.status(400).json({ error: 'Invalid ID format.' });
+    const reason = typeof req.body.reason === 'string' ? req.body.reason.trim().slice(0, 1000) : '';
+    if (reason.length < 3) return res.status(400).json({ error: 'Explain the new work before reopening this project.' });
+    const client = await pool.connect();
+    try {
+        await client.query('BEGIN');
+        const { rows } = await client.query('SELECT * FROM client_projects WHERE id = $1 FOR UPDATE', [id]);
+        if (!rows[0] || !['LAUNCHED', 'MAINTENANCE', 'ARCHIVED'].includes(rows[0].status)) {
+            await client.query('ROLLBACK');
+            return res.status(409).json({ error: 'Only a launched or closed project can be reopened.' });
+        }
+        const result = await client.query(`UPDATE client_projects SET status = 'PLANNING',
+            offboarding_status = 'NOT_STARTED', offboarding_checklist = '[]'::jsonb,
+            offboarding_started_at = NULL, offboarding_completed_at = NULL,
+            next_action = 'Agree the scope of the reopened work', next_action_due_at = NULL,
+            notes = concat_ws(E'\\n', NULLIF(notes, ''), $2::text), updated_at = NOW()
+            WHERE id = $1 RETURNING *`, [id, `Reopened: ${reason}`]);
+        await client.query('COMMIT');
+        await writeAuditLog({ action: 'PROJECT_REOPENED', entityType: 'client_projects', entityId: id,
+            user: req.user, ipAddress: getClientIp(req), details: { reason, previousStatus: rows[0].status, previousChecklist: rows[0].offboarding_checklist } });
+        return res.json(result.rows[0]);
+    } catch (err) {
+        await client.query('ROLLBACK').catch(() => {});
+        console.error('[ClientProjects] reopen failed:', err.message);
+        return res.status(500).json({ error: 'Could not reopen project.' });
+    } finally { client.release(); }
 };
 
 export const deleteClientProject = async (req, res) => {

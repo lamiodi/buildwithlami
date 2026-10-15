@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 
 // ── AdminHelp — In-app reference for common tasks (Phase 9) ──
@@ -40,28 +40,16 @@ const SECTIONS = [
         tip: 'Templates support {{placeholders}}. Manage them in Admin → Email Templates.',
     },
     {
-        id: 'add-user',
-        title: 'Add a user / admin',
+        id: 'account-security',
+        title: 'Manage your account',
         tag: 'Admin',
         steps: [
-            'Currently user creation is a SQL operation — there\'s no in-app "Add User" form yet.',
-            'SSH into the database or use the Supabase SQL editor.',
-            'Insert a row: INSERT INTO users (email, password_hash, full_name, role) VALUES (..., ...);',
-            'Or use the seed script: `cd backend && node src/scripts/seedAdmin.js <email> <password>`.',
-            'Tell the new user to log in and immediately enable 2FA at /admin/security/2fa.',
+            'Open the account menu in the header for Account settings or Sign out.',
+            'Use Settings to update your profile and change your password.',
+            'Use Settings → Security to manage email-code verification.',
+            'The admin is for the studio owner. Client accounts use the separate client portal.',
         ],
-        tip: 'Roles: Owner (admin) and Client (portal). The studio is a one-man operation — there is only one admin role.',
-    },
-    {
-        id: 'change-role',
-        title: 'Change a user\'s role',
-        tag: 'Admin',
-        steps: [
-            'There\'s no in-app role editor yet — same as adding a user.',
-            "UPDATE users SET role = 'Owner' WHERE email = 'user@example.com';",
-            'The change takes effect on the user\'s next API call (no logout needed for role upgrade; downgrade may require re-login).',
-        ],
-        tip: "The only admin role is 'Owner'. Legacy strings like 'Administrator' or 'ADMIN' are still accepted for backward compatibility but are normalised to 'Owner' before any route guard runs.",
+        tip: 'Never share an admin password with clients. Client access is scoped to their own records.',
     },
     {
         id: 'deploy',
@@ -101,16 +89,16 @@ const SECTIONS = [
     },
     {
         id: 'send-contract',
-        title: 'Send a contract (Zoho Sign)',
+        title: 'Send a contract',
         tag: 'Contracts',
         steps: [
             'Admin → Contracts → "Create Contract".',
-            'Pick the client, paste the Zoho Sign template ID, fill the signatory name + email.',
-            'Click "Send Contract". A SENT row is created. (In stub mode the agreement auto-signs immediately.)',
+            'Pick the client and project, review the agreement text, and enter the signatory name and email.',
+            'Send the contract using its signing link. It remains SENT until the client signs.',
             'When the client signs, the signed PDF is stored in the database (bytea).',
             'Download it from the row\'s "Download PDF" button.',
         ],
-        tip: 'Zoho Sign is in stub mode until you set ZOHO_SIGN_TOKEN. See docs/ENV_VARIABLES.md.',
+        tip: 'Review the agreement before sending. The signed document and signature history stay with the contract.',
     },
     {
         id: 'convert-lead',
@@ -159,7 +147,7 @@ const AdminHelp = () => {
     }, [query, activeTag]);
 
     const inputClass = "w-full p-3 text-sm border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900 outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-colors font-body";
-    const labelClass = "block text-[10px] font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2";
+    const labelClass = "block text-xs font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2";
 
     return (
         <div className="max-w-4xl mx-auto w-full">
@@ -223,7 +211,7 @@ const AdminHelp = () => {
                                         className="w-full px-6 py-4 flex items-center justify-between gap-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors text-left"
                                     >
                                         <div className="flex items-center gap-3">
-                                            <span className="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-widest bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
+                                            <span className="px-2.5 py-1 rounded-full text-xs font-extrabold uppercase tracking-widest bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
                                                 {section.tag}
                                             </span>
                                             <h3 className="font-bold text-gray-900 dark:text-white text-sm">{section.title}</h3>

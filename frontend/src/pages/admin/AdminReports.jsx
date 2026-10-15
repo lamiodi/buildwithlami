@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { api } from '../../services/api';
 import { notify } from '../../services/notify';
@@ -36,7 +36,7 @@ const StatCard = ({ label, value, hint, icon: IconComp, accent = 'blue' }) => {
             </div>
             <div className="text-2xl md:text-3xl font-extrabold text-gray-900 dark:text-white">{value}</div>
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{label}</p>
-            {hint && <p className="text-[10px] text-gray-400 dark:text-gray-500 font-medium mt-0.5">{hint}</p>}
+            {hint && <p className="text-xs text-gray-400 dark:text-gray-500 font-medium mt-0.5">{hint}</p>}
         </div>
     );
 };
@@ -91,16 +91,6 @@ const AdminReports = () => {
         return () => { alive = false; };
     }, []);
 
-    // ── Chart data preparation ──────────────────────────────
-    const revenueChart = useMemo(() => {
-        if (!data?.revenueByMonth) return [];
-        const max = Math.max(...data.revenueByMonth.map(r => Number(r.total || 0)), 1);
-        return data.revenueByMonth.map(r => {
-            const [year, month] = r.month.split('-');
-            const label = new Date(year, month - 1).toLocaleString('default', { month: 'short' });
-            return { label, value: Number(r.total || 0), count: Number(r.count), height: (Number(r.total || 0) / max) * 100 };
-        });
-    }, [data]);
 
     // Profit & Loss Monthly Comparison (Revenue vs Expenses)
     const pnlChart = useMemo(() => {
@@ -294,7 +284,7 @@ const AdminReports = () => {
                                     </span>
                                 </div>
                             </div>
-                            <button onClick={exportRevenueCSV} title="Download as CSV" className="cursor-pointer text-[10px] font-extrabold uppercase tracking-wider text-gray-500 dark:text-gray-400 hover:text-accent inline-flex items-center gap-1">
+                            <button onClick={exportRevenueCSV} title="Download as CSV" className="cursor-pointer text-xs font-extrabold uppercase tracking-wider text-gray-500 dark:text-gray-400 hover:text-accent inline-flex items-center gap-1">
                                 <Icon.Download className="w-3.5 h-3.5" /> CSV
                             </button>
                         </div>
@@ -310,7 +300,7 @@ const AdminReports = () => {
                                                 className="w-1/2 max-w-[16px] bg-emerald-500/80 hover:bg-emerald-500 rounded-t-md transition-all duration-300 relative"
                                                 style={{ height: `${Math.max(d.revHeight, 4)}%` }}
                                             >
-                                                <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-[10px] py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 font-bold pointer-events-none">
+                                                <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 font-bold pointer-events-none">
                                                     Rev: {formatCurrency(d.revenue)}
                                                 </div>
                                             </div>
@@ -319,12 +309,12 @@ const AdminReports = () => {
                                                 className="w-1/2 max-w-[16px] bg-amber-500/80 hover:bg-amber-500 rounded-t-md transition-all duration-300 relative"
                                                 style={{ height: `${Math.max(d.expHeight, 4)}%` }}
                                             >
-                                                <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-[10px] py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 font-bold pointer-events-none">
+                                                <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 font-bold pointer-events-none">
                                                     Exp: {formatCurrency(d.expenses)}
                                                 </div>
                                             </div>
                                         </div>
-                                        <span className="text-[9px] font-bold text-gray-500 uppercase">{d.label}</span>
+                                        <span className="text-xs font-bold text-gray-500 uppercase">{d.label}</span>
                                     </div>
                                 ))}
                             </div>
@@ -345,11 +335,11 @@ const AdminReports = () => {
                                     return (
                                         <div key={idx} className="flex items-center gap-3">
                                             <div className="w-24 text-right">
-                                                <span className="text-[10px] font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-wider">{item.status}</span>
+                                                <span className="text-xs font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-wider">{item.status}</span>
                                             </div>
                                             <div className="flex-1 bg-gray-100 dark:bg-gray-700 rounded-r-md h-7 flex items-center">
                                                 <div
-                                                    className={`h-full ${statusColors[item.status] || 'bg-gray-400'} rounded-r-md flex items-center justify-end px-2 text-[10px] font-bold text-white transition-all duration-500`}
+                                                    className={`h-full ${statusColors[item.status] || 'bg-gray-400'} rounded-r-md flex items-center justify-end px-2 text-xs font-bold text-white transition-all duration-500`}
                                                     style={{ width: `${Math.max(pct, 10)}%` }}
                                                 >
                                                     {pct > 15 ? item.count : ''}
@@ -359,7 +349,7 @@ const AdminReports = () => {
                                                 <span className="text-xs font-bold text-gray-900 dark:text-white">{item.count}</span>
                                             </div>
                                             <div className="w-12 text-right">
-                                                <span className="text-[10px] text-gray-400 font-bold">{pct}%</span>
+                                                <span className="text-xs text-gray-400 font-bold">{pct}%</span>
                                             </div>
                                         </div>
                                     );
@@ -393,7 +383,7 @@ const AdminReports = () => {
                                             <div className="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2">
                                                 <div className={`h-2 rounded-full ${colors[div.division] || 'bg-blue-500'}`} style={{ width: `${Math.max(pct, 5)}%` }} />
                                             </div>
-                                            <div className="flex justify-between items-center text-[10px] text-gray-400 mt-1">
+                                            <div className="flex justify-between items-center text-xs text-gray-400 mt-1">
                                                 <span>{div.count} paid invoices</span>
                                                 <span>{pct}% of revenue</span>
                                             </div>
@@ -426,7 +416,7 @@ const AdminReports = () => {
                                             <div className="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2">
                                                 <div className={`h-2 rounded-full ${colors[div.division] || 'bg-blue-500'}`} style={{ width: `${Math.max(pct, 5)}%` }} />
                                             </div>
-                                            <div className="flex justify-between items-center text-[10px] text-gray-400 mt-1">
+                                            <div className="flex justify-between items-center text-xs text-gray-400 mt-1">
                                                 <span>{pct}% of active portfolio</span>
                                             </div>
                                         </div>
@@ -481,7 +471,7 @@ const AdminReports = () => {
                     >
                         <div className="flex justify-between items-center mb-4">
                             <h2 className="font-bold text-lg text-gray-900 dark:text-white">Top Clients by Revenue</h2>
-                            <button onClick={exportClientsCSV} title="Download as CSV" className="cursor-pointer text-[10px] font-extrabold uppercase tracking-wider text-gray-500 dark:text-gray-400 hover:text-accent inline-flex items-center gap-1">
+                            <button onClick={exportClientsCSV} title="Download as CSV" className="cursor-pointer text-xs font-extrabold uppercase tracking-wider text-gray-500 dark:text-gray-400 hover:text-accent inline-flex items-center gap-1">
                                 <Icon.Download className="w-3.5 h-3.5" /> CSV
                             </button>
                         </div>
@@ -539,7 +529,7 @@ const AdminReports = () => {
                             </p>
                         </div>
                         {profitability?.projects?.length > 0 && (
-                            <button onClick={exportProfitabilityCSV} title="Download as CSV" className="cursor-pointer text-[10px] font-extrabold uppercase tracking-wider text-gray-500 dark:text-gray-400 hover:text-accent inline-flex items-center gap-1">
+                            <button onClick={exportProfitabilityCSV} title="Download as CSV" className="cursor-pointer text-xs font-extrabold uppercase tracking-wider text-gray-500 dark:text-gray-400 hover:text-accent inline-flex items-center gap-1">
                                 <Icon.Download className="w-3.5 h-3.5" /> CSV
                             </button>
                         )}
@@ -576,7 +566,7 @@ const AdminReports = () => {
                                                     {formatCurrency(p.gross_contribution)}
                                                 </td>
                                                 <td className="py-3 px-3 text-right text-sm text-gray-700 dark:text-gray-300">
-                                                    {p.hours > 0 ? p.hours : '—'}{p.hours > 0 && p.hours_estimated && <span className="text-[9px] text-gray-400 font-bold ml-0.5">EST</span>}
+                                                    {p.hours > 0 ? p.hours : '—'}{p.hours > 0 && p.hours_estimated && <span className="text-xs text-gray-400 font-bold ml-0.5">EST</span>}
                                                 </td>
                                                 <td className="py-3 px-3 text-right font-mono text-sm font-bold text-gray-900 dark:text-white">
                                                     {p.revenue_per_hour != null ? formatCurrency(p.revenue_per_hour) : '—'}
@@ -599,7 +589,7 @@ const AdminReports = () => {
                                     </tfoot>
                                 </table>
                             </div>
-                            <p className="text-[10px] text-gray-400 dark:text-gray-500 font-body mt-3">
+                            <p className="text-xs text-gray-400 dark:text-gray-500 font-body mt-3">
                                 Revenue converts foreign-currency invoices at your FX rates into the {profitability.baseCurrency} base. Hours use logged actual time, falling back to estimates of completed tasks (marked EST). Expenses count only rows linked to the project.
                             </p>
                         </>

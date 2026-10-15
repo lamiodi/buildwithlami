@@ -1,11 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { api } from '../../services/api';
 import { notify } from '../../services/notify';
 import { FRONTEND_URL } from '../../config/frontend.js';
 import { ActionIcon } from '../../data/adminIcons.jsx';
 import { formatNaira } from '../../utils/currency';
+import { WORK_STATUSES, projectStages } from '../../utils/adminWorkflow';
+import useAdminWorkspace from '../../hooks/useAdminWorkspace';
 const DEFAULT_STAGES = [
   { name: 'Discovery & Planning', status: 'PENDING' },
   { name: 'Design & Mockups', status: 'PENDING' },
@@ -14,21 +16,15 @@ const DEFAULT_STAGES = [
   { name: 'Launch', status: 'PENDING' }
 ];
 
-const DEFAULT_OFFBOARDING = {
-  assets_delivered: false,
-  training_completed: false,
-  credentials_documented: false,
-  support_handoff: false,
-  final_payment: false,
-  client_feedback: false,
-};
-
 const Icon = {
     Copy: ActionIcon.Copy,
     Send: ActionIcon.Send,
 };
 
 const AdminClientProjects = () => {
+  const navigate = useNavigate();
+  const { division } = useAdminWorkspace();
+  const [loadError, setLoadError] = useState('');
   const [projects, setProjects] = useState([]);
   const [templates, setTemplates] = useState([]);
   const [clients, setClients] = useState([]);
@@ -39,7 +35,6 @@ const AdminClientProjects = () => {
     payment_type: 'ONE_TIME', monthly_fee: 0, payment_status: 'PENDING', stages: DEFAULT_STAGES,
     intake_form_id: '', intake_completed: false,
     assets_url: '', training_video_url: '', maintenance_plan_url: '',
-    offboarding_status: { ...DEFAULT_OFFBOARDING },
   });
   const [editingId, setEditingId] = useState(null);
   const [selected, setSelected] = useState(() => new Set());
@@ -66,25 +61,23 @@ const AdminClientProjects = () => {
     const oldStatus = draggedProject.status;
     setProjects(prev => prev.map(p => p.id === draggedProject.id ? { ...p, status: newStatus } : p));
 
-    // Send only the changed field — avoids shipping stale/read-only fields.
-    const res = await api.patch(`/client-projects/${draggedProject.id}`, { status: newStatus });
+    if (['MAINTENANCE', 'ARCHIVED'].includes(newStatus)) {
+      setProjects(prev => prev.map(p => p.id === draggedProject.id ? { ...p, status: oldStatus } : p));
+      notify.info('Complete the handover checklist to finish this project.');
+      navigate(`/admin/projects/${draggedProject.id}?tab=handover`);
+      setDraggedProject(null);
+      return;
+    }
+    const res = newStatus === 'LAUNCHED'
+      ? await api.post(`/aftercare/projects/${draggedProject.id}/launch`, {})
+      : await api.patch(`/client-projects/${draggedProject.id}`, { status: newStatus });
     if (!res.ok) {
-      notify.error('Failed to update status');
+      notify.error(res.error || 'Failed to update status');
       setProjects(prev => prev.map(p => p.id === draggedProject.id ? { ...p, status: oldStatus } : p));
     } else {
       notify.success('Project moved to ' + newStatus);
     }
     setDraggedProject(null);
-  };
-
-  const handleOffboardingToggle = (key) => {
-    setFormData((prev) => ({
-      ...prev,
-      offboarding_status: {
-        ...(prev.offboarding_status || DEFAULT_OFFBOARDING),
-        [key]: !((prev.offboarding_status || DEFAULT_OFFBOARDING)[key]),
-      },
-    }));
   };
 
   const resetForm = () => {
@@ -95,13 +88,13 @@ const AdminClientProjects = () => {
       payment_type: 'ONE_TIME', monthly_fee: 0, payment_status: 'PENDING', stages: DEFAULT_STAGES,
       intake_form_id: '', intake_completed: false,
       assets_url: '', training_video_url: '', maintenance_plan_url: '',
-      offboarding_status: { ...DEFAULT_OFFBOARDING },
     };
   };
 
   const fetchProjects = async () => {
-    const res = await api.get('/client-projects');
-    if (res.ok && res.data) setProjects(res.data);
+    const res = await api.get('/client-projects', { params: { division } });
+    if (res.ok && res.data) { setProjects(res.data); setLoadError(''); }
+    else setLoadError(res.error || 'Could not load projects.');
   };
 
   const fetchTemplates = async () => {
@@ -118,7 +111,9 @@ const AdminClientProjects = () => {
     fetchProjects();
     fetchTemplates();
     fetchClients();
-  }, []);
+    // The layout owns the current division.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [division]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -139,10 +134,9 @@ const AdminClientProjects = () => {
       notes: p.notes || '',
       domain_name: p.domain_name || '', domain_expiration: p.domain_expiration ? p.domain_expiration.split('T')[0] : '',
       amount_due: p.amount_due || 0, payment_type: p.payment_type || 'ONE_TIME',
-      monthly_fee: p.monthly_fee || 0, payment_status: p.payment_status || 'PENDING', stages: p.stages || DEFAULT_STAGES,
+      monthly_fee: p.monthly_fee || 0, payment_status: p.payment_status || 'PENDING', stages: projectStages(p).length ? projectStages(p) : DEFAULT_STAGES,
       intake_form_id: p.intake_form_id || '', intake_completed: p.intake_completed || false,
       assets_url: p.assets_url || '', training_video_url: p.training_video_url || '', maintenance_plan_url: p.maintenance_plan_url || '',
-      offboarding_status: { ...DEFAULT_OFFBOARDING, ...(p.offboarding_status || {}) },
     });
     window.scrollTo(0, 0);
   };
@@ -165,7 +159,6 @@ const AdminClientProjects = () => {
       assets_url: '',
       training_video_url: '',
       maintenance_plan_url: '',
-      offboarding_status: { ...DEFAULT_OFFBOARDING },
     };
     const res = await api.post('/client-projects', payload);
     if (res.ok) {
@@ -235,11 +228,13 @@ const AdminClientProjects = () => {
     });
   };
 
-  const runBulkUpdate = async (payload) => {
+  const runBulkUpdate = async (payload, archiveReason = null) => {
     if (selected.size === 0) return;
     setBulkBusy(true);
     const ids = Array.from(selected);
-    const results = await Promise.all(ids.map((id) => api.patch(`/client-projects/${id}`, payload)));
+    const results = await Promise.all(ids.map((id) => archiveReason
+      ? api.post(`/client-projects/${id}/archive`, { reason: archiveReason })
+      : payload.status === 'LAUNCHED' ? api.post(`/aftercare/projects/${id}/launch`, {}) : api.patch(`/client-projects/${id}`, payload)));
     const ok = results.filter((r) => r.ok).length;
     const fail = results.length - ok;
     setBulkBusy(false);
@@ -248,7 +243,7 @@ const AdminClientProjects = () => {
       fetchProjects();
       clearSelection();
     } else {
-      notify.error('Bulk update failed for all selected projects.');
+      notify.error(results.find((r) => !r.ok)?.error || 'Bulk update failed for all selected projects.');
     }
   };
 
@@ -263,17 +258,19 @@ const AdminClientProjects = () => {
     setBulkClientId('');
   };
   const archiveSelected = () => {
-    if (!window.confirm(`Archive ${selected.size} project${selected.size === 1 ? '' : 's'}?`)) return;
-    runBulkUpdate({ status: 'ARCHIVED' });
+    const reason = window.prompt('Why are these projects being archived? This does not mark handover complete.');
+    if (!reason?.trim()) return;
+    runBulkUpdate({}, reason.trim());
   };
 
   const inputClass = "w-full p-3 text-sm border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900 outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-colors font-body";
   const selectClass = "w-full p-3 text-sm border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900 outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-colors font-body";
-  const labelClass = "block text-[10px] font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2";
+  const labelClass = "block text-xs font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2";
 
   return (
     <div className="flex flex-col">
       <div className="max-w-7xl mx-auto w-full">
+        {loadError && <div role="alert" className="mb-4 p-4 rounded-xl bg-amber-50 dark:bg-amber-900/20 text-sm">{loadError} Previously loaded projects may be out of date. <button type="button" className="font-bold underline" onClick={fetchProjects}>Retry</button></div>}
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
           <div className="flex items-center justify-between mb-8">
             <div>
@@ -365,45 +362,11 @@ const AdminClientProjects = () => {
                   <option value="DESIGN">Design & Figma</option>
                   <option value="DEVELOPMENT">Development</option>
                   <option value="REVIEW">Client Review</option>
-                  <option value="LAUNCHED">LAUNCHED (Offboarding)</option>
-                  <option value="MAINTENANCE">Maintenance</option>
-                  <option value="ARCHIVED">Archived (Read-Only)</option>
+                  {formData.status && !WORK_STATUSES.includes(formData.status) && <option value={formData.status}>{formData.status} (use project actions to change)</option>}
                 </select>
               </div>
 
-              {(formData.status === 'LAUNCHED' || formData.status === 'MAINTENANCE') && (
-                <>
-                  <h3 className="font-bold font-heading pt-4 border-t border-gray-100 dark:border-gray-700 text-accent">Launch & Handoff Vault</h3>
-                  <div className="bg-accent/5 dark:bg-accent/10 p-4 rounded-xl border border-accent/20 dark:border-accent/30 space-y-3">
-                    <h4 className="text-sm font-bold text-accent text-[10px] uppercase tracking-wider mb-1">Offboarding Checklist</h4>
-                    {[
-                      { key: 'final_payment', label: 'Final invoice sent and paid' },
-                      { key: 'credentials_documented', label: 'All credentials documented in vault' },
-                      { key: 'assets_delivered', label: 'Domain transferred / DNS documented' },
-                      { key: 'client_feedback', label: 'Client feedback collected' },
-                    ].map(({ key, label }) => (
-                      <label key={key} className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 font-body">
-                        <input type="checkbox" className="accent-accent rounded"
-                          checked={!!(formData.offboarding_status || DEFAULT_OFFBOARDING)[key]}
-                          onChange={() => handleOffboardingToggle(key)} />
-                        {label}
-                      </label>
-                    ))}
-                  </div>
-                  <div>
-                    <label className={labelClass}>Final Assets URL (Zip/Drive)</label>
-                    <input type="url" name="assets_url" value={formData.assets_url} onChange={handleChange} placeholder="https://drive.google.com/..." className={inputClass} />
-                  </div>
-                  <div>
-                    <label className={labelClass}>Video Training URL (Loom)</label>
-                    <input type="url" name="training_video_url" value={formData.training_video_url} onChange={handleChange} placeholder="https://www.loom.com/..." className={inputClass} />
-                  </div>
-                  <div>
-                    <label className={labelClass}>Maintenance Paystack Link (Upsell)</label>
-                    <input type="url" name="maintenance_plan_url" value={formData.maintenance_plan_url} onChange={handleChange} placeholder="https://paystack.com/pay/..." className={inputClass} />
-                  </div>
-                </>
-              )}
+              {editingId && <div className="p-4 bg-accent/5 rounded-xl text-sm"><Link to={`/admin/projects/${editingId}?tab=handover`} className="font-bold text-accent">Launch & handover checklist →</Link><p className="text-gray-500 mt-1">Review delivery, final payment and access transfer in one place.</p></div>}
 
               <h3 className="font-bold font-heading pt-4 border-t border-gray-100 dark:border-gray-700 text-gray-900 dark:text-white">Domain & Billing</h3>
               <div>
@@ -434,7 +397,7 @@ const AdminClientProjects = () => {
                 </div>
                 <div>
                   <label className={labelClass}>Payment Status</label>
-                  <select name="payment_status" value={formData.payment_status || 'PENDING'} onChange={handleChange} className={selectClass}>
+                  <select name="payment_status" value={formData.payment_status || 'PENDING'} disabled className={selectClass}>
                     <option value="PENDING">Pending</option>
                     <option value="PARTIAL">Partial</option>
                     <option value="PAID">Paid</option>
@@ -475,7 +438,7 @@ const AdminClientProjects = () => {
                 <select value={bulkStatus} onChange={(e) => setBulkStatus(e.target.value)} disabled={bulkBusy}
                   className="text-xs p-2 rounded-lg border border-gray-200 dark:border-gray-700 dark:bg-gray-900 font-body">
                   <option value="">Set status…</option>
-                  {['ONBOARDING', 'PLANNING', 'DESIGN', 'DEVELOPMENT', 'REVIEW', 'LAUNCHED', 'MAINTENANCE', 'ARCHIVED'].map((s) => (
+                  {[...WORK_STATUSES, 'LAUNCHED'].map((s) => (
                     <option key={s} value={s}>{s}</option>
                   ))}
                 </select>
@@ -553,7 +516,7 @@ const AdminClientProjects = () => {
 
                     <div className="bg-accent/5 dark:bg-accent/10 p-3 rounded-xl text-sm mb-3 border border-accent/20">
                       <div className="flex items-center justify-between mb-2">
-                        <p className="font-bold text-accent text-[10px] uppercase tracking-wider font-body">Client Magic Link:</p>
+                        <p className="font-bold text-accent text-xs uppercase tracking-wider font-body">Client Magic Link:</p>
                         <button onClick={() => sendMagicLink(p)} className="text-accent hover:text-orange-600 text-xs font-bold flex items-center gap-1" title="Copy magic link">
                           <Icon.Send className="w-3 h-3" /> Copy
                         </button>
@@ -567,23 +530,23 @@ const AdminClientProjects = () => {
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
                       {p.domain_name && (
                         <div className="bg-gray-50 dark:bg-gray-900 p-3 rounded-xl">
-                          <span className="block text-gray-500 text-[10px] uppercase tracking-wider font-bold mb-1">Domain</span>
+                          <span className="block text-gray-500 text-xs uppercase tracking-wider font-bold mb-1">Domain</span>
                           <span className="font-medium text-gray-900 dark:text-white truncate block font-body" title={p.domain_name}>{p.domain_name}</span>
                         </div>
                       )}
                       {p.domain_expiration && (
                         <div className={`p-3 rounded-xl ${isOverdue ? 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400' : 'bg-gray-50 dark:bg-gray-900'}`}>
-                          <span className="block text-[10px] uppercase tracking-wider font-bold mb-1">Expires</span>
+                          <span className="block text-xs uppercase tracking-wider font-bold mb-1">Expires</span>
                           <span className="font-medium font-body">{new Date(p.domain_expiration).toLocaleDateString()}</span>
                         </div>
                       )}
                       <div className="bg-gray-50 dark:bg-gray-900 p-3 rounded-xl">
-                        <span className="block text-[10px] uppercase tracking-wider font-bold mb-1">Amount Due</span>
+                        <span className="block text-xs uppercase tracking-wider font-bold mb-1">Agreed value (NGN equivalent)</span>
                         <span className="font-bold font-mono text-red-600 dark:text-red-400">{formatNaira(p.amount_due)}</span>
                       </div>
                       {p.intake_form_id && (
                         <div className={`p-3 rounded-xl ${p.intake_completed ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'}`}>
-                          <span className="block text-[10px] uppercase tracking-wider font-bold mb-1">Intake Form</span>
+                          <span className="block text-xs uppercase tracking-wider font-bold mb-1">Intake Form</span>
                           <span className="font-bold font-body">{p.intake_completed ? 'Completed' : 'Pending'}</span>
                         </div>
                       )}
@@ -619,7 +582,7 @@ const AdminClientProjects = () => {
                       <h4 className="font-bold text-gray-900 dark:text-white font-heading text-sm mb-1">{p.project_name}</h4>
                       <p className="text-xs text-gray-500 dark:text-gray-400 font-body mb-3 truncate">{p.client_name}</p>
                       <div className="flex items-center justify-between">
-                        <span className="font-bold text-gray-600 dark:text-gray-400 text-[10px] bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-md">{p.progress}%</span>
+                        <span className="font-bold text-gray-600 dark:text-gray-400 text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-md">{p.progress}%</span>
                         <div className="flex gap-2">
                           <button onClick={() => { setViewMode('list'); editProject(p); }} className="text-xs text-accent hover:underline font-bold">Edit</button>
                         </div>

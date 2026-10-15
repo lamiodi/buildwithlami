@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS client_projects (
     tracking_id             TEXT UNIQUE,
     progress                INTEGER NOT NULL DEFAULT 0,
     status                  TEXT NOT NULL DEFAULT 'PLANNING'
-                            CHECK (status IN ('PLANNING', 'IN_PROGRESS', 'REVIEW', 'LAUNCHED', 'MAINTENANCE', 'ARCHIVED')),
+                            CHECK (status IN ('ONBOARDING', 'PLANNING', 'DESIGN', 'DEVELOPMENT', 'IN_PROGRESS', 'REVIEW', 'LAUNCHED', 'MAINTENANCE', 'ARCHIVED')),
     notes                   TEXT,
     domain_name             TEXT,
     domain_expiration       DATE,

@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../../services/api';
+import useAdminWorkspace from '../../hooks/useAdminWorkspace';
 import { notify } from '../../services/notify';
 import { HighlightedText } from '../../utils/csv.jsx';
 
@@ -15,10 +16,8 @@ const AdminClients = () => {
   const [searchQuery, setSearchQuery] = useState('');
   // §77 — warn (never block) when the form matches an existing client.
   const [dupWarning, setDupWarning] = useState(null);
-  const [divisionFilter, setDivisionFilter] = useState(() => {
-    const ws = (localStorage.getItem('bwl:admin:workspace') || '').toUpperCase();
-    return ['SOFTWARE', 'SURVEY', 'DRONE'].includes(ws) ? ws : 'all';
-  });
+  const { division: divisionFilter, setWorkspace } = useAdminWorkspace();
+  const setDivisionFilter = (value) => setWorkspace(value.toLowerCase());
   const fetchClients = async () => {
     setError(null);
     const params = {};
@@ -126,7 +125,6 @@ const AdminClients = () => {
               onChange={(e) => setDivisionFilter(e.target.value)}
               className="px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900 outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-colors font-body font-bold"
             >
-              <option value="all">All Divisions</option>
               <option value="SOFTWARE">Software</option>
               <option value="SURVEY">Survey</option>
               <option value="DRONE">Drone</option>
@@ -153,7 +151,7 @@ const AdminClients = () => {
             <form onSubmit={handleSubmit} className="space-y-4">
                 {dupWarning && dupWarning.length > 0 && (
                   <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/50 rounded-xl p-3 text-xs font-body">
-                    <p className="font-extrabold text-amber-700 dark:text-amber-300 uppercase tracking-widest text-[10px] mb-1.5">Possible duplicate</p>
+                    <p className="font-extrabold text-amber-700 dark:text-amber-300 uppercase tracking-widest text-xs mb-1.5">Possible duplicate</p>
                     {dupWarning.map(d => (
                       <p key={d.id} className="text-amber-800 dark:text-amber-300 font-medium">
                         {d.name} — {d.primary_contact_email}{d.phone ? ` · ${d.phone}` : ''}
@@ -163,7 +161,7 @@ const AdminClients = () => {
                   </div>
                 )}
                 <div>
-                <label className="block text-[10px] font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2">Company / Client Name</label>
+                <label className="block text-xs font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2">Company / Client Name</label>
                 <input
                   type="text"
                   name="name"
@@ -176,7 +174,7 @@ const AdminClients = () => {
               </div>
 
               <div>
-                <label className="block text-[10px] font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2">Primary Contact Email</label>
+                <label className="block text-xs font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2">Primary Contact Email</label>
                 <input
                   type="email"
                   name="primary_contact_email"
@@ -189,7 +187,7 @@ const AdminClients = () => {
               </div>
 
               <div>
-                <label className="block text-[10px] font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2">Billing Email (Optional)</label>
+                <label className="block text-xs font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2">Billing Email (Optional)</label>
                 <input
                   type="email"
                   name="billing_email"
@@ -201,7 +199,7 @@ const AdminClients = () => {
               </div>
 
               <div>
-                <label className="block text-[10px] font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2">Paystack Code (Optional)</label>
+                <label className="block text-xs font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2">Paystack Code (Optional)</label>
                 <input
                   type="text"
                   name="paystack_customer_code"
@@ -213,7 +211,7 @@ const AdminClients = () => {
               </div>
 
               <div>
-                <label className="block text-[10px] font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2">Internal Notes</label>
+                <label className="block text-xs font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2">Internal Notes</label>
                 <textarea
                   name="notes"
                   rows="3"
@@ -225,7 +223,7 @@ const AdminClients = () => {
               </div>
 
               <div>
-                <label className="block text-[10px] font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2">Division</label>
+                <label className="block text-xs font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2">Division</label>
                 <select
                   name="division"
                   value={formData.division}
@@ -307,7 +305,7 @@ const AdminClients = () => {
                           </td>
                           <td className="py-4 px-6 text-center">
                             {client.division && (
-                              <span className={`text-[9px] font-extrabold uppercase tracking-widest px-1.5 py-0.5 rounded ${
+                              <span className={`text-xs font-extrabold uppercase tracking-widest px-1.5 py-0.5 rounded ${
                                 client.division === 'SURVEY' ? 'bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300' :
                                 client.division === 'DRONE' ? 'bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300' :
                                 'bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300'

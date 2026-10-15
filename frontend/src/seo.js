@@ -3,6 +3,7 @@ import { CONTACT } from './config/contact.js';
 import { faqsByPath } from './data/faqs.js';
 import { divisionServices } from './data/divisionServices.js';
 import { normalizePublicProject } from './utils/publicProjects.js';
+import { guides, guidePath, getGuide } from './data/guides.js';
 
 export const FOUNDER = { name: 'Eugene Odibenuah', givenName: 'Eugene', familyName: 'Odibenuah', alternateName: ['Odibenuah Eugene'] };
 
@@ -11,6 +12,7 @@ export const pages = {
   '/': ['Web Development & Custom Software in Lagos | BuildWithLami', 'Eugene Odibenuah leads BuildWithLami in Lagos, Nigeria, building business websites, online stores and custom software for founders and growing teams worldwide.'],
   '/software': ['Software Engineering & SaaS Development | BuildWithLami', 'Custom web platforms, secure APIs, SaaS products and business systems designed and engineered by Eugene Odibenuah at BuildWithLami.'],
   '/services': ['Web Design, Software & Technical SEO Services | BuildWithLami', 'Explore website development, e-commerce, custom software, API engineering, technical audits and SEO services. Discuss the right scope for your business.'],
+  '/guides': ['Website Planning & Project Guides | BuildWithLami', 'Practical website planning and e-commerce project guides by Eugene Odibenuah. Explore scope, costs, checkout and delivery decisions.'],
   '/projects': ['Software Projects & Case Studies | BuildWithLami', 'Explore BuildWithLami projects: e-commerce websites, business management systems, event platforms and custom applications, with design and engineering case studies.'],
   '/pricing': ['Website & Software Development Pricing | BuildWithLami', 'Compare starting prices and scopes for websites, e-commerce, custom software and business systems. Clear deliverables and milestone billing from BuildWithLami.'],
   '/about': ['About Eugene Odibenuah, Software Engineer | BuildWithLami', 'Meet Eugene Odibenuah, founder of BuildWithLami and a full-stack software engineer based in Lagos, Nigeria. Explore his approach, experience and capabilities.'],
@@ -18,7 +20,7 @@ export const pages = {
   '/survey': ['Land & Engineering Survey Services in Nigeria | GeoSurvey', 'GeoSurvey by BuildWithLami provides boundary surveys, topographic mapping, construction setting out and estate subdivision services in Nigeria. Request a quote.'],
   '/drone': ['Drone Photography & Aerial Imaging in Nigeria | Lami Aerial', 'Explore Lami Aerial drone photography, property videos, site documentation and aerial mapping services in Nigeria. Discuss your location and request a flight quote.'],
 };
-export const publicPaths = [...Object.keys(pages), ...projects.map(p => `/projects/${p.slug}`)];
+export const publicPaths = [...Object.keys(pages), ...projects.map(p => `/projects/${p.slug}`), ...guides.map(guidePath)];
 export const normalizePath = path => path.split(/[?#]/)[0].replace(/\/+$/, '') || '/';
 export const isProjectPath = path => /^\/(?:survey\/|drone\/)?projects\/[^/]+$/.test(normalizePath(path));
 const clean = value => String(value || '').replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
@@ -31,18 +33,20 @@ const absoluteImage = value => {
 
 export function getSeo(pathname, options = {}) {
   const path = normalizePath(pathname);
+  const guide = getGuide(path);
   const fallback = path.startsWith('/projects/') && projects.find(p => p.slug === path.split('/').pop() || String(p.id) === path.split('/').pop());
   const rawProject = options.project === undefined ? fallback : options.project;
   const project = rawProject ? normalizePublicProject(rawProject) : rawProject;
-  const known = pages[path];
+  const known = guide ? [`${guide.title} | BuildWithLami`, guide.description] : pages[path];
   const pendingProject = isProjectPath(path) && options.loading;
   const indexable = Boolean(known || project?.title || pendingProject) && !options.missing;
   const projectPrefix = path.startsWith('/survey/') ? '/survey' : path.startsWith('/drone/') ? '/drone' : '';
   const canonicalPath = project?.slug && isProjectPath(path) ? `${projectPrefix}/projects/${encodeURIComponent(project.slug)}` : path;
   const canonical = indexable ? `${SITE_URL}${canonicalPath}` : null;
-  const title = project?.title ? `${clean(project.title)} | BuildWithLami Case Study` : known?.[0] || (pendingProject ? 'Project Case Study | BuildWithLami' : 'Page unavailable | BuildWithLami');
+  const privateTitle = path === '/login' ? 'Admin sign in | BuildWithLami' : path.startsWith('/admin') ? 'Admin workspace | BuildWithLami' : null;
+  const title = privateTitle || (project?.title ? `${clean(project.title)} | BuildWithLami Case Study` : known?.[0] || (pendingProject ? 'Project Case Study | BuildWithLami' : 'Page unavailable | BuildWithLami'));
   const description = project?.title ? clean(project.summary || project.tagline || `Explore ${project.title}, a project by BuildWithLami.`).slice(0, 180) : known?.[1] || 'BuildWithLami software, survey and drone services.';
-  const image = absoluteImage(project?.image_url || project?.image || (path === '/about' ? '/eugene-hero.webp' : null) || `/images/social/${path === '/survey' ? 'survey' : path === '/drone' ? 'drone' : 'studio'}.png`);
+  const image = absoluteImage(project?.image_url || project?.image || guide?.image || (path === '/about' ? '/eugene-hero.webp' : null) || `/images/social/${path === '/survey' ? 'survey' : path === '/drone' ? 'drone' : 'studio'}.png`);
   const organization = {
     '@type': 'Organization', '@id': `${SITE_URL}/#organization`, name: 'BuildWithLami', url: SITE_URL,
     logo: `${SITE_URL}/2.png`, email: CONTACT.email, telephone: `+${CONTACT.phoneE164}`,
@@ -66,6 +70,7 @@ export function getSeo(pathname, options = {}) {
       const parent = path.startsWith('/survey/') ? '/survey' : path.startsWith('/drone/') ? '/drone' : '/projects';
       crumbs.push({ '@type': 'ListItem', position: 2, name: parent === '/projects' ? 'Projects' : parent.slice(1), item: `${SITE_URL}${parent}` });
     }
+    if (guide) crumbs.push({ '@type': 'ListItem', position: 2, name: 'Guides', item: `${SITE_URL}/guides` });
     crumbs.push({ '@type': 'ListItem', position: crumbs.length + 1, name: clean(project?.title || title.split('|')[0]), item: canonical });
     graph.push({ '@type': 'BreadcrumbList', itemListElement: crumbs });
   }
@@ -89,7 +94,8 @@ export function getSeo(pathname, options = {}) {
     mainEntity: faqs.map(f => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })),
   });
   if (project?.title && indexable) graph.push({ '@type': 'CreativeWork', name: clean(project.title), description, url: canonical, image, creator: { '@id': organization['@id'] } });
-  return { title, description, canonical, image, imageAlt: path === '/about' ? 'Eugene Odibenuah, founder of BuildWithLami' : project?.title ? `${clean(project.title)} project preview` : `${path === '/survey' ? 'GeoSurvey' : path === '/drone' ? 'Lami Aerial' : 'BuildWithLami'} services`, robots: indexable ? 'index, follow, max-image-preview:large' : 'noindex, nofollow', structuredData: { '@context': 'https://schema.org', '@graph': graph } };
+  if (guide && indexable) graph.push({ '@type': 'Article', '@id': `${canonical}#article`, headline: guide.title, description, image, datePublished: guide.date, author: { '@id': person['@id'] }, publisher: { '@id': organization['@id'] }, mainEntityOfPage: { '@id': `${canonical}#webpage` }, inLanguage: 'en' });
+  return { title, description, canonical, image, type: guide ? 'article' : 'website', imageAlt: guide?.imageAlt || (path === '/about' ? 'Eugene Odibenuah, founder of BuildWithLami' : project?.title ? `${clean(project.title)} project preview` : `${path === '/survey' ? 'GeoSurvey' : path === '/drone' ? 'Lami Aerial' : 'BuildWithLami'} services`), robots: indexable ? 'index, follow, max-image-preview:large' : 'noindex, nofollow', structuredData: { '@context': 'https://schema.org', '@graph': graph } };
 }
 
 export function applySeo(seo) {
@@ -101,7 +107,7 @@ export function applySeo(seo) {
     el.setAttribute('content', value);
   };
   meta('description', seo.description); meta('robots', seo.robots);
-  for (const [key, value] of Object.entries({ type: 'website', title: seo.title, description: seo.description, url: seo.canonical || SITE_URL, site_name: 'BuildWithLami', image: seo.image, 'image:alt': seo.imageAlt, locale: 'en_NG' })) meta(`og:${key}`, value, true);
+  for (const [key, value] of Object.entries({ type: seo.type || 'website', title: seo.title, description: seo.description, url: seo.canonical || SITE_URL, site_name: 'BuildWithLami', image: seo.image, 'image:alt': seo.imageAlt, locale: 'en_NG' })) meta(`og:${key}`, value, true);
   for (const [key, value] of Object.entries({ card: 'summary_large_image', title: seo.title, description: seo.description, image: seo.image, 'image:alt': seo.imageAlt })) meta(`twitter:${key}`, value);
   let canonical = document.head.querySelector('link[rel="canonical"]');
   if (seo.canonical) {
@@ -118,7 +124,7 @@ export function renderSeo(seo) {
   const meta = (name, value, property = false) => `<meta ${property ? 'property' : 'name'}="${name}" content="${escapeHtml(value)}" />`;
   return [
     `<title>${escapeHtml(seo.title)}</title>`, meta('description', seo.description), meta('robots', seo.robots),
-    ...Object.entries({ type: 'website', title: seo.title, description: seo.description, url: seo.canonical || SITE_URL, site_name: 'BuildWithLami', image: seo.image, 'image:alt': seo.imageAlt, locale: 'en_NG' }).map(([key, value]) => meta(`og:${key}`, value, true)),
+    ...Object.entries({ type: seo.type || 'website', title: seo.title, description: seo.description, url: seo.canonical || SITE_URL, site_name: 'BuildWithLami', image: seo.image, 'image:alt': seo.imageAlt, locale: 'en_NG' }).map(([key, value]) => meta(`og:${key}`, value, true)),
     ...Object.entries({ card: 'summary_large_image', title: seo.title, description: seo.description, image: seo.image, 'image:alt': seo.imageAlt }).map(([key, value]) => meta(`twitter:${key}`, value)),
     seo.canonical ? `<link rel="canonical" href="${escapeHtml(seo.canonical)}" />` : '',
     `<script id="site-schema" type="application/ld+json">${JSON.stringify(seo.structuredData).replace(/</g, '\\u003c')}</script>`,

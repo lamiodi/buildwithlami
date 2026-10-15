@@ -15,7 +15,7 @@ const invoiceSchema = z.object({
     currency: z.string().length(3).refine(
         (c) => SUPPORTED_CURRENCIES.includes(String(c).toUpperCase()),
         { message: `currency must be one of: ${SUPPORTED_CURRENCIES.join(', ')}` }
-    ).optional(),
+    ),
     dueDate: z.string().optional(),
     taxRate: z.number().min(0).max(100).optional().default(0),
     discountAmount: z.number().min(0).optional().default(0),
@@ -42,8 +42,7 @@ function safeEqualHex(a, b) {
 export const createInvoice = async (req, res) => {
     try {
         const { clientId, projectId, amount, currency, dueDate, taxRate, discountAmount, depositRequired, notes, lineItems } = invoiceSchema.parse(req.body);
-        // Default to NGN; upper-case to normalise storage.
-        const currencyCode = (currency || 'NGN').toUpperCase();
+        const currencyCode = currency.toUpperCase();
 
         if (!isUuid(clientId) || !isUuid(projectId)) {
             return res.status(400).json({ error: 'Invalid ID format.' });

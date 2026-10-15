@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { api } from '../../../services/api';
 import { notify } from '../../../services/notify';
-import { inputClass, labelClass, fmtDate, fmtMoney, Badge, daysTone, cardClass, thClass } from './shared.jsx';
+import { inputClass, labelClass, fmtDate, fmtMoney, Badge, daysTone, cardClass, thClass } from './shared.js';
 
 // ─── RenewalsTab (§47) ────────────────────────────────────
 // One reminder surface for every renewable service — domains,
@@ -9,7 +9,6 @@ import { inputClass, labelClass, fmtDate, fmtMoney, Badge, daysTone, cardClass, 
 // year forward; the daily cron nags at T-60/30/14/7 + overdue.
 
 const SERVICES = ['DOMAIN', 'HOSTING', 'MAINTENANCE', 'EMAIL', 'SSL', 'SAAS', 'SUPPORT', 'OTHER'];
-const STATUSES = ['ACTIVE', 'RENEWED', 'CANCELLED', 'LAPSED'];
 const CURRENCIES = ['NGN', 'GBP', 'USD', 'EUR'];
 
 const FILTERS = [
@@ -234,7 +233,7 @@ const RenewalsTab = ({ clients, projects }) => {
                           <Badge tone={SERVICE_TONES[r.service] || 'gray'}>{r.service}</Badge>
                           <span className="font-bold text-gray-900 dark:text-white font-body">{r.label}</span>
                         </div>
-                        {r.notes && <p className="text-[11px] text-gray-400 font-body mt-1 max-w-xs truncate">{r.notes}</p>}
+                        {r.notes && <p className="text-xs text-gray-400 font-body mt-1 max-w-xs truncate">{r.notes}</p>}
                       </td>
                       <td className="py-4 px-4 text-sm text-gray-600 dark:text-gray-300 font-body">{r.client_name || r.project_name || '—'}</td>
                       <td className="py-4 px-4 text-center">

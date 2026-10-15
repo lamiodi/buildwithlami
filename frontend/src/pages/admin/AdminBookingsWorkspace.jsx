@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { MapPin, Search, X, User, Send, Eye } from 'lucide-react';
 import { api } from '../../services/api';
@@ -147,7 +147,7 @@ export default function AdminBookingsWorkspace({ config }) {
                     <div className="overflow-x-auto">
                         <table className="w-full text-left border-collapse">
                             <thead>
-                                <tr className="bg-gray-50/70 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700 text-[10px] uppercase tracking-widest text-gray-500 dark:text-gray-400 font-extrabold">
+                                <tr className="bg-gray-50/70 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700 text-xs uppercase tracking-widest text-gray-500 dark:text-gray-400 font-extrabold">
                                     <th className="p-4">Client / Contact</th>
                                     <th className="p-4">{labels.serviceCol}</th>
                                     <th className="p-4">{labels.locationCol}</th>
@@ -177,7 +177,7 @@ export default function AdminBookingsWorkspace({ config }) {
                                             {b.preferred_date ? new Date(b.preferred_date).toLocaleDateString() : 'Flexible'}
                                         </td>
                                         <td className="p-4 text-center">
-                                            <span className={`text-[10px] px-2.5 py-1 rounded-full font-extrabold uppercase tracking-wider inline-block ${
+                                            <span className={`text-xs px-2.5 py-1 rounded-full font-extrabold uppercase tracking-wider inline-block ${
                                                 b.status === 'CONFIRMED' ? 'bg-blue-100 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300' :
                                                 b.status === 'COMPLETED' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300' :
                                                 b.status === 'CANCELLED' ? 'bg-rose-100 text-rose-700 dark:bg-rose-950/50 dark:text-rose-300' :
@@ -230,21 +230,21 @@ export default function AdminBookingsWorkspace({ config }) {
                             <div className="space-y-4 text-sm">
                                 <div className="grid grid-cols-2 gap-4 bg-gray-50 dark:bg-gray-800/50 p-4 rounded-2xl">
                                     <div>
-                                        <div className="text-[10px] font-extrabold uppercase tracking-widest text-gray-400">Client Name</div>
+                                        <div className="text-xs font-extrabold uppercase tracking-widest text-gray-400">Client Name</div>
                                         <div className="font-bold text-gray-900 dark:text-white mt-0.5">{selectedBooking.full_name}</div>
                                     </div>
                                     <div>
-                                        <div className="text-[10px] font-extrabold uppercase tracking-widest text-gray-400">{labels.serviceLabel}</div>
+                                        <div className="text-xs font-extrabold uppercase tracking-widest text-gray-400">{labels.serviceLabel}</div>
                                         <div className={`font-bold ${accent.text} mt-0.5`}>{selectedBooking.service}</div>
                                     </div>
                                     <div>
-                                        <div className="text-[10px] font-extrabold uppercase tracking-widest text-gray-400">Email</div>
+                                        <div className="text-xs font-extrabold uppercase tracking-widest text-gray-400">Email</div>
                                         <a href={`mailto:${selectedBooking.email}`} className="text-xs text-blue-500 hover:underline mt-0.5 block truncate">
                                             {selectedBooking.email}
                                         </a>
                                     </div>
                                     <div>
-                                        <div className="text-[10px] font-extrabold uppercase tracking-widest text-gray-400">Phone</div>
+                                        <div className="text-xs font-extrabold uppercase tracking-widest text-gray-400">Phone</div>
                                         <div className="font-mono text-xs text-gray-800 dark:text-gray-200 mt-0.5">
                                             {selectedBooking.phone || '—'}
                                         </div>
@@ -252,7 +252,7 @@ export default function AdminBookingsWorkspace({ config }) {
                                 </div>
 
                                 <div>
-                                    <div className="text-[10px] font-extrabold uppercase tracking-widest text-gray-400 mb-1">{labels.locationLabel}</div>
+                                    <div className="text-xs font-extrabold uppercase tracking-widest text-gray-400 mb-1">{labels.locationLabel}</div>
                                     <div className="p-3 bg-gray-50 dark:bg-gray-800/50 rounded-xl font-medium text-gray-800 dark:text-gray-200 text-xs">
                                         {selectedBooking.location || labels.locationFallback}
                                     </div>
@@ -260,7 +260,7 @@ export default function AdminBookingsWorkspace({ config }) {
 
                                 {selectedBooking.notes && (
                                     <div>
-                                        <div className="text-[10px] font-extrabold uppercase tracking-widest text-gray-400 mb-1">{labels.notesLabel}</div>
+                                        <div className="text-xs font-extrabold uppercase tracking-widest text-gray-400 mb-1">{labels.notesLabel}</div>
                                         <div className="p-3 bg-gray-50 dark:bg-gray-800/50 rounded-xl text-gray-700 dark:text-gray-300 text-xs whitespace-pre-line">
                                             {selectedBooking.notes}
                                         </div>
@@ -268,7 +268,7 @@ export default function AdminBookingsWorkspace({ config }) {
                                 )}
 
                                 <div>
-                                    <div className="text-[10px] font-extrabold uppercase tracking-widest text-gray-400 mb-2">{labels.statusLabel}</div>
+                                    <div className="text-xs font-extrabold uppercase tracking-widest text-gray-400 mb-2">{labels.statusLabel}</div>
                                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                                         {['PENDING', 'CONFIRMED', 'COMPLETED', 'CANCELLED'].map(st => (
                                             <button

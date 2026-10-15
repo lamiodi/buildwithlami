@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../../services/api';
 import { notify } from '../../services/notify';
@@ -31,7 +31,7 @@ const SCOPES = [
 ];
 
 const inputClass = "w-full p-3 text-sm border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-900 outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-colors font-body";
-const labelClass = "block text-[10px] font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2";
+const labelClass = "block text-xs font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2";
 
 const fmtDate = (d) => d ? new Date(d).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : '—';
 const fmtTime = (m) => m ? (m >= 60 ? `${Math.floor(m / 60)}h ${m % 60 ? `${m % 60}m` : ''}`.trim() : `${m}m`) : '';
@@ -331,7 +331,7 @@ const AdminTasks = () => {
                                 {task.title}
                               </p>
                               {task.blocked && (
-                                <span className="inline-block mt-1 text-[9px] font-extrabold uppercase tracking-widest px-1.5 py-0.5 rounded bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300">
+                                <span className="inline-block mt-1 text-xs font-extrabold uppercase tracking-widest px-1.5 py-0.5 rounded bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300">
                                   Blocked{task.blocked_reason ? `: ${task.blocked_reason}` : ''}
                                 </span>
                               )}
@@ -346,18 +346,18 @@ const AdminTasks = () => {
                               )}
                             </td>
                             <td className="py-4 px-4 text-center">
-                              <span className={`text-[9px] font-extrabold uppercase tracking-widest px-2 py-0.5 rounded ${PRIORITY_STYLES[task.priority] || PRIORITY_STYLES.MEDIUM}`}>
+                              <span className={`text-xs font-extrabold uppercase tracking-widest px-2 py-0.5 rounded ${PRIORITY_STYLES[task.priority] || PRIORITY_STYLES.MEDIUM}`}>
                                 {task.priority}
                               </span>
                             </td>
                             <td className="py-4 px-4 text-center">
-                              <span className={`text-[9px] font-extrabold uppercase tracking-widest px-2 py-0.5 rounded ${STATUS_STYLES[task.status] || STATUS_STYLES.TODO}`}>
+                              <span className={`text-xs font-extrabold uppercase tracking-widest px-2 py-0.5 rounded ${STATUS_STYLES[task.status] || STATUS_STYLES.TODO}`}>
                                 {task.status.replace('_', ' ')}
                               </span>
                             </td>
                             <td className={`py-4 px-4 text-center text-sm font-body font-bold ${overdue ? 'text-red-500' : 'text-gray-600 dark:text-gray-300'}`}>
                               {fmtDate(task.due_at)}
-                              {overdue && <span className="block text-[9px] font-extrabold uppercase tracking-widest">Overdue</span>}
+                              {overdue && <span className="block text-xs font-extrabold uppercase tracking-widest">Overdue</span>}
                             </td>
                             <td className="py-4 px-4 text-center text-sm text-gray-500 dark:text-gray-400 font-body">
                               {fmtTime(task.estimated_minutes)}

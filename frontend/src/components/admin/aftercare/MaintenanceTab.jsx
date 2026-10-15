@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { api } from '../../../services/api';
 import { notify } from '../../../services/notify';
-import { inputClass, labelClass, fmtDate, fmtMoney, Badge, cardClass, thClass } from './shared.jsx';
+import { inputClass, labelClass, fmtDate, fmtMoney, Badge, cardClass } from './shared.js';
 
 // ─── MaintenanceTab (§48) ─────────────────────────────────
 // Dedicated maintenance records — maintenance clients are NOT
@@ -250,7 +250,7 @@ const MaintenanceTab = ({ clients, projects }) => {
 
                   {included > 0 && (
                     <div className="mt-4">
-                      <div className="flex justify-between text-[11px] font-body text-gray-500 dark:text-gray-400 mb-1">
+                      <div className="flex justify-between text-xs font-body text-gray-500 dark:text-gray-400 mb-1">
                         <span>{used.toFixed(1)}h used</span>
                         <span>{included}h included</span>
                       </div>

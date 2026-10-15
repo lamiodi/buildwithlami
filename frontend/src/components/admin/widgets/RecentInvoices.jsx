@@ -2,7 +2,8 @@
 // Last 5 invoices, sorted by created_at desc.
 // ──────────────────────────────────────────────────────────
 
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
+import { formatMoney } from '../../../utils/adminWorkflow';
 
 const STATUS_COLORS = {
     PAID: 'text-emerald-600 dark:text-emerald-400',
@@ -27,12 +28,12 @@ export default function RecentInvoices({ invoices = [] }) {
                     {recent.map((i) => (
                         <li key={i.id} className="flex items-center justify-between gap-2">
                             <div className="min-w-0 flex-1">
-                                <p className="text-sm font-bold text-gray-800 dark:text-gray-200">₦{Number(i.amount || 0).toLocaleString()}</p>
-                                <p className="text-[10px] text-gray-500">Invoice #{i.id}</p>
+                                <p className="text-sm font-bold text-gray-800 dark:text-gray-200">{formatMoney(i.amount, i.currency)}</p>
+                                <p className="text-xs text-gray-500">Invoice #{i.id}</p>
                             </div>
                             <div className="text-right">
-                                <p className={`text-[10px] font-extrabold uppercase ${STATUS_COLORS[i.status] || 'text-gray-500'}`}>{i.status}</p>
-                                <time className="text-[10px] text-gray-400" dateTime={i.created_at}>
+                                <p className={`text-xs font-extrabold uppercase ${STATUS_COLORS[i.status] || 'text-gray-500'}`}>{i.status}</p>
+                                <time className="text-xs text-gray-400" dateTime={i.created_at}>
                                     {new Date(i.created_at).toLocaleDateString()}
                                 </time>
                             </div>

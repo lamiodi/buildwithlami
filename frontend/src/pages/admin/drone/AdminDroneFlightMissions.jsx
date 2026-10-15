@@ -12,10 +12,10 @@
 // admin can edit or delete any mission.
 // ──────────────────────────────────────────────────────────
 
-import React from 'react';
+
 import { Link } from 'react-router-dom';
 import WorkspaceListPage, { StatusBadge } from '../../../components/admin/WorkspaceListPage';
-import { Icon } from '../../../data/adminNavItems.jsx';
+import { NavIcon as Icon } from '../../../data/adminIcons.jsx';
 
 import { Plus } from 'lucide-react';
 
@@ -51,7 +51,7 @@ const AdminDroneFlightMissions = () => (
             { key: 'tech_stack', label: 'Tags', render: (p) => (
                 <div className="flex flex-wrap gap-1 max-w-xs">
                     {(p.tech_stack || []).slice(0, 3).map(t => (
-                        <span key={t} className="text-[9px] font-extrabold uppercase tracking-widest px-1.5 py-0.5 rounded bg-accent/10 text-accent">{t}</span>
+                        <span key={t} className="text-xs font-extrabold uppercase tracking-widest px-1.5 py-0.5 rounded bg-accent/10 text-accent">{t}</span>
                     ))}
                 </div>
             )},

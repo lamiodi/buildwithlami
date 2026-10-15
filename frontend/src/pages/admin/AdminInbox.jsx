@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useCallback, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useEffect, useState, useCallback, useRef } from 'react';
+
 import { api } from '../../services/api';
 import { notify } from '../../services/notify';
 import { CoreIcon, DashboardIcon, ActionIcon } from '../../data/adminIcons.jsx';
@@ -51,18 +51,13 @@ function timeAgo(iso) {
 const AdminInbox = () => {
     const [items, setItems] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [loadError, setLoadError] = useState('');
     const [statusFilter, setStatusFilter] = useState('All');
     const [kindFilter, setKindFilter] = useState('all');
     const [search, setSearch] = useState('');
     const [selected, setSelected] = useState(null);
     const [reply, setReply] = useState('');
     const [sending, setSending] = useState(false);
-
-    const autoSelectMessage = (id, pool) => {
-        const list = pool || items;
-        const found = list.find((i) => String(i.id) === String(id));
-        if (found) setSelected(found);
-    };
 
     // Deep-linked ?message=<id> — remembered here, then applied inside
     // load() against the freshly fetched rows. The old 600ms setTimeout
@@ -79,7 +74,7 @@ const AdminInbox = () => {
         if (s && STATUS_OPTIONS.includes(s)) setStatusFilter(s);
         if (k && KIND_OPTIONS.find((o) => o.id === k)) setKindFilter(k);
         if (msg) pendingSelectRef.current = msg;
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+
     }, []);
 
     const load = useCallback(async () => {
@@ -90,13 +85,15 @@ const AdminInbox = () => {
         if (search.trim())          params.q = search.trim();
         const res = await api.get('/admin', { params, timeout: 7000 });
         if (res.ok) {
+            setLoadError('');
             const rows = res.data?.items || [];
             setItems(rows);
             if (pendingSelectRef.current) {
-                autoSelectMessage(pendingSelectRef.current, rows);
+                const message = rows.find((item) => String(item.id) === String(pendingSelectRef.current));
+                if (message) setSelected(message);
                 pendingSelectRef.current = null;
             }
-        }
+        } else setLoadError(res.error || 'Could not load messages.');
         setLoading(false);
     }, [statusFilter, kindFilter, search]);
 
@@ -134,6 +131,7 @@ const AdminInbox = () => {
     return (
         <div className="flex h-[calc(100vh-12rem)] bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 overflow-hidden">
             {/* ── LEFT: list ──────────────────────────────── */}
+            {loadError && <div role="alert" className="p-4 bg-amber-50 dark:bg-amber-900/20 text-sm">{loadError} <button type="button" onClick={load} className="font-bold underline">Retry</button></div>}
             <div className="w-full md:w-2/5 border-r border-gray-200 dark:border-gray-700 flex flex-col">
                 <div className="p-4 border-b border-gray-200 dark:border-gray-700 space-y-3">
                     <div className="flex items-center gap-2">
@@ -154,7 +152,7 @@ const AdminInbox = () => {
                             <button
                                 key={s}
                                 onClick={() => setStatusFilter(s)}
-                                className={`cursor-pointer text-[10px] font-extrabold uppercase tracking-widest px-2.5 py-1 rounded-lg transition-colors ${
+                                className={`cursor-pointer text-xs font-extrabold uppercase tracking-widest px-2.5 py-1 rounded-lg transition-colors ${
                                     statusFilter === s
                                         ? 'bg-accent text-white'
                                         : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
@@ -169,7 +167,7 @@ const AdminInbox = () => {
                             <button
                                 key={k.id}
                                 onClick={() => setKindFilter(k.id)}
-                                className={`cursor-pointer text-[10px] font-extrabold uppercase tracking-widest px-2.5 py-1 rounded-lg transition-colors ${
+                                className={`cursor-pointer text-xs font-extrabold uppercase tracking-widest px-2.5 py-1 rounded-lg transition-colors ${
                                     kindFilter === k.id
                                         ? 'bg-blue-600 text-white'
                                         : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
@@ -206,13 +204,13 @@ const AdminInbox = () => {
                                                     <p className="text-sm font-bold text-gray-900 dark:text-white truncate">
                                                         {item.author_name || item.subject || 'Unknown'}
                                                     </p>
-                                                    <span className="text-[10px] text-gray-500 flex-shrink-0">{timeAgo(item.created_at)}</span>
+                                                    <span className="text-xs text-gray-500 flex-shrink-0">{timeAgo(item.created_at)}</span>
                                                 </div>
-                                                <p className="text-[10px] font-extrabold uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-1">
+                                                <p className="text-xs font-extrabold uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-1">
                                                     {item.kind} {item.subject ? `· ${item.subject}` : ''}
                                                 </p>
                                                 <p className="text-xs text-gray-600 dark:text-gray-400 line-clamp-2">{item.body}</p>
-                                                <span className={`inline-block mt-1 text-[9px] font-extrabold uppercase tracking-widest px-2 py-0.5 rounded ${STATUS_PILL[item.status] || ''}`}>
+                                                <span className={`inline-block mt-1 text-xs font-extrabold uppercase tracking-widest px-2 py-0.5 rounded ${STATUS_PILL[item.status] || ''}`}>
                                                     {item.status}
                                                 </span>
                                             </div>
@@ -238,7 +236,7 @@ const AdminInbox = () => {
                                 <p className="text-xs text-gray-500 dark:text-gray-400">
                                     {selected.author_email || '—'} {selected.project_name ? `· ${selected.project_name}` : ''}
                                 </p>
-                                <p className="text-[10px] font-extrabold uppercase tracking-widest text-gray-500 mt-1">
+                                <p className="text-xs font-extrabold uppercase tracking-widest text-gray-500 mt-1">
                                     {selected.kind} · {timeAgo(selected.created_at)}
                                 </p>
                             </div>
@@ -251,7 +249,7 @@ const AdminInbox = () => {
                         </div>
                         <div className="flex-1 overflow-y-auto p-5 space-y-3">
                             <div className="bg-gray-50 dark:bg-gray-900/40 rounded-2xl p-4 border border-gray-200 dark:border-gray-700">
-                                <p className="text-[10px] font-extrabold uppercase tracking-widest text-gray-500 mb-1">
+                                <p className="text-xs font-extrabold uppercase tracking-widest text-gray-500 mb-1">
                                     Their message
                                 </p>
                                 <p className="text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap">{selected.body}</p>

@@ -4,7 +4,7 @@
 // the rest of the dashboard.
 // ──────────────────────────────────────────────────────────
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { api } from '../../../services/api';
 
 export default function ActivityFeed() {
@@ -52,7 +52,7 @@ export default function ActivityFeed() {
                             <span className="w-1.5 h-1.5 rounded-full bg-accent mt-1.5 shrink-0" aria-hidden="true" />
                             <div className="flex-1 min-w-0">
                                 <p className="text-gray-800 dark:text-gray-200 truncate">{a.action || a.message || a.event || 'Activity'}</p>
-                                <time className="text-[10px] text-gray-400" dateTime={a.created_at}>
+                                <time className="text-xs text-gray-400" dateTime={a.created_at}>
                                     {new Date(a.created_at).toLocaleString()}
                                 </time>
                             </div>

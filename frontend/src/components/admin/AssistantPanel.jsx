@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../../services/api';
 
@@ -24,11 +24,13 @@ const SUGGESTIONS = [
 const fmtHours = (h) => (h === null || h === undefined ? '—' : `${Number(h)}h`);
 
 const SourceBadge = ({ source }) => source === 'ai'
-  ? <span className="text-[9px] font-extrabold uppercase tracking-widest bg-violet-100 dark:bg-violet-900/40 text-violet-700 dark:text-violet-300 px-1.5 py-0.5 rounded">AI</span>
-  : <span className="text-[9px] font-extrabold uppercase tracking-widest bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 px-1.5 py-0.5 rounded">Live data</span>;
+  ? <span className="text-xs font-extrabold uppercase tracking-widest bg-violet-100 dark:bg-violet-900/40 text-violet-700 dark:text-violet-300 px-1.5 py-0.5 rounded">AI</span>
+  : <span className="text-xs font-extrabold uppercase tracking-widest bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 px-1.5 py-0.5 rounded">Live data</span>;
 
 const AssistantPanel = () => {
   const [workload, setWorkload] = useState(null);
+  const [workloadError, setWorkloadError] = useState('');
+  const [retryKey, setRetryKey] = useState(0);
   const [question, setQuestion] = useState('');
   const [answer, setAnswer] = useState(null);
   const [busy, setBusy] = useState(false);
@@ -37,10 +39,12 @@ const AssistantPanel = () => {
   useEffect(() => {
     let alive = true;
     api.get('/intelligence/workload').then((res) => {
-      if (alive && res.ok && res.data) setWorkload(res.data);
-    }).catch(() => {});
+      if (!alive) return;
+      if (res.ok && res.data) { setWorkload(res.data); setWorkloadError(''); }
+      else setWorkloadError(res.error || 'Workload information is unavailable.');
+    }).catch(() => { if (alive) setWorkloadError('Workload information is unavailable.'); });
     return () => { alive = false; };
-  }, []);
+  }, [retryKey]);
 
   const ask = useCallback(async (q) => {
     const text = (q ?? question).trim();
@@ -69,9 +73,9 @@ const AssistantPanel = () => {
     <div className="mb-6 bg-white dark:bg-[#1c1c1c] rounded-2xl border border-gray-100 dark:border-gray-800/60 shadow-sm p-5">
       {/* Workload strip */}
       <div className="flex flex-wrap items-center gap-2 mb-4">
-        <h3 className="text-[10px] font-extrabold uppercase tracking-widest text-gray-400 mr-1">Workload</h3>
+        <h3 className="text-xs font-extrabold uppercase tracking-widest text-gray-400 mr-1">Workload</h3>
         {chips.length === 0 && (
-          <span className="text-xs text-gray-400 font-body">Loading plan…</span>
+          <span className="text-sm text-gray-500 font-body">{workloadError ? <>{workloadError} <button type="button" className="font-bold underline" onClick={() => { setWorkloadError(''); setRetryKey((key) => key + 1); }}>Retry</button></> : 'Loading plan…'}</span>
         )}
         {chips.map((c) => (
           <span key={c.label}
@@ -116,7 +120,7 @@ const AssistantPanel = () => {
               <div className="flex items-center gap-2 mb-1.5">
                 <SourceBadge source={answer.source} />
                 {answer.link && (
-                  <Link to={answer.link} className="text-[10px] font-extrabold uppercase tracking-widest text-accent hover:text-orange-600">
+                  <Link to={answer.link} className="text-xs font-extrabold uppercase tracking-widest text-accent hover:text-orange-600">
                     Open →
                   </Link>
                 )}
@@ -131,7 +135,7 @@ const AssistantPanel = () => {
                       key={s}
                       type="button"
                       onClick={() => { setQuestion(s); ask(s); }}
-                      className="text-[11px] font-bold text-gray-600 dark:text-gray-300 bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800 hover:border-accent/40 rounded-full px-3 py-1 transition-colors"
+                      className="text-xs font-bold text-gray-600 dark:text-gray-300 bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800 hover:border-accent/40 rounded-full px-3 py-1 transition-colors"
                     >
                       {s}
                     </button>

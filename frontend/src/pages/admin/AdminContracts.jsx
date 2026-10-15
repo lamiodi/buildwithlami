@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { api } from '../../services/api';
 import {
@@ -351,7 +351,7 @@ export default function AdminContracts() {
                     }`}
                   >
                     <div className="font-bold text-xs text-gray-900 dark:text-white">{key}</div>
-                    <div className="text-[11px] text-gray-500 dark:text-gray-400 mt-1 line-clamp-1">{t.label}</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-1">{t.label}</div>
                   </button>
                 ))}
               </div>
@@ -543,7 +543,7 @@ export default function AdminContracts() {
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-gray-50/70 dark:bg-white/5 border-b border-gray-200 dark:border-white/10 text-[10px] uppercase tracking-widest text-gray-500 dark:text-gray-400 font-extrabold">
+                <tr className="bg-gray-50/70 dark:bg-white/5 border-b border-gray-200 dark:border-white/10 text-xs uppercase tracking-widest text-gray-500 dark:text-gray-400 font-extrabold">
                   <th className="p-4">Agreement / Title</th>
                   <th className="p-4">Client & Project</th>
                   <th className="p-4">Signatory</th>
@@ -557,7 +557,7 @@ export default function AdminContracts() {
                   <tr key={c.id} className="hover:bg-gray-50/60 dark:hover:bg-white/5 transition-colors">
                     <td className="p-4">
                       <div className="font-bold text-gray-900 dark:text-white">{c.title}</div>
-                      <div className="text-[11px] text-gray-400 font-mono mt-0.5">
+                      <div className="text-xs text-gray-400 font-mono mt-0.5">
                         {c.contract_type} · Sent {new Date(c.sent_at || c.created_at).toLocaleDateString()}
                       </div>
                     </td>
@@ -576,7 +576,7 @@ export default function AdminContracts() {
                     </td>
                     <td className="p-4 text-center">
                       <span
-                        className={`text-[10px] px-2.5 py-1 rounded-full font-extrabold uppercase tracking-wider inline-block ${
+                        className={`text-xs px-2.5 py-1 rounded-full font-extrabold uppercase tracking-wider inline-block ${
                           c.status === 'SIGNED'
                             ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300'
                             : 'bg-orange-100 text-orange-700 dark:bg-orange-950/50 dark:text-orange-300'
@@ -634,7 +634,7 @@ export default function AdminContracts() {
             >
               <div className="flex items-center justify-between border-b border-gray-100 dark:border-white/10 pb-4">
                 <div>
-                  <span className="text-[10px] font-mono uppercase tracking-widest text-accent font-bold">
+                  <span className="text-xs font-mono uppercase tracking-widest text-accent font-bold">
                     {selectedContract.contract_type} AGREEMENT
                   </span>
                   <h3 className="text-xl font-bold text-gray-900 dark:text-white mt-0.5">
@@ -694,7 +694,7 @@ export default function AdminContracts() {
                     </div>
                   )}
                   {selectedContract.contract_hash && (
-                    <div className="text-[10px] font-mono text-gray-500 break-all">
+                    <div className="text-xs font-mono text-gray-500 break-all">
                       SHA-256: <strong>{selectedContract.contract_hash}</strong>
                     </div>
                   )}
@@ -714,17 +714,17 @@ export default function AdminContracts() {
                         className="p-3 rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5 text-xs flex items-start justify-between gap-3"
                       >
                         <div>
-                          <span className="font-bold text-gray-900 dark:text-white uppercase tracking-wider text-[11px] bg-gray-200 dark:bg-white/10 px-2 py-0.5 rounded mr-2">
+                          <span className="font-bold text-gray-900 dark:text-white uppercase tracking-wider text-xs bg-gray-200 dark:bg-white/10 px-2 py-0.5 rounded mr-2">
                             {item.event}
                           </span>
                           <span className="text-gray-600 dark:text-gray-300">{item.details}</span>
                           {item.ip && (
-                            <div className="text-[10px] text-gray-400 font-mono mt-1">
+                            <div className="text-xs text-gray-400 font-mono mt-1">
                               IP: {item.ip} {item.userAgent ? `· ${item.userAgent.slice(0, 45)}...` : ''}
                             </div>
                           )}
                         </div>
-                        <div className="text-[10px] text-gray-400 whitespace-nowrap font-mono">
+                        <div className="text-xs text-gray-400 whitespace-nowrap font-mono">
                           {new Date(item.at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </div>
                       </div>

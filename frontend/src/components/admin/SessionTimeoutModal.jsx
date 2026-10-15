@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../contexts/AuthContext';
 import { notify } from '../../services/notify';
@@ -109,7 +109,7 @@ const SessionTimeoutModal = () => {
                             <div className="text-5xl font-extrabold font-mono text-amber-600 dark:text-amber-400 tabular-nums">
                                 {formatTimeLeft(msUntilExpiry)}
                             </div>
-                            <p className="text-[10px] font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest mt-2">
+                            <p className="text-xs font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest mt-2">
                                 Until automatic sign-out
                             </p>
                         </div>

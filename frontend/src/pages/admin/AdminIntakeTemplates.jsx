@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { api } from '../../services/api';
 import { notify } from '../../services/notify';
@@ -211,11 +211,11 @@ const AdminIntakeTemplates = () => {
 
             <form onSubmit={handleSubmit} className="space-y-5">
               <div>
-                <label className="block text-[10px] font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2">Template Name</label>
+                <label className="block text-xs font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2">Template Name</label>
                 <input type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} required placeholder="e.g. Standard Website Intake" className={inputClass} />
               </div>
               <div>
-                <label className="block text-[10px] font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2">Description (Optional)</label>
+                <label className="block text-xs font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2">Description (Optional)</label>
                 <textarea value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} placeholder="Instructions for the client..." rows={2} className={inputClass} />
               </div>
 
@@ -225,7 +225,7 @@ const AdminIntakeTemplates = () => {
                   {formData.schema.map((field, idx) => (
                     <div key={field.id} className="p-4 bg-gray-50 dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700">
                       <div className="flex justify-between items-center mb-3">
-                        <span className="text-[10px] font-extrabold uppercase tracking-wider text-accent">
+                        <span className="text-xs font-extrabold uppercase tracking-wider text-accent">
                           {idx + 1}. {field.type} Field
                         </span>
                         <button type="button" onClick={() => removeField(field.id)} className="text-red-500 hover:text-red-700 text-xs font-bold bg-red-50 dark:bg-red-900/20 px-2 py-1 rounded-lg">
@@ -236,7 +236,7 @@ const AdminIntakeTemplates = () => {
                         <input type="text" placeholder="Question / Label" value={field.label} onChange={e => updateField(field.id, 'label', e.target.value)} required className={inputClass} />
                         {(field.type === 'select' || field.type === 'checkbox') && (
                           <div>
-                            <label className="text-[10px] text-gray-500 font-bold mb-1 block">Options (Comma separated)</label>
+                            <label className="text-xs text-gray-500 font-bold mb-1 block">Options (Comma separated)</label>
                             <input type="text" placeholder="Option 1, Option 2, Option 3" value={(field.options || []).join(', ')}
                               onChange={e => updateField(field.id, 'options', e.target.value.split(',').map(s => s.trim()).filter(Boolean))} className={inputClass} />
                           </div>

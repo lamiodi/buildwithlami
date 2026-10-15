@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { api } from '../../../services/api';
 import { notify } from '../../../services/notify';
-import { inputClass, labelClass, fmtDate, Badge, cardClass, thClass } from './shared.jsx';
+import { inputClass, labelClass, fmtDate, Badge, cardClass, thClass } from './shared.js';
 
 // ─── TestimonialsTab (§54) ────────────────────────────────
 // Consented client quotes. Publishing to the public homepage is
@@ -222,7 +222,7 @@ const TestimonialsTab = ({ clients, projects }) => {
                     <tr key={t.id} className="hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors">
                       <td className="py-4 px-4">
                         <p className="font-bold text-gray-900 dark:text-white font-body">{t.client_name}</p>
-                        <p className="text-[11px] text-gray-400 font-body">{[t.role, t.company].filter(Boolean).join(' · ') || '—'}</p>
+                        <p className="text-xs text-gray-400 font-body">{[t.role, t.company].filter(Boolean).join(' · ') || '—'}</p>
                       </td>
                       <td className="py-4 px-4 max-w-sm">
                         <p className="text-sm text-gray-600 dark:text-gray-300 font-body line-clamp-2">{t.testimonial}</p>

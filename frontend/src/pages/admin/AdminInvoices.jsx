@@ -1,7 +1,9 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { api } from '../../services/api';
+import useAdminWorkspace from '../../hooks/useAdminWorkspace';
+import { withoutEditorKey } from '../../utils/editorRows';
 import { notify } from '../../services/notify';
 import { toCSV, downloadCSV } from '../../utils/csv.jsx';
 import { ActionIcon, AliasedIcon } from '../../data/adminIcons.jsx';
@@ -29,14 +31,14 @@ const Icon = {
 
 const StatusPill = ({ status, isOverdue }) => {
     if (isOverdue) {
-        return <span className="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300">Overdue</span>;
+        return <span className="px-2.5 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300">Overdue</span>;
     }
     const map = {
         PAID: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300',
         REFUNDED: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
         PENDING: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300',
     };
-    return <span className={`px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider ${map[status] || 'bg-gray-100 text-gray-600'}`}>{status}</span>;
+    return <span className={`px-2.5 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider ${map[status] || 'bg-gray-100 text-gray-600'}`}>{status}</span>;
 };
 
 const StatCard = ({ label, value, hint, accent = 'blue' }) => {
@@ -53,7 +55,7 @@ const StatCard = ({ label, value, hint, accent = 'blue' }) => {
             </div>
             <div className="text-2xl font-extrabold text-gray-900 dark:text-white">{value}</div>
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{label}</p>
-            {hint && <p className="text-[10px] text-gray-400 dark:text-gray-500 font-medium mt-0.5">{hint}</p>}
+            {hint && <p className="text-xs text-gray-400 dark:text-gray-500 font-medium mt-0.5">{hint}</p>}
         </div>
     );
 };
@@ -64,10 +66,8 @@ const AdminInvoices = () => {
     const [error, setError] = useState('');
     const [search, setSearch] = useState('');
     const [statusFilter, setStatusFilter] = useState('all');
-    const [divisionFilter, setDivisionFilter] = useState(() => {
-        const ws = (localStorage.getItem('bwl:admin:workspace') || '').toUpperCase();
-        return ['SOFTWARE', 'SURVEY', 'DRONE'].includes(ws) ? ws : 'all';
-    });
+  const { division: divisionFilter, setWorkspace } = useAdminWorkspace();
+  const setDivisionFilter = (value) => setWorkspace(value.toLowerCase());
     const [showForm, setShowForm] = useState(false);
     const [submitting, setSubmitting] = useState(false);
     const [projects, setProjects] = useState([]);
@@ -115,7 +115,7 @@ const AdminInvoices = () => {
         setFormData({ ...formData, lineItems: newItems });
     };
 
-    const fetchInvoices = async () => {
+    const fetchInvoices = useCallback(async () => {
         setError(null);
         const params = {};
         if (divisionFilter !== 'all') {
@@ -125,7 +125,7 @@ const AdminInvoices = () => {
         if (res.ok && res.data) setInvoices(res.data);
         else setError(res.error || 'Failed to load invoices.');
         setLoading(false);
-    };
+    }, [divisionFilter]);
 
     const fetchProjects = async () => {
         const res = await api.get('/client-projects');
@@ -142,13 +142,11 @@ const AdminInvoices = () => {
     useEffect(() => {
         fetchProjects();
         fetchFxRates();
-        /* eslint-disable-next-line react-hooks/exhaustive-deps */
     }, []);
 
     useEffect(() => {
         fetchInvoices();
-        /* eslint-disable-next-line react-hooks/exhaustive-deps */
-    }, [divisionFilter]);
+    }, [fetchInvoices]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -168,7 +166,7 @@ const AdminInvoices = () => {
             notes: formData.notes,
             lineItems: formData.lineItems
                 .filter(item => item.description.trim() !== '')
-                .map(({ _key, ...item }) => ({ ...item, amount: Number(item.amount) || 0 }))
+                .map((item) => ({ ...withoutEditorKey(item), amount: Number(item.amount) || 0 }))
         });
 
         if (res.ok) {
@@ -309,7 +307,7 @@ const AdminInvoices = () => {
     }, [invoices, fxRates]);
 
     const inputClass = "w-full p-3 text-sm border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900 outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-colors font-body";
-    const labelClass = "block text-[10px] font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2";
+    const labelClass = "block text-xs font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2";
 
     return (
         <div className="flex flex-col">
@@ -410,7 +408,7 @@ const AdminInvoices = () => {
                                                             notes: prev.notes ? prev.notes : 'Payment terms: 50% upfront deposit to initiate development, 50% balance due upon final delivery and handover.'
                                                         }));
                                                     }}
-                                                    className="text-[10px] font-bold text-accent hover:underline mb-1"
+                                                    className="text-xs font-bold text-accent hover:underline mb-1"
                                                 >
                                                     Set 50% (50/50)
                                                 </button>
@@ -459,13 +457,12 @@ const AdminInvoices = () => {
                         onChange={(e) => setDivisionFilter(e.target.value)}
                         className="px-3 py-2.5 text-sm font-bold bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-accent focus:border-accent outline-none transition-colors font-body"
                     >
-                        <option value="all">All Divisions</option>
                         <option value="SOFTWARE">Software</option>
                         <option value="SURVEY">Survey</option>
                         <option value="DRONE">Drone</option>
                     </select>
                     <div className="flex items-center gap-2">
-                        <div className="flex items-center gap-1.5 text-[10px] font-extrabold uppercase tracking-widest text-gray-400 dark:text-gray-500">
+                        <div className="flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-widest text-gray-400 dark:text-gray-500">
                             <Icon.Filter className="w-3.5 h-3.5" />
                         </div>
                         {[
@@ -523,11 +520,11 @@ const AdminInvoices = () => {
                                                 <td className="py-4 px-6">
                                                     <span className="font-mono text-xs text-gray-500 dark:text-gray-400">{inv.id.slice(0, 8)}…</span>
                                                     {inv.receipt_number && (
-                                                        <span className="block text-[9px] font-extrabold uppercase tracking-widest text-emerald-600 dark:text-emerald-400 mt-0.5" title="Receipt generated on payment">
+                                                        <span className="block text-xs font-extrabold uppercase tracking-widest text-emerald-600 dark:text-emerald-400 mt-0.5" title="Receipt generated on payment">
                                                             🧾 {inv.receipt_number}
                                                         </span>
                                                     )}
-                                                    <p className="text-[10px] text-gray-400 mt-0.5">{new Date(inv.created_at).toLocaleDateString()}</p>
+                                                    <p className="text-xs text-gray-400 mt-0.5">{new Date(inv.created_at).toLocaleDateString()}</p>
                                                 </td>
                                                 <td className="py-4 px-6">
                                                     <span className="font-bold text-gray-900 dark:text-white text-sm">{inv.project_name || '—'}</span>
@@ -537,7 +534,7 @@ const AdminInvoices = () => {
                                                 </td>
                                                 <td className="py-4 px-6 text-center">
                                                     {inv.division && (
-                                                        <span className={`text-[9px] font-extrabold uppercase tracking-widest px-1.5 py-0.5 rounded ${
+                                                        <span className={`text-xs font-extrabold uppercase tracking-widest px-1.5 py-0.5 rounded ${
                                                             inv.division === 'SURVEY' ? 'bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300' :
                                                             inv.division === 'DRONE' ? 'bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300' :
                                                             'bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300'

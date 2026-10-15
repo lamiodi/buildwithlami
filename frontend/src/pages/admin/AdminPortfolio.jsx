@@ -7,16 +7,13 @@
 //
 // ──────────────────────────────────────────────────────────
 
-import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-    ChevronDown, ChevronRight, X, Loader2, Image as ImageIcon, 
-    UploadCloud, Plus, Trash2, ExternalLink, Search, Check, 
-    Copy, Monitor, Smartphone, Tablet, ArrowUp, ArrowDown, Eye, Edit3
-} from 'lucide-react';
+import { ChevronDown, ChevronRight, X, Loader2, Image as ImageIcon, UploadCloud, Plus, Trash2, ExternalLink, Search, Check, ArrowUp, ArrowDown, Eye, Edit3 } from 'lucide-react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { api } from '../../services/api';
 import { notify } from '../../services/notify';
+import { withoutEditorKey } from '../../utils/editorRows';
 
 const DIVISION_META = {
     SOFTWARE: { label: 'Software', tone: 'blue', accent: '#3b82f6' },
@@ -80,7 +77,7 @@ const JsonField = ({ label, value, onChange, placeholder, error }) => (
             }`}
         />
         {error && (
-            <p className="text-[11px] text-red-500 mt-1">{error}</p>
+            <p className="text-xs text-red-500 mt-1">{error}</p>
         )}
     </div>
 );
@@ -130,7 +127,6 @@ const AdminPortfolio = ({ lockedDivision }) => {
     const [galleryUploading, setGalleryUploading] = useState(false);
     const [apiProjects, setApiProjects] = useState([]);
     const [jsonbErrors, setJsonbErrors] = useState({});
-    const [advancedOpen, setAdvancedOpen] = useState(false);
     const [jsonbOpen, setJsonbOpen] = useState(false);
     const [jsonbDrafts, setJsonbDrafts] = useState({});
     const [searchQuery, setSearchQuery] = useState('');
@@ -196,7 +192,7 @@ const AdminPortfolio = ({ lockedDivision }) => {
         setIsEditModalOpen(true);
     };
 
-    const openNew = () => {
+    const openNew = useCallback(() => {
         setEditingProject(null);
         setFormData(blankFormData(activeDivision));
         setTagsInput('');
@@ -210,7 +206,7 @@ const AdminPortfolio = ({ lockedDivision }) => {
         setJsonbErrors({});
         setShowAddUrlInput(false);
         setIsEditModalOpen(true);
-    };
+    }, [activeDivision]);
 
     // Auto-open create modal if ?action=new is present in the URL
     useEffect(() => {
@@ -220,7 +216,7 @@ const AdminPortfolio = ({ lockedDivision }) => {
             nextParams.delete('action');
             setSearchParams(nextParams, { replace: true });
         }
-    }, [searchParams, setSearchParams]);
+    }, [searchParams, setSearchParams, openNew]);
 
     const updateField = useCallback((key, value) => {
         setFormData((prev) => ({ ...prev, [key]: value }));
@@ -256,7 +252,7 @@ const AdminPortfolio = ({ lockedDivision }) => {
             try {
                 const url = await uploadImageFile(file);
                 successes.push({ src: url, alt: file.name.replace(/\.[^/.]+$/, ""), device: 'desktop' });
-            } catch (err) {
+            } catch {
                 failures.push(file.name);
             }
         }
@@ -362,7 +358,7 @@ const AdminPortfolio = ({ lockedDivision }) => {
                 role: formData.role || null,
                 // Strip the client-side row identity before persisting.
                 gallery: Array.isArray(formData.gallery)
-                    ? formData.gallery.map(({ _key, ...g }) => g)
+                    ? formData.gallery.map(withoutEditorKey)
                     : [],
                 ...parsed,
                 display_order: Number(formData.display_order) || 0,
@@ -590,11 +586,11 @@ const AdminPortfolio = ({ lockedDivision }) => {
                                 ) : (
                                     <div className="w-full h-full flex flex-col items-center justify-center text-gray-400">
                                         <ImageIcon className="w-8 h-8 opacity-40 mb-1" />
-                                        <span className="text-[11px]">No cover image</span>
+                                        <span className="text-xs">No cover image</span>
                                     </div>
                                 )}
                                 <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5">
-                                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider shadow-sm ${
+                                    <span className={`text-xs font-bold px-2 py-0.5 rounded-full uppercase tracking-wider shadow-sm ${
                                         p.status === 'PUBLISHED' 
                                             ? 'bg-emerald-500 text-white' 
                                             : 'bg-amber-500 text-white'
@@ -602,13 +598,13 @@ const AdminPortfolio = ({ lockedDivision }) => {
                                         {p.status}
                                     </span>
                                     {p.category && (
-                                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-black/70 backdrop-blur-md text-white">
+                                        <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-black/70 backdrop-blur-md text-white">
                                             {p.category}
                                         </span>
                                     )}
                                 </div>
                                 {p.gallery && Array.isArray(p.gallery) && p.gallery.length > 0 && (
-                                    <div className="absolute bottom-2.5 right-2.5 bg-black/75 backdrop-blur-md text-white text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+                                    <div className="absolute bottom-2.5 right-2.5 bg-black/75 backdrop-blur-md text-white text-xs font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
                                         <ImageIcon className="w-3 h-3" />
                                         {p.gallery.length} images
                                     </div>
@@ -641,12 +637,12 @@ const AdminPortfolio = ({ lockedDivision }) => {
                                 {p.tech_stack && Array.isArray(p.tech_stack) && p.tech_stack.length > 0 && (
                                     <div className="flex gap-1 flex-wrap mt-1">
                                         {p.tech_stack.slice(0, 4).map((tech, i) => (
-                                            <span key={i} className="text-[10px] px-1.5 py-0.5 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded">
+                                            <span key={i} className="text-xs px-1.5 py-0.5 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded">
                                                 {tech}
                                             </span>
                                         ))}
                                         {p.tech_stack.length > 4 && (
-                                            <span className="text-[10px] px-1.5 py-0.5 bg-gray-100 dark:bg-gray-800 text-gray-500 rounded">
+                                            <span className="text-xs px-1.5 py-0.5 bg-gray-100 dark:bg-gray-800 text-gray-500 rounded">
                                                 +{p.tech_stack.length - 4}
                                             </span>
                                         )}
@@ -738,7 +734,7 @@ const AdminPortfolio = ({ lockedDivision }) => {
                                             </p>
                                         </div>
                                         {formData.image_url && (
-                                            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 font-bold">
+                                            <span className="text-xs font-mono px-2 py-0.5 rounded bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 font-bold">
                                                 Image Configured
                                             </span>
                                         )}
@@ -776,7 +772,7 @@ const AdminPortfolio = ({ lockedDivision }) => {
                                                 <div className="rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 aspect-video md:aspect-[4/3] flex flex-col items-center justify-center text-gray-400 p-4 text-center">
                                                     <ImageIcon className="w-8 h-8 opacity-40 mb-1" />
                                                     <span className="text-xs font-medium">No cover image</span>
-                                                    <span className="text-[10px] text-gray-500">Upload a file or paste URL</span>
+                                                    <span className="text-xs text-gray-500">Upload a file or paste URL</span>
                                                 </div>
                                             )}
                                         </div>
@@ -869,7 +865,7 @@ const AdminPortfolio = ({ lockedDivision }) => {
 
                                     <div>
                                         <label className="block text-xs font-bold mb-1">
-                                            Tagline <span className="text-gray-400 font-normal text-[11px]">(One-line value proposition)</span>
+                                            Tagline <span className="text-gray-400 font-normal text-xs">(One-line value proposition)</span>
                                         </label>
                                         <input
                                             value={formData.tagline || ''}
@@ -881,7 +877,7 @@ const AdminPortfolio = ({ lockedDivision }) => {
 
                                     <div>
                                         <label className="block text-xs font-bold mb-1">
-                                            Summary <span className="text-gray-400 font-normal text-[11px]">(1-2 paragraph overview)</span>
+                                            Summary <span className="text-gray-400 font-normal text-xs">(1-2 paragraph overview)</span>
                                         </label>
                                         <textarea
                                             value={formData.summary || ''}
@@ -900,7 +896,7 @@ const AdminPortfolio = ({ lockedDivision }) => {
                                     <div>
                                         <div className="flex justify-between items-center mb-1">
                                             <label className="block text-xs font-bold">Category</label>
-                                            <span className="text-[11px] text-gray-400">Click preset or enter custom</span>
+                                            <span className="text-xs text-gray-400">Click preset or enter custom</span>
                                         </div>
                                         
                                         {/* Quick-select chips */}
@@ -1107,10 +1103,10 @@ const AdminPortfolio = ({ lockedDivision }) => {
                                                             alt={g.alt || `Frame ${i + 1}`} 
                                                             className="w-full h-full object-cover" 
                                                         />
-                                                        <div className="absolute top-1 left-1 bg-black/75 backdrop-blur-sm text-white text-[9px] font-bold px-1.5 py-0.5 rounded">
+                                                        <div className="absolute top-1 left-1 bg-black/75 backdrop-blur-sm text-white text-xs font-bold px-1.5 py-0.5 rounded">
                                                             #{i + 1}
                                                         </div>
-                                                        <div className="absolute top-1 right-1 bg-black/75 backdrop-blur-sm text-white text-[9px] uppercase px-1.5 py-0.5 rounded">
+                                                        <div className="absolute top-1 right-1 bg-black/75 backdrop-blur-sm text-white text-xs uppercase px-1.5 py-0.5 rounded">
                                                             {g.device || 'desktop'}
                                                         </div>
                                                     </div>
@@ -1128,7 +1124,7 @@ const AdminPortfolio = ({ lockedDivision }) => {
                                                                 });
                                                             }}
                                                             placeholder="Caption..."
-                                                            className="w-full text-[11px] p-1 border border-gray-200 dark:border-gray-800 rounded bg-transparent"
+                                                            className="w-full text-xs p-1 border border-gray-200 dark:border-gray-800 rounded bg-transparent"
                                                         />
                                                         
                                                         <div className="flex items-center justify-between gap-1 pt-1 border-t border-gray-100 dark:border-gray-800">
@@ -1156,7 +1152,7 @@ const AdminPortfolio = ({ lockedDivision }) => {
                                                             <button
                                                                 type="button"
                                                                 onClick={() => setGalleryAsPrimary(g)}
-                                                                className="text-[10px] text-blue-600 dark:text-blue-400 hover:underline font-bold"
+                                                                className="text-xs text-blue-600 dark:text-blue-400 hover:underline font-bold"
                                                                 title="Set as main cover image"
                                                             >
                                                                 Make Cover
@@ -1188,7 +1184,7 @@ const AdminPortfolio = ({ lockedDivision }) => {
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div>
                                             <label className="block text-xs font-bold mb-1">
-                                                Tech Stack <span className="text-gray-400 font-normal text-[11px]">(comma separated)</span>
+                                                Tech Stack <span className="text-gray-400 font-normal text-xs">(comma separated)</span>
                                             </label>
                                             <input
                                                 value={techStackInput}
@@ -1199,7 +1195,7 @@ const AdminPortfolio = ({ lockedDivision }) => {
                                         </div>
                                         <div>
                                             <label className="block text-xs font-bold mb-1">
-                                                Features <span className="text-gray-400 font-normal text-[11px]">(comma separated)</span>
+                                                Features <span className="text-gray-400 font-normal text-xs">(comma separated)</span>
                                             </label>
                                             <input
                                                 value={featuresInput}
@@ -1286,7 +1282,7 @@ const AdminPortfolio = ({ lockedDivision }) => {
                                                 Advanced Case Study Fields (JSON)
                                             </span>
                                             {Object.keys(jsonbErrors).length > 0 && (
-                                                <span className="text-[10px] bg-red-500 text-white px-2 py-0.5 rounded-full font-bold">
+                                                <span className="text-xs bg-red-500 text-white px-2 py-0.5 rounded-full font-bold">
                                                     Syntax error in JSON
                                                 </span>
                                             )}

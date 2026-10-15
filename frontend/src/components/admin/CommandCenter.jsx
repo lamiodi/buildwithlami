@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../../services/api';
 import { formatNaira } from '../../utils/currency';
@@ -7,16 +7,14 @@ import { formatNaira } from '../../utils/currency';
 // Admin OS Phase 1 + Phase 6 — the dashboard's action layer
 // (blueprint §5, §74, §94). Answers "what needs my attention
 // next?" with:
-//   • Tonight Queue   — scored by the §74 engine, every item
-//                       shows WHY it ranks (reasons chips) and
-//                       the night's capacity fit (§31)
+//   • Priority tasks — the existing task priorities and due dates
 //   • Waiting on Client — pending client actions
 //   • Needs Attention — overdue invoices, stale leads, etc.
 //   • Next Actions    — the §30 next-action fields across
 //                       leads / clients / projects
 // Data: GET /api/dashboard/command-center (layout + client
-// lists) + GET /api/intelligence/tonight-queue (scored queue,
-// Phase 6). Both refresh on a 2-min cadence.
+// lists), today's message counts and upcoming renewals. The
+// dashboard owns the shared refresh cadence.
 
 const PRIORITY_STYLES = {
   URGENT: 'bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300',
@@ -47,14 +45,14 @@ const fmtMoney = (amount, currency) =>
 
 const PanelTitle = ({ label, count, link, linkLabel }) => (
   <div className="flex items-center justify-between mb-4">
-    <h3 className="text-[10px] font-extrabold uppercase tracking-widest text-gray-400 flex items-center gap-2">
+    <h3 className="text-xs font-extrabold uppercase tracking-widest text-gray-400 flex items-center gap-2">
       {label}
       {count > 0 && (
-        <span className="text-[9px] bg-accent text-white px-1.5 py-0.5 rounded-full">{count}</span>
+        <span className="text-xs bg-accent text-white px-1.5 py-0.5 rounded-full">{count}</span>
       )}
     </h3>
     {link && (
-      <Link to={link} className="text-[10px] font-extrabold uppercase tracking-widest text-accent hover:text-orange-600">
+      <Link to={link} className="text-xs font-extrabold uppercase tracking-widest text-accent hover:text-orange-600">
         {linkLabel || 'View all'} →
       </Link>
     )}
@@ -65,16 +63,18 @@ const EmptyNote = ({ children }) => (
   <p className="text-sm text-gray-400 dark:text-gray-500 font-body py-3">{children}</p>
 );
 
-const CommandCenter = () => {
+const CommandCenter = ({ refreshKey }) => {
   const [data, setData] = useState(null);
-  const [queue, setQueue] = useState(null);
+  const [snapshot, setSnapshot] = useState(null);
+  const [partialError, setPartialError] = useState('');
   const [renewals, setRenewals] = useState([]);
   const [error, setError] = useState(false);
 
   const fetchCenter = useCallback(async () => {
-    const [res, iq, rn] = await Promise.all([
+    if (document.visibilityState === 'hidden') return;
+    const [res, today, rn] = await Promise.all([
       api.get('/dashboard/command-center'),
-      api.get('/intelligence/tonight-queue'),
+      api.get('/dashboard/today'),
       // Phase 5 — upcoming renewals live in Aftercare; a failure
       // here is additive and must not blank the command center.
       api.get('/aftercare/renewals/upcoming?days=30'),
@@ -83,24 +83,22 @@ const CommandCenter = () => {
       setData(res.data);
       setError(false);
     } else if (!res.ok) {
-      setError(true);
+      setError(res.error || 'Could not refresh your work queue.');
     }
-    // The scored queue is additive — a failure here must not
-    // blank the whole command center, it just keeps the old list.
-    if (iq.ok && iq.data) setQueue(iq.data);
+    // Secondary counts must not blank an otherwise available queue.
+    if (today.ok && today.data) setSnapshot(today.data);
     if (rn.ok && Array.isArray(rn.data)) setRenewals(rn.data);
+    setPartialError([!today.ok && 'Message and feedback counts unavailable.', !rn.ok && 'Renewals unavailable.'].filter(Boolean).join(' '));
   }, []);
 
   useEffect(() => {
     fetchCenter();
-    const interval = setInterval(fetchCenter, 2 * 60 * 1000);
-    return () => clearInterval(interval);
-  }, [fetchCenter]);
+  }, [fetchCenter, refreshKey]);
 
-  if (error) {
+  if (error && !data) {
     return (
       <div className="mb-6 bg-white dark:bg-[#1c1c1c] rounded-2xl border border-gray-100 dark:border-gray-800/60 p-4 text-sm text-gray-400 font-body">
-        Command Center unavailable.
+        {error} <button type="button" onClick={fetchCenter} className="font-bold underline">Retry</button>
       </div>
     );
   }
@@ -124,8 +122,8 @@ const CommandCenter = () => {
   const { tonightQueue = [], waitingOnClient = [], needsAttention = [], nextActions = {}, counters = {}, outstandingByCurrency = [] } = data;
   // Phase 6 scored queue wins when it has loaded; otherwise fall
   // back to the basic queue from the command-center payload.
-  const scoredQueue = queue?.tonightQueue ?? tonightQueue;
-  const capacity = queue?.capacity;
+  const scoredQueue = tonightQueue;
+  const capacity = null;
   const allNextActions = [
     ...(nextActions.leads || []).map((x) => ({ ...x, kind: 'Lead', link: '/admin/crm' })),
     ...(nextActions.clients || []).map((x) => ({ ...x, kind: 'Client', link: `/admin/clients/${x.id}` })),
@@ -137,9 +135,14 @@ const CommandCenter = () => {
 
   return (
     <div className="mb-6 space-y-4">
+      <div className="flex flex-wrap items-center justify-between gap-2"><h2 className="text-xl font-bold">Today’s work</h2><p className="text-xs text-gray-500">Across all workspaces</p></div>
+      {(error || partialError) && <div role="alert" className="p-3 rounded-xl bg-amber-50 dark:bg-amber-900/20 text-sm">{error || partialError} Previously loaded information may be out of date. <button type="button" onClick={fetchCenter} className="font-bold underline">Retry</button></div>}
       {/* Counter strip */}
       <div className="flex flex-wrap gap-2">
         {[
+          { label: 'Enquiries to reply', value: snapshot?.leadsNeedReply, link: '/admin/inbox?status=New', hot: snapshot?.leadsNeedReply > 0 },
+          { label: 'Messages to read', value: snapshot?.unreadMessages, link: '/admin/inbox', hot: snapshot?.unreadMessages > 0 },
+          { label: 'Open feedback', value: snapshot?.openFeedback, link: '/admin/inbox?kind=feedback', hot: snapshot?.openFeedback > 0 },
           { label: 'Due Today', value: counters.tasksDueToday, link: '/admin/tasks', hot: counters.tasksDueToday > 0 },
           { label: 'Overdue', value: counters.overdueTasks, link: '/admin/tasks', hot: counters.overdueTasks > 0 },
           { label: 'Waiting on Client', value: counters.waitingOnClient, link: '/admin/tasks', hot: false },
@@ -153,7 +156,7 @@ const CommandCenter = () => {
                 ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-900/50 text-red-600 dark:text-red-300 hover:bg-red-100'
                 : 'bg-white dark:bg-[#1c1c1c] border-gray-100 dark:border-gray-800/60 text-gray-600 dark:text-gray-300 hover:border-accent/40'
             }`}>
-            {c.label}: <span className="font-extrabold">{c.value ?? 0}</span>
+            {c.label}: <span className="font-extrabold">{c.value ?? '—'}</span>
           </Link>
         ))}
       </div>
@@ -161,10 +164,10 @@ const CommandCenter = () => {
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
         {/* ── Tonight Queue (Phase 6 scored) ── */}
         <div className="bg-white dark:bg-[#1c1c1c] rounded-2xl border border-gray-100 dark:border-gray-800/60 shadow-sm p-5">
-          <PanelTitle label="Tonight Queue" count={scoredQueue.length} link="/admin/tasks" />
+          <PanelTitle label="Priority tasks" count={scoredQueue.length} link="/admin/tasks" />
           {capacity && (
             <div className="mb-3">
-              <div className="flex items-center justify-between text-[10px] font-extrabold uppercase tracking-widest text-gray-400 mb-1.5">
+              <div className="flex items-center justify-between text-xs font-extrabold uppercase tracking-widest text-gray-400 mb-1.5">
                 <span>Tonight's plan</span>
                 <span className={capacity.overCommitted ? 'text-red-500' : 'text-gray-400'}>
                   {fmtTime(capacity.committedMinutes)} of {fmtTime(capacity.capacityMinutes)}
@@ -180,7 +183,7 @@ const CommandCenter = () => {
             </div>
           )}
           {scoredQueue.length === 0 ? (
-            <EmptyNote>Nothing due tonight. 🌙</EmptyNote>
+            <EmptyNote>No urgent tasks right now.</EmptyNote>
           ) : (
             <ol className="space-y-2.5">
               {scoredQueue.map((t, i) => (
@@ -195,21 +198,21 @@ const CommandCenter = () => {
                         {t.title}
                       </p>
                       <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mt-1">
-                        <span className={`text-[9px] font-extrabold uppercase tracking-widest px-1.5 py-0.5 rounded ${PRIORITY_STYLES[t.priority]}`}>{t.priority}</span>
-                        <span className="text-[11px] text-gray-400 font-body">{t.client_name || t.project_name || 'Standalone'}</span>
-                        {t.estimated_minutes && <span className="text-[11px] text-gray-400 font-body">· {fmtTime(t.estimated_minutes)}</span>}
+                        <span className={`text-xs font-extrabold uppercase tracking-widest px-1.5 py-0.5 rounded ${PRIORITY_STYLES[t.priority]}`}>{t.priority}</span>
+                        <span className="text-xs text-gray-400 font-body">{t.client_name || t.project_name || 'Standalone'}</span>
+                        {t.estimated_minutes && <span className="text-xs text-gray-400 font-body">· {fmtTime(t.estimated_minutes)}</span>}
                         {t.score > 0 && (
-                          <span className={`text-[11px] font-bold font-body ${t.overdue ? 'text-red-500' : 'text-gray-400'}`}>
+                          <span className={`text-xs font-bold font-body ${t.overdue ? 'text-red-500' : 'text-gray-400'}`}>
                             · {t.reason}{t.due_at ? ` (${fmtDate(t.due_at)})` : ''}
                           </span>
                         )}
-                        {t.blocked && <span className="text-[9px] font-extrabold uppercase tracking-widest text-amber-600">Blocked</span>}
+                        {t.blocked && <span className="text-xs font-extrabold uppercase tracking-widest text-amber-600">Blocked</span>}
                       </div>
                       {/* §74 — show the full why, not just the top reason */}
                       {Array.isArray(t.reasons) && t.reasons.length > 1 && (
                         <div className="flex flex-wrap gap-1 mt-1.5">
                           {t.reasons.map((r) => (
-                            <span key={r} className="text-[9px] font-bold text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded px-1.5 py-0.5">
+                            <span key={r} className="text-xs font-bold text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded px-1.5 py-0.5">
                               {r}
                             </span>
                           ))}
@@ -241,7 +244,7 @@ const CommandCenter = () => {
                       <p className="text-sm font-bold text-gray-900 dark:text-white font-body truncate group-hover:text-accent transition-colors">
                         {a.title}
                       </p>
-                      <p className={`text-[11px] font-body mt-0.5 ${a.overdue ? 'text-red-500 font-bold' : 'text-gray-400'}`}>
+                      <p className={`text-xs font-body mt-0.5 ${a.overdue ? 'text-red-500 font-bold' : 'text-gray-400'}`}>
                         {a.client_name}{a.due_at ? ` · due ${fmtDate(a.due_at)}${a.overdue ? ' (overdue)' : ''}` : ''}
                       </p>
                     </div>
@@ -266,7 +269,7 @@ const CommandCenter = () => {
                     <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0 mt-2" aria-hidden="true" />
                     <div className="min-w-0">
                       <p className="text-sm font-bold text-gray-900 dark:text-white font-body group-hover:text-accent transition-colors">{n.title}</p>
-                      <p className="text-[11px] text-gray-400 font-body">{n.detail}</p>
+                      <p className="text-xs text-gray-400 font-body">{n.detail}</p>
                     </div>
                   </Link>
                 </li>
@@ -287,9 +290,9 @@ const CommandCenter = () => {
                   <li key={r.id} className="flex items-center justify-between gap-3">
                     <div className="min-w-0">
                       <p className="text-sm font-bold text-gray-900 dark:text-white font-body truncate">{r.label}</p>
-                      <p className="text-[11px] text-gray-400 font-body">{r.client_name || r.service}{r.amount != null ? ` · ${fmtMoney(r.amount, r.currency)}` : ''}</p>
+                      <p className="text-xs text-gray-400 font-body">{r.client_name || r.service}{r.amount != null ? ` · ${fmtMoney(r.amount, r.currency)}` : ''}</p>
                     </div>
-                    <span className={`text-[11px] font-bold font-body shrink-0 ${tone}`}>
+                    <span className={`text-xs font-bold font-body shrink-0 ${tone}`}>
                       {days != null && days < 0 ? `${Math.abs(days)}d overdue` : `${days}d`}
                     </span>
                   </li>
@@ -309,14 +312,14 @@ const CommandCenter = () => {
                 <li key={`${x.kind}-${x.id}`} className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <p className="text-sm font-bold text-gray-900 dark:text-white font-body truncate">{x.next_action}</p>
-                    <p className="text-[11px] text-gray-400 font-body">
-                      <span className="font-extrabold uppercase tracking-widest text-[9px] bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded mr-1.5">{x.kind}</span>
+                    <p className="text-xs text-gray-400 font-body">
+                      <span className="font-extrabold uppercase tracking-widest text-xs bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded mr-1.5">{x.kind}</span>
                       {x.name}
                     </p>
                   </div>
                   <div className="text-right shrink-0">
-                    <Link to={x.link} className="text-[11px] font-bold text-accent hover:text-orange-600 font-body">Open →</Link>
-                    <p className={`text-[11px] font-body ${x.overdue ? 'text-red-500 font-bold' : 'text-gray-400'}`}>
+                    <Link to={x.link} className="text-xs font-bold text-accent hover:text-orange-600 font-body">Open →</Link>
+                    <p className={`text-xs font-body ${x.overdue ? 'text-red-500 font-bold' : 'text-gray-400'}`}>
                       {x.next_action_due_at ? fmtDate(x.next_action_due_at) : 'No date'}
                     </p>
                   </div>
@@ -326,7 +329,7 @@ const CommandCenter = () => {
           )}
           {showOutstanding && (
             <div className="border-t border-gray-100 dark:border-gray-800 pt-4">
-              <h3 className="text-[10px] font-extrabold uppercase tracking-widest text-gray-400 mb-3">Outstanding Payments</h3>
+              <h3 className="text-xs font-extrabold uppercase tracking-widest text-gray-400 mb-3">Outstanding Payments</h3>
               <div className="flex flex-wrap gap-2">
                 {outstandingByCurrency.map((o) => (
                   <span key={o.currency} className="text-xs font-bold bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 px-3 py-1.5 rounded-xl font-body">
@@ -334,7 +337,7 @@ const CommandCenter = () => {
                   </span>
                 ))}
               </div>
-              <p className="text-[10px] text-gray-400 font-body mt-2">Shown per currency — not combined across FX rates.</p>
+              <p className="text-xs text-gray-400 font-body mt-2">Shown per currency — not combined across FX rates.</p>
             </div>
           )}
         </div>

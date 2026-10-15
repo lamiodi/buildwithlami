@@ -1,8 +1,10 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { useParams, Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { api } from '../../services/api';
 import { notify } from '../../services/notify';
 import Skeleton from '../../components/Skeleton';
+import { totalsByCurrency, formatMoney } from '../../utils/adminWorkflow';
+import useAdminWorkspace from '../../hooks/useAdminWorkspace';
 
 const ACTION_TYPES = ['UPLOAD', 'APPROVAL', 'PAYMENT', 'INFO', 'REVIEW'];
 const PRIORITIES = ['LOW', 'MEDIUM', 'HIGH', 'URGENT'];
@@ -24,7 +26,7 @@ const PRIORITY_STYLES = {
 };
 
 const inputClass = "w-full p-3 text-sm border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-900 outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-colors font-body";
-const labelClass = "block text-[10px] font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2";
+const labelClass = "block text-xs font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2";
 
 const fmtDate = (d) => d ? new Date(d).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) : '—';
 
@@ -40,7 +42,10 @@ const fieldLabel = (key) => key.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toU
 const AdminClientDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [tab, setTab] = useState('overview');
+  const { setBreadcrumbName } = useAdminWorkspace();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const tab = searchParams.get('tab') || 'overview';
+  const setTab = (value) => setSearchParams({ tab: value });
 
   const [client, setClient] = useState(null);
   const [projects, setProjects] = useState([]);
@@ -49,6 +54,10 @@ const AdminClientDetail = () => {
   const [actions, setActions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [sectionErrors, setSectionErrors] = useState({});
+  const [refreshing, setRefreshing] = useState(false);
+  const loadSequence = useRef(0);
+  const invalidateLoads = useCallback(() => { loadSequence.current++; }, []);
 
   // Overview edit form
   const [form, setForm] = useState(null);
@@ -69,18 +78,23 @@ const AdminClientDetail = () => {
   const [summaryDraft, setSummaryDraft] = useState('');
 
   const fetchAll = useCallback(async () => {
+    const sequence = ++loadSequence.current;
+    setRefreshing(true);
     setError(null);
     const [clientRes, projectsRes, invoicesRes, onboardingRes, actionsRes] = await Promise.all([
       api.get(`/clients/${id}`),
-      api.get('/client-projects'),
+      api.get('/client-projects', { params: { client_id: id } }),
       api.get('/invoices', { params: { client_id: id } }),
-      api.get('/onboarding'),
+      api.get('/onboarding', { params: { client_id: id } }),
       api.get('/client-actions', { params: { client_id: id, scope: 'all' } }),
     ]);
+
+    if (sequence !== loadSequence.current) return;
 
     if (!clientRes.ok || !clientRes.data) {
       setError(clientRes.error || 'Client not found.');
       setLoading(false);
+      setRefreshing(false);
       return;
     }
     const c = clientRes.data;
@@ -106,16 +120,23 @@ const AdminClientDetail = () => {
     }
     if (invoicesRes.ok && Array.isArray(invoicesRes.data)) setInvoices(invoicesRes.data);
     if (onboardingRes.ok && Array.isArray(onboardingRes.data)) {
-      // Most recent first per the API ordering.
+      // Submitted briefs needing review first, then most recently updated.
       setOnboarding(onboardingRes.data.find((o) => o.client_id === id) || null);
     }
     if (actionsRes.ok && Array.isArray(actionsRes.data)) setActions(actionsRes.data);
+    setSectionErrors(Object.fromEntries([['Projects', projectsRes], ['Invoices', invoicesRes], ['Onboarding', onboardingRes], ['Actions', actionsRes]].filter(([, result]) => !result.ok).map(([name, result]) => [name, result.error || 'Could not load this section.'])));
     setLoading(false);
+    setRefreshing(false);
   }, [id]);
 
+  useEffect(() => { setBreadcrumbName(client?.name); return () => setBreadcrumbName(null); }, [client?.name, setBreadcrumbName]);
+
   useEffect(() => {
+    setLoading(true);
+    setClient(null); setProjects([]); setInvoices([]); setOnboarding(null); setActions([]); setSectionErrors({});
     fetchAll();
-  }, [fetchAll]);
+    return invalidateLoads;
+  }, [fetchAll, invalidateLoads]);
 
   const saveClient = async (e) => {
     e.preventDefault();
@@ -265,7 +286,7 @@ const AdminClientDetail = () => {
   }
 
   const pendingActions = actions.filter((a) => a.status === 'PENDING');
-  const totalBilled = invoices.filter((i) => i.status === 'PAID').reduce((sum, i) => sum + Number(i.amount || 0), 0);
+  const paidTotals = totalsByCurrency(invoices);
   const openOnboarding = onboarding && onboarding.status !== 'APPROVED' ? onboarding : null;
 
   const TABS = [
@@ -289,14 +310,14 @@ const AdminClientDetail = () => {
           </h1>
           <div className="flex flex-wrap items-center gap-2 mt-2">
             {client.division && (
-              <span className={`text-[9px] font-extrabold uppercase tracking-widest px-2 py-0.5 rounded ${
+              <span className={`text-xs font-extrabold uppercase tracking-widest px-2 py-0.5 rounded ${
                 client.division === 'SURVEY' ? 'bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300' :
                 client.division === 'DRONE' ? 'bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300' :
                 'bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300'}`}>
                 {client.division}
               </span>
             )}
-            <span className={`text-[9px] font-extrabold uppercase tracking-widest px-2 py-0.5 rounded ${ONBOARDING_STATUS_STYLES[client.status === 'ONBOARDING' ? 'IN_PROGRESS' : 'APPROVED']}`}>
+            <span className={`text-xs font-extrabold uppercase tracking-widest px-2 py-0.5 rounded ${ONBOARDING_STATUS_STYLES[client.status === 'ONBOARDING' ? 'IN_PROGRESS' : 'APPROVED']}`}>
               {client.status || 'ACTIVE'}
             </span>
             <span className="text-sm text-gray-500 dark:text-gray-400 font-body">{client.primary_contact_email}</span>
@@ -316,7 +337,7 @@ const AdminClientDetail = () => {
         </div>
         {client.next_action && (
           <div className="bg-accent/5 border border-accent/20 rounded-xl px-4 py-3 max-w-sm">
-            <p className="text-[9px] font-extrabold uppercase tracking-widest text-accent mb-1">Next Action</p>
+            <p className="text-xs font-extrabold uppercase tracking-widest text-accent mb-1">Next Action</p>
             <p className="text-sm font-bold text-gray-900 dark:text-white font-body">{client.next_action}</p>
             {client.next_action_due_at && (
               <p className={`text-xs mt-1 font-body font-bold ${new Date(client.next_action_due_at) < new Date() ? 'text-red-500' : 'text-gray-500 dark:text-gray-400'}`}>
@@ -327,6 +348,11 @@ const AdminClientDetail = () => {
         )}
       </div>
 
+      {Object.entries(sectionErrors).length > 0 && <div role="alert" className="mb-5 p-4 rounded-xl bg-amber-50 dark:bg-amber-900/20 text-sm text-amber-800 dark:text-amber-200">
+        <p className="font-bold">Some client information could not be refreshed. Previously loaded information may be out of date.</p>
+        {Object.entries(sectionErrors).map(([name, message]) => <p key={name}>{name}: {message}</p>)}
+        <button type="button" onClick={fetchAll} disabled={refreshing} className="mt-2 font-bold underline">{refreshing ? 'Retrying…' : 'Retry failed sections'}</button>
+      </div>}
       {/* Tabs */}
       <div className="flex gap-1.5 overflow-x-auto border-b border-gray-200 dark:border-gray-700 mb-6 pb-px">
         {TABS.map((t) => (
@@ -338,7 +364,7 @@ const AdminClientDetail = () => {
             }`}>
             {t.label}
             {t.badge && (
-              <span className="ml-2 text-[9px] font-extrabold uppercase tracking-widest px-1.5 py-0.5 rounded bg-accent text-white">{t.badge}</span>
+              <span className="ml-2 text-xs font-extrabold uppercase tracking-widest px-1.5 py-0.5 rounded bg-accent text-white">{t.badge}</span>
             )}
           </button>
         ))}
@@ -445,10 +471,10 @@ const AdminClientDetail = () => {
 
           <div className="space-y-4">
             <div className="bg-white dark:bg-[#1c1c1c] p-6 rounded-2xl border border-gray-100 dark:border-gray-800/60 shadow-sm">
-              <h3 className="text-[10px] font-extrabold text-gray-400 uppercase tracking-widest mb-4">Snapshot</h3>
+              <h3 className="text-xs font-extrabold text-gray-400 uppercase tracking-widest mb-4">Snapshot</h3>
               <dl className="space-y-3 text-sm font-body">
                 <div className="flex justify-between"><dt className="text-gray-500 dark:text-gray-400">Projects</dt><dd className="font-bold text-gray-900 dark:text-white">{projects.length}</dd></div>
-                <div className="flex justify-between"><dt className="text-gray-500 dark:text-gray-400">Invoices paid</dt><dd className="font-bold text-gray-900 dark:text-white">₦{totalBilled.toLocaleString()}</dd></div>
+                <div className="flex justify-between gap-3"><dt className="text-gray-500 dark:text-gray-400">Invoices paid</dt><dd className="font-bold text-gray-900 dark:text-white text-right">{sectionErrors.Invoices ? 'Unavailable' : Object.entries(paidTotals).length ? Object.entries(paidTotals).map(([currency, amount]) => <div key={currency}>{formatMoney(amount, currency)}</div>) : 'No paid invoices'}</dd></div>
                 <div className="flex justify-between"><dt className="text-gray-500 dark:text-gray-400">Pending actions</dt><dd className="font-bold text-accent">{pendingActions.length}</dd></div>
                 <div className="flex justify-between"><dt className="text-gray-500 dark:text-gray-400">Client since</dt><dd className="font-bold text-gray-900 dark:text-white">{fmtDate(client.created_at)}</dd></div>
               </dl>
@@ -459,9 +485,9 @@ const AdminClientDetail = () => {
                 Editable — a manual save pins it as the source. ── */}
             <div className="bg-white dark:bg-[#1c1c1c] p-6 rounded-2xl border border-gray-100 dark:border-gray-800/60 shadow-sm">
               <div className="flex items-center justify-between mb-3">
-                <h3 className="text-[10px] font-extrabold text-gray-400 uppercase tracking-widest">Client Summary</h3>
+                <h3 className="text-xs font-extrabold text-gray-400 uppercase tracking-widest">Client Summary</h3>
                 {client.summary_source && !summaryEditing && (
-                  <span className={`text-[9px] font-extrabold uppercase tracking-widest px-1.5 py-0.5 rounded ${
+                  <span className={`text-xs font-extrabold uppercase tracking-widest px-1.5 py-0.5 rounded ${
                     client.summary_source === 'ai'
                       ? 'bg-violet-100 dark:bg-violet-900/40 text-violet-700 dark:text-violet-300'
                       : client.summary_source === 'manual'
@@ -512,8 +538,8 @@ const AdminClientDetail = () => {
             {onboarding && (
               <button onClick={() => setTab('onboarding')}
                 className="w-full text-left bg-white dark:bg-[#1c1c1c] p-6 rounded-2xl border border-gray-100 dark:border-gray-800/60 shadow-sm hover:border-accent/40 transition-colors">
-                <h3 className="text-[10px] font-extrabold text-gray-400 uppercase tracking-widest mb-2">Onboarding</h3>
-                <span className={`text-[9px] font-extrabold uppercase tracking-widest px-2 py-0.5 rounded ${ONBOARDING_STATUS_STYLES[onboarding.status]}`}>
+                <h3 className="text-xs font-extrabold text-gray-400 uppercase tracking-widest mb-2">Onboarding</h3>
+                <span className={`text-xs font-extrabold uppercase tracking-widest px-2 py-0.5 rounded ${ONBOARDING_STATUS_STYLES[onboarding.status]}`}>
                   {onboarding.status.replace('_', ' ')}
                 </span>
                 <div className="mt-3 h-2 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
@@ -527,7 +553,7 @@ const AdminClientDetail = () => {
       )}
 
       {/* ── Projects ─────────────────────────────────────── */}
-      {tab === 'projects' && (
+      {tab === 'projects' && !sectionErrors.Projects && (
         <div className="bg-white dark:bg-[#1c1c1c] rounded-2xl border border-gray-100 dark:border-gray-800/60 shadow-sm overflow-hidden">
           {projects.length === 0 ? (
             <p className="p-12 text-center text-gray-500 font-body">No projects for this client yet.</p>
@@ -552,7 +578,7 @@ const AdminClientDetail = () => {
                       </Link>
                     </td>
                     <td className="py-4 px-6 text-center">
-                      <span className="text-[9px] font-extrabold uppercase tracking-widest px-2 py-0.5 rounded bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 font-body">
+                      <span className="text-xs font-extrabold uppercase tracking-widest px-2 py-0.5 rounded bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 font-body">
                         {(p.status || '—').replace('_', ' ')}
                       </span>
                     </td>
@@ -583,7 +609,7 @@ const AdminClientDetail = () => {
       )}
 
       {/* ── Onboarding ───────────────────────────────────── */}
-      {tab === 'onboarding' && (
+      {tab === 'onboarding' && !sectionErrors.Onboarding && (
         <div className="space-y-6">
           {!onboarding && !creatingOnboarding && (
             <div className="bg-white dark:bg-[#1c1c1c] p-12 rounded-2xl border border-gray-100 dark:border-gray-800/60 text-center font-body">
@@ -632,7 +658,7 @@ const AdminClientDetail = () => {
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                   <div>
                     <div className="flex items-center gap-3">
-                      <span className={`text-[9px] font-extrabold uppercase tracking-widest px-2 py-1 rounded ${ONBOARDING_STATUS_STYLES[onboarding.status]}`}>
+                      <span className={`text-xs font-extrabold uppercase tracking-widest px-2 py-1 rounded ${ONBOARDING_STATUS_STYLES[onboarding.status]}`}>
                         {onboarding.status.replace('_', ' ')}
                       </span>
                       <span className="text-xs text-gray-400 font-body">{onboarding.project_type}</span>
@@ -691,7 +717,7 @@ const AdminClientDetail = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {Object.entries(onboarding.responses || {}).map(([sectionKey, data]) => (
                   <div key={sectionKey} className="bg-white dark:bg-[#1c1c1c] p-6 rounded-2xl border border-gray-100 dark:border-gray-800/60 shadow-sm">
-                    <h3 className="text-[10px] font-extrabold text-accent uppercase tracking-widest mb-4">
+                    <h3 className="text-xs font-extrabold text-accent uppercase tracking-widest mb-4">
                       {SECTION_LABELS[sectionKey] || fieldLabel(sectionKey)}
                     </h3>
                     <dl className="space-y-2 text-sm font-body">
@@ -719,7 +745,7 @@ const AdminClientDetail = () => {
       )}
 
       {/* ── Actions ──────────────────────────────────────── */}
-      {tab === 'actions' && (
+      {tab === 'actions' && !sectionErrors.Actions && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <form onSubmit={createAction} className="bg-white dark:bg-[#1c1c1c] p-6 md:p-8 rounded-2xl border border-gray-100 dark:border-gray-800/60 shadow-sm h-fit space-y-4">
             <h2 className="text-xl font-bold font-heading text-gray-900 dark:text-white">Request Client Action</h2>
@@ -779,8 +805,8 @@ const AdminClientDetail = () => {
                       </p>
                       {a.description && <p className="text-sm text-gray-500 dark:text-gray-400 font-body mt-0.5">{a.description}</p>}
                       <div className="flex flex-wrap items-center gap-2 mt-2">
-                        <span className="text-[9px] font-extrabold uppercase tracking-widest px-2 py-0.5 rounded bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">{a.type}</span>
-                        <span className={`text-[9px] font-extrabold uppercase tracking-widest px-2 py-0.5 rounded ${PRIORITY_STYLES[a.priority]}`}>{a.priority}</span>
+                        <span className="text-xs font-extrabold uppercase tracking-widest px-2 py-0.5 rounded bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">{a.type}</span>
+                        <span className={`text-xs font-extrabold uppercase tracking-widest px-2 py-0.5 rounded ${PRIORITY_STYLES[a.priority]}`}>{a.priority}</span>
                         {a.due_at && (
                           <span className={`text-xs font-bold font-body ${overdue ? 'text-red-500' : 'text-gray-400'}`}>
                             Due {fmtDate(a.due_at)}{overdue ? ' · OVERDUE' : ''}
@@ -818,7 +844,7 @@ const AdminClientDetail = () => {
       )}
 
       {/* ── Invoices ─────────────────────────────────────── */}
-      {tab === 'invoices' && (
+      {tab === 'invoices' && !sectionErrors.Invoices && (
         <div className="bg-white dark:bg-[#1c1c1c] rounded-2xl border border-gray-100 dark:border-gray-800/60 shadow-sm overflow-hidden">
           {invoices.length === 0 ? (
             <p className="p-12 text-center text-gray-500 font-body">No invoices for this client yet.</p>
@@ -841,7 +867,7 @@ const AdminClientDetail = () => {
                       {inv.project_name && <span className="block text-xs font-normal text-gray-400">{inv.project_name}</span>}
                     </td>
                     <td className="py-4 px-6 text-center">
-                      <span className={`text-[9px] font-extrabold uppercase tracking-widest px-2 py-0.5 rounded font-body ${
+                      <span className={`text-xs font-extrabold uppercase tracking-widest px-2 py-0.5 rounded font-body ${
                         inv.status === 'PAID' ? 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300' :
                         inv.status === 'OVERDUE' ? 'bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300' :
                         'bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300'}`}>

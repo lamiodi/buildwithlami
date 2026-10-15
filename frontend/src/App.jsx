@@ -21,6 +21,7 @@ import ProjectsPage from './pages/ProjectsPage';
 import ContactPage from './pages/ContactPage';
 import AboutPage from './pages/AboutPage';
 import ServicesPage from './pages/ServicesPage';
+const GuidesPage = lazyWithRetry(() => import('./pages/GuidesPage'));
 import PricingPage from './pages/PricingPage';
 import ProjectDetailPage from './pages/ProjectDetailPage';
 import NotFoundPage from './pages/NotFoundPage';
@@ -237,6 +238,8 @@ function App() {
                 <Route path="/contact" element={<PageWrapper><ContactPage /></PageWrapper>} />
                 <Route path="/about" element={<PageWrapper><AboutPage /></PageWrapper>} />
                 <Route path="/services" element={<PageWrapper><ServicesPage /></PageWrapper>} />
+                <Route path="/guides" element={<PageWrapper><GuidesPage /></PageWrapper>} />
+                <Route path="/guides/:slug" element={<PageWrapper><GuidesPage /></PageWrapper>} />
                 <Route path="/software" element={<PageWrapper><SoftwareHomePage /></PageWrapper>} />
                 <Route path="/projects/:id" element={<PageWrapper><ProjectDetailPage /></PageWrapper>} />
                 <Route path="/survey" element={<PageWrapper><SurveyHomePage /></PageWrapper>} />

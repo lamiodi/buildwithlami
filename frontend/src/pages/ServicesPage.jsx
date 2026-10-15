@@ -10,7 +10,10 @@ import {
   PanelsTopLeft,
   ScanSearch,
   SearchCheck,
+  ShoppingBag,
 } from 'lucide-react';
+import ServicePlanDetails from '../components/ServicePlanDetails.jsx';
+import GuidesPreview from '../components/GuidesPreview.jsx';
 import {
   fadeUpItem,
   reducedMotionVariants,
@@ -73,6 +76,22 @@ const services = [
       'Performance testing and production deployment',
     ],
     icon: MonitorSmartphone,
+  },
+  {
+    id: 'ecommerce',
+    pricingCategory: 'ecommerce',
+    title: 'E-commerce websites and online stores',
+    bestFor: 'Retailers and product businesses selling in Nigeria or internationally',
+    description: 'Connect product browsing, checkout and order management so customers can buy and your team can manage the sale.',
+    outcome: 'A working buying journey backed by clear product, payment and fulfilment rules.',
+    deliverables: [
+      'Responsive product catalogue and storefront',
+      'Product variants and stock-management workflows',
+      'Checkout and an agreed payment gateway',
+      'Shipping rules and order administration',
+      'Payment testing and a launch walkthrough',
+    ],
+    icon: ShoppingBag,
   },
   {
     id: 'backend-data',
@@ -178,10 +197,10 @@ const ServicesPage = () => {
                 Buildwith_lami services
               </p>
               <h1 className="max-w-5xl text-5xl font-heading font-bold leading-[0.98] tracking-[-0.035em] text-black dark:text-white sm:text-6xl lg:text-[5.25rem]">
-                Strategy, design, and engineering in one studio.
+                Websites, online stores and custom software.
               </h1>
               <p className="mt-7 max-w-2xl text-base font-light leading-relaxed text-gray-600 dark:text-gray-300 sm:text-lg">
-                I turn business requirements into clear, dependable digital products - from focused websites to operational software and the systems behind them.
+                I’m Eugene Odibenuah, the developer behind BuildWithLami in Lagos, Nigeria. I build websites and business software for Nigerian and international clients, with a scope shaped around how your business works.
               </p>
               <div className="mt-9 flex flex-col gap-3 sm:flex-row">
                 <Link to="/contact" className="btn-primary w-full sm:w-auto">
@@ -261,7 +280,7 @@ const ServicesPage = () => {
                   key={service.id}
                   id={service.id}
                   variants={item}
-                  className="group grid gap-8 border-b border-gray-300 py-10 dark:border-white/15 md:grid-cols-12 md:gap-6 lg:py-14"
+                  className="group grid scroll-mt-28 gap-8 border-b border-gray-300 py-10 dark:border-white/15 md:grid-cols-12 md:gap-6 lg:py-14"
                 >
                   <div className="flex items-start justify-between md:col-span-2 md:block">
                     <span className="font-mono text-xs font-bold tracking-[0.18em] text-accent">
@@ -302,6 +321,7 @@ const ServicesPage = () => {
                         </li>
                       ))}
                     </ul>
+                    <ServicePlanDetails serviceId={service.id} />
                     <Link
                       to={`/contact?service=${encodeURIComponent(service.pricingCategory)}`}
                       className="mt-8 inline-flex min-h-11 items-center gap-2 font-heading text-xs font-bold uppercase tracking-[0.14em] text-black transition-colors hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 dark:text-white dark:hover:text-accent"
@@ -317,6 +337,7 @@ const ServicesPage = () => {
         </div>
       </section>
 
+      <GuidesPreview />
       <section className="px-6 py-24 sm:py-32 md:px-12">
         <div className="mx-auto max-w-7xl">
           <header className="grid items-end gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.7fr)] lg:gap-20">

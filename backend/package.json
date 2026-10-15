@@ -9,6 +9,8 @@
     "start:prod": "NODE_ENV=production node src/index.js",
     "dev": "node --watch src/index.js",
     "lint": "eslint .",
+    "test": "node --test tests/admin-workflow.test.mjs",
+    "test:isolated": "node tests/run-isolated.mjs",
     "db:init": "node src/scripts/runInit.js",
     "db:migrate": "node src/scripts/runUpdateSchema.js",
     "db:seed": "node src/scripts/seedAdmin.js",

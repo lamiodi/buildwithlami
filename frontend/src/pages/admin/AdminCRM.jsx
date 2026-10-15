@@ -12,7 +12,7 @@
 // and each column listens for `dragover` + `drop`.
 // ──────────────────────────────────────────────────────────
 
-import React, { useEffect, useMemo, useState, useCallback, useRef } from 'react';
+import { useEffect, useMemo, useState, useCallback, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { api } from '../../services/api';
@@ -69,7 +69,7 @@ const Icon = {
 };
 
 const inputClass = "w-full p-3 text-sm border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900 outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-colors font-body";
-const labelClass = "block text-[10px] font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2";
+const labelClass = "block text-xs font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2";
 
 // ── Lead detail drawer ──────────────────────────────────
 const LeadDrawer = ({ lead, stages, onClose, onUpdate, onConvert, onSendTemplate, onGenerateQuotation, templates }) => {
@@ -158,11 +158,11 @@ const LeadDrawer = ({ lead, stages, onClose, onUpdate, onConvert, onSendTemplate
                             <h2 className="text-lg font-extrabold text-gray-900 dark:text-white truncate">{lead.full_name}</h2>
                             <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{lead.email}</p>
                             <div className="mt-1 flex items-center gap-1.5">
-                                <span className={`text-[9px] font-extrabold uppercase tracking-widest px-2 py-0.5 rounded ${DIVISION_BADGES[lead.division] || ''}`}>
+                                <span className={`text-xs font-extrabold uppercase tracking-widest px-2 py-0.5 rounded ${DIVISION_BADGES[lead.division] || ''}`}>
                                     {lead.division}
                                 </span>
                                 {lead.source && (
-                                    <span className="text-[9px] font-extrabold uppercase tracking-widest px-2 py-0.5 rounded bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300">
+                                    <span className="text-xs font-extrabold uppercase tracking-widest px-2 py-0.5 rounded bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300">
                                         {lead.source}
                                     </span>
                                 )}
@@ -176,7 +176,7 @@ const LeadDrawer = ({ lead, stages, onClose, onUpdate, onConvert, onSendTemplate
                     <div className="p-5 space-y-5">
                         {/* Contact details */}
                         <section>
-                            <h3 className="text-[10px] font-extrabold uppercase tracking-widest text-gray-500 mb-2">Contact</h3>
+                            <h3 className="text-xs font-extrabold uppercase tracking-widest text-gray-500 mb-2">Contact</h3>
                             <div className="space-y-1.5 text-sm">
                                 <p className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
                                     <Icon.Mail className="w-4 h-4 text-gray-400" />
@@ -193,13 +193,13 @@ const LeadDrawer = ({ lead, stages, onClose, onUpdate, onConvert, onSendTemplate
 
                         {/* Stage transition */}
                         <section>
-                            <h3 className="text-[10px] font-extrabold uppercase tracking-widest text-gray-500 mb-2">Stage</h3>
+                            <h3 className="text-xs font-extrabold uppercase tracking-widest text-gray-500 mb-2">Stage</h3>
                             <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
                                 {stages.map(s => (
                                     <button
                                         key={s.id}
                                         onClick={() => handleMoveStage(s.id)}
-                                        className={`text-[10px] font-extrabold uppercase tracking-widest px-2 py-1.5 rounded-lg transition-colors ${
+                                        className={`text-xs font-extrabold uppercase tracking-widest px-2 py-1.5 rounded-lg transition-colors ${
                                             lead.stage === s.id
                                                 ? `${COLOR_CLASSES[s.color].bg} ${COLOR_CLASSES[s.color].text} ring-1 ${COLOR_CLASSES[s.color].ring}`
                                                 : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
@@ -213,7 +213,7 @@ const LeadDrawer = ({ lead, stages, onClose, onUpdate, onConvert, onSendTemplate
 
                         {/* Next action (Admin OS Phase 1 — blueprint §30) */}
                         <section>
-                            <h3 className="text-[10px] font-extrabold uppercase tracking-widest text-gray-500 mb-2">Next Action</h3>
+                            <h3 className="text-xs font-extrabold uppercase tracking-widest text-gray-500 mb-2">Next Action</h3>
                             <input
                                 type="text"
                                 value={nextAction}
@@ -231,7 +231,7 @@ const LeadDrawer = ({ lead, stages, onClose, onUpdate, onConvert, onSendTemplate
 
                         {/* Notes */}
                         <section>
-                            <h3 className="text-[10px] font-extrabold uppercase tracking-widest text-gray-500 mb-2">Notes</h3>
+                            <h3 className="text-xs font-extrabold uppercase tracking-widest text-gray-500 mb-2">Notes</h3>
                             <textarea
                                 value={notes}
                                 onChange={(e) => setNotes(e.target.value)}
@@ -250,7 +250,7 @@ const LeadDrawer = ({ lead, stages, onClose, onUpdate, onConvert, onSendTemplate
 
                         {/* Actions */}
                         <section className="space-y-2">
-                            <h3 className="text-[10px] font-extrabold uppercase tracking-widest text-gray-500 mb-2">Actions</h3>
+                            <h3 className="text-xs font-extrabold uppercase tracking-widest text-gray-500 mb-2">Actions</h3>
 
                             {lead.stage !== 'WON' && lead.stage !== 'COMPLETED' && (
                                 <>
@@ -292,7 +292,7 @@ const LeadDrawer = ({ lead, stages, onClose, onUpdate, onConvert, onSendTemplate
 
                         {/* Meta */}
                         <section>
-                            <h3 className="text-[10px] font-extrabold uppercase tracking-widest text-gray-500 mb-2">Meta</h3>
+                            <h3 className="text-xs font-extrabold uppercase tracking-widest text-gray-500 mb-2">Meta</h3>
                             <div className="text-xs text-gray-500 dark:text-gray-400 space-y-1">
                                 <p>Created: {new Date(lead.created_at).toLocaleString()}</p>
                                 <p>Updated: {new Date(lead.updated_at).toLocaleString()}</p>
@@ -448,7 +448,7 @@ const TemplatePickerModal = ({ lead, templates, onClose, onSend }) => {
                         <input value={lead.email} readOnly className={`${inputClass} bg-gray-50 dark:bg-gray-800 cursor-not-allowed`} />
                     </div>
                     <div className="border border-gray-200 dark:border-gray-700 rounded-xl p-4 bg-gray-50/50 dark:bg-gray-800/50">
-                        <p className="text-[10px] font-extrabold uppercase tracking-widest text-gray-500 mb-2">Live Preview</p>
+                        <p className="text-xs font-extrabold uppercase tracking-widest text-gray-500 mb-2">Live Preview</p>
                         {previewing ? (
                             <p className="text-sm text-gray-400">Rendering…</p>
                         ) : preview ? (
@@ -496,17 +496,17 @@ const LeadCard = ({ lead, onClick }) => {
         >
             <div className="flex items-start justify-between gap-2 mb-1.5">
                 <p className="text-sm font-bold text-gray-900 dark:text-white truncate">{lead.full_name}</p>
-                <span className={`shrink-0 text-[9px] font-extrabold uppercase tracking-widest px-1.5 py-0.5 rounded ${DIVISION_BADGES[lead.division] || 'bg-gray-100 text-gray-600'}`}>
+                <span className={`shrink-0 text-xs font-extrabold uppercase tracking-widest px-1.5 py-0.5 rounded ${DIVISION_BADGES[lead.division] || 'bg-gray-100 text-gray-600'}`}>
                     {lead.division?.charAt(0)}
                 </span>
             </div>
             {lead.source && (
-                <p className="text-[10px] text-gray-500 dark:text-gray-400 mb-1">{lead.source.replace(/_/g, ' ')}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">{lead.source.replace(/_/g, ' ')}</p>
             )}
             {lead.notes && (
                 <p className="text-xs text-gray-600 dark:text-gray-300 line-clamp-2 mb-2">{lead.notes.split('\n').slice(1).join('\n').trim() || lead.notes}</p>
             )}
-            <div className="flex items-center justify-between text-[10px] text-gray-400">
+            <div className="flex items-center justify-between text-xs text-gray-400">
                 <span>{lead.days_in_stage || 0}d in stage</span>
                 {lead.converted_client_id && <span className="text-emerald-500">●</span>}
             </div>
@@ -536,7 +536,7 @@ const KanbanColumn = ({ stage, leads, onDrop, onCardClick }) => {
                     <span className={`w-2 h-2 rounded-full ${c.dot}`}></span>
                     <h3 className={`text-sm font-extrabold uppercase tracking-wider ${c.text}`}>{stage.label}</h3>
                 </div>
-                <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full ${c.bg} ${c.text} border ${c.border}`}>
+                <span className={`text-xs font-extrabold px-2 py-0.5 rounded-full ${c.bg} ${c.text} border ${c.border}`}>
                     {leads.length}
                 </span>
             </div>
@@ -720,7 +720,7 @@ const AdminCRM = () => {
         if (selected?.id === updated.id) setSelected(updated);
     };
 
-    const handleLeadConvert = (updatedLead, _client) => {
+    const handleLeadConvert = (updatedLead) => {
         setLeads(prev => prev.map(l => l.id === updatedLead.id ? updatedLead : l));
     };
 

@@ -2,7 +2,7 @@
 // Last 5 client feedback entries, sorted by created_at desc.
 // ──────────────────────────────────────────────────────────
 
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 
 export default function RecentFeedback({ feedback = [] }) {
     const recentFeedback = useMemo(() =>
@@ -21,8 +21,8 @@ export default function RecentFeedback({ feedback = [] }) {
                         <li key={f.id} className="border-l-2 border-blue-500 pl-3 py-1">
                             <p className="text-sm text-gray-800 dark:text-gray-200 line-clamp-2">{f.client_comment || '—'}</p>
                             <div className="flex items-center justify-between mt-1">
-                                <span className="text-[10px] text-gray-500 uppercase font-bold">{f.status}</span>
-                                <time className="text-[10px] text-gray-400" dateTime={f.created_at}>
+                                <span className="text-xs text-gray-500 uppercase font-bold">{f.status}</span>
+                                <time className="text-xs text-gray-400" dateTime={f.created_at}>
                                     {new Date(f.created_at).toLocaleDateString()}
                                 </time>
                             </div>

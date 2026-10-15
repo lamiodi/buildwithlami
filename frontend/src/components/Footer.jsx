@@ -106,6 +106,7 @@ const Footer = ({ soundOn, onToggleSound }) => {
           <Link to="/services" className="hover:text-accent transition-colors">Services</Link>
           <Link to="/pricing" className="hover:text-accent transition-colors">Pricing</Link>
           <Link to="/about" className="hover:text-accent transition-colors">About</Link>
+          <Link to="/guides" className="hover:text-accent transition-colors">Guides</Link>
           <Link to="/contact" className="hover:text-accent transition-colors">Contact</Link>
           <a href={CONTACT.social.linkedin} target="_blank" rel="noopener noreferrer" className="hover:text-accent transition-colors">LinkedIn ↗</a>
           <a 

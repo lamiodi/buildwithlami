@@ -3,42 +3,36 @@
 // from the `invoices` prop on every dashboard refresh.
 // ──────────────────────────────────────────────────────────
 
-import React, { useMemo } from 'react';
-import { motion } from 'framer-motion';
+import { useState } from 'react';
+import { CURRENCIES, formatMoney, monthlyCollected } from '../../../utils/adminWorkflow';
 
 export default function RevenueChart({ invoices = [] }) {
-    const monthlyRevenue = useMemo(() => {
-        const months = {};
-        for (let i = 5; i >= 0; i--) {
-            const d = new Date();
-            d.setMonth(d.getMonth() - i);
-            months[d.toLocaleString('default', { month: 'short' })] = 0;
-        }
-        invoices.filter(i => i.status === 'PAID').forEach(inv => {
-            const m = new Date(inv.paid_at || inv.created_at).toLocaleString('default', { month: 'short' });
-            if (months[m] !== undefined) months[m] += Number(inv.amount || 0);
-        });
-        const max = Math.max(...Object.values(months), 1);
-        return Object.entries(months).map(([m, val]) => ({ month: m, value: val, height: (val / max) * 100 }));
-    }, [invoices]);
+    const [currency, setCurrency] = useState('NGN');
+    const monthlyRevenue = monthlyCollected(invoices, currency);
 
     return (
         <div className="bg-white dark:bg-gray-800 p-5 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm">
-            <h2 className="text-sm font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-4">Monthly Revenue</h2>
-            <div className="flex items-end justify-between gap-2 h-40">
-                {monthlyRevenue.map((m, i) => (
-                    <motion.div
-                        key={m.month}
-                        initial={{ height: 0 }}
-                        animate={{ height: `${m.height}%` }}
-                        transition={{ delay: i * 0.05, duration: 0.4 }}
-                        className="flex-1 bg-gradient-to-t from-blue-500 to-indigo-500 rounded-t-lg relative group"
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-2">
+                <h2 className="text-sm font-bold text-gray-700 dark:text-gray-200">Money collected</h2>
+                <select aria-label="Revenue chart currency" value={currency} onChange={(e) => setCurrency(e.target.value)} className="rounded-lg border border-gray-200 dark:border-gray-600 bg-transparent p-2 text-sm">
+                    {CURRENCIES.map((code) => <option key={code}>{code}</option>)}
+                </select>
+            </div>
+            <p className="text-xs text-gray-500 mb-5">Last six months by payment date. Amounts stay in their original currency.</p>
+            <div className="flex items-end justify-between gap-2 h-40" role="img" aria-label={monthlyRevenue.map((m) => `${m.month}: ${formatMoney(m.value, currency)}`).join(', ')}>
+                {monthlyRevenue.map((m) => (
+                    <div
+                        key={m.key}
+                        style={{ height: `${m.height}%` }}
+                        tabIndex={0}
+                        aria-label={`${m.month}: ${formatMoney(m.value, currency)}`}
+                        className="flex-1 min-h-1 bg-accent rounded-t-lg relative group focus:outline-accent"
                     >
-                        <div className="absolute -top-8 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-900 text-white text-[10px] px-2 py-1 rounded whitespace-nowrap pointer-events-none">
-                            ₦{m.value.toLocaleString()}
+                        <div className="absolute -top-8 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition-opacity bg-gray-900 text-white text-xs px-2 py-1 rounded whitespace-nowrap pointer-events-none">
+                            {formatMoney(m.value, currency)}
                         </div>
-                        <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-[9px] text-gray-500 dark:text-gray-400 font-bold uppercase">{m.month}</div>
-                    </motion.div>
+                        <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">{m.month}</div>
+                    </div>
                 ))}
             </div>
         </div>

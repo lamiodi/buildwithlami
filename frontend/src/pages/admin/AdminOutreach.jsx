@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { api } from '../../services/api';
 import { notify } from '../../services/notify';
 
@@ -37,10 +37,9 @@ const STATUS_LABELS = {
   NOT_INTERESTED: 'Not interested', UNSUBSCRIBED: 'Unsubscribed',
   BOUNCED: 'Bounced', CONVERTED: 'Converted',
 };
-const STATUS_ORDER = Object.keys(STATUS_STYLES);
 
 const inputClass = "w-full p-3 text-sm border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-900 outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-colors font-body";
-const labelClass = "block text-[10px] font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2";
+const labelClass = "block text-xs font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2";
 const cardClass = "bg-white dark:bg-[#1c1c1c] rounded-2xl border border-gray-100 dark:border-gray-800/60 shadow-sm";
 const btnPrimary = "bg-accent hover:bg-orange-600 text-white font-bold py-2.5 px-4 rounded-xl transition-all shadow-lg hover:shadow-accent/30 text-sm font-body cursor-pointer";
 const btnGhost = "text-xs bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 font-bold px-3 py-1.5 rounded-lg transition-colors font-body cursor-pointer";
@@ -51,7 +50,7 @@ const fmtDateTime = (d) => d ? new Date(d).toLocaleString(undefined, { month: 's
 const fmtMoney = (v, cur) => v == null ? '—' : `${cur || ''} ${Number(v).toLocaleString()}`.trim();
 
 const StatusPill = ({ status }) => (
-  <span className={`text-[9px] font-extrabold uppercase tracking-widest px-2 py-0.5 rounded whitespace-nowrap ${STATUS_STYLES[status] || STATUS_STYLES.RESEARCH}`}>
+  <span className={`text-xs font-extrabold uppercase tracking-widest px-2 py-0.5 rounded whitespace-nowrap ${STATUS_STYLES[status] || STATUS_STYLES.RESEARCH}`}>
     {STATUS_LABELS[status] || status}
   </span>
 );
@@ -311,7 +310,7 @@ const ProspectsTab = ({ sequences }) => {
                     <td className="py-4 px-4">
                       <StatusPill status={p.status} />
                       {p.do_not_contact && (
-                        <span className="ml-1 text-[9px] font-extrabold uppercase tracking-widest text-rose-500">DNC</span>
+                        <span className="ml-1 text-xs font-extrabold uppercase tracking-widest text-rose-500">DNC</span>
                       )}
                     </td>
                     <td className="py-4 px-4 text-center text-sm text-gray-600 dark:text-gray-300 font-body">{p.sends}</td>
@@ -344,7 +343,7 @@ const ProspectsTab = ({ sequences }) => {
               <h3 className="text-lg font-extrabold font-heading text-gray-900 dark:text-white">{detail.company_name}</h3>
               <div className="flex items-center gap-2 mt-1.5">
                 <StatusPill status={detail.status} />
-                {detail.sequence_name && <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{detail.sequence_name}</span>}
+                {detail.sequence_name && <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">{detail.sequence_name}</span>}
               </div>
             </div>
             <button onClick={() => { setSelectedId(null); setDetail(null); }} className="text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 text-xl leading-none cursor-pointer">×</button>
@@ -423,17 +422,17 @@ const ProspectsTab = ({ sequences }) => {
           )}
 
           {/* Messages */}
-          <h4 className="text-[10px] font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2">Email History</h4>
+          <h4 className="text-xs font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2">Email History</h4>
           <div className="space-y-2 max-h-72 overflow-y-auto mb-5 pr-1">
             {detail.messages.length === 0 ? (
               <p className="text-xs text-gray-400 font-body">Nothing sent yet.</p>
             ) : detail.messages.map((m) => (
               <div key={m.id} className={`p-3 rounded-xl border text-xs font-body ${m.direction === 'INBOUND' ? 'bg-purple-50 dark:bg-purple-900/10 border-purple-200 dark:border-purple-900/40' : m.status === 'SENT' ? 'bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700' : 'bg-amber-50 dark:bg-amber-900/10 border-amber-200 dark:border-amber-900/40'}`}>
                 <div className="flex items-center justify-between gap-2 mb-1">
-                  <span className="font-extrabold uppercase tracking-widest text-[9px] text-gray-500 dark:text-gray-400">
+                  <span className="font-extrabold uppercase tracking-widest text-xs text-gray-500 dark:text-gray-400">
                     {m.direction === 'INBOUND' ? '← Reply' : m.step_order ? `Step ${m.step_order}` : 'One-off'} · {m.status}
                   </span>
-                  <span className="text-[10px] text-gray-400">{fmtDateTime(m.sent_at || m.created_at)}</span>
+                  <span className="text-xs text-gray-400">{fmtDateTime(m.sent_at || m.created_at)}</span>
                 </div>
                 {m.subject && <p className="font-bold text-gray-800 dark:text-gray-100 mb-0.5">{m.subject}</p>}
                 {m.body && <p className="text-gray-600 dark:text-gray-400 whitespace-pre-wrap line-clamp-4">{m.body}</p>}
@@ -445,7 +444,7 @@ const ProspectsTab = ({ sequences }) => {
           {/* Audits */}
           {detail.audits.length > 0 && (
             <>
-              <h4 className="text-[10px] font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2">Website Audits</h4>
+              <h4 className="text-xs font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2">Website Audits</h4>
               <div className="space-y-2">
                 {detail.audits.map((a) => (
                   <div key={a.id} className="p-3 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-xs font-body space-y-1">
@@ -454,10 +453,10 @@ const ProspectsTab = ({ sequences }) => {
                     {a.performance_notes && <p><span className="font-bold">Performance:</span> {a.performance_notes}</p>}
                     {a.mobile_notes && <p><span className="font-bold">Mobile:</span> {a.mobile_notes}</p>}
                     <div className="flex flex-wrap gap-1.5 pt-1">
-                      {a.ssl_valid != null && <span className={`text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded ${a.ssl_valid ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}`}>SSL {a.ssl_valid ? 'OK' : 'Bad'}</span>}
-                      {a.analytics_present != null && <span className={`text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded ${a.analytics_present ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-200 text-gray-600'}`}>Analytics</span>}
-                      {a.ecommerce_available != null && <span className={`text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded ${a.ecommerce_available ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>Ecommerce</span>}
-                      {a.booking_available != null && <span className={`text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded ${a.booking_available ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>Booking</span>}
+                      {a.ssl_valid != null && <span className={`text-xs font-extrabold uppercase px-1.5 py-0.5 rounded ${a.ssl_valid ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}`}>SSL {a.ssl_valid ? 'OK' : 'Bad'}</span>}
+                      {a.analytics_present != null && <span className={`text-xs font-extrabold uppercase px-1.5 py-0.5 rounded ${a.analytics_present ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-200 text-gray-600'}`}>Analytics</span>}
+                      {a.ecommerce_available != null && <span className={`text-xs font-extrabold uppercase px-1.5 py-0.5 rounded ${a.ecommerce_available ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>Ecommerce</span>}
+                      {a.booking_available != null && <span className={`text-xs font-extrabold uppercase px-1.5 py-0.5 rounded ${a.booking_available ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>Booking</span>}
                     </div>
                   </div>
                 ))}
@@ -615,8 +614,8 @@ const SequencesTab = ({ sequences, reload }) => {
             <div>
               <h3 className="text-lg font-extrabold font-heading text-gray-900 dark:text-white flex items-center gap-2">
                 {seq.name}
-                {!seq.is_active && <span className="text-[9px] font-extrabold uppercase tracking-widest px-1.5 py-0.5 rounded bg-gray-200 text-gray-500">Inactive</span>}
-                {seq.stop_on_reply && <span className="text-[9px] font-extrabold uppercase tracking-widest px-1.5 py-0.5 rounded bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300">Stops on reply</span>}
+                {!seq.is_active && <span className="text-xs font-extrabold uppercase tracking-widest px-1.5 py-0.5 rounded bg-gray-200 text-gray-500">Inactive</span>}
+                {seq.stop_on_reply && <span className="text-xs font-extrabold uppercase tracking-widest px-1.5 py-0.5 rounded bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300">Stops on reply</span>}
               </h3>
               {seq.description && <p className="text-sm text-gray-500 dark:text-gray-400 font-body mt-0.5">{seq.description}</p>}
               <p className="text-xs text-gray-400 font-body mt-1">{seq.prospect_count} prospect(s) attached · {seq.sends} email(s) sent</p>
@@ -631,8 +630,8 @@ const SequencesTab = ({ sequences, reload }) => {
             {seq.steps.map((s) => (
               <div key={s.id} className="p-4 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-xs font-body">
                 <div className="flex items-center justify-between mb-1.5">
-                  <span className="font-extrabold uppercase tracking-widest text-[9px] text-accent">Day {s.delay_days} · Step {s.step_order}</span>
-                  {!s.is_active && <span className="text-[9px] font-extrabold uppercase text-gray-400">Off</span>}
+                  <span className="font-extrabold uppercase tracking-widest text-xs text-accent">Day {s.delay_days} · Step {s.step_order}</span>
+                  {!s.is_active && <span className="text-xs font-extrabold uppercase text-gray-400">Off</span>}
                 </div>
                 <p className="font-bold text-gray-800 dark:text-gray-100 mb-1 line-clamp-2">{s.subject}</p>
                 <p className="text-gray-500 dark:text-gray-400 line-clamp-4 whitespace-pre-wrap">{s.body}</p>
@@ -706,7 +705,7 @@ const AuditsTab = ({ prospects }) => {
   };
 
   const boolPill = (v, label) => v == null ? null : (
-    <span className={`text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded ${v ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300' : 'bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300'}`}>{label} {v ? '✓' : '✗'}</span>
+    <span className={`text-xs font-extrabold uppercase px-1.5 py-0.5 rounded ${v ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300' : 'bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300'}`}>{label} {v ? '✓' : '✗'}</span>
   );
 
   return (
@@ -775,7 +774,7 @@ const AuditsTab = ({ prospects }) => {
             {a.opportunities && <p className="text-xs text-gray-600 dark:text-gray-300 mb-1"><span className="font-bold">Opportunity:</span> {a.opportunities}</p>}
             {a.performance_notes && <p className="text-xs text-gray-500 dark:text-gray-400 mb-1"><span className="font-bold">Perf:</span> {a.performance_notes}</p>}
             {a.mobile_notes && <p className="text-xs text-gray-500 dark:text-gray-400 mb-1"><span className="font-bold">Mobile:</span> {a.mobile_notes}</p>}
-            <p className="text-[10px] text-gray-400 mt-2">{fmtDate(a.created_at)}</p>
+            <p className="text-xs text-gray-400 mt-2">{fmtDate(a.created_at)}</p>
           </div>
         ))}
       </div>
@@ -872,7 +871,7 @@ const SuppressionsTab = () => {
                 <tr key={r.id} className="hover:bg-gray-50 dark:hover:bg-gray-900/50">
                   <td className="py-4 px-4 text-sm font-bold text-gray-900 dark:text-white font-body">{r.email}</td>
                   <td className="py-4 px-4">
-                    <span className={`text-[9px] font-extrabold uppercase tracking-widest px-2 py-0.5 rounded ${REASON_STYLES[r.reason] || REASON_STYLES.MANUAL}`}>{r.reason}</span>
+                    <span className={`text-xs font-extrabold uppercase tracking-widest px-2 py-0.5 rounded ${REASON_STYLES[r.reason] || REASON_STYLES.MANUAL}`}>{r.reason}</span>
                   </td>
                   <td className="py-4 px-4 text-xs text-gray-500 dark:text-gray-400 font-body">{r.note || '—'}</td>
                   <td className="py-4 px-4 text-xs text-gray-500 dark:text-gray-400 font-body">{fmtDate(r.created_at)}</td>
@@ -951,9 +950,9 @@ const SettingsTab = () => {
           { label: 'Audits', value: t.audits },
         ].map((c) => (
           <div key={c.label} className={`${cardClass} p-4`}>
-            <p className="text-[10px] font-extrabold uppercase tracking-widest text-gray-400">{c.label}</p>
+            <p className="text-xs font-extrabold uppercase tracking-widest text-gray-400">{c.label}</p>
             <p className="text-2xl font-extrabold font-heading text-gray-900 dark:text-white mt-1">{c.value}</p>
-            {c.sub && <p className="text-[10px] text-gray-400 font-bold">{c.sub}</p>}
+            {c.sub && <p className="text-xs text-gray-400 font-bold">{c.sub}</p>}
           </div>
         ))}
       </div>
@@ -973,7 +972,7 @@ const SettingsTab = () => {
             <div>
               <label className={labelClass}>Daily Send Limit</label>
               <input type="number" min="1" max="200" value={settings.daily_send_limit} onChange={(e) => patch('daily_send_limit', e.target.value)} className={inputClass} />
-              <p className="text-[10px] text-gray-400 mt-1">Sent today: {analytics.today.sends}</p>
+              <p className="text-xs text-gray-400 mt-1">Sent today: {analytics.today.sends}</p>
             </div>
             <div>
               <label className={labelClass}>From Name</label>
@@ -1027,7 +1026,7 @@ const SettingsTab = () => {
             </div>
             <table className="w-full text-sm font-body">
               <thead>
-                <tr className="text-[10px] font-extrabold uppercase tracking-widest text-gray-400 border-b border-gray-100 dark:border-gray-800">
+                <tr className="text-xs font-extrabold uppercase tracking-widest text-gray-400 border-b border-gray-100 dark:border-gray-800">
                   <th className="py-2 text-left">Month</th>
                   <th className="py-2 text-right">Added</th>
                   <th className="py-2 text-right">Sends</th>

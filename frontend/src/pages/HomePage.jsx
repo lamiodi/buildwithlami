@@ -8,6 +8,7 @@ import Pricing from '../components/Pricing';
 import About from '../components/About';
 import FAQ from '../components/FAQ';
 import Contact from '../components/Contact';
+import GuidesPreview from '../components/GuidesPreview';
 
 const HomePage = () => {
 
@@ -31,6 +32,7 @@ const HomePage = () => {
       <Testimonials />
       <Pricing isHomepage={true} />
       <About />
+      <GuidesPreview />
       <FAQ />
       <Contact />
     </>

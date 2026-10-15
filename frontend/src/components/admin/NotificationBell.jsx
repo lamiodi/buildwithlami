@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useCallback } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../contexts/AuthContext';
@@ -151,7 +151,7 @@ const NotificationBell = () => {
                             initial={{ scale: 0 }}
                             animate={{ scale: 1 }}
                             exit={{ scale: 0 }}
-                            className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-rose-500 text-white text-[10px] font-extrabold flex items-center justify-center shadow-md"
+                            className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-rose-500 text-white text-xs font-extrabold flex items-center justify-center shadow-md"
                         >
                             {/* Unread is derived from the latest POPUP_LIMIT items —
                                 cap the badge honestly at that limit rather than an
@@ -175,7 +175,7 @@ const NotificationBell = () => {
                         <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
                             <div>
                                 <h3 className="text-sm font-extrabold text-gray-900 dark:text-white">Notifications</h3>
-                                <p className="text-[10px] font-extrabold uppercase tracking-widest text-gray-500 dark:text-gray-400">
+                                <p className="text-xs font-extrabold uppercase tracking-widest text-gray-500 dark:text-gray-400">
                                     {unread > 0 ? `${unread} unread` : 'All caught up'}
                                 </p>
                             </div>
@@ -183,7 +183,7 @@ const NotificationBell = () => {
                                 <button
                                     onClick={markAllRead}
                                     disabled={unread === 0}
-                                    className="cursor-pointer text-[10px] font-extrabold uppercase tracking-widest text-accent hover:text-orange-600 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                                    className="cursor-pointer text-xs font-extrabold uppercase tracking-widest text-accent hover:text-orange-600 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                                 >
                                     Mark all read
                                 </button>
@@ -211,7 +211,7 @@ const NotificationBell = () => {
                                                         <p className={`text-sm ${n.is_read ? 'text-gray-700 dark:text-gray-300' : 'font-extrabold text-gray-900 dark:text-white'}`}>
                                                             {n.title}
                                                         </p>
-                                                        <span className="text-[10px] text-gray-500 flex-shrink-0">{timeAgo(n.created_at)}</span>
+                                                        <span className="text-xs text-gray-500 flex-shrink-0">{timeAgo(n.created_at)}</span>
                                                     </div>
                                                     {n.message && (
                                                         <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5 line-clamp-2">
@@ -222,7 +222,7 @@ const NotificationBell = () => {
                                                         <Link
                                                             to={n.link}
                                                             onClick={() => { setOpen(false); if (!n.is_read) markRead(n.id); }}
-                                                            className="text-[10px] font-extrabold uppercase tracking-widest text-accent hover:text-orange-600 mt-1 inline-block"
+                                                            className="text-xs font-extrabold uppercase tracking-widest text-accent hover:text-orange-600 mt-1 inline-block"
                                                         >
                                                             Open →
                                                         </Link>
@@ -256,7 +256,7 @@ const NotificationBell = () => {
                             <Link
                                 to="/admin"
                                 onClick={() => setOpen(false)}
-                                className="text-[10px] font-extrabold uppercase tracking-widest text-gray-500 hover:text-accent transition-colors"
+                                className="text-xs font-extrabold uppercase tracking-widest text-gray-500 hover:text-accent transition-colors"
                             >
                                 View dashboard
                             </Link>

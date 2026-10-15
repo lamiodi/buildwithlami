@@ -20,7 +20,7 @@ export function lazyWithRetry(componentImport) {
       if (!hasRetried) {
         sessionStorage.setItem(sessionKey, 'true');
         window.location.reload();
-        throw new Error(`Reloading application for updated chunk: ${identifier}`);
+        throw new Error(`Reloading application for updated chunk: ${identifier}`, { cause: error });
       }
       sessionStorage.removeItem(sessionKey);
       throw error;

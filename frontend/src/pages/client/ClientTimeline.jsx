@@ -15,7 +15,9 @@ export default function ClientTimeline() {
                 const data = res.data;
                 const processed = data.map(p => {
                     let parsedMilestones = [];
-                    if (typeof p.milestones === 'string') {
+                    if (Array.isArray(p.stages) && p.stages.length) {
+                        parsedMilestones = p.stages.map((stage) => ({ ...stage, title: stage.name || stage.title }));
+                    } else if (typeof p.milestones === 'string') {
                         try { parsedMilestones = JSON.parse(p.milestones); } catch (e) { /* ignore */ }
                     } else if (Array.isArray(p.milestones)) {
                         parsedMilestones = p.milestones;

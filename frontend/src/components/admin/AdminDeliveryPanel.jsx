@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { api } from '../../services/api';
 import { notify } from '../../services/notify';
 
@@ -23,13 +23,13 @@ const STATUS_STYLES = {
 };
 
 const Badge = ({ status }) => (
-  <span className={`px-2 py-0.5 rounded-full text-[9px] font-extrabold uppercase tracking-widest ${STATUS_STYLES[status] || STATUS_STYLES.DRAFT}`}>
+  <span className={`px-2 py-0.5 rounded-full text-xs font-extrabold uppercase tracking-widest ${STATUS_STYLES[status] || STATUS_STYLES.DRAFT}`}>
     {status.replace(/_/g, ' ')}
   </span>
 );
 
 const inputClass = "w-full p-2.5 text-sm border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-900 outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-colors font-body";
-const labelClass = "block text-[10px] font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-1.5";
+const labelClass = "block text-xs font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-1.5";
 
 const fmtDate = (d) => d ? new Date(d).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : '—';
 const fmtMoney = (a, c) => c === 'NGN' ? `₦${Number(a || 0).toLocaleString()}` : `${c} ${Number(a || 0).toLocaleString()}`;
@@ -115,7 +115,6 @@ const AdminDeliveryPanel = ({ projectId, project }) => {
   };
 
   const pendingApprovals = approvals.filter(a => a.status === 'PENDING');
-  const openCRs = changeRequests.filter(c => c.status === 'SENT' || c.status === 'DRAFT');
   const included = project?.included_revision_rounds ?? 2;
   const used = project?.used_revision_rounds ?? 0;
 
@@ -132,11 +131,11 @@ const AdminDeliveryPanel = ({ projectId, project }) => {
           <h2 className="text-lg font-bold font-heading text-gray-900 dark:text-white flex items-center gap-2">
             Client Approvals
             {pendingApprovals.length > 0 && (
-              <span className="text-[9px] bg-amber-400 text-white px-1.5 py-0.5 rounded-full font-extrabold">{pendingApprovals.length} pending</span>
+              <span className="text-xs bg-amber-400 text-white px-1.5 py-0.5 rounded-full font-extrabold">{pendingApprovals.length} pending</span>
             )}
           </h2>
           {project && (
-            <span className={`text-[10px] font-extrabold uppercase tracking-widest px-2.5 py-1 rounded-lg ${used > included ? 'bg-rose-50 text-rose-600' : 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400'}`}>
+            <span className={`text-xs font-extrabold uppercase tracking-widest px-2.5 py-1 rounded-lg ${used > included ? 'bg-rose-50 text-rose-600' : 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400'}`}>
               Revision rounds {used}/{included}{used > included ? ' — extra needs a change request' : ''}
             </span>
           )}
@@ -187,9 +186,9 @@ const AdminDeliveryPanel = ({ projectId, project }) => {
                   {a.description && <p className="text-xs text-gray-500 dark:text-gray-400 font-body mt-0.5">{a.description}</p>}
                   <div className="flex flex-wrap items-center gap-2 mt-1.5">
                     <Badge status={a.status} />
-                    <span className="text-[10px] text-gray-400 font-body">{a.item_type}</span>
-                    <span className="text-[10px] text-gray-400 font-body">requested {fmtDate(a.requested_at)}</span>
-                    {a.decided_at && <span className="text-[10px] text-gray-400 font-body">decided {fmtDate(a.decided_at)}</span>}
+                    <span className="text-xs text-gray-400 font-body">{a.item_type}</span>
+                    <span className="text-xs text-gray-400 font-body">requested {fmtDate(a.requested_at)}</span>
+                    {a.decided_at && <span className="text-xs text-gray-400 font-body">decided {fmtDate(a.decided_at)}</span>}
                   </div>
                   {a.client_comment && <p className="text-xs text-gray-600 dark:text-gray-300 font-body mt-1.5 bg-gray-50 dark:bg-gray-900 rounded-lg px-3 py-2">“{a.client_comment}”</p>}
                 </div>
@@ -259,10 +258,10 @@ const AdminDeliveryPanel = ({ projectId, project }) => {
                   {cr.description && <p className="text-xs text-gray-500 dark:text-gray-400 font-body mt-0.5">{cr.description}</p>}
                   <div className="flex flex-wrap items-center gap-2 mt-1.5">
                     <Badge status={cr.status} />
-                    {Number(cr.additional_cost) > 0 && <span className="text-[10px] font-bold text-gray-600 dark:text-gray-300 font-body">+{fmtMoney(cr.additional_cost, cr.currency)}</span>}
-                    {cr.additional_days > 0 && <span className="text-[10px] font-bold text-gray-600 dark:text-gray-300 font-body">+{cr.additional_days}d</span>}
-                    <span className="text-[10px] text-gray-400 font-body">{cr.status === 'SENT' ? `sent ${fmtDate(cr.sent_at)}` : `created ${fmtDate(cr.created_at)}`}</span>
-                    {cr.decided_at && <span className="text-[10px] text-gray-400 font-body">decided {fmtDate(cr.decided_at)}</span>}
+                    {Number(cr.additional_cost) > 0 && <span className="text-xs font-bold text-gray-600 dark:text-gray-300 font-body">+{fmtMoney(cr.additional_cost, cr.currency)}</span>}
+                    {cr.additional_days > 0 && <span className="text-xs font-bold text-gray-600 dark:text-gray-300 font-body">+{cr.additional_days}d</span>}
+                    <span className="text-xs text-gray-400 font-body">{cr.status === 'SENT' ? `sent ${fmtDate(cr.sent_at)}` : `created ${fmtDate(cr.created_at)}`}</span>
+                    {cr.decided_at && <span className="text-xs text-gray-400 font-body">decided {fmtDate(cr.decided_at)}</span>}
                   </div>
                   {cr.client_comment && <p className="text-xs text-gray-600 dark:text-gray-300 font-body mt-1.5 bg-gray-50 dark:bg-gray-900 rounded-lg px-3 py-2">“{cr.client_comment}”</p>}
                 </div>
@@ -303,7 +302,7 @@ const AdminDeliveryPanel = ({ projectId, project }) => {
                 <span className="absolute -left-[7px] w-3 h-3 rounded-full bg-accent border-2 border-white dark:border-gray-800" />
                 <p className="text-sm font-bold text-gray-900 dark:text-white font-body">{d.title}</p>
                 <p className="text-sm text-gray-600 dark:text-gray-300 font-body">{d.decision}</p>
-                <p className="text-[10px] text-gray-400 font-body mt-0.5">
+                <p className="text-xs text-gray-400 font-body mt-0.5">
                   {new Date(d.created_at).toLocaleString()} · {d.source.replace(/_/g, ' ')}
                 </p>
               </li>

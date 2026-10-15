@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { api } from '../../../services/api';
 import { notify } from '../../../services/notify';
-import { inputClass, labelClass, fmtDateTime, fmtDate, Badge, daysTone, cardClass, thClass } from './shared.jsx';
+import { inputClass, labelClass, fmtDateTime, fmtDate, Badge, daysTone, cardClass, thClass } from './shared.js';
 
 // ─── MonitorsTab (§49) ────────────────────────────────────
 // Lightweight uptime + SSL watch over launched sites. Checks run
@@ -22,11 +22,11 @@ const MonitorEvents = ({ monitorId }) => {
   }, [monitorId]);
 
   if (!events) return null;
-  if (events.length === 0) return <p className="text-[11px] text-gray-400 font-body py-2">No checks recorded yet.</p>;
+  if (events.length === 0) return <p className="text-xs text-gray-400 font-body py-2">No checks recorded yet.</p>;
   return (
     <ul className="space-y-1 py-2">
       {events.map((ev) => (
-        <li key={ev.id} className="flex items-center gap-2 text-[11px] font-body text-gray-500 dark:text-gray-400">
+        <li key={ev.id} className="flex items-center gap-2 text-xs font-body text-gray-500 dark:text-gray-400">
           <Badge tone={ev.status === 'UP' ? 'green' : 'red'}>{ev.status}</Badge>
           <span>{fmtDateTime(ev.checked_at)}</span>
           {ev.response_time_ms != null && <span>· {ev.response_time_ms}ms</span>}
@@ -219,7 +219,7 @@ const MonitorsTab = ({ clients, projects }) => {
                           <p className="font-bold text-gray-900 dark:text-white font-body">
                             {m.name}{!m.enabled && ' (paused)'}
                           </p>
-                          <a href={m.url} target="_blank" rel="noreferrer" className="text-[11px] text-blue-600 dark:text-blue-400 hover:underline font-body break-all">{m.url}</a>
+                          <a href={m.url} target="_blank" rel="noreferrer" className="text-xs text-blue-600 dark:text-blue-400 hover:underline font-body break-all">{m.url}</a>
                         </td>
                         <td className="py-4 px-4 text-center">
                           {m.last_status
@@ -228,7 +228,7 @@ const MonitorsTab = ({ clients, projects }) => {
                               </Badge>
                             : <Badge tone="gray">Pending</Badge>}
                           {m.consecutive_failures > 0 && (
-                            <span className="block mt-1 text-[9px] font-extrabold uppercase tracking-widest text-red-500">
+                            <span className="block mt-1 text-xs font-extrabold uppercase tracking-widest text-red-500">
                               {m.consecutive_failures}× failed
                             </span>
                           )}

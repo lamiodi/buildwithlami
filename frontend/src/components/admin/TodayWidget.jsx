@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { api } from '../../services/api';
@@ -143,7 +143,7 @@ const TodayWidget = () => {
                                 {Ico && <Ico className="w-4 h-4" />}
                             </div>
                             <div className="text-2xl font-extrabold text-gray-900 dark:text-white tabular-nums">{value}</div>
-                            <div className={`text-[10px] font-extrabold uppercase tracking-wider ${toneClasses.text} mt-0.5 truncate`}>
+                            <div className={`text-xs font-extrabold uppercase tracking-wider ${toneClasses.text} mt-0.5 truncate`}>
                                 {label}
                             </div>
                         </Link>

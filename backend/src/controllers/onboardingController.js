@@ -160,9 +160,15 @@ const statusSchema = z.object({
 // ── Admin: List ──────────────────────────────────────────
 export async function getOnboardings(req, res) {
     try {
-        const { status, q } = req.query;
+        const { status, q, client_id, project_id } = req.query;
         const conditions = [];
         const params = [];
+        for (const [column, value] of Object.entries({ client_id, project_id })) {
+            if (!value) continue;
+            if (!isUuid(value)) return res.status(400).json({ error: `Invalid ${column}.` });
+            params.push(value);
+            conditions.push(`o.${column} = $${params.length}`);
+        }
 
         if (status && ['NOT_STARTED', 'IN_PROGRESS', 'SUBMITTED', 'NEEDS_CHANGES', 'APPROVED'].includes(status)) {
             params.push(status);
@@ -177,7 +183,7 @@ export async function getOnboardings(req, res) {
         const { rows } = await pool.query(
             `${ONBOARDING_SELECT}${where}
              ORDER BY (o.status = 'SUBMITTED') DESC, o.updated_at DESC
-             LIMIT 200`,
+             ${client_id || project_id ? '' : 'LIMIT 200'}`,
             params
         );
         return res.json(rows);
@@ -234,7 +240,7 @@ export async function ensureOnboardingForClient({
     const client = clientRes.rows[0];
 
     let onboarding;
-    let created = false;
+    let created;
     try {
         const insert = await pool.query(
             `INSERT INTO client_onboardings (client_id, project_id, project_type)

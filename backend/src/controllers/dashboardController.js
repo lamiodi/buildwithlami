@@ -30,13 +30,13 @@ export async function getDashboardOverview(req, res) {
     try {
         const [projects, clients, templates, feedback, invoices, recentActivities, financialSummary, pipelineStats, missingFxCurrencies] = await Promise.all([
             pool.query(`
-                SELECT id, project_name, division, status, progress, amount_due, payment_status,
-                       client_id, created_at, updated_at
-                FROM client_projects
-                ORDER BY updated_at DESC NULLS LAST
+                SELECT p.id, p.project_name, p.division, p.status, p.progress, p.amount_due, p.payment_status,
+                       p.client_id, p.created_at, p.updated_at, c.name AS client_name
+                FROM client_projects p LEFT JOIN clients c ON c.id = p.client_id
+                ORDER BY p.updated_at DESC NULLS LAST
             `),
             pool.query(`
-                SELECT id, name, primary_contact_email, billing_email, notes, created_at
+                SELECT id, name, division, primary_contact_email, billing_email, notes, created_at
                 FROM clients
                 ORDER BY created_at DESC
             `),
@@ -85,7 +85,7 @@ export async function getDashboardOverview(req, res) {
                            JOIN fx_rates r
                              ON r.base_currency = $1 AND r.target_currency = i.currency
                           WHERE i.status = 'PAID'
-                            AND DATE_TRUNC('month', i.created_at) = DATE_TRUNC('month', CURRENT_DATE)
+                            AND DATE_TRUNC('month', COALESCE(i.paid_at, i.created_at)) = DATE_TRUNC('month', CURRENT_DATE)
                        ) rev
                     ) AS revenue_this_month,
 
@@ -196,14 +196,14 @@ export async function getReports(req, res) {
         ] = await Promise.all([
             // Revenue by month — PAID invoices, converted to base currency.
             pool.query(`
-                SELECT TO_CHAR(DATE_TRUNC('month', i.created_at), 'YYYY-MM') AS month,
+                SELECT TO_CHAR(DATE_TRUNC('month', COALESCE(i.paid_at, i.created_at)), 'YYYY-MM') AS month,
                        COALESCE(SUM(i.amount * COALESCE(r.rate, 0)), 0) AS total,
                        COUNT(*) AS count
                 FROM invoices i
                 LEFT JOIN fx_rates r
                   ON r.base_currency = $1 AND r.target_currency = i.currency
                 WHERE i.status = 'PAID' ${invoiceFilter ? `AND ${invoiceFilter}` : ''}
-                GROUP BY DATE_TRUNC('month', i.created_at)
+                GROUP BY DATE_TRUNC('month', COALESCE(i.paid_at, i.created_at))
                 ORDER BY month ASC
             `, [BASE_CURRENCY, ...invoiceParams]),
 
@@ -578,7 +578,7 @@ export async function getCommandCenter(req, res) {
                            JOIN fx_rates r
                              ON r.base_currency = $1 AND r.target_currency = i.currency
                           WHERE i.status = 'PAID'
-                            AND DATE_TRUNC('month', i.created_at) = DATE_TRUNC('month', CURRENT_DATE)
+                            AND DATE_TRUNC('month', COALESCE(i.paid_at, i.created_at)) = DATE_TRUNC('month', CURRENT_DATE)
                        ) rev
                     ) AS revenue_this_month,
                     (SELECT COUNT(*)::int FROM client_projects

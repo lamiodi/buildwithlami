@@ -79,12 +79,25 @@ export async function sendOtpEmail(toEmail, otp) {
         footerNote: 'Never share this code with anyone.',
     });
 
-    await transporter.sendMail({
+    let timer;
+    try {
+        await Promise.race([transporter.sendMail({
         from,
         to: toEmail,
         subject: `${otp} — Your BuildWith_Lami sign-in code`,
         html,
-    });
+        }), new Promise((_, reject) => {
+            timer = setTimeout(() => {
+                transporter.close();
+                const error = new Error('The sign-in email service did not respond in time. Please retry.');
+                error.code = 'OTP_DELIVERY_TIMEOUT';
+                reject(error);
+            }, 8000);
+        })]);
+    } finally {
+        clearTimeout(timer);
+        transporter.close();
+    }
 }
 
 // ── Core service ──────────────────────────────────────────────

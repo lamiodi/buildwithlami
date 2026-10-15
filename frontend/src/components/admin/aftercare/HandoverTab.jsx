@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { api } from '../../../services/api';
 import { notify } from '../../../services/notify';
-import { Badge, fmtDate, cardClass } from './shared.jsx';
+import { Badge, fmtDate, cardClass } from './shared.js';
 
 // ─── HandoverTab (§51–§53) ────────────────────────────────
 // Project-level offboarding: the handover checklist (required
@@ -72,11 +72,6 @@ const HandoverTab = ({ projectId, onProjectChanged }) => {
     }
   };
 
-  const startHandover = async () => {
-    const res = await api.post(`/aftercare/projects/${projectId}/handover/start`, {});
-    if (res.ok) { notify.success('Handover started'); fetchState(); }
-    else notify.error(res.error || 'Failed to start handover.');
-  };
 
   const buildPack = () => {
     if (!state) return '';
@@ -124,7 +119,7 @@ const HandoverTab = ({ projectId, onProjectChanged }) => {
         </Badge>
         <Badge tone={p.status === 'LAUNCHED' ? 'purple' : p.status === 'ARCHIVED' ? 'gray' : 'blue'}>Project: {p.status}</Badge>
         {p.offboarding_started_at && (
-          <span className="text-[11px] text-gray-400 font-body">Started {fmtDate(p.offboarding_started_at)}</span>
+          <span className="text-xs text-gray-400 font-body">Started {fmtDate(p.offboarding_started_at)}</span>
         )}
         {canLaunch && (
           <button onClick={launch} disabled={busy}
@@ -142,7 +137,7 @@ const HandoverTab = ({ projectId, onProjectChanged }) => {
         </div>
         <div className={`${cardClass} divide-y divide-gray-100 dark:divide-gray-800 border-gray-100 dark:border-gray-800/60`}>
           {state.checklist.map((item) => (
-            <button key={item.key} onClick={() => toggleItem(item)}
+            <button key={item.key} onClick={() => toggleItem(item)} disabled={busy || p.offboarding_status === 'COMPLETED'} aria-pressed={item.done}
               className="w-full flex items-start gap-3 p-4 text-left hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors">
               <span className={`mt-0.5 h-5 w-5 shrink-0 rounded-md border-2 flex items-center justify-center transition-colors ${
                 item.done ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-gray-300 dark:border-gray-600'
@@ -168,7 +163,7 @@ const HandoverTab = ({ projectId, onProjectChanged }) => {
         {missing.length > 0 ? (
           <p className="text-sm text-amber-600 dark:text-amber-400 font-body">
             Blocked — {missing.length} required item{missing.length === 1 ? '' : 's'} outstanding:
-            <span className="block mt-1 text-[11px] text-gray-500 font-body">{missing.join(' · ')}</span>
+            <span className="block mt-1 text-xs text-gray-500 font-body">{missing.join(' · ')}</span>
           </p>
         ) : (
           <div className="flex flex-col md:flex-row md:items-center gap-3">
@@ -177,12 +172,12 @@ const HandoverTab = ({ projectId, onProjectChanged }) => {
               <option value="MAINTENANCE">Move to MAINTENANCE (care plan)</option>
               <option value="ARCHIVED">Move to ARCHIVED (fully wrapped)</option>
             </select>
-            <button onClick={complete} disabled={busy}
+            <button onClick={complete} disabled={busy || p.offboarding_status === 'COMPLETED'}
               className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-5 rounded-xl transition-all text-sm font-body disabled:opacity-50">
               Complete Handover
             </button>
             {p.offboarding_status === 'COMPLETED' && (
-              <span className="text-xs text-gray-400 font-body">Already completed {fmtDate(p.offboarding_completed_at)} — status can still be adjusted.</span>
+              <span className="text-xs text-gray-500 font-body">Completed {fmtDate(p.offboarding_completed_at)}. Reopen the project for new work.</span>
             )}
           </div>
         )}
@@ -200,7 +195,7 @@ const HandoverTab = ({ projectId, onProjectChanged }) => {
           </button>
         </div>
         {showPack && (
-          <pre className="mt-3 text-[11px] leading-relaxed bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-700 rounded-xl p-4 overflow-x-auto text-gray-700 dark:text-gray-300 font-mono whitespace-pre-wrap">{buildPack()}</pre>
+          <pre className="mt-3 text-xs leading-relaxed bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-700 rounded-xl p-4 overflow-x-auto text-gray-700 dark:text-gray-300 font-mono whitespace-pre-wrap">{buildPack()}</pre>
         )}
       </div>
     </div>

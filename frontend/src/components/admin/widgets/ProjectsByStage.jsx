@@ -2,7 +2,7 @@
 // Project counts grouped by status (pie-style or bar list).
 // ──────────────────────────────────────────────────────────
 
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 
 const STAGE_COLORS = {
     ONBOARDING: 'bg-amber-500',

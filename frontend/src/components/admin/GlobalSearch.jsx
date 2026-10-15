@@ -20,15 +20,15 @@ const Icon = {
 };
 
 const CATEGORIES = [
-    { key: 'leads',      label: 'Leads',      icon: Icon.Lead,      path: (item) => `/admin/crm` },
-    { key: 'prospects',  label: 'Prospects',  icon: Icon.Send,      path: (item) => `/admin/outreach` },
+    { key: 'leads',      label: 'Leads',      icon: Icon.Lead,      path: () => `/admin/crm` },
+    { key: 'prospects',  label: 'Prospects',  icon: Icon.Send,      path: () => `/admin/outreach` },
     { key: 'clients',    label: 'Clients',    icon: Icon.Client,    path: (item) => `/admin/clients/${item.id}` },
     { key: 'projects',   label: 'Projects',   icon: Icon.Project,   path: (item) => `/admin/projects/${item.id}` },
-    { key: 'quotations', label: 'Quotations', icon: Icon.Quotation, path: (item) => `/admin/quotations` },
-    { key: 'invoices',   label: 'Invoices',   icon: Icon.Invoice,   path: (item) => `/admin/invoices` },
-    { key: 'contracts',  label: 'Contracts',  icon: Icon.Contract,  path: (item) => `/admin/contracts` },
+    { key: 'quotations', label: 'Quotations', icon: Icon.Quotation, path: () => `/admin/quotations` },
+    { key: 'invoices',   label: 'Invoices',   icon: Icon.Invoice,   path: () => `/admin/invoices` },
+    { key: 'contracts',  label: 'Contracts',  icon: Icon.Contract,  path: () => `/admin/contracts` },
     { key: 'bookings',   label: 'Bookings',   icon: Icon.Booking,   path: (item) => item.division === 'DRONE' ? `/admin/drone/bookings` : `/admin/survey/bookings` },
-    { key: 'expenses',   label: 'Expenses',   icon: Icon.Expense,   path: (item) => `/admin/expenses` },
+    { key: 'expenses',   label: 'Expenses',   icon: Icon.Expense,   path: () => `/admin/expenses` },
     { key: 'messages',   label: 'Messages',   icon: Icon.Mail,      path: (item) => `/admin/inbox?message=${item.id}` },
 ];
 
@@ -207,8 +207,8 @@ const GlobalSearch = () => {
                 <Icon.Search className="w-4 h-4" />
                 <span className="hidden md:inline">Search…</span>
                 <span className="hidden md:flex items-center gap-1 ml-2">
-                    <kbd className="px-1.5 py-0.5 text-[10px] font-bold bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded">⌘</kbd>
-                    <kbd className="px-1.5 py-0.5 text-[10px] font-bold bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded">K</kbd>
+                    <kbd className="px-1.5 py-0.5 text-xs font-bold bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded">⌘</kbd>
+                    <kbd className="px-1.5 py-0.5 text-xs font-bold bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded">K</kbd>
                 </span>
             </button>
 
@@ -245,7 +245,7 @@ const GlobalSearch = () => {
                                     className="flex-1 bg-transparent outline-none text-sm text-gray-900 dark:text-white placeholder-gray-400"
                                 />
                                 {loading && <span className="text-xs text-gray-500">…</span>}
-                                <kbd className="px-1.5 py-0.5 text-[10px] font-bold bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 rounded">ESC</kbd>
+                                <kbd className="px-1.5 py-0.5 text-xs font-bold bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 rounded">ESC</kbd>
                             </div>
 
                             <div className="max-h-[60vh] overflow-y-auto">
@@ -261,7 +261,7 @@ const GlobalSearch = () => {
                                         if (items.length === 0) return null;
                                         return (
                                             <div key={cat.key} className="py-2">
-                                                <h4 className="px-4 py-1 text-[10px] font-extrabold uppercase tracking-widest text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
+                                                <h4 className="px-4 py-1 text-xs font-extrabold uppercase tracking-widest text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
                                                     <cat.icon className="w-3 h-3" />
                                                     {cat.label}
                                                 </h4>
@@ -285,10 +285,10 @@ const GlobalSearch = () => {
                                                                     {row?.primary || 'Item'}
                                                                 </span>
                                                                 {row?.secondary && (
-                                                                    <span className="text-[11px] text-gray-500 dark:text-gray-400 truncate block">{row.secondary}</span>
+                                                                    <span className="text-xs text-gray-500 dark:text-gray-400 truncate block">{row.secondary}</span>
                                                                 )}
                                                             </span>
-                                                            <span className="text-[10px] text-gray-400">↵</span>
+                                                            <span className="text-xs text-gray-400">↵</span>
                                                         </button>
                                                     );
                                                 })}

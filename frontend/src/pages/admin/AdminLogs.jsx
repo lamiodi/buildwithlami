@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { api } from '../../services/api';
 import { notify } from '../../services/notify';
@@ -97,7 +97,7 @@ const AdminLogs = () => {
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
-                                    {activities.map((a, i) => (
+                                    {activities.map((a) => (
                                         <tr key={a.id} className="hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors">
                                             <td className="py-3 px-6 text-sm text-gray-600 dark:text-gray-400 font-mono">{formatTime(a.created_at)}</td>
                                             <td className="py-3 px-6">

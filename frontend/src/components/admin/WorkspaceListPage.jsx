@@ -11,7 +11,7 @@
 // without per-page duplication.
 // ──────────────────────────────────────────────────────────
 
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { api } from '../../services/api';
 
@@ -63,11 +63,12 @@ const WorkspaceListPage = ({
     // is allowed to touch state.
     const fetchSeqRef = useRef(0);
 
-    const fetch = async () => {
+    const extraParamsKey = JSON.stringify(extraParams);
+    const fetch = useCallback(async () => {
         const seq = ++fetchSeqRef.current;
         setLoading(true);
         setError(null);
-        const res = await api.get(endpoint, { params: { ...extraParams, page, limit: pagination.limit } });
+        const res = await api.get(endpoint, { params: { ...JSON.parse(extraParamsKey), page, limit: pagination.limit } });
         if (seq !== fetchSeqRef.current) return;
         if (res.ok) {
             // Handle both old format (array) and new format (object with data + pagination)
@@ -84,9 +85,9 @@ const WorkspaceListPage = ({
             setItems([]);
         }
         setLoading(false);
-    };
+    }, [endpoint, extraParamsKey, page, pagination.limit]);
 
-    useEffect(() => { fetch(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [endpoint, JSON.stringify(extraParams), page]);
+    useEffect(() => { fetch(); }, [fetch]);
 
     // Reset to page 1 when search changes
     useEffect(() => {
@@ -122,7 +123,7 @@ const WorkspaceListPage = ({
                         <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 font-body">
                             {subtitle}
                             {division && (
-                                <span className={`ml-2 inline-block text-[9px] font-extrabold uppercase tracking-widest px-2 py-0.5 rounded ${DIVISION_BADGES[division] || ''}`}>
+                                <span className={`ml-2 inline-block text-xs font-extrabold uppercase tracking-widest px-2 py-0.5 rounded ${DIVISION_BADGES[division] || ''}`}>
                                     {division}
                                 </span>
                             )}
@@ -162,7 +163,7 @@ const WorkspaceListPage = ({
                     <div className="overflow-x-auto">
                         <table className="w-full text-sm">
                             <thead>
-                                <tr className="text-left text-[10px] font-extrabold uppercase tracking-widest text-gray-500 bg-gray-50 dark:bg-gray-900/40">
+                                <tr className="text-left text-xs font-extrabold uppercase tracking-widest text-gray-500 bg-gray-50 dark:bg-gray-900/40">
                                     {columns.map((c) => (
                                         <th key={c.key} className="px-4 py-3 whitespace-nowrap">{c.label}</th>
                                     ))}
@@ -222,7 +223,7 @@ const WorkspaceListPage = ({
 export const StatusBadge = ({ value }) => {
     if (!value) return <span className="text-gray-400">—</span>;
     return (
-        <span className={`inline-block text-[9px] font-extrabold uppercase tracking-widest px-2 py-0.5 rounded ${STATUS_COLORS[value] || STATUS_COLORS.DRAFT}`}>
+        <span className={`inline-block text-xs font-extrabold uppercase tracking-widest px-2 py-0.5 rounded ${STATUS_COLORS[value] || STATUS_COLORS.DRAFT}`}>
             {value}
         </span>
     );

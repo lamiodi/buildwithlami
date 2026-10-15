@@ -25,19 +25,20 @@ const why = 'set TEST_BASE_URL, TEST_ADMIN_EMAIL, TEST_ADMIN_PASSWORD and TEST_D
 
 let adminToken = null;
 let pg = null;
+let scenarioIp = '10.8.0.1';
 
 const uniq = (p) => `${p}-${Date.now().toString(36)}-${Math.floor(Math.random() * 1e6).toString(36)}`;
 // Rate limiters key on source IP; repeated suite runs from one fixed IP
 // would exhaust the 100/15-min API bucket and 10/hour contact bucket and
 // fail spuriously. Each RUN gets its own subnet.
 const RUN_OCTET = 8 + Math.floor(Math.random() * 240);
-const api = async (method, path, { body, token, ip = `10.8.0.1` } = {}) => {
+const api = async (method, path, { body, token, ip = scenarioIp } = {}) => {
     const wireIp = ip.startsWith('10.8.') ? ip.replace('10.8.', `10.${RUN_OCTET}.`) : ip;
     const headers = { 'X-Forwarded-For': wireIp };
     if (body !== undefined) headers['Content-Type'] = 'application/json';
     if (token) headers['Authorization'] = `Bearer ${token}`;
     const res = await fetch(`${BASE}${path}`, { method, headers, body: body !== undefined ? JSON.stringify(body) : undefined });
-    let json = null;
+    let json;
     try { json = await res.json(); } catch { json = null; }
     return { status: res.status, body: json };
 };
@@ -96,7 +97,7 @@ test('A2 quotation: create → send → bad transitions rejected → accepted', 
     assert.ok(A.clientId, 'acceptance must link/create the client');
 });
 
-test('A3 acceptance automation: project + deposit invoice exist, onboarding seeded', { skip: skipped && why }, async () => {
+test('A3 acceptance automation: project and deposit invoice exist before payment', { skip: skipped && why }, async () => {
     const invs = await api('GET', `/api/invoices?client_id=${A.clientId}`, { token: adminToken });
     assert.equal(invs.status, 200);
     const deposit = (invs.body.invoices || invs.body).find(i => i.quotation_id === A.quoteId);
@@ -113,10 +114,6 @@ test('A3 acceptance automation: project + deposit invoice exist, onboarding seed
         token: adminToken, body: { amount_due: 500000 },
     });
     assert.ok([200, 201].includes(patch.status), `set project value ${patch.status}: ${JSON.stringify(patch.body).slice(0, 120)}`);
-    const obs = await api('GET', `/api/onboarding?client_id=${A.clientId}`, { token: adminToken });
-    const ob = obs.body.onboardings || obs.body;
-    assert.ok(Array.isArray(ob) && ob.length >= 1, 'onboarding row seeded by deposit-paid chain');
-    A.onboardingId = ob[0].id;
 });
 
 test('A4 deposit paid via SIGNED Paystack webhook → receipt + PARTIAL', { skip: skipped && why }, async () => {
@@ -135,6 +132,11 @@ test('A4 deposit paid via SIGNED Paystack webhook → receipt + PARTIAL', { skip
     assert.equal(now.status, 'PAID', 'webhook flipped invoice to PAID');
     const proj = await api('GET', `/api/client-projects/${A.projectId}`, { token: adminToken });
     assert.equal((proj.body.project || proj.body).payment_status, 'PARTIAL', 'half paid → PARTIAL');
+    const obs = await api('GET', `/api/onboarding?client_id=${A.clientId}`, { token: adminToken });
+    const ob = obs.body.onboardings || obs.body;
+    assert.ok(Array.isArray(ob) && ob.length >= 1, 'onboarding is created after the deposit is paid');
+    assert.ok(ob.every((row) => row.client_id === A.clientId), 'every onboarding belongs to the requested client');
+    A.onboardingId = ob[0].id;
     // receipt idempotent + numbered
     const r = await pg.query('SELECT receipt_number, amount, remaining_balance FROM receipts WHERE invoice_id = $1', [A.depositInvoice.id]);
     assert.equal(r.rowCount, 1, 'exactly one receipt');
@@ -210,6 +212,7 @@ test('A7 delivery: approve, then changes-requested consumes a revision round', {
     const c2 = await api('POST', `/api/delivery/projects/${A.projectId}/approvals`, {
         token: adminToken, body: { title: 'Pricing page v1', item_type: 'DESIGN' },
     });
+    assert.equal(c2.status, 201, 'second approval created');
     const mine2 = await api('GET', '/api/client-portal/approvals', { token: A.portal, ip: '10.8.1.2' });
     const item2 = (mine2.body.approvals || mine2.body).find(a => a.title === 'Pricing page v1');
     const dec2 = await api('PATCH', `/api/client-portal/approvals/${item2.id}/decide`, {
@@ -356,9 +359,10 @@ test('A12 handover + launch: checklist gate, complete → maintenance', { skip: 
 });
 
 test('A13 offboarding access: archived/closed project keeps invoices, contracts, documents, receipts visible', { skip: skipped && why }, async () => {
-    await api('PATCH', `/api/client-projects/${A.projectId}`, {
-        token: adminToken, body: { status: 'ARCHIVED' },
+    const archived = await api('POST', `/api/client-projects/${A.projectId}/archive`, {
+        token: adminToken, body: { reason: 'Completed project retained for the archive access test' },
     });
+    assert.equal(archived.status, 200);
     const inv = await api('GET', '/api/client-portal/invoices', { token: A.portal, ip: '10.8.1.2' });
     assert.equal(inv.status, 200);
     assert.ok((inv.body || []).length >= 2, 'invoices still visible after archive');
@@ -368,14 +372,15 @@ test('A13 offboarding access: archived/closed project keeps invoices, contracts,
     const docs = await api('GET', '/api/client-portal/documents', { token: A.portal, ip: '10.8.1.2' });
     assert.equal(docs.status, 200, 'documents still served after archive');
     // reopen path (admin manual)
-    const reopen = await api('PATCH', `/api/client-projects/${A.projectId}`, {
-        token: adminToken, body: { status: 'IN_PROGRESS' },
+    const reopen = await api('POST', `/api/client-projects/${A.projectId}/reopen`, {
+        token: adminToken, body: { reason: 'A new phase of work has been agreed' },
     });
     assert.ok([200, 201].includes(reopen.status), 'admin can reopen an archived project');
 });
 
 // ═════════ SCENARIO B — failed initial payment, then retry ═════════
 async function makeClientWithProject(name) {
+    scenarioIp = `10.8.20.${1 + Math.floor(Math.random() * 200)}`;
     const email = `${uniq(name.toLowerCase())}@journey.test`;
     const c = await api('POST', '/api/clients', { token: adminToken, body: { name, primary_contact_email: email, division: 'SOFTWARE' } });
     ok201(c.status);
@@ -523,6 +528,7 @@ test('H1 client A cannot reach client B resources anywhere', { skip: skipped && 
         token: adminToken,
         body: { clientId: E2.clientId, projectId: E2.projectId, contractType: 'SOFTWARE', signatoryName: 'E2', signatoryEmail: E2.email, amount: 1000, currency: 'NGN' },
     });
+    assert.equal(c2.status, 201, 'foreign client contract created');
     const E2login = await api('POST', '/api/client-auth/login', { body: { email: E2.email, password: 'whatever-no-hash' }, ip: '10.8.4.2' });
     assert.equal(E2login.status, 401, 'client without password cannot log in');
     // approve decision on a foreign approval

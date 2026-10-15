@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -16,10 +16,11 @@ import {
 } from 'lucide-react';
 import { api } from '../../services/api';
 import { notify } from '../../services/notify';
+import { withoutEditorKey } from '../../utils/editorRows';
 import Skeleton from '../../components/Skeleton';
 
 const inputClass = "w-full p-3 text-sm border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-colors font-body";
-const labelClass = "block text-[10px] font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-1.5";
+const labelClass = "block text-xs font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-1.5";
 
 // Currency-aware symbol. Quotations default to naira; older rows and a
 // backend that doesn't persist the column both degrade to ₦.
@@ -356,7 +357,7 @@ export default function AdminQuotations() {
                 lead_id: form.recipientType === 'lead' ? (form.lead_id || undefined) : undefined,
                 line_items: form.line_items
                     .filter(i => i.description.trim() !== '')
-                    .map(({ _key, ...i }) => i),
+                    .map(withoutEditorKey),
                 notes: form.notes,
                 valid_until: form.valid_until || undefined
             };
@@ -496,7 +497,7 @@ export default function AdminQuotations() {
             <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
                 <div>
                     <div className="flex items-center gap-2 mb-1">
-                        <span className="text-[10px] font-bold uppercase tracking-widest text-accent bg-accent/10 px-2.5 py-0.5 rounded-full">
+                        <span className="text-xs font-bold uppercase tracking-widest text-accent bg-accent/10 px-2.5 py-0.5 rounded-full">
                             Commercial Quotation Engine
                         </span>
                     </div>
@@ -571,7 +572,7 @@ export default function AdminQuotations() {
                     <div className="overflow-x-auto">
                         <table className="w-full text-left border-collapse">
                             <thead>
-                                <tr className="border-b border-gray-200 dark:border-gray-700 bg-gray-50/70 dark:bg-gray-900/50 text-[10px] font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest">
+                                <tr className="border-b border-gray-200 dark:border-gray-700 bg-gray-50/70 dark:bg-gray-900/50 text-xs font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest">
                                     <th className="p-4">Quotation Title</th>
                                     <th className="p-4">Prospect / Client</th>
                                     <th className="p-4">Total Amount</th>
@@ -593,15 +594,15 @@ export default function AdminQuotations() {
                                                 <div className="font-bold text-gray-900 dark:text-white text-sm">
                                                     {q.title}
                                                     {(q.version || 1) > 1 && (
-                                                        <span className="ml-2 text-[9px] font-extrabold uppercase tracking-widest bg-blue-100 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 px-1.5 py-0.5 rounded">
+                                                        <span className="ml-2 text-xs font-extrabold uppercase tracking-widest bg-blue-100 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 px-1.5 py-0.5 rounded">
                                                             V{q.version}
                                                         </span>
                                                     )}
                                                     {groupVersions.length > 1 && (
-                                                        <span className="ml-1.5 text-[10px] text-gray-400">({groupVersions.length} versions)</span>
+                                                        <span className="ml-1.5 text-xs text-gray-400">({groupVersions.length} versions)</span>
                                                     )}
                                                 </div>
-                                                <span className="text-[11px] text-gray-400 font-mono">ID: {q.id.slice(0, 8)}</span>
+                                                <span className="text-xs text-gray-400 font-mono">ID: {q.id.slice(0, 8)}</span>
                                             </td>
                                             <td className="p-4 text-sm text-gray-700 dark:text-gray-300">
                                                 {q.client_name ? (
@@ -627,17 +628,17 @@ export default function AdminQuotations() {
                                                         <span className={`font-bold block ${q.deposit_invoice_status === 'PAID' ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'}`}>
                                                             {q.deposit_invoice_number} · {q.deposit_invoice_status}
                                                         </span>
-                                                        <span className="text-gray-400 text-[10px]">{currencySymbol(q.currency)}{Number(q.deposit_invoice_amount || 0).toLocaleString()} deposit</span>
+                                                        <span className="text-gray-400 text-xs">{currencySymbol(q.currency)}{Number(q.deposit_invoice_amount || 0).toLocaleString()} deposit</span>
                                                     </>
                                                 ) : (
                                                     <>
                                                         <span className="text-emerald-600 dark:text-emerald-400 font-bold block">50%: {currencySymbol(q.currency)}{deposit.toLocaleString()}</span>
-                                                        <span className="text-gray-400 text-[10px]">upon delivery</span>
+                                                        <span className="text-gray-400 text-xs">upon delivery</span>
                                                     </>
                                                 )}
                                             </td>
                                             <td className="p-4">
-                                                <span className={`px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider ${
+                                                <span className={`px-2.5 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider ${
                                                     q.status === 'ACCEPTED' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300' :
                                                     q.status === 'CONVERTED' ? 'bg-purple-100 text-purple-700 dark:bg-purple-950/50 dark:text-purple-300' :
                                                     q.status === 'REJECTED' ? 'bg-rose-100 text-rose-700 dark:bg-rose-950/50 dark:text-rose-300' :
@@ -720,10 +721,10 @@ export default function AdminQuotations() {
                             {/* ── QUICK STUDIO PRESET SELECTOR ── */}
                             <div className="p-4 rounded-2xl bg-blue-50/50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800/60 space-y-3">
                                 <div className="flex items-center justify-between">
-                                    <span className="text-[10px] font-extrabold uppercase tracking-widest text-blue-700 dark:text-blue-300 flex items-center gap-1.5">
+                                    <span className="text-xs font-extrabold uppercase tracking-widest text-blue-700 dark:text-blue-300 flex items-center gap-1.5">
                                         <Sparkles className="w-3.5 h-3.5" /> 1-Click Studio Package Presets
                                     </span>
-                                    <span className="text-[10px] text-gray-500">Auto-populates phased deliverables & rates</span>
+                                    <span className="text-xs text-gray-500">Auto-populates phased deliverables & rates</span>
                                 </div>
 
                                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2">
@@ -734,7 +735,7 @@ export default function AdminQuotations() {
                                             onClick={() => applyStudioPreset(preset.id)}
                                             className="p-2 rounded-xl text-left border border-blue-200 dark:border-blue-800/80 bg-white dark:bg-gray-800 hover:border-accent text-gray-800 dark:text-gray-200 text-xs font-semibold transition-all flex flex-col justify-between"
                                         >
-                                            <span className="text-[9px] uppercase font-bold text-accent">{preset.category}</span>
+                                            <span className="text-xs uppercase font-bold text-accent">{preset.category}</span>
                                             <span className="truncate">{preset.label}</span>
                                         </button>
                                     ))}
@@ -743,8 +744,8 @@ export default function AdminQuotations() {
                                 {/* ── AI-ASSISTED DRAFT (Phase 6) ── */}
                                 <div className="pt-3 border-t border-blue-200/70 dark:border-blue-800/50 space-y-2">
                                     <div className="flex items-center justify-between">
-                                        <span className="text-[10px] font-extrabold uppercase tracking-widest text-blue-700 dark:text-blue-300">Draft from lead</span>
-                                        <span className="text-[10px] text-gray-500">Proposes a package — you review before saving</span>
+                                        <span className="text-xs font-extrabold uppercase tracking-widest text-blue-700 dark:text-blue-300">Draft from lead</span>
+                                        <span className="text-xs text-gray-500">Proposes a package — you review before saving</span>
                                     </div>
                                     <div className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_140px_auto] gap-2">
                                         <select
@@ -865,7 +866,7 @@ export default function AdminQuotations() {
 
                                 {/* ── MODULAR ADD-ONS QUICK CLICK PILLS ── */}
                                 <div className="p-3.5 bg-gray-50 dark:bg-gray-800/40 rounded-2xl border border-gray-200 dark:border-gray-700">
-                                    <span className="text-[10px] font-extrabold uppercase tracking-widest text-gray-500 dark:text-gray-400 block mb-2">
+                                    <span className="text-xs font-extrabold uppercase tracking-widest text-gray-500 dark:text-gray-400 block mb-2">
                                         + Quick Add Scope Items & Add-ons:
                                     </span>
                                     <div className="flex flex-wrap gap-1.5">
@@ -874,7 +875,7 @@ export default function AdminQuotations() {
                                                 key={idx}
                                                 type="button"
                                                 onClick={() => appendAddon(add)}
-                                                className="px-2.5 py-1 text-[11px] font-semibold rounded-lg bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 hover:border-accent text-gray-700 dark:text-gray-300 transition-colors"
+                                                className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 hover:border-accent text-gray-700 dark:text-gray-300 transition-colors"
                                             >
                                                 {add.label}
                                             </button>
@@ -934,13 +935,13 @@ export default function AdminQuotations() {
                                         
                                         <div className="grid grid-cols-2 gap-3 text-xs pt-1">
                                             <div className="p-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/50">
-                                                <span className="text-[10px] uppercase font-bold text-emerald-700 dark:text-emerald-300 block">1. 50% Kickoff Deposit</span>
+                                                <span className="text-xs uppercase font-bold text-emerald-700 dark:text-emerald-300 block">1. 50% Kickoff Deposit</span>
                                                 <span className="font-mono font-extrabold text-emerald-800 dark:text-emerald-200 text-sm">
                                                     {form.currency === 'USD' ? '$' : '₦'}{upfrontDeposit50.toLocaleString()}
                                                 </span>
                                             </div>
                                             <div className="p-2 rounded-xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800/50">
-                                                <span className="text-[10px] uppercase font-bold text-blue-700 dark:text-blue-300 block">2. 50% Final Delivery</span>
+                                                <span className="text-xs uppercase font-bold text-blue-700 dark:text-blue-300 block">2. 50% Final Delivery</span>
                                                 <span className="font-mono font-extrabold text-blue-800 dark:text-blue-200 text-sm">
                                                     {form.currency === 'USD' ? '$' : '₦'}{deliveryBalance50.toLocaleString()}
                                                 </span>
@@ -955,7 +956,7 @@ export default function AdminQuotations() {
                                         <button
                                             type="button"
                                             onClick={apply5050TermsToNotes}
-                                            className="text-[10px] font-bold text-accent hover:underline flex items-center gap-1"
+                                            className="text-xs font-bold text-accent hover:underline flex items-center gap-1"
                                         >
                                             <Calculator className="w-3 h-3" /> Auto-Format 50/50 Milestone Terms
                                         </button>
@@ -1053,13 +1054,13 @@ export default function AdminQuotations() {
 
                                 <div className="grid grid-cols-2 gap-4 text-xs">
                                     <div>
-                                        <div className="text-gray-400 font-bold uppercase tracking-widest text-[10px]">Prepared For:</div>
+                                        <div className="text-gray-400 font-bold uppercase tracking-widest text-xs">Prepared For:</div>
                                         <div className="font-bold text-sm text-gray-900 dark:text-white mt-1">
                                             {previewQuotation.client_name || previewQuotation.lead_name || 'Valued Client'}
                                         </div>
                                     </div>
                                     <div className="text-right">
-                                        <div className="text-gray-400 font-bold uppercase tracking-widest text-[10px]">Project Scope:</div>
+                                        <div className="text-gray-400 font-bold uppercase tracking-widest text-xs">Project Scope:</div>
                                         <div className="font-bold text-sm text-gray-900 dark:text-white mt-1">
                                             {previewQuotation.title}
                                         </div>
@@ -1110,18 +1111,18 @@ export default function AdminQuotations() {
 
                                 {/* Structured Milestone Terms Box */}
                                 <div className="bg-blue-50/50 dark:bg-blue-950/30 p-4 rounded-xl border border-blue-200 dark:border-blue-800/60 text-xs">
-                                    <div className="font-bold text-blue-900 dark:text-blue-200 uppercase tracking-wider text-[10px] mb-2">
+                                    <div className="font-bold text-blue-900 dark:text-blue-200 uppercase tracking-wider text-xs mb-2">
                                         Milestone Payment Schedule (50/50 Split):
                                     </div>
                                     <div className="grid grid-cols-2 gap-4">
                                         <div>
-                                            <span className="text-gray-500 block text-[11px]">1. 50% Kickoff Deposit:</span>
+                                            <span className="text-gray-500 block text-xs">1. 50% Kickoff Deposit:</span>
                                             <span className="font-mono font-extrabold text-emerald-600 dark:text-emerald-400 text-sm">
                                                 {currencySymbol(previewQuotation.currency)}{Math.round(Number(previewQuotation.amount || 0) * 0.5).toLocaleString()}
                                             </span>
                                         </div>
                                         <div>
-                                            <span className="text-gray-500 block text-[11px]">2. 50% Final Delivery:</span>
+                                            <span className="text-gray-500 block text-xs">2. 50% Final Delivery:</span>
                                             <span className="font-mono font-extrabold text-blue-600 dark:text-blue-400 text-sm">
                                                 {currencySymbol(previewQuotation.currency)}{(Number(previewQuotation.amount || 0) - Math.round(Number(previewQuotation.amount || 0) * 0.5)).toLocaleString()}
                                             </span>
@@ -1131,7 +1132,7 @@ export default function AdminQuotations() {
 
                                 {previewQuotation.notes && (
                                     <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-xl text-xs text-gray-600 dark:text-gray-400 space-y-1">
-                                        <div className="font-bold text-gray-900 dark:text-white uppercase tracking-wider text-[10px]">Terms & Conditions:</div>
+                                        <div className="font-bold text-gray-900 dark:text-white uppercase tracking-wider text-xs">Terms & Conditions:</div>
                                         <p>{previewQuotation.notes}</p>
                                     </div>
                                 )}

@@ -53,12 +53,13 @@ export async function login(req, res) {
             return res.status(500).json({ error: 'Server misconfiguration. Contact admin.' });
         }
 
-        const { rows } = await pool.query(
-            `SELECT id, email, password, role, two_factor_enabled,
+        const { rows } = await pool.query({
+            text: `SELECT id, email, password, role, two_factor_enabled,
                     failed_login_count, first_failed_at, locked_until
                FROM users WHERE email = $1`,
-            [email.toLowerCase().trim()],
-        );
+            values: [email.toLowerCase().trim()],
+            query_timeout: 5000,
+        });
 
         if (rows.length === 0) {
             // Constant-time-ish: still call bcrypt against a dummy hash
@@ -136,7 +137,12 @@ export async function login(req, res) {
                 process.env.JWT_SECRET,
                 { expiresIn: '5m' }
             );
-            await generateAndSendOtp(user.id, user.email);
+            try {
+                await generateAndSendOtp(user.id, user.email);
+            } catch (err) {
+                console.error('[Auth] OTP delivery failed:', err.code || err.message);
+                return res.status(503).json({ error: 'Your sign-in code could not be delivered. Please retry in a moment.' });
+            }
             return res.json({
                 requires2fa: true,
                 challengeToken,
@@ -159,7 +165,7 @@ export async function login(req, res) {
             return res.status(400).json({ error: err.errors });
         }
         console.error('[Auth] Login error:', err.message, err.stack);
-        return res.status(500).json({ error: 'Internal server error.', detail: err.message });
+        return res.status(503).json({ error: 'Sign-in is temporarily unavailable. Please retry in a moment.' });
     }
 }
 
@@ -377,4 +383,3 @@ export async function resetPassword(req, res) {
         return res.status(500).json({ error: 'Internal server error.' });
     }
 }
-

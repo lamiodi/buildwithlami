@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { api } from '../../services/api';
 import { notify } from '../../services/notify';
 
@@ -8,21 +8,22 @@ import { notify } from '../../services/notify';
 const AdminPaymentQueue = () => {
     const [proofs, setProofs] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [loadError, setLoadError] = useState('');
     const [statusFilter, setStatusFilter] = useState('PENDING');
     const [reviewing, setReviewing] = useState(null);
     const [adminNotes, setAdminNotes] = useState('');
     const [submitting, setSubmitting] = useState(false);
 
-    const fetchProofs = async () => {
+    const fetchProofs = useCallback(async () => {
         setLoading(true);
         const qs = statusFilter === 'all' ? '' : `?status=${statusFilter}`;
         const res = await api.get(`/payments/proofs${qs}`);
-        if (res.ok) setProofs(res.data || []);
-        else notify.error(res.error || 'Failed to load payment proofs.');
+        if (res.ok) { setProofs(res.data || []); setLoadError(''); }
+        else setLoadError(res.error || 'Failed to load payment proofs.');
         setLoading(false);
-    };
+    }, [statusFilter]);
 
-    useEffect(() => { fetchProofs(); }, [statusFilter]);
+    useEffect(() => { fetchProofs(); }, [fetchProofs]);
 
     const stats = useMemo(() => {
         const pending = proofs.filter(p => p.status === 'PENDING').length;
@@ -55,11 +56,12 @@ const AdminPaymentQueue = () => {
             CONFIRMED: 'bg-green-100 text-green-800 border-green-200',
             REJECTED:  'bg-red-100 text-red-800 border-red-200',
         };
-        return <span className={`px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-widest border ${colors[status]}`}>{status}</span>;
+        return <span className={`px-2.5 py-1 rounded-full text-xs font-extrabold uppercase tracking-widest border ${colors[status]}`}>{status}</span>;
     };
 
     return (
         <React.Fragment>
+            {loadError && <div role="alert" className="mb-4 p-4 rounded-xl bg-amber-50 dark:bg-amber-900/20 text-sm">{loadError} Previously loaded proofs may be out of date. <button type="button" onClick={fetchProofs} className="font-bold underline">Retry</button></div>}
             <div className="max-w-7xl mx-auto w-full">
                 <div className="mb-6">
                     <h1 className="text-3xl font-extrabold font-heading text-gray-900 dark:text-white">
@@ -106,7 +108,7 @@ const AdminPaymentQueue = () => {
                     ) : (
                         <div className="overflow-x-auto">
                         <table className="w-full text-left text-sm text-gray-600 dark:text-gray-300">
-                            <thead className="bg-gray-50 dark:bg-gray-900/50 text-gray-700 dark:text-gray-400 uppercase font-extrabold text-[10px] tracking-widest">
+                            <thead className="bg-gray-50 dark:bg-gray-900/50 text-gray-700 dark:text-gray-400 uppercase font-extrabold text-xs tracking-widest">
                                 <tr>
                                     <th className="px-6 py-4">Submitted</th>
                                     <th className="px-6 py-4">Client</th>
@@ -133,7 +135,7 @@ const AdminPaymentQueue = () => {
                                         <td className="px-6 py-4 font-bold text-gray-900 dark:text-white">
                                             {p.currency === 'NGN' ? '₦' : p.currency === 'USD' ? '$' : p.currency === 'GBP' ? '£' : ''}
                                             {Number(p.amount_paid).toLocaleString()}
-                                            <span className="text-[10px] text-gray-500 ml-1">{p.currency}</span>
+                                            <span className="text-xs text-gray-500 ml-1">{p.currency}</span>
                                         </td>
                                         <td className="px-6 py-4 font-mono text-xs text-gray-600 dark:text-gray-300">
                                             {p.transaction_reference}
@@ -187,7 +189,7 @@ const AdminPaymentQueue = () => {
 
                             {reviewing.proof_file_url && (
                                 <div>
-                                    <p className="text-[10px] font-extrabold uppercase tracking-widest text-gray-500 mb-2">Attached Proof</p>
+                                    <p className="text-xs font-extrabold uppercase tracking-widest text-gray-500 mb-2">Attached Proof</p>
                                     {reviewing.proof_file_url.startsWith('data:') ? (
                                         <a href={reviewing.proof_file_url} download={reviewing.proof_file_filename || 'proof'} className="inline-block bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-lg text-sm font-bold">
                                             📎 Download {reviewing.proof_file_filename || 'proof'}
@@ -201,7 +203,7 @@ const AdminPaymentQueue = () => {
                             )}
 
                             <div>
-                                <label className="block text-[10px] font-extrabold uppercase tracking-widest text-gray-500 mb-2">Admin notes (optional)</label>
+                                <label className="block text-xs font-extrabold uppercase tracking-widest text-gray-500 mb-2">Admin notes (optional)</label>
                                 <textarea
                                     rows={3}
                                     value={adminNotes}
@@ -250,7 +252,7 @@ const StatBox = ({ label, value, accent }) => {
     };
     return (
         <div className={`p-4 rounded-2xl border ${colors[accent]}`}>
-            <p className="text-[10px] font-extrabold uppercase tracking-widest opacity-70">{label}</p>
+            <p className="text-xs font-extrabold uppercase tracking-widest opacity-70">{label}</p>
             <p className="text-2xl font-extrabold mt-1">{value}</p>
         </div>
     );
@@ -258,7 +260,7 @@ const StatBox = ({ label, value, accent }) => {
 
 const DetailBlock = ({ label, value, mono }) => (
     <div>
-        <p className="text-[10px] font-extrabold uppercase tracking-widest text-gray-500 mb-1">{label}</p>
+        <p className="text-xs font-extrabold uppercase tracking-widest text-gray-500 mb-1">{label}</p>
         <p className={`text-sm text-gray-900 ${mono ? 'font-mono' : 'font-bold'}`}>{value || '—'}</p>
     </div>
 );
