@@ -21,7 +21,7 @@
 // — see ROLE_DIVISIONS — and `<AuthGuard>` provides the redirect.
 // ──────────────────────────────────────────────────────────
 
-import React, { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { api } from '../services/api.js';
 
 // ── Token persistence (see docs/AUTH_MODEL.md) ────────────
@@ -74,6 +74,7 @@ const AuthContext = createContext(null);
 export function AuthProvider({ children }) {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [sessionError, setSessionError] = useState('');
     // Token lives in localStorage (authoritative credential for the
     // Authorization header) and in the HttpOnly cookie (same-origin
     // convenience). Kept in state too so the hook can derive
@@ -85,15 +86,21 @@ export function AuthProvider({ children }) {
         let cancelled = false;
         const verify = async () => {
             try {
-                const res = await api.get('/auth/me', { timeout: 5000 });
+                // auth:'none' so a 401 (unauthenticated page load) does not fire
+                // the global bwl:api-unauthorized event — that event is only
+                // meaningful for authenticated requests that unexpectedly lose their token.
+                // Also raise timeout to 30s to handle Render.com free-tier cold starts.
+                const res = await api.get('/auth/me', { timeout: 30000 }, 'none');
                 if (cancelled) return;
                 if (res.ok && res.data && res.data.id) {
                     setUser(res.data);
+                    setSessionError('');
                 } else {
                     setUser(null);
+                    if (res.status === 0 || res.status >= 500) setSessionError('We could not verify your session. Your connection or the sign-in service may be unavailable.');
                 }
-            } catch (err) {
-                if (!cancelled) setUser(null);
+            } catch {
+                if (!cancelled) { setUser(null); setSessionError('We could not verify your session. Please retry.'); }
             } finally {
                 if (!cancelled) setLoading(false);
             }
@@ -104,9 +111,12 @@ export function AuthProvider({ children }) {
 
     // ── login: trade email+password (and optional 2FA code) for a token. ──
     const login = useCallback(async ({ email, password, twoFactorCode, challengeToken }) => {
+        setSessionError('');
         if (twoFactorCode && challengeToken) {
             // Second-step: exchange challenge token + TOTP for the real JWT.
-            const res = await api.post('/auth/login/2fa', { challengeToken, code: twoFactorCode });
+            // auth:'none' — this is still a public endpoint; the challenge token
+            // in the body is the credential, not a Bearer admin token.
+            const res = await api.post('/auth/login/2fa', { challengeToken, code: twoFactorCode }, {}, 'none');
             if (res.ok && res.data?.token) {
                 writeAdminToken(res.data.token);
                 setToken(res.data.token);
@@ -117,7 +127,10 @@ export function AuthProvider({ children }) {
         }
 
         // First-step: email + password.
-        const res = await api.post('/auth/login', { email, password });
+        // auth:'none' — /auth/login is a public endpoint; no Bearer token is
+        // expected or sent. Using the default 'admin' scope here caused the
+        // request to be aborted when there was no token in localStorage.
+        const res = await api.post('/auth/login', { email, password }, { timeout: 20000 }, 'none');
         if (res.ok && res.data) {
             if (res.data.requires2fa) {
                 // Return a marker so the LoginPage knows to render
@@ -277,13 +290,14 @@ export function AuthProvider({ children }) {
         user,
         token,
         loading,
+        sessionError,
         divisions: user?.divisions ?? [],
         tokenExpiresAt,
         login,
         logout,
         refresh,
         extendSession,
-    }), [user, token, loading, tokenExpiresAt, login, logout, refresh, extendSession]);
+    }), [user, token, loading, sessionError, tokenExpiresAt, login, logout, refresh, extendSession]);
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

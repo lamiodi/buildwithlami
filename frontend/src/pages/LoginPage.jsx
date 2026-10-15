@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { api } from '../services/api';
@@ -61,7 +61,7 @@ const LoginPage = () => {
         const from = location.state?.from || '/admin';
         navigate(from, { replace: true });
       } else {
-        setError(res.error || 'Invalid credentials. Please try again.');
+        setError(res.error === 'Request timed out' ? 'The sign-in service took too long to respond. Please retry in a moment.' : res.error || 'Invalid credentials. Please try again.');
       }
     } else {
       // step === '2fa'
@@ -84,7 +84,7 @@ const LoginPage = () => {
     setResending(true);
     setError('');
     setResendNotice('');
-    const res = await api.post('/auth/login/2fa/resend', { challengeToken });
+    const res = await api.post('/auth/login/2fa/resend', { challengeToken }, {}, 'none');
     setResending(false);
     if (res.ok) {
       setResendNotice(res.data?.message || 'New code sent to your email.');
@@ -127,10 +127,10 @@ const LoginPage = () => {
           {step === 'password' ? (
             <>
               <div>
-                <label className="block text-[10px] font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2 font-body">
+                <label htmlFor="admin-email" className="block text-xs font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2 font-body">
                   Email
                 </label>
-                <input
+                <input id="admin-email"
                   type="email"
                   required
                   autoComplete="email"
@@ -143,17 +143,17 @@ const LoginPage = () => {
 
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <label className="block text-[10px] font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest font-body">
+                  <label htmlFor="admin-password" className="block text-xs font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest font-body">
                     Password
                   </label>
                   <Link
                     to="/forgot-password"
-                    className="text-[11px] font-bold text-gray-500 hover:text-accent dark:text-gray-400 dark:hover:text-accent transition-colors font-body"
+                    className="text-xs font-bold text-gray-500 hover:text-accent dark:text-gray-400 dark:hover:text-accent transition-colors font-body"
                   >
                     Forgot password?
                   </Link>
                 </div>
-                <input
+                <input id="admin-password"
                   type="password"
                   required
                   autoComplete="current-password"
@@ -166,10 +166,11 @@ const LoginPage = () => {
             </>
           ) : (
             <div>
-              <label className="block text-[10px] font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2 font-body">
+              <label htmlFor="admin-code" className="block text-xs font-extrabold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2 font-body">
                 6-Digit Email Code
               </label>
               <input
+                id="admin-code"
                 ref={codeInputRef}
                 type="text"
                 inputMode="numeric"
