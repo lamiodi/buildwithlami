@@ -5,6 +5,14 @@
 
 export const homeFaqs = [
   {
+    q: "Who is Eugene Odibenuah?",
+    a: "Eugene Odibenuah is a full-stack software engineer and the founder of BuildWithLami, a software studio based in Lagos, Nigeria. He designs and builds websites, e-commerce platforms, and custom business software for Nigerian and international clients. His delivered projects include VonneX2X (an enterprise operations platform), The TiaBrand (a Nigerian fashion e-commerce store), EduFlow (an academic management system), MediOS (a hospital operating system), and Sourceline Limited (a corporate website). Eugene works directly with clients from the first brief through to production launch and post-launch support."
+  },
+  {
+    q: "Are you a web developer in Lagos, Nigeria?",
+    a: "Yes. I'm Eugene Odibenuah, a full-stack web developer based in Lagos, Nigeria. I build business websites, online stores, custom web applications, and enterprise software for clients in Nigeria and internationally. My studio, BuildWithLami, handles the full scope: design, engineering, deployment, and ongoing support."
+  },
+  {
     q: "What is your typical project timeline?",
     a: "My delivery timeline depends on the project's size and complexity:\n\nLanding Pages: 1–2 weeks\nBusiness Websites: 2–6 weeks\nE-commerce Websites: 4–8 weeks\nCustom Web Applications: 6–12 weeks\nEnterprise Platforms & SaaS: 3–6 months\n\nAfter a discovery session, I'll provide a tailored project schedule with key milestones, review stages, and an estimated launch date."
   },
@@ -109,6 +117,7 @@ export const droneFaqs = [
 
 export const faqsByPath = {
   '/': homeFaqs,
+  '/about': homeFaqs.slice(0, 2), // "Who is Eugene Odibenuah?" and Lagos developer question
   '/software': softwareFaqs,
   '/survey': surveyFaqs,
   '/drone': droneFaqs,

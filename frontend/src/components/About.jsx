@@ -74,6 +74,10 @@ const About = () => {
             <p className="text-xs font-mono text-gray-500 dark:text-gray-400 uppercase tracking-wider">
               Founder & CTO · Lead Systems Architect
             </p>
+            {/* Rich description for search engines — hidden visually but readable by crawlers and screen readers */}
+            <p className="sr-only">
+              Eugene Odibenuah is a full-stack software engineer and the founder of BuildWithLami, a software studio based in Lagos, Nigeria. He builds websites, e-commerce platforms, custom web applications, and enterprise business management systems for Nigerian and international clients. Projects delivered by Eugene Odibenuah include VonneX2X (an enterprise operations platform with POS, warehouse, payroll and gate-pass modules), The TiaBrand (a Nigerian fashion e-commerce store with Paystack checkout and bundle management), EduFlow (a school academic management and portal system), MediOS (a hospital operating system), and Sourceline Limited (a corporate website). Eugene works as the sole engineer from the initial brief through to production launch and warranty support, with no subcontracting of core delivery work.
+            </p>
           </motion.div>
           <div className="md:w-1/2 flex flex-col items-start md:items-end text-left md:text-right">
             <motion.p 
