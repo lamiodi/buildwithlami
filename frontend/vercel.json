@@ -41,6 +41,14 @@
       "destination": "/seo/drone.html"
     },
     {
+      "source": "/guides",
+      "destination": "/seo/guides.html"
+    },
+    {
+      "source": "/guides/:slug",
+      "destination": "/seo/guides/:slug.html"
+    },
+    {
       "source": "/projects/vonnex2x-enterprise-erp",
       "destination": "/seo/projects/vonnex2x-enterprise-erp.html"
     },
