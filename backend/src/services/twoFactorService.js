@@ -92,8 +92,11 @@ export async function sendOtpEmail(toEmail, otp) {
                 const error = new Error('The sign-in email service did not respond in time. Please retry.');
                 error.code = 'OTP_DELIVERY_TIMEOUT';
                 reject(error);
-            }, 8000);
+            }, 20000); // raised from 8s — must exceed SMTP socketTimeout (15s) + margin
         })]);
+    } catch (err) {
+        console.error('[2FA] OTP delivery failed — code:', err.code, 'message:', err.message);
+        throw err;
     } finally {
         clearTimeout(timer);
         transporter.close();

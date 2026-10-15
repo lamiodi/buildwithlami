@@ -58,9 +58,9 @@ export const createTransporter = () => {
         host,
         port,
         secure,
-        connectionTimeout: 4000,
-        greetingTimeout: 4000,
-        socketTimeout: 8000,
+        connectionTimeout: 10000,  // raised from 4s — Render free tier SMTP handshake can be slow
+        greetingTimeout: 8000,     // raised from 4s
+        socketTimeout: 15000,      // raised from 8s
         auth: {
             user: process.env.SMTP_USER,
             pass: process.env.SMTP_PASS,
