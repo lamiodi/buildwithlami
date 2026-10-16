@@ -1,7 +1,52 @@
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { DotLoader } from '@/components/ui/dot-loader';
 import { game } from '@/components/ui/demo';
+
+// One full pass of the dot matrix = frames × 75ms (same cadence as the
+// early shell in index.html — keep both in sync).
+const dotCycleMs = game.length * 75;
+
+// Per-dot CSS keyframes from the game frames — identical output to the
+// generator embedded in index.html's early-shell script. CSS opacity
+// animations run on the compositor, so the matrix keeps cycling even
+// while the main thread is blocked hydrating the app; the previous
+// setInterval class-toggling froze for seconds on phones.
+function buildDotKeyframes(frames) {
+  let css = '';
+  for (let d = 0; d < 49; d++) {
+    const stops = [];
+    for (let f = 0; f < frames.length; f++) {
+      stops.push(`${((f * 100) / frames.length).toFixed(3)}%{opacity:${frames[f].includes(d) ? 1 : 0}}`);
+    }
+    css += `@keyframes plD${d}{${stops.join('')}100%{opacity:${frames[0].includes(d) ? 1 : 0}}}`;
+  }
+  return css;
+}
+
+// Static rules for the matrix plus the shutter/center transitions that
+// replaced framer-motion (compositor-driven, so the exit can't jank while
+// the page underneath renders). Reduced-motion users get no transitions
+// and no dot animation — matching the app-wide MotionConfig behaviour.
+const preloaderMotionCss = `
+.pl-dotmatrix .pl-dot{position:relative;width:6px;height:6px;border-radius:1px;background:rgba(0,0,0,.1)}
+.dark .pl-dotmatrix .pl-dot{background:rgba(255,255,255,.15)}
+@media (prefers-reduced-motion: no-preference){
+  .pl-dotmatrix .pl-dot::after{content:"";position:absolute;inset:0;border-radius:inherit;background:#F44A22;opacity:0;animation:var(--pl-anim);animation-delay:var(--pl-delay,0ms)}
+}
+.pl-shutter{transition:transform .52s cubic-bezier(.76,0,.24,1)}
+.pl-center-anim{transition:opacity .4s ease-out,transform .4s ease-out}
+.pl-center-anim.pl-exiting{transition-duration:.25s}
+@media (prefers-reduced-motion: reduce){
+  .pl-shutter,.pl-center-anim{transition:none}
+}
+`;
+
+function installPreloaderMotionStyles() {
+  if (document.getElementById('pl-motion-style')) return;
+  const st = document.createElement('style');
+  st.id = 'pl-motion-style';
+  st.textContent = preloaderMotionCss + buildDotKeyframes(game);
+  document.head.appendChild(st);
+}
 
 /**
  * BuildWith_Lami Software Studio Minimalist Preloader
@@ -82,6 +127,38 @@ const Preloader = ({ onComplete, isDark: propIsDark }) => {
   );
   const duration = isMobileViewport ? 1200 : 500;
 
+  // The preloader's own motion styles (dot keyframes + shutter/center
+  // transitions), installed once per page load.
+  useEffect(() => {
+    installPreloaderMotionStyles();
+  }, []);
+
+  // Phase-continue the dot matrix from the early shell so the handoff
+  // doesn't reset the pattern mid-cycle. Captured once: re-reading
+  // performance.now() on every progress tick would shift animation-delay
+  // and stutter the pattern.
+  const [dotPhaseDelay] = useState(() => {
+    const start = typeof window !== 'undefined' ? window.__shellDotStart : null;
+    return hadEarlyShell && start ? -((performance.now() - start) % dotCycleMs) : 0;
+  });
+
+  // Fresh loads (no early shell) fade the lockup in over 400ms; takeovers
+  // from the shell render it already visible.
+  const [entered, setEntered] = useState(hadEarlyShell || isPreviewMode);
+  useEffect(() => {
+    if (entered) return;
+    const id = requestAnimationFrame(() => requestAnimationFrame(() => setEntered(true)));
+    return () => cancelAnimationFrame(id);
+  }, [entered]);
+
+  // The app-wide MotionConfig silences framer for reduced-motion users;
+  // the hand-rolled CSS bar transition needs the same check.
+  const [prefersReducedMotion] = useState(
+    () =>
+      typeof window !== 'undefined' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  );
+
   // The progress bar sweep runs as a compositor-driven CSS transition, not
   // a JS/rAF animation: right after this preloader mounts, the phone's main
   // thread is blocked hydrating the app, which stalls rAF and made the old
@@ -151,8 +228,6 @@ const Preloader = ({ onComplete, isDark: propIsDark }) => {
     };
   }, [onComplete, isPreviewMode, duration]);
 
-  const shutterEase = [0.76, 0, 0.24, 1];
-
   return (
     <div
       role="status"
@@ -165,36 +240,32 @@ const Preloader = ({ onComplete, isDark: propIsDark }) => {
           SPLIT ARCHITECTURAL SHUTTERS (Dark Mode: #09090b / Light: #ffffff)
          ───────────────────────────────────────────────────────────── */}
       {/* Top Half */}
-      <motion.div
-        className={`absolute inset-x-0 top-0 h-1/2 z-10 will-change-transform transition-colors duration-300 ${
+      <div
+        className={`pl-shutter absolute inset-x-0 top-0 h-1/2 z-10 will-change-transform transition-colors duration-300 ${
           isDarkMode ? 'bg-[#09090b] border-b border-white/[0.04]' : 'bg-white border-b border-gray-100'
         }`}
-        initial={{ y: '0%' }}
-        animate={{ y: isExiting ? '-100%' : '0%' }}
-        transition={{ duration: 0.52, ease: shutterEase }}
+        style={{ transform: isExiting ? 'translateY(-100%)' : 'translateY(0%)' }}
       />
 
       {/* Bottom Half */}
-      <motion.div
-        className={`absolute inset-x-0 bottom-0 h-1/2 z-10 will-change-transform transition-colors duration-300 ${
+      <div
+        className={`pl-shutter absolute inset-x-0 bottom-0 h-1/2 z-10 will-change-transform transition-colors duration-300 ${
           isDarkMode ? 'bg-[#09090b] border-t border-white/[0.04]' : 'bg-white border-t border-gray-100'
         }`}
-        initial={{ y: '0%' }}
-        animate={{ y: isExiting ? '100%' : '0%' }}
-        transition={{ duration: 0.52, ease: shutterEase }}
+        style={{ transform: isExiting ? 'translateY(100%)' : 'translateY(0%)' }}
       />
 
       {/* ─────────────────────────────────────────────────────────────
           MINIMALIST CENTERPIECE (Identical proportions & animation across mobile & desktop)
          ───────────────────────────────────────────────────────────── */}
-      <motion.div
-        className="relative z-30 flex flex-col items-center px-4 will-change-transform"
-        initial={{ opacity: hadEarlyShell ? 1 : 0, scale: hadEarlyShell ? 1 : 0.96 }}
-        animate={{
-          opacity: isExiting ? 0 : 1,
-          scale: isExiting ? 0.98 : 1,
+      <div
+        className={`pl-center-anim relative z-30 flex flex-col items-center px-4 will-change-transform${
+          isExiting ? ' pl-exiting' : ''
+        }`}
+        style={{
+          opacity: isExiting ? 0 : entered ? 1 : 0,
+          transform: `scale(${isExiting ? 0.98 : entered ? 1 : 0.96})`,
         }}
-        transition={{ duration: isExiting ? 0.25 : 0.4, ease: 'easeOut' }}
       >
         {/* Lockup Card */}
         <div
@@ -210,14 +281,18 @@ const Preloader = ({ onComplete, isDark: propIsDark }) => {
               isDarkMode ? 'bg-white/[0.04]' : 'bg-gray-100/90'
             }`}
           >
-            <DotLoader
-              frames={game}
-              duration={75}
-              className="gap-0.5"
-              dotClassName={`${
-                isDarkMode ? 'bg-white/15' : 'bg-black/10'
-              } [&.active]:bg-accent size-1.5 rounded-[1px]`}
-            />
+            <div className="pl-dotmatrix grid grid-cols-7 gap-0.5">
+              {Array.from({ length: 49 }).map((_, i) => (
+                <span
+                  key={i}
+                  className="pl-dot"
+                  style={{
+                    '--pl-anim': `plD${i} ${dotCycleMs}ms linear infinite`,
+                    '--pl-delay': `${dotPhaseDelay}ms`,
+                  }}
+                />
+              ))}
+            </div>
           </div>
 
           <div className={`h-6 w-[1px] ${isDarkMode ? 'bg-white/10' : 'bg-gray-200'}`} />
@@ -260,7 +335,7 @@ const Preloader = ({ onComplete, isDark: propIsDark }) => {
               style={{
                 transform: `scaleX(${barGo || isPreviewMode ? (isPreviewMode ? 0.68 : 1) : 0})`,
                 transition:
-                  barGo && !isPreviewMode
+                  barGo && !isPreviewMode && !prefersReducedMotion
                     ? `transform ${duration}ms cubic-bezier(0.22, 1, 0.36, 1)`
                     : 'none',
               }}
@@ -275,7 +350,7 @@ const Preloader = ({ onComplete, isDark: propIsDark }) => {
             {progress}%
           </span>
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 };

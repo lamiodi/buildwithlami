@@ -17,14 +17,22 @@
     <!-- Preload critical hero image for sub-second LCP -->
     <link rel="preload" as="image" href="/eugene-hero.webp" type="image/webp" fetchpriority="high" media="(min-width: 768px)" />
 
-    <!-- Preload the global webfont CSS so the browser fetches it
-         in parallel with the rest of the head, before it sees the
-         @import in index.css. -->
+    <!-- Preload the global webfont CSS and load it NON-render-blocking:
+         as a blocking stylesheet it delayed first paint by ~2s on phones
+         (measured 2026-10-16: HTML done 1.6s, fonts.css done 3.1s, first
+         paint 3.7s), leaving a blank screen before the preloader shell
+         could even appear. The print/onload swap starts the download in
+         parallel and applies it when ready; the preloader covers the FOUT. -->
     <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Antic+Didone&family=Space+Grotesk:wght@300..700&family=Caveat:wght@400..700&display=swap" />
     <link
       rel="stylesheet"
+      media="print"
+      onload="this.media='all'"
       href="https://fonts.googleapis.com/css2?family=Antic+Didone&family=Space+Grotesk:wght@300..700&family=Caveat:wght@400..700&display=swap"
     />
+    <noscript>
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Antic+Didone&family=Space+Grotesk:wght@300..700&family=Caveat:wght@400..700&display=swap" />
+    </noscript>
     <meta name="theme-color" content="#141414" />
 
     <!-- SEO:START -->
@@ -92,9 +100,11 @@
       #early-preloader .pl-dots{display:flex;padding:4px;border-radius:8px;background:rgba(243,244,246,.9)}
       .dark #early-preloader .pl-dots{background:rgba(255,255,255,.04)}
       #early-preloader .pl-grid{display:grid;grid-template-columns:repeat(7,6px);gap:2px}
-      #early-preloader .pl-dot{width:6px;height:6px;border-radius:1px;background:rgba(0,0,0,.1);transition:background-color .1s}
-      .dark #early-preloader .pl-dot{background:rgba(255,255,255,.15)}
-      #early-preloader .pl-dot.on{background:#F44A22}
+      .pl-dotmatrix .pl-dot{position:relative;width:6px;height:6px;border-radius:1px;background:rgba(0,0,0,.1)}
+      .dark .pl-dotmatrix .pl-dot{background:rgba(255,255,255,.15)}
+      @media (prefers-reduced-motion: no-preference){
+        .pl-dotmatrix .pl-dot::after{content:"";position:absolute;inset:0;border-radius:inherit;background:#F44A22;opacity:0;animation:var(--pl-anim);animation-delay:var(--pl-delay,0ms)}
+      }
       #early-preloader .pl-divider{width:1px;height:24px;background:#e5e7eb}
       .dark #early-preloader .pl-divider{background:rgba(255,255,255,.1)}
       #early-preloader .pl-brand{display:flex;align-items:center;gap:10px}
@@ -116,7 +126,7 @@
     <div id="early-preloader" role="status" aria-label="Loading BuildWithLami">
       <div class="pl-center">
         <div class="pl-card">
-          <div class="pl-dots"><div class="pl-grid">
+          <div class="pl-dots"><div class="pl-grid pl-dotmatrix">
             <span class="pl-dot"></span><span class="pl-dot"></span><span class="pl-dot"></span><span class="pl-dot"></span><span class="pl-dot"></span><span class="pl-dot"></span><span class="pl-dot"></span>
             <span class="pl-dot"></span><span class="pl-dot"></span><span class="pl-dot"></span><span class="pl-dot"></span><span class="pl-dot"></span><span class="pl-dot"></span><span class="pl-dot"></span>
             <span class="pl-dot"></span><span class="pl-dot"></span><span class="pl-dot"></span><span class="pl-dot"></span><span class="pl-dot"></span><span class="pl-dot"></span><span class="pl-dot"></span>
@@ -161,16 +171,34 @@
           [28, 21, 14, 12, 6, 13, 20], [28, 21, 14, 6, 13, 20, 11], [28, 21, 14, 6, 13, 20, 10],
           [14, 6, 13, 20, 9, 7, 21]
         ];
+        // Compositor-driven dots: per-dot CSS keyframes built from the same
+        // frames (75ms each, linear interpolation between stops gives the
+        // same ~75ms crossfade the class-toggle transition had). The old
+        // setInterval froze for seconds while the main thread compiled and
+        // hydrated the bundle; CSS opacity animations keep running through
+        // that block. Keep these frames and this generator in sync with
+        // ui/demo.tsx and the one in Preloader.jsx.
+        var cycleMs = frames.length * 75;
+        var keyframes = '';
+        for (var d = 0; d < 49; d++) {
+          var stops = [];
+          for (var f = 0; f < frames.length; f++) {
+            stops.push(((f * 100) / frames.length).toFixed(3) + '%{opacity:' + (frames[f].indexOf(d) !== -1 ? 1 : 0) + '}');
+          }
+          keyframes += '@keyframes plD' + d + '{' + stops.join('') + '100%{opacity:' + (frames[0].indexOf(d) !== -1 ? 1 : 0) + '}}';
+        }
+        var dotStyle = document.createElement('style');
+        dotStyle.id = 'pl-dots-keyframes';
+        dotStyle.textContent = keyframes;
+        document.head.appendChild(dotStyle);
+        window.__shellDotStart = performance.now();
+
         var dots = shell.querySelectorAll('.pl-dot');
-        var frameIndex = 0;
-        var timer = setInterval(function () {
-          var frame = frames[frameIndex];
-          for (var d = 0; d < dots.length; d++) dots[d].classList.toggle('on', frame.indexOf(d) !== -1);
-          frameIndex = (frameIndex + 1) % frames.length;
-        }, 75);
+        for (var i2 = 0; i2 < dots.length; i2++) {
+          dots[i2].style.setProperty('--pl-anim', 'plD' + i2 + ' ' + cycleMs + 'ms linear infinite');
+        }
 
         function dispose() {
-          clearInterval(timer);
           shell.remove();
         }
 
