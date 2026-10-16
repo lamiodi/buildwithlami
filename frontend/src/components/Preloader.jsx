@@ -70,8 +70,30 @@ const Preloader = ({ onComplete, isDark: propIsDark }) => {
     return () => observer.disconnect();
   }, [forcedTheme]);
 
-  // Fast, punchy cinematic duration (~500ms) for snappy first-load UX
-  const duration = 500;
+  // Fast, punchy cinematic duration (~500ms) for snappy first-load UX.
+  // Below the lg breakpoint (<1024px) the sweep gets a longer, smoother
+  // pace — at 500ms the fill reads as a flash on phones right after the
+  // early-shell wait (owner feedback 2026-10-16). Captured once so
+  // resizing mid-load can't change the pacing.
+  const [isMobileViewport] = useState(
+    () =>
+      typeof window !== 'undefined' &&
+      window.matchMedia('(max-width: 1023px)').matches
+  );
+  const duration = isMobileViewport ? 1200 : 500;
+
+  // The progress bar sweep runs as a compositor-driven CSS transition, not
+  // a JS/rAF animation: right after this preloader mounts, the phone's main
+  // thread is blocked hydrating the app, which stalls rAF and made the old
+  // bar freeze and then lurch to 100%. Transform transitions keep rendering
+  // on the compositor thread through that block. The double rAF makes the
+  // scaleX(0) state paint once before the transition to 1 begins.
+  const [barGo, setBarGo] = useState(false);
+  useEffect(() => {
+    if (isPreviewMode) return;
+    const id = requestAnimationFrame(() => requestAnimationFrame(() => setBarGo(true)));
+    return () => cancelAnimationFrame(id);
+  }, [isPreviewMode]);
 
   useEffect(() => {
     if (isPreviewMode) {
@@ -93,13 +115,20 @@ const Preloader = ({ onComplete, isDark: propIsDark }) => {
 
       // Natural cubic ease-out matching the hardware-accelerated bar
       const eased = 1 - Math.pow(1 - t, 2.5);
-      const current = Math.min(Math.round(eased * 100), 100);
+      const target = Math.min(Math.round(eased * 100), 100);
+      // Climb toward the target in bounded steps: a phone's main thread
+      // stalls hydrating the app right after mount, and a pure time-based
+      // counter would lurch (0→90 in one frame) once rAF resumes. The
+      // max(4, lag/6) shape keeps normal-speed ticks small while letting a
+      // stalled counter ramp back smoothly instead of crawling.
+      const stepUp = lastReported < 0 ? 0 : Math.max(4, Math.ceil((target - lastReported) / 6));
+      const current = lastReported < 0 ? 0 : Math.min(target, lastReported + stepUp);
       if (current !== lastReported) {
         lastReported = current;
         setProgress(current);
       }
 
-      if (t < 1) {
+      if (t < 1 || current < 100) {
         animationFrameId = requestAnimationFrame(step);
       } else {
         const dwellTime = 40;
@@ -226,13 +255,14 @@ const Preloader = ({ onComplete, isDark: propIsDark }) => {
               isDarkMode ? 'bg-white/10' : 'bg-gray-200/80'
             }`}
           >
-            <motion.div
+            <div
               className="h-full w-full bg-accent rounded-full origin-left will-change-transform"
-              initial={{ scaleX: 0 }}
-              animate={{ scaleX: isPreviewMode ? 0.68 : 1 }}
-              transition={{
-                duration: isPreviewMode ? 0 : duration / 1000,
-                ease: [0.22, 1, 0.36, 1],
+              style={{
+                transform: `scaleX(${barGo || isPreviewMode ? (isPreviewMode ? 0.68 : 1) : 0})`,
+                transition:
+                  barGo && !isPreviewMode
+                    ? `transform ${duration}ms cubic-bezier(0.22, 1, 0.36, 1)`
+                    : 'none',
               }}
             />
           </div>
