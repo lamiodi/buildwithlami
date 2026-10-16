@@ -55,6 +55,8 @@
       window.setTimeout(function () {
         // Restore useful content if the application fails to start.
         if (document.getElementById('initial-page')) document.documentElement.classList.remove('app-booting');
+        var earlyPreloader = document.getElementById('early-preloader');
+        if (earlyPreloader) earlyPreloader.remove();
       }, 10000);
     </script>
     <!-- Instant theme restore — prevents white flash for dark mode users -->
@@ -73,6 +75,117 @@
     </script>
   </head>
   <body>
+    <!-- Instant preloader shell. On phones the JS bundle takes seconds to
+         download, and the React Preloader can only mount afterwards — the
+         visitor stares at a blank screen for that entire window. This shell
+         paints the same Software Studio preloader design at first paint
+         (self-contained CSS, no Tailwind/framework dependency) and is
+         removed the moment React commits, where Preloader.jsx takes over
+         the identical visual — net effect: the preloader now covers the
+         whole load on mobile instead of appearing after it. -->
+    <style>
+      #early-preloader{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#fff;user-select:none}
+      .dark #early-preloader{background:#09090b}
+      #early-preloader .pl-center{position:relative;z-index:30;display:flex;flex-direction:column;align-items:center;padding:0 16px}
+      #early-preloader .pl-card{display:inline-flex;align-items:center;gap:16px;padding:14px 24px;border-radius:16px;border:1px solid rgba(229,231,235,.8);background:rgba(255,255,255,.9);box-shadow:0 10px 15px -3px rgba(0,0,0,.03)}
+      .dark #early-preloader .pl-card{border-color:rgba(255,255,255,.1);background:rgba(18,18,20,.9);box-shadow:0 10px 15px -3px rgba(0,0,0,.4)}
+      #early-preloader .pl-dots{display:flex;padding:4px;border-radius:8px;background:rgba(243,244,246,.9)}
+      .dark #early-preloader .pl-dots{background:rgba(255,255,255,.04)}
+      #early-preloader .pl-grid{display:grid;grid-template-columns:repeat(7,6px);gap:2px}
+      #early-preloader .pl-dot{width:6px;height:6px;border-radius:1px;background:rgba(0,0,0,.1);transition:background-color .1s}
+      .dark #early-preloader .pl-dot{background:rgba(255,255,255,.15)}
+      #early-preloader .pl-dot.on{background:#F44A22}
+      #early-preloader .pl-divider{width:1px;height:24px;background:#e5e7eb}
+      .dark #early-preloader .pl-divider{background:rgba(255,255,255,.1)}
+      #early-preloader .pl-brand{display:flex;align-items:center;gap:10px}
+      #early-preloader .pl-brand img{height:32px;width:auto;object-fit:contain}
+      #early-preloader .pl-logo-dark{display:none;filter:drop-shadow(0 2px 12px rgba(244,74,34,.35))}
+      #early-preloader .pl-logo-light{filter:drop-shadow(0 1px 1px rgba(0,0,0,.05))}
+      .dark #early-preloader .pl-logo-dark{display:block}
+      .dark #early-preloader .pl-logo-light{display:none}
+      #early-preloader .pl-word{font-family:"Antic Didone","Antic Didone Fallback",Georgia,serif;font-weight:800;font-size:18px;letter-spacing:-0.025em;line-height:1;white-space:nowrap;color:#111827}
+      .dark #early-preloader .pl-word{color:#fff}
+      #early-preloader .pl-word b{font-weight:800;color:#F44A22}
+      #early-preloader .pl-gauge{width:224px;margin-top:24px;display:flex;flex-direction:column;align-items:center}
+      #early-preloader .pl-track{height:2px;width:100%;border-radius:9999px;overflow:hidden;background:rgba(229,231,235,.8)}
+      .dark #early-preloader .pl-track{background:rgba(255,255,255,.1)}
+      #early-preloader .pl-fill{height:100%;width:100%;border-radius:9999px;background:#F44A22;transform-origin:left;transform:scaleX(0)}
+      #early-preloader .pl-pct{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:10px;letter-spacing:.1em;margin-top:8px;color:#9ca3af}
+      .dark #early-preloader .pl-pct{color:rgba(255,255,255,.4)}
+    </style>
+    <div id="early-preloader" role="status" aria-label="Loading BuildWithLami">
+      <div class="pl-center">
+        <div class="pl-card">
+          <div class="pl-dots"><div class="pl-grid">
+            <span class="pl-dot"></span><span class="pl-dot"></span><span class="pl-dot"></span><span class="pl-dot"></span><span class="pl-dot"></span><span class="pl-dot"></span><span class="pl-dot"></span>
+            <span class="pl-dot"></span><span class="pl-dot"></span><span class="pl-dot"></span><span class="pl-dot"></span><span class="pl-dot"></span><span class="pl-dot"></span><span class="pl-dot"></span>
+            <span class="pl-dot"></span><span class="pl-dot"></span><span class="pl-dot"></span><span class="pl-dot"></span><span class="pl-dot"></span><span class="pl-dot"></span><span class="pl-dot"></span>
+            <span class="pl-dot"></span><span class="pl-dot"></span><span class="pl-dot"></span><span class="pl-dot"></span><span class="pl-dot"></span><span class="pl-dot"></span><span class="pl-dot"></span>
+            <span class="pl-dot"></span><span class="pl-dot"></span><span class="pl-dot"></span><span class="pl-dot"></span><span class="pl-dot"></span><span class="pl-dot"></span><span class="pl-dot"></span>
+            <span class="pl-dot"></span><span class="pl-dot"></span><span class="pl-dot"></span><span class="pl-dot"></span><span class="pl-dot"></span><span class="pl-dot"></span><span class="pl-dot"></span>
+            <span class="pl-dot"></span><span class="pl-dot"></span><span class="pl-dot"></span><span class="pl-dot"></span><span class="pl-dot"></span><span class="pl-dot"></span><span class="pl-dot"></span>
+          </div></div>
+          <div class="pl-divider"></div>
+          <div class="pl-brand">
+            <img class="pl-logo-light" src="/2.png" alt="">
+            <img class="pl-logo-dark" src="/1.png" alt="">
+            <span class="pl-word"><b>BuildWith</b>Lami</span>
+          </div>
+        </div>
+        <div class="pl-gauge">
+          <div class="pl-track"><div class="pl-fill"></div></div>
+          <div class="pl-pct">0%</div>
+        </div>
+      </div>
+    </div>
+    <script>
+      (function () {
+        var shell = document.getElementById('early-preloader');
+        if (!shell) return;
+        // Mirror App.jsx isSoftwareRoute: the cinematic preloader is
+        // Software Studio only — don't flash the shell on admin/portal/etc.
+        var path = (location.pathname || '').toLowerCase();
+        var excluded = ['/drone', '/survey', '/admin', '/portal', '/login', '/forgot-password', '/reset-password', '/sign', '/contracts/sign', '/pay', '/track', '/form'];
+        for (var i = 0; i < excluded.length; i++) {
+          if (path.indexOf(excluded[i]) === 0) { shell.remove(); return; }
+        }
+        window.__earlyPreloaderShown = true;
+
+        // Same frames + cadence as the React DotLoader (game, 75ms) so the
+        // handoff is visually continuous.
+        var frames = [
+          [14, 7, 0, 8, 6, 13, 20], [14, 7, 13, 20, 16, 27, 21], [14, 20, 27, 21, 34, 24, 28],
+          [27, 21, 34, 28, 41, 32, 35], [34, 28, 41, 35, 48, 40, 42], [34, 28, 41, 35, 48, 42, 46],
+          [34, 28, 41, 35, 48, 42, 38], [34, 28, 41, 35, 48, 30, 21], [34, 28, 41, 48, 21, 22, 14],
+          [34, 28, 41, 21, 14, 16, 27], [34, 28, 21, 14, 10, 20, 27], [28, 21, 14, 4, 13, 20, 27],
+          [28, 21, 14, 12, 6, 13, 20], [28, 21, 14, 6, 13, 20, 11], [28, 21, 14, 6, 13, 20, 10],
+          [14, 6, 13, 20, 9, 7, 21]
+        ];
+        var dots = shell.querySelectorAll('.pl-dot');
+        var frameIndex = 0;
+        var timer = setInterval(function () {
+          var frame = frames[frameIndex];
+          for (var d = 0; d < dots.length; d++) dots[d].classList.toggle('on', frame.indexOf(d) !== -1);
+          frameIndex = (frameIndex + 1) % frames.length;
+        }, 75);
+
+        function dispose() {
+          clearInterval(timer);
+          shell.remove();
+        }
+
+        var root = document.getElementById('root');
+        var prerendered = !!(root && root.childElementCount > 0);
+        if (root && !prerendered) {
+          // Template variant (#root empty): React's first commit into #root
+          // is the takeover moment. Prerendered variants keep their static
+          // #root content — there Preloader.jsx removes the shell on mount.
+          new MutationObserver(function (mo) {
+            if (root.childElementCount > 0) { mo.disconnect(); dispose(); }
+          }).observe(root, { childList: true });
+        }
+      })();
+    </script>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

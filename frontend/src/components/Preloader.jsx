@@ -16,6 +16,18 @@ const Preloader = ({ onComplete, isDark: propIsDark }) => {
   const [progress, setProgress] = useState(0);
   const [isExiting, setIsExiting] = useState(false);
 
+  // True when the instant index.html shell already painted this exact design
+  // during the bundle download (mobile blank-screen fix). The entrance fade
+  // is skipped so the takeover reads as one continuous preloader.
+  const hadEarlyShell =
+    typeof window !== 'undefined' && window.__earlyPreloaderShown === true;
+
+  // The shell hands off here — it covers the bundle-download window that
+  // this component can't (it only exists once the bundle has loaded).
+  useEffect(() => {
+    document.getElementById('early-preloader')?.remove();
+  }, []);
+
   // Support ?preview=preloader and optional &theme=light or &theme=dark for instant verification
   const searchParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
   const isPreviewMode = searchParams?.get('preview') === 'preloader';
@@ -148,7 +160,7 @@ const Preloader = ({ onComplete, isDark: propIsDark }) => {
          ───────────────────────────────────────────────────────────── */}
       <motion.div
         className="relative z-30 flex flex-col items-center px-4 will-change-transform"
-        initial={{ opacity: 0, scale: 0.96 }}
+        initial={{ opacity: hadEarlyShell ? 1 : 0, scale: hadEarlyShell ? 1 : 0.96 }}
         animate={{
           opacity: isExiting ? 0 : 1,
           scale: isExiting ? 0.98 : 1,
