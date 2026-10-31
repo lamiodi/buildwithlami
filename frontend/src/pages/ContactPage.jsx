@@ -4,7 +4,8 @@ import { motion, useReducedMotion } from 'framer-motion';
 import { api } from '../services/api';
 import { reducedMotionVariants, staggerContainer } from '../utils/motion';
 import { CONTACT } from '../config/contact';
-import { BUDGET_RANGES, BUILD_PRICING } from '../config/pricing';
+import { BUDGET_RANGES } from '../config/pricing';
+import { SERVICE_TYPES as SERVICE_TYPE_BY_ID, inquiryContext, serviceFromProjectType, validService, resolveServiceTier, whatsAppHref } from '../utils/inquiryContext.js';
 import { CheckCircle2, ArrowRight } from 'lucide-react';
 
 const CORE_PROJECT_TYPES = [
@@ -23,27 +24,6 @@ const SPECIALIST_PROJECT_TYPES = [
   'AI & Automations',
   'Not sure yet',
 ];
-
-const SERVICE_TYPE_BY_ID = {
-  websites: 'Business Website',
-  ecommerce: 'E-Commerce Store',
-  software: 'Custom Software',
-  portals: 'Business Management System & ERP',
-  uiux: 'UI/UX Design',
-  branding: 'Branding',
-  seo: 'SEO & Growth',
-  marketing: 'Marketing',
-  ai: 'AI & Automations',
-  maintenance: 'Maintenance',
-};
-
-const resolveTierName = (tierParam) => {
-  if (!tierParam) return '';
-  const matchingTier = Object.values(BUILD_PRICING)
-    .flatMap((category) => category.tiers || [])
-    .find((tier) => tier.id === tierParam || tier.name === tierParam);
-  return matchingTier?.name || tierParam.replace(/_/g, ' ').replace(/\b\w/g, (letter) => letter.toUpperCase());
-};
 
 const TIMELINE_OPTIONS = [
   'ASAP (1–2 weeks)',
@@ -101,6 +81,7 @@ const ContactPage = () => {
   const [status, setStatus] = useState('idle');
   const [emailError, setEmailError] = useState(false);
   const [isEmailDirty, setIsEmailDirty] = useState(false);
+  const whatsAppContext = inquiryContext(location, serviceFromProjectType(formData.project_type));
 
   const container = useMemo(() => (shouldReduce ? reducedMotionVariants : staggerContainer), [shouldReduce]);
 
@@ -124,24 +105,18 @@ const ContactPage = () => {
     window.scrollTo(0, 0);
 
     const params = new URLSearchParams(location.search);
-    const serviceParam = params.get('service')?.slice(0, 100) || '';
-    const tierParam = params.get('tier')?.slice(0, 100) || '';
+    const context = inquiryContext({pathname:'/contact', search:location.search});
     const requestedCurrency = params.get('currency');
     const currencyParam = ['NGN', 'USD'].includes(requestedCurrency) ? requestedCurrency : '';
 
-    if (serviceParam || tierParam) {
-      const matchedType = SERVICE_TYPE_BY_ID[serviceParam] || '';
-      const tierName = resolveTierName(tierParam);
-      const projectLabel = matchedType || serviceParam;
-      const projectContext = projectLabel ? ` for ${projectLabel}` : '';
+    if (context.service) {
+      const matchedType = SERVICE_TYPE_BY_ID[context.service];
       const currencyContext = currencyParam ? ` Prices were shown in ${currencyParam}.` : '';
 
       setFormData(prev => ({
         ...prev,
         project_type: matchedType || prev.project_type,
-        message: prev.message || (tierName
-          ? `Hi Eugene, I'm interested in the ${tierName} package${projectContext}.${currencyContext}`
-          : '')
+        message: prev.message || `${context.message}${currencyContext}`
       }));
     }
   }, [location.search]);
@@ -157,7 +132,8 @@ const ContactPage = () => {
     setStatus('submitting');
 
     const searchParams = new URLSearchParams(location.search);
-    const serviceParam = searchParams.get('service');
+    const originalService = validService(searchParams.get('service'));
+    const serviceParam = serviceFromProjectType(formData.project_type) || originalService;
     const tierParam = searchParams.get('tier');
     const currencyParam = searchParams.get('currency');
 
@@ -169,7 +145,7 @@ const ContactPage = () => {
         budget: formData.budget || null,
         timeline: formData.timeline || null,
         service: serviceParam || null,
-        tier: resolveTierName(tierParam) || null,
+        tier: serviceParam === originalService ? resolveServiceTier(serviceParam, tierParam) : null,
         currency: ['NGN', 'USD'].includes(currencyParam) ? currencyParam : null,
         message: formData.message.trim(),
         b_website: formData.b_website || null,
@@ -219,7 +195,7 @@ const ContactPage = () => {
             I&apos;ll <span className="text-accent">confirm the right next step.</span>
           </h1>
           <p className="mt-4 text-base sm:text-lg text-gray-700 dark:text-gray-300 font-light leading-relaxed">
-            Share your goal, preferred timeline, and the package you are considering. I personally review every inquiry and reply within one business day with a fit assessment and clear next step.
+            Share your goal, preferred timeline and budget, or tell me about the website you need maintained. I personally review every inquiry and reply within one business day with a fit assessment and clear next step. Your proposal confirms scope, price and ongoing costs before work begins.
           </p>
         </motion.header>
 
@@ -460,24 +436,24 @@ const ContactPage = () => {
             {/* WhatsApp Card */}
             <div className="bg-gradient-to-br from-emerald-950/40 via-emerald-900/20 to-black border border-emerald-500/30 rounded-3xl p-6 sm:p-8 shadow-xl space-y-4">
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-mono uppercase tracking-widest font-bold text-emerald-400">Fast Response</span>
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="text-[10px] font-mono uppercase tracking-widest font-bold text-emerald-400">Direct founder contact</span>
               </div>
               <h3 className="text-2xl font-heading font-bold text-white">
-                Prefer direct chat?
+                Message Eugene directly.
               </h3>
               <p className="text-xs text-gray-300 leading-relaxed font-light">
-                For quick scope questions, budget checks, or rapid consultation, message me directly on WhatsApp.
+                {whatsAppContext.guidance}
               </p>
               <a
-                href={`https://wa.me/${CONTACT.phoneE164}?text=${encodeURIComponent("Hi Eugene, I'm reaching out from Buildwith_lami to discuss a project.")}`}
+                href={whatsAppHref(whatsAppContext.message)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-full py-4 px-4 bg-emerald-600 text-white font-heading font-bold text-[11px] uppercase tracking-[0.15em] flex items-center justify-center gap-2 hover:bg-emerald-500 transition-all shadow-lg active:scale-[0.98]"
               >
-                <span>Chat on WhatsApp</span>
+                <span>Message Eugene on WhatsApp</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </a>
+              <p className="text-xs text-gray-300">About: {whatsAppContext.label}. I’ll review your enquiry within one business day.</p>
             </div>
 
             {/* Direct Information Card */}

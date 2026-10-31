@@ -15,7 +15,12 @@ for (const path of publicPaths) {
   assert.ok(!titles.has(seo.title), `Duplicate title at ${path}`);
   titles.add(seo.title);
   const file = path === '/' ? '/index.html' : `/seo${path}.html`;
-  if (path !== '/') assert.ok(config.rewrites.some(rule => rule.source === path && rule.destination === file), `Missing rewrite: ${path}`);
+  // Guide articles use one dynamic rewrite rather than one rule per slug.
+  const guideSlug = path.startsWith('/guides/') ? path.slice('/guides/'.length) : null;
+  if (path !== '/') assert.ok(config.rewrites.some(rule =>
+    (rule.source === path && rule.destination === file) ||
+    (guideSlug && !guideSlug.includes('/') && rule.source === '/guides/:slug' && rule.destination.replace(':slug', guideSlug) === file)
+  ), `Missing rewrite: ${path}`);
   const html = await readFile(resolve(output, `.${file}`), 'utf8');
   assert.equal((html.match(/rel="canonical"/g) || []).length, 1);
   assert.equal((html.match(/<title>/g) || []).length, 1);

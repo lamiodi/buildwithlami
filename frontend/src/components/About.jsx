@@ -19,10 +19,10 @@ const About = () => {
       >
         <motion.div variants={item} className="bwl-eyebrow mb-3">
           <span className="w-2 h-2 bg-accent inline-block" />
-          <span>Studio Leadership & Philosophy</span>
+          <span>Meet the founder</span>
         </motion.div>
         <motion.h2 variants={item} className="text-4xl md:text-6xl lg:text-7xl font-heading font-bold mb-8 tracking-tight text-black dark:text-white">
-          BUILDWITH<span className="text-accent">LAMI</span>
+          Meet <span className="text-accent">Eugene.</span>
         </motion.h2>
 
         {/* Main Image — aspect-ratio matches the source (1440 / 845) */}
@@ -66,13 +66,13 @@ const About = () => {
             viewport={sectionViewport}
           >
             <span className="text-xs font-mono font-bold uppercase tracking-[0.2em] text-accent block mb-2">
-              Studio Leadership
+              Your founder & engineer
             </span>
             <h3 className="text-2xl md:text-3xl leading-snug text-black dark:text-white font-heading font-bold mb-1">
               Eugene Odibenuah
             </h3>
             <p className="text-xs font-mono text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-              Founder & CTO · Lead Systems Architect
+              Founder & lead engineer
             </p>
             {/* Rich description for search engines — hidden visually but readable by crawlers and screen readers */}
             <p className="sr-only">

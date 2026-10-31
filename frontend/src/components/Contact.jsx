@@ -59,7 +59,7 @@ const Contact = () => {
     const invalid = {};
     if (!formData.name.trim()) invalid.name = 'Please enter your name.';
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) invalid.email = 'Please enter a valid email address.';
-    if (!formData.message.trim()) invalid.message = 'Tell us a little about your project.';
+    if (!formData.message.trim()) invalid.message = 'Tell me a little about your project.';
     setErrors(invalid);
     if (Object.keys(invalid).length) {
       formRef.current?.querySelector('[name="' + Object.keys(invalid)[0] + '"]')?.focus();
@@ -291,12 +291,12 @@ const Contact = () => {
               )}
               {status === 'error' && (
                 <p ref={feedbackRef} tabIndex={-1} role="alert" className="text-red-300 text-sm leading-relaxed">
-                  We couldn’t confirm delivery. Your details are still here — please try again, or <a className="underline" href={`mailto:${CONTACT.email}`}>email us directly</a>.
+                    Your enquiry could not be confirmed. Your details are still here — please try again, or <a className="underline" href={`mailto:${CONTACT.email}`}>email me directly</a>.
                 </p>
               )}
 
               <p className="text-[11px] text-gray-400 text-center font-body pt-1">
-                * Direct founder-to-engineer review. Typical response within 24 hours.
+                * I personally review your brief and reply within one business day.
               </p>
             </form>
           </div>

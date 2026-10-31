@@ -26,7 +26,7 @@ export const homeFaqs = [
   },
   {
     q: "What technologies do you use?",
-    a: "We focus on a modern, reliable stack: React, Node.js, and PostgreSQL — deployed on Render with Cloudinary for media. We run a focused, single-cloud architecture so your product stays maintainable."
+    a: "I work with React, Node.js and PostgreSQL, with Render for deployment and Cloudinary for media where suitable. I choose the tools around the agreed scope and explain how your product will be maintained."
   },
   {
     q: "Can you help redesign an existing website?",

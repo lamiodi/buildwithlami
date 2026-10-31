@@ -1,5 +1,6 @@
 import React, { useLayoutEffect } from 'react';
 import Hero from '../components/Hero';
+import ServiceFinder from '../components/ServiceFinder';
 import Projects from '../components/Projects';
 import Services from '../components/Services';
 import WhyAndHow from '../components/WhyAndHow';
@@ -26,6 +27,7 @@ const HomePage = () => {
   return (
     <>
       <Hero />
+      <ServiceFinder />
       <Projects />
       <Services />
       <WhyAndHow />

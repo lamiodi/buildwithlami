@@ -11,15 +11,15 @@ import {
   COMMERCIAL_TERMS, 
   BUILD_PRICING,
   INFRASTRUCTURE_LEVELS,
-  USD_TIER_PRICING
+  USD_CARE_PRICING,
+  CARE_TERMS
 } from '../config/pricing';
 import { useAutomatedCurrency } from '../utils/currency';
 import fallbackProjects from '../data/fallbackProjects';
 
 const CORE_PRICING_CATEGORIES = ['websites', 'ecommerce', 'software', 'portals', 'maintenance'];
 const SPECIALIST_PRICING_CATEGORIES = ['uiux', 'branding', 'seo', 'marketing', 'ai'];
-const usdPriceForTier = (tierId) => USD_TIER_PRICING[tierId]?.priceUSD;
-const usdStartingPriceFor = (category) => usdPriceForTier(category.tiers[0]?.id);
+const usdStartingPriceFor = (category) => category.startingPriceUSD ?? USD_CARE_PRICING[category.tiers[0]?.id]?.priceUSD;
 const PROOF_PROJECT_BY_CATEGORY = {
   websites: 'sourceline-limited',
   ecommerce: 'tiabrand-ecommerce',
@@ -103,18 +103,26 @@ const Pricing = ({ isHomepage = false }) => {
           )}
 
           <motion.h2 variants={item} className="text-4xl md:text-5xl lg:text-6xl font-heading font-bold text-gray-900 dark:text-white tracking-tight mb-4">
-            Transparent Pricing. <br />
-            <span className="italic font-normal text-accent">No Surprise Invoices.</span>
+            Clear starting budgets. <br />
+            <span className="italic font-normal text-accent">Tailored project proposals.</span>
           </motion.h2>
 
           <motion.p variants={item} className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto text-sm sm:text-base font-light leading-relaxed mb-6">
-            {isHomepage
-              ? 'Every deliverable and boundary is priced before work begins, with clear scopes and 50/50 milestone invoicing.'
-              : 'Choose a service and compare clear starting prices, timelines, and deliverables.'}
+            Website builds start from {formatRegionalAmount(BUILD_PRICING.websites.startingPriceNGN, BUILD_PRICING.websites.startingPriceUSD)}.
+            {' '}Your final price depends on the pages, features and integrations you need. We agree the scope and price before work begins.
           </motion.p>
 
+          <motion.div variants={item} className="flex flex-col items-center gap-3">
+            <Link to={`/contact?service=${isHomepage ? 'websites' : activeCategory}&currency=${displayCurrency}`} className="btn-primary">
+              Get my project quote <ArrowRight className="w-4 h-4 ml-2" aria-hidden="true" />
+            </Link>
+            <p className="max-w-2xl text-xs leading-relaxed text-gray-600 dark:text-gray-400">
+              Ongoing care is optional. Hosting, domain renewals and paid tools are listed in your proposal, including any infrastructure allowance included with your build.
+            </p>
+          </motion.div>
+
           {isHomepage && (
-            <motion.div variants={item} className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs font-mono text-gray-500 dark:text-gray-400">
+            <motion.div variants={item} className="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs font-mono text-gray-500 dark:text-gray-400">
               <span><strong className="text-gray-900 dark:text-white font-semibold">50% upfront</strong>, 50% on delivery</span>
               <span className="hidden sm:inline text-gray-300 dark:text-white/20">·</span>
               <span>Post-launch warranty included</span>
@@ -235,7 +243,7 @@ const Pricing = ({ isHomepage = false }) => {
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-t border-gray-200 dark:border-white/10 pt-6">
               <p className="text-sm text-gray-600 dark:text-gray-300">Not sure which package fits? We can help you choose.</p>
               <div className="flex flex-wrap gap-5 text-sm font-semibold">
-                <Link to="/contact" className="text-gray-900 dark:text-white underline underline-offset-4 hover:text-accent">Discuss your project</Link>
+                <Link to="/contact" className="text-gray-900 dark:text-white underline underline-offset-4 hover:text-accent">Get my project quote</Link>
                 <Link to="/pricing" className="text-accent inline-flex items-center gap-1">Compare all packages <ChevronRight className="w-4 h-4" /></Link>
               </div>
             </div>
@@ -308,12 +316,12 @@ const Pricing = ({ isHomepage = false }) => {
                   <div className="p-5 sm:p-6 border-b sm:border-b-0 sm:border-r border-gray-200 dark:border-white/10">
                     <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-accent">First 12 months</span>
                     <p className="mt-2 text-sm font-bold text-gray-900 dark:text-white">Infrastructure included</p>
-                    <p className="mt-1 text-xs leading-relaxed text-gray-500 dark:text-gray-400">The level named on your package is included after launch.</p>
+                    <p className="mt-1 text-xs leading-relaxed text-gray-500 dark:text-gray-400">The specified allowance is included after launch. Ongoing care is separate.</p>
                   </div>
                   <div className="p-5 sm:p-6">
                     <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-accent">From month 13</span>
-                    <p className="mt-2 text-sm font-bold text-gray-900 dark:text-white">Annual care starts</p>
-                    <p className="mt-1 text-xs leading-relaxed text-gray-500 dark:text-gray-400">The exact yearly amount is shown on every website plan below.</p>
+                    <p className="mt-2 text-sm font-bold text-gray-900 dark:text-white">Choose your ongoing support</p>
+                    <p className="mt-1 text-xs leading-relaxed text-gray-500 dark:text-gray-400">Technical care by quote, an optional retainer, or handover. Provider renewals are itemized separately.</p>
                   </div>
                 </div>
               )}
@@ -348,11 +356,11 @@ const Pricing = ({ isHomepage = false }) => {
                 viewport={sectionViewport}
               >
                 {currentTiers.map((tier) => {
-                  const isCustom = tier.priceFormatted === "Custom Quote";
+                  const isCustom = tier.priceFormatted === 'Custom Quote';
                   const infrastructure = tier.infrastructureLevel
                     ? INFRASTRUCTURE_LEVELS[tier.infrastructureLevel]
                     : null;
-                  const usdTierPricing = USD_TIER_PRICING[tier.id];
+                  const usdTierPricing = USD_CARE_PRICING[tier.id];
                   const contactQuery = new URLSearchParams({
                     service: activeCategory,
                     tier: tier.name,
@@ -360,9 +368,6 @@ const Pricing = ({ isHomepage = false }) => {
                   }).toString();
                   const annualCarePrice = isCareCategory && tier.monthlyPriceNGN && tier.annualPriceNGN
                     ? formatRegionalAmount(tier.annualPriceNGN, usdTierPricing?.annualPriceUSD)
-                    : null;
-                  const annualWebsiteCarePrice = isWebsiteCategory && tier.annualCare
-                    ? formatRegionalAmount(tier.annualCare.priceNGN, tier.annualCare.priceUSD)
                     : null;
                   const annualCareSavings = annualCarePrice
                     ? formatRegionalAmount(
@@ -404,7 +409,7 @@ const Pricing = ({ isHomepage = false }) => {
                         {/* Price Tag */}
                         <div className="flex flex-wrap items-baseline gap-1.5 mb-4 border-b border-gray-100 dark:border-white/5 pb-4">
                           {isCustom ? (
-                            <span className="text-3xl font-heading font-bold text-black dark:text-white leading-none">{tier.priceFormatted}</span>
+                            <span className="text-3xl font-heading font-bold text-black dark:text-white leading-none">Tailored quote</span>
                           ) : (
                             <>
                               <span className="text-xs text-gray-500 font-semibold">
@@ -413,7 +418,7 @@ const Pricing = ({ isHomepage = false }) => {
                                   : 'starting at'}
                               </span>
                               <span className="text-3xl sm:text-4xl font-heading font-extrabold text-black dark:text-white tracking-tight leading-none">
-                                {renderPrice(tier.priceNGN, usdTierPricing?.priceUSD, tier.priceFormatted)}
+                                {renderPrice(tier.priceNGN, tier.priceUSD ?? usdTierPricing?.priceUSD, tier.priceFormatted)}
                               </span>
                             </>
                           )}
@@ -430,24 +435,11 @@ const Pricing = ({ isHomepage = false }) => {
 
                         {infrastructure && (
                           <p className="mb-5 border-y border-blue-200 dark:border-blue-400/20 py-3 text-xs font-semibold text-blue-700 dark:text-blue-300">
-                            {infrastructure.shortName} infrastructure {isCareCategory ? 'included while active' : 'included for 12 months'}
+                            {infrastructure.shortName} infrastructure allowance included for 12 months
                           </p>
                         )}
 
-                        {annualWebsiteCarePrice && (
-                          <div className="mb-5 rounded-xl border border-accent/25 bg-accent/5 dark:bg-accent/10 p-4">
-                            <div className="flex flex-wrap items-end justify-between gap-2">
-                              <div>
-                                <span className="block text-[10px] font-mono font-bold uppercase tracking-wider text-accent">Annual care from month 13</span>
-                                <span className="mt-1 block text-xs font-semibold text-gray-600 dark:text-gray-300">{tier.annualCare.planName}</span>
-                              </div>
-                              <strong className="text-xl font-heading text-gray-900 dark:text-white">
-                                {annualWebsiteCarePrice}<span className="text-xs font-sans font-semibold text-gray-500 dark:text-gray-400">/year</span>
-                              </strong>
-                            </div>
-                            <p className="mt-3 text-xs leading-relaxed text-gray-600 dark:text-gray-400">{tier.annualCare.summary}</p>
-                          </div>
-                        )}
+                        {isCareCategory && <p className="mb-4 text-xs font-semibold text-gray-600 dark:text-gray-300">Optional care fee · Provider bills separate</p>}
 
                         {/* Essential delivery details */}
                         <div className="space-y-1.5 text-xs text-gray-600 dark:text-gray-300 font-medium mb-6">
@@ -459,7 +451,14 @@ const Pricing = ({ isHomepage = false }) => {
                             <span className="font-semibold text-gray-500">Support:</span>
                             <span className="font-semibold">{tier.support}</span>
                           </div>
+                          {isCareCategory && <p><span className="font-semibold text-gray-500">Work allowance: </span>{tier.revisions}</p>}
                         </div>
+                        <details className="mb-6 text-xs leading-relaxed text-gray-600 dark:text-gray-300">
+                          <summary className="cursor-pointer py-2 font-semibold text-gray-900 dark:text-white">Full scope and exclusions</summary>
+                          {tier.features.length > 4 && <ul className="mt-2 list-disc space-y-2 pl-4">{tier.features.slice(4).map(feature => <li key={feature}>{feature}</li>)}</ul>}
+                          <p className="mt-3 font-semibold">Quoted separately or excluded</p>
+                          <ul className="mt-2 list-disc space-y-2 pl-4">{tier.notIncluded?.map(item => <li key={item}>{item}</li>)}</ul>
+                        </details>
 
                         {/* Deliverables List (Included) */}
                         <div className="space-y-3 mb-6">
@@ -483,7 +482,7 @@ const Pricing = ({ isHomepage = false }) => {
                           className={tier.popular ? 'btn-primary w-full' : 'btn-dark w-full'}
                           style={{ touchAction: 'manipulation' }}
                         >
-                          Request proposal <ArrowRight className="w-3.5 h-3.5 ml-2" />
+                          {isCareCategory ? 'Discuss this care plan' : 'Get my project quote'} <ArrowRight className="w-3.5 h-3.5 ml-2" />
                         </Link>
                       </div>
                     </motion.div>
@@ -513,12 +512,20 @@ const Pricing = ({ isHomepage = false }) => {
             </div>
 
             <div className="p-6 sm:p-8 rounded-2xl bg-white dark:bg-[#161616] border border-gray-200 dark:border-white/10">
+              <h3 className="text-xl font-bold font-heading text-black dark:text-white mb-4">How optional care works</h3>
+              <dl className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+                {CARE_TERMS.map(term => <div key={term.title}><dt className="font-semibold text-gray-900 dark:text-white">{term.title}</dt><dd className="mt-2 leading-relaxed text-gray-600 dark:text-gray-400">{term.description}</dd></div>)}
+              </dl>
+              <Link to={`/contact?service=maintenance&currency=${displayCurrency}`} className="mt-6 inline-flex min-h-11 items-center font-semibold text-accent underline underline-offset-4">Get a technical-care quote <ArrowRight className="ml-2 w-4 h-4" aria-hidden="true" /></Link>
+            </div>
+
+            <div className="p-6 sm:p-8 rounded-2xl bg-white dark:bg-[#161616] border border-gray-200 dark:border-white/10">
               <h3 className="text-xl font-bold font-heading text-black dark:text-white mb-4">Simple terms</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-sm text-gray-600 dark:text-gray-400">
-                <p><strong className="text-gray-900 dark:text-white">Payments:</strong> 50% to start, 50% on delivery.</p>
+                <p><strong className="text-gray-900 dark:text-white">Build payments:</strong> 50% to start, 50% on delivery. Care is billed at its chosen cadence.</p>
                 <p><strong className="text-gray-900 dark:text-white">First year:</strong> Named infrastructure included with eligible builds.</p>
-                <p><strong className="text-gray-900 dark:text-white">Renewal:</strong> Annual care begins in month 13 at the price shown.</p>
-                <p><strong className="text-gray-900 dark:text-white">Warranty:</strong> Post-launch bug support is included.</p>
+                <p><strong className="text-gray-900 dark:text-white">Renewal:</strong> Confirm provider costs and choose optional care or handover before the included allowance ends.</p>
+                <p><strong className="text-gray-900 dark:text-white">Warranty:</strong> Bug fixes within the agreed scope and stated warranty period. New work is quoted separately.</p>
               </div>
             </div>
 

@@ -67,19 +67,57 @@
         if (earlyPreloader) earlyPreloader.remove();
       }, 10000);
     </script>
-    <!-- Instant theme restore — prevents white flash for dark mode users -->
-    <script>
-      (function() {
-        var saved = localStorage.getItem('theme');
-        if (saved === 'dark') {
-          document.documentElement.classList.add('dark');
-        } else if (!saved) {
-          var hour = new Date().getHours();
-          if (hour < 6 || hour >= 18) {
-            document.documentElement.classList.add('dark');
-          }
-        }
-      })();
+    <!-- Theme policy shared with React; tested by scripts/theme.test.mjs. -->
+    <script id="theme-bootstrap">
+(function () {
+const THEME_OVERRIDE_KEY = "bwl-theme-override-v1";
+const THEME_WINDOW_KEY = "bwl-theme-window-v1";
+function scheduledTheme(date) {
+  const hour = date.getHours();
+  return hour >= 6 && hour < 18 ? 'light' : 'dark';
+}
+function nextThemeBoundary(date) {
+  const boundary = new Date(date);
+  const hour = date.getHours();
+  boundary.setHours(hour < 6 ? 6 : hour < 18 ? 18 : 6, 0, 0, 0);
+  if (hour >= 18) boundary.setDate(boundary.getDate() + 1);
+  return boundary;
+}
+function themeWindow(date) {
+  const start = new Date(date);
+  start.setHours(date.getHours() >= 6 && date.getHours() < 18 ? 6 : 18, 0, 0, 0);
+  if (date.getHours() < 6) start.setDate(start.getDate() - 1);
+  return `${scheduledTheme(date)}:${start.getTime()}`;
+}
+function readThemeOverride(storage, date) {
+  try {
+    const value = JSON.parse(storage?.getItem(THEME_OVERRIDE_KEY) || 'null');
+    if (value && ['light', 'dark'].includes(value.theme) &&
+      Number.isFinite(value.expiresAt) && value.expiresAt > date.getTime() &&
+      value.expiresAt <= nextThemeBoundary(date).getTime()) return value;
+  } catch { /* Storage may be blocked or contain an obsolete value. */ }
+  return null;
+}
+function initialTheme(date, storage, session) {
+  const override = readThemeOverride(storage, date);
+  if (override) return override.theme;
+  // A first night visit starts light so the visitor sees the warning BEFORE dark mode.
+  // Once the warning is accepted, reloads in the same night restore dark immediately.
+  try {
+    if (scheduledTheme(date) === 'dark' && session?.getItem(THEME_WINDOW_KEY) === themeWindow(date)) return 'dark';
+  } catch { /* A warning still works when session storage is unavailable. */ }
+  return 'light';
+}
+function browserStorage(name) {
+  try { return window[name]; } catch { return undefined; }
+}
+function applyTheme(theme, root = document.documentElement) {
+  root.classList.toggle('dark', theme === 'dark');
+  root.style.colorScheme = theme;
+  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', theme === 'dark' ? '#141414' : '#ffffff');
+}
+applyTheme(initialTheme(new Date(), browserStorage('localStorage'), browserStorage('sessionStorage')));
+})();
     </script>
   </head>
   <body>

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Compass, MessageCircle, ArrowUpRight, CheckCircle2, ShieldCheck, Crosshair, Camera, Video, Shield, Plane } from 'lucide-react';
 import { CONTACT } from '../config/contact';
+import { inquiryContext, whatsAppHref } from '../utils/inquiryContext.js';
 
 const WhatsAppWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -293,16 +294,11 @@ const WhatsAppWidget = () => {
   }
 
   // ── 3. Main Software & Product Studio WhatsApp Interface ──────────────
-  const divisionTitle = 'Software & Product Studio';
-  const greetingText = (
-    <>
-      Hi there! 👋<br/><br/>
-      Looking to build a custom web platform, e-commerce store, or business software? Let me know how I can help!
-    </>
-  );
-  const actionLabel = 'Start WhatsApp Chat ↗';
-  const defaultMessage = "Hi Eugene! I'd like to discuss a software project with Buildwith_lami.";
-  const waLink = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(defaultMessage)}`;
+  const context = inquiryContext(location);
+  const divisionTitle = 'Founder & engineer';
+  const greetingText = context.guidance;
+  const actionLabel = 'Message Eugene on WhatsApp ↗';
+  const waLink = whatsAppHref(context.message);
 
   return (
     <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-40 flex flex-col items-end font-body">
@@ -314,12 +310,11 @@ const WhatsAppWidget = () => {
         <div className="bg-black dark:bg-[#1a1a1a] px-4 py-3.5 flex items-center justify-between border-b border-gray-800 dark:border-white/10">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 rounded-full bg-accent/15 border border-accent/30 flex items-center justify-center overflow-hidden">
-              <span className="text-accent text-xs font-bold font-mono">EO</span>
+              <img src="/images/lami-theme-avatar.webp" alt="" width="40" height="40" className="h-full w-full object-contain" />
             </div>
             <div>
               <h4 className="text-white font-heading font-bold text-sm tracking-tight">Eugene Odibenuah</h4>
               <p className="text-gray-400 text-[10px] flex items-center gap-1.5 font-mono">
-                <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
                 <span>{divisionTitle}</span>
               </p>
             </div>
@@ -340,10 +335,11 @@ const WhatsAppWidget = () => {
             style={{ backgroundImage: 'radial-gradient(currentColor 1px, transparent 1px)', backgroundSize: '12px 12px' }}
           />
           <div className="bg-white dark:bg-[#1c1c1c] p-3.5 rounded-xl rounded-tl-none border border-gray-200 dark:border-white/10 shadow-sm max-w-[95%] relative z-10">
+            <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-accent">{context.label}</p>
             <p className="text-xs text-gray-800 dark:text-gray-200 leading-relaxed font-light">
               {greetingText}
             </p>
-            <span className="text-[10px] font-mono text-gray-400 dark:text-gray-500 block mt-2 text-right">Just now</span>
+            <span className="text-[10px] text-gray-500 dark:text-gray-400 block mt-3">Your message opens in WhatsApp. I personally review enquiries within one business day.</span>
           </div>
         </div>
         <div className="bg-white dark:bg-[#141414] p-3.5 border-t border-gray-100 dark:border-white/5">

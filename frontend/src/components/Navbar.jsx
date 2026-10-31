@@ -304,7 +304,8 @@ const ThemeToggle = ({ isDark, toggleTheme }) => (
       toggleTheme();
     }} 
     className="w-9 h-9 rounded-xl flex items-center justify-center hover:text-accent text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/5 transition-all cursor-pointer touch-manipulation" 
-    aria-label="Toggle Theme"
+    aria-label={isDark ? 'Use light mode' : 'Use dark mode'}
+    title={`Switch to ${isDark ? 'light' : 'dark'} mode until the next automatic change`}
   >
     {isDark ? (
       <Sun className="w-4 h-4 text-amber-400" />

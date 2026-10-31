@@ -91,10 +91,10 @@ const WhyAndHow = () => {
           transition={{ duration: shouldReduce ? 0 : 0.5, ease: 'easeOut' }}
         >
           <h2 className="max-w-2xl text-4xl sm:text-5xl lg:text-6xl font-heading font-bold leading-[1.02] tracking-[-0.03em] text-black dark:text-white">
-            Why Buildwith_lami works differently.
+            How I work with you.
           </h2>
           <p className="max-w-2xl text-base sm:text-lg leading-relaxed text-gray-600 dark:text-gray-400">
-            Systems thinking, disciplined engineering, and conversion-focused UX—delivered through a clear four-stage process.
+            You work directly with me, with a clear scope, working software to review and an agreed handover. Here’s how we get from your first brief to launch.
           </p>
         </motion.header>
 

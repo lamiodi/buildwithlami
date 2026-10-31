@@ -33,7 +33,7 @@ const Services = () => {
         "Dashboards, portals, and internal tools",
         "E-commerce and customer-facing experiences"
       ],
-      detailedScope: "From database schema design to responsive frontend interfaces and automated background workflows, we build full-stack web platforms engineered for longevity, high concurrency, and real business operations.",
+      detailedScope: "I build the interface, database and background workflows around your business needs, with a clear scope and working software for you to review.",
       deliverables: [
         "Full-stack web application (React/Next.js + Node/PostgreSQL)",
         "Role-based authentication & secure session management",
@@ -59,7 +59,7 @@ const Services = () => {
         "Responsive web app interfaces",
         "Mobile-first performance improvements"
       ],
-      detailedScope: "First impressions influence conversion. We design and build fast, conversion-focused storefronts and marketing pages with purposeful motion, stable layouts, and carefully tested mobile responsiveness.",
+      detailedScope: "I design and build storefronts and marketing pages that help customers understand your offer and take the next step, with stable layouts and carefully tested mobile behaviour.",
       deliverables: [
         "Custom UI design with bespoke brand aesthetics & micro-animations",
         "Lighthouse-optimized builds targeting 90+ scores on delivered code",
@@ -84,7 +84,7 @@ const Services = () => {
         "Authentication and account security",
         "Database design and workflow logic"
       ],
-      detailedScope: "The engine beneath your product. We engineer robust RESTful and asynchronous API services, normalized relational databases, safe data migrations, and hardened security protocols.",
+      detailedScope: "I connect the systems behind your product: APIs, databases and integrations, with attention to data integrity, access controls and maintainable code.",
       deliverables: [
         "Well-documented, type-safe RESTful API architecture",
         "Relational database modeling with indexing & query optimization",
@@ -109,7 +109,7 @@ const Services = () => {
         "Technical scope and launch planning",
         "Performance, security, and stack reviews"
       ],
-      detailedScope: "Avoid costly engineering dead-ends. We conduct deep technical audits of your current codebase, architecture, and cloud infrastructure, delivering an actionable roadmap prioritized by business impact.",
+      detailedScope: "I review your existing code, architecture and infrastructure, then explain what needs attention and how I would prioritize the next steps for your business.",
       deliverables: [
         "Comprehensive Code Quality & Security Vulnerability Report",
         "Core Web Vitals & Frontend Performance Bottleneck Analysis",
@@ -133,7 +133,7 @@ const Services = () => {
         "Core Web Vitals improvements",
         "Content and growth recommendations"
       ],
-      detailedScope: "Organic search can compound over time. We improve your website's crawlability, structured data, semantic hierarchy, and metadata to build a stronger foundation for search visibility.",
+      detailedScope: "I review how search engines find and understand your website, then improve crawlability, page structure and metadata within the agreed scope.",
       deliverables: [
         "Complete Technical SEO audit & indexing fix plan",
         "Schema.org JSON-LD structured data implementation (Articles, FAQs, Products)",
@@ -172,13 +172,13 @@ const Services = () => {
       >
         <motion.div variants={item} className="bwl-eyebrow mb-3">
           <span className="w-2 h-2 bg-accent inline-block" />
-          <span>Capabilities & Systems</span>
+          <span>Ways I can help</span>
         </motion.div>
         <motion.h3 variants={item} className="text-3xl md:text-5xl font-heading font-bold mb-4 text-black dark:text-white leading-tight">
-          What We Build <span className="text-accent">For You</span>
+          What I Build <span className="text-accent">For You</span>
         </motion.h3>
         <motion.p variants={item} className="text-base md:text-lg text-gray-700 dark:text-gray-300 leading-relaxed font-light">
-          From custom software platforms and conversion-focused interfaces to robust APIs and search architecture, engineered for longevity, speed, and real business results.
+          Tell me what your business needs. I’ll help you choose a practical scope, then handle the design, engineering and launch with you.
         </motion.p>
       </motion.div>
 

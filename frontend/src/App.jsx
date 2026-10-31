@@ -8,6 +8,8 @@ import WhatsAppWidget from './components/WhatsAppWidget';
 import ErrorBoundary from './components/ErrorBoundary';
 import Preloader from './components/Preloader';
 import ToastHost from './components/ToastHost';
+import ThemeToast from './components/ThemeToast';
+import { useAutomaticTheme } from './hooks/useAutomaticTheme';
 import { Toaster } from './components/ui/sonner';
 import SoundEffects from './components/SoundEffects';
 import { lazyWithRetry } from './utils/lazyWithRetry';
@@ -119,11 +121,6 @@ function App() {
     api.init();
   }, []);
 
-  // Read theme state from the DOM (set instantly by index.html inline script)
-  const [isDark, setIsDark] = useState(() =>
-    document.documentElement.classList.contains('dark')
-  );
-
   // Scroll to top or specific hash on route change
   useEffect(() => {
     if (location.hash) {
@@ -141,20 +138,6 @@ function App() {
       window.scrollTo(0, 0);
     }
   }, [location.pathname, location.hash]);
-
-  const toggleTheme = () => {
-    setIsDark((prev) => {
-      const nextTheme = !prev;
-      if (nextTheme) {
-        document.documentElement.classList.add('dark');
-        localStorage.setItem('theme', 'dark');
-      } else {
-        document.documentElement.classList.remove('dark');
-        localStorage.setItem('theme', 'light');
-      }
-      return nextTheme;
-    });
-  };
 
   // Defensive: if Preloader throws or never finishes (e.g. a stalled animation),
   // surface the app after 4s so the user is never permanently locked out.
@@ -202,6 +185,9 @@ function App() {
     !currentPath.startsWith('/pay') &&
     !currentPath.startsWith('/track') &&
     !currentPath.startsWith('/form');
+
+  const themeReady = !isSoftwareRoute || !showPreloader || preloaderTimedOut;
+  const { isDark, notice, toggleTheme, keepTheme, switchThemeNow } = useAutomaticTheme(themeReady);
 
   // Suspend fallback is decided outside of render so its identity is stable
   // across renders. React would otherwise recreate the component on every
@@ -321,7 +307,8 @@ function App() {
         {!hideGlobalLayout && <Footer soundOn={soundOn} onToggleSound={toggleSound} />}
         {!hideGlobalLayout && <WhatsAppWidget />}
         <ToastHost />
-        <Toaster position="top-right" richColors />
+        <Toaster theme={isDark ? 'dark' : 'light'} position="top-right" richColors />
+        <ThemeToast notice={notice} isDark={isDark} onKeepTheme={keepTheme} onSwitchNow={switchThemeNow} />
         <SoundEffects />
         {hideGlobalLayout && <button
           type="button"

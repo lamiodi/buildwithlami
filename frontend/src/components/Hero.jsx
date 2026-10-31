@@ -18,7 +18,7 @@ const Hero = () => {
     >
         <motion.div variants={item} className="bwl-eyebrow mb-6">
           <span className="w-2 h-2 bg-accent inline-block" />
-          <span>BuildWithLami — Software Studio</span>
+          <span>BuildWithLami · Founder-led software studio</span>
         </motion.div>
 
         <motion.h1
@@ -28,13 +28,12 @@ const Hero = () => {
           }}
           className="text-4xl sm:text-6xl md:text-7xl lg:text-[80px] font-heading font-extrabold leading-[1.05] tracking-tight mb-6 text-black dark:text-white"
         >
-          We design, build, <br className="hidden sm:block" />
-          and ship products <br className="hidden sm:block" />
-          that <span className="italic font-normal text-accent">grow</span> revenue.
+          Your idea. My focus. <br className="hidden sm:block" />
+          Built for <span className="italic font-normal text-accent">your business.</span>
         </motion.h1>
 
         <motion.p variants={item} className="text-gray-700 dark:text-gray-300 text-base sm:text-lg md:text-xl max-w-xl leading-relaxed mb-8 font-light">
-          Websites, online stores, and custom software for founders and growing teams. From your first idea to launch, we turn business needs into products people can use.
+          I’m Eugene, the founder and engineer behind BuildWithLami. I work directly with you to design and build websites, online stores and business software—from the first brief to launch.
         </motion.p>
 
         {/* Reassurance Chips */}
@@ -71,9 +70,10 @@ const Hero = () => {
             to="/projects"
             className="btn-secondary w-full sm:w-auto text-center"
           >
-            Explore Work
+            See my work
           </Link>
         </div>
+        <Link to="/#start" className="mt-5 inline-flex min-h-11 items-center text-sm font-semibold text-gray-700 underline decoration-accent underline-offset-4 hover:text-accent dark:text-gray-300">Help me choose a starting point →</Link>
       </motion.div>
       
       {/* Founder Image Card */}
@@ -102,10 +102,9 @@ const Hero = () => {
           </picture>
           <div className="absolute -bottom-3.5 sm:-bottom-4 -right-2 sm:-right-4 bg-white dark:bg-[#141414] text-black dark:text-white text-[11px] sm:text-xs font-mono font-bold px-3 sm:px-4 py-1.5 sm:py-2 shadow-2xl border border-gray-200 dark:border-white/10 flex items-center gap-2 whitespace-nowrap select-none z-10 rounded-sm">
             <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-accent"></span>
             </span>
-            <span>Eugene Odibenuah · Founder & CTO</span>
+            <span>Eugene Odibenuah · Founder & engineer</span>
           </div>
         </div>
       </motion.div>

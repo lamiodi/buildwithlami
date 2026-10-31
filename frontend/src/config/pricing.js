@@ -1,13 +1,14 @@
 /**
  * Buildwith_lami — Centralized Pricing & Commercial Configuration
- * Single source of truth for all public rates, care retainers, and commercial terms.
+ * Public starting budgets, optional care fees, and commercial terms.
+ * Internal package benchmarks are kept in backend/src/config/proposalBenchmarks.js.
  *
  * Infrastructure is included at no additional charge for the first 12 months
  * of eligible build packages. The included level scales with the build:
  * Foundation → Growth → Scale → Enterprise.
  *
  * Infrastructure covers the live operating layer. Build warranty covers
- * implementation defects. Care plans cover ongoing human development work.
+ * implementation defects. Optional care plans cover the manual work listed, within their time allowance.
  */
 
 // Approximate USD conversion rate. The Pricing page uses
@@ -27,35 +28,6 @@ export const ngnToUsd = (amountNgn, rate = FALLBACK_USD_RATE) => {
 };
 
 /**
- * Annual website care shown on each website package.
- * Keeping this mapping separate prevents the build cards and Care plans
- * from drifting to different renewal figures.
- */
-export const WEBSITE_ANNUAL_CARE = Object.freeze({
-  web_starter: {
-    planId: 'maint_essential',
-    planName: 'Essential Care',
-    priceNGN: 130000,
-    priceUSD: 2400,
-    summary: 'For eligible static websites using a commercially suitable free hosting tier.'
-  },
-  web_growth: {
-    planId: 'maint_standard',
-    planName: 'Standard Care',
-    priceNGN: 420000,
-    priceUSD: 7500,
-    summary: 'For CMS websites that need managed hosting, monthly checks, and small updates.'
-  },
-  web_pro: {
-    planId: 'maint_growth',
-    planName: 'Growth Care',
-    priceNGN: 900000,
-    priceUSD: 15000,
-    summary: 'For dynamic websites that need stronger monitoring and reserved improvement time.'
-  }
-});
-
-/**
  * Build a dual-currency formatted string for display.
  *   formatDualCurrency(270000, rate) -> { ngn: '270,000', usd: '$176', symbol: '₦' }
  */
@@ -71,44 +43,28 @@ export const formatDualCurrency = (amountNgn, rate = FALLBACK_USD_RATE, currency
   return { primary: `₦${ngnFormatted}`, secondary: usdFormatted, symbol: '₦' };
 };
 
-/**
- * Fixed U.S. regional pricing. These are market rates, not NGN conversions.
- * Packages are scoped against a premium studio benchmark of about $150/hour
- * for most disciplines and $90/hour for AI work. Both benchmarks are roughly
- * 20% above the midpoint of current U.S. agency rate bands.
- */
-export const USD_TIER_PRICING = Object.freeze({
-  web_starter: { priceUSD: 6000 },
-  web_growth: { priceUSD: 12000 },
-  web_pro: { priceUSD: 24000 },
-  ecom_starter: { priceUSD: 12000 },
-  ecom_growth: { priceUSD: 24000 },
-  ecom_pro: { priceUSD: 48000 },
-  soft_mvp: { priceUSD: 30000 },
-  soft_growth: { priceUSD: 60000 },
-  soft_enterprise: { priceUSD: 120000 },
-  portal_gatepass: { priceUSD: 24000 },
-  portal_school: { priceUSD: 48000 },
-  portal_retail: { priceUSD: 72000 },
-  uiux_starter: { priceUSD: 6000 },
-  uiux_growth: { priceUSD: 15000 },
-  uiux_pro: { priceUSD: 30000 },
-  brand_starter: { priceUSD: 6000 },
-  brand_growth: { priceUSD: 15000 },
-  brand_pro: { priceUSD: 30000 },
-  seo_starter: { priceUSD: 6000 },
-  seo_growth: { priceUSD: 12000 },
-  seo_pro: { priceUSD: 6000 },
-  mktg_starter: { priceUSD: 6000 },
-  mktg_growth: { priceUSD: 15000 },
-  mktg_pro: { priceUSD: 7500 },
-  ai_starter: { priceUSD: 7200 },
-  ai_growth: { priceUSD: 21600 },
-  ai_pro: { priceUSD: 57600 },
-  maint_essential: { priceUSD: WEBSITE_ANNUAL_CARE.web_starter.priceUSD, annualPriceUSD: WEBSITE_ANNUAL_CARE.web_starter.priceUSD, monthlyPriceUSD: null },
-  maint_standard: { priceUSD: 750, annualPriceUSD: WEBSITE_ANNUAL_CARE.web_growth.priceUSD, monthlyPriceUSD: 750 },
-  maint_growth: { priceUSD: 1500, annualPriceUSD: WEBSITE_ANNUAL_CARE.web_pro.priceUSD, monthlyPriceUSD: 1500 },
-  maint_pro: { priceUSD: 3600, annualPriceUSD: 36000, monthlyPriceUSD: 3600 }
+/** Public fixed regional care fees; these are not currency conversions. */
+export const USD_CARE_PRICING = Object.freeze({
+  "maint_essential": {
+    "priceUSD": 2400,
+    "annualPriceUSD": 2400,
+    "monthlyPriceUSD": null
+  },
+  "maint_standard": {
+    "priceUSD": 750,
+    "annualPriceUSD": 7500,
+    "monthlyPriceUSD": 750
+  },
+  "maint_growth": {
+    "priceUSD": 1500,
+    "annualPriceUSD": 15000,
+    "monthlyPriceUSD": 1500
+  },
+  "maint_pro": {
+    "priceUSD": 3600,
+    "annualPriceUSD": 36000,
+    "monthlyPriceUSD": 3600
+  }
 });
 
 export const INFRASTRUCTURE_LEVELS = {
@@ -116,8 +72,6 @@ export const INFRASTRUCTURE_LEVELS = {
     id: 'foundation',
     name: 'Foundation Infrastructure',
     shortName: 'Foundation',
-    annualNGN: 130000,
-    valuePrefix: '',
     summary: 'Managed production essentials for focused launches.',
     included: [
       '1 client-owned domain with managed DNS',
@@ -131,8 +85,6 @@ export const INFRASTRUCTURE_LEVELS = {
     id: 'growth',
     name: 'Growth Infrastructure',
     shortName: 'Growth',
-    annualNGN: 240000,
-    valuePrefix: '',
     summary: 'More capacity, safer releases and priority alert review.',
     included: [
       'Everything in Foundation Infrastructure',
@@ -147,8 +99,6 @@ export const INFRASTRUCTURE_LEVELS = {
     id: 'scale',
     name: 'Scale Infrastructure',
     shortName: 'Scale',
-    annualNGN: 420000,
-    valuePrefix: '',
     summary: 'Stronger recovery, observability and capacity oversight.',
     included: [
       'Everything in Growth Infrastructure',
@@ -163,8 +113,6 @@ export const INFRASTRUCTURE_LEVELS = {
     id: 'enterprise',
     name: 'Enterprise Infrastructure',
     shortName: 'Enterprise',
-    annualNGN: 750000,
-    valuePrefix: 'from',
     summary: 'Architecture-specific operations for critical systems.',
     included: [
       'Architecture-specific production environments',
@@ -191,7 +139,7 @@ export const COMMERCIAL_TERMS = {
     description:
       'Eligible build packages include the infrastructure level named on the plan for the first 12 months at no additional charge.',
     renewal:
-      'From month 13, the annual Care amount shown on each website plan becomes due for continued management. Clients may instead move provider billing and maintenance to their own team before renewal.',
+      'Before the included infrastructure period ends, choose a technical-care quote, an optional monthly retainer, or handover to your own team. Provider renewals are itemized separately; a development retainer is not required to keep the site online.',
     supportBoundary:
       'Automated monitoring runs continuously. Human response follows the business-hours window stated in the proposal or Care plan.',
     levels: INFRASTRUCTURE_LEVELS
@@ -199,195 +147,148 @@ export const COMMERCIAL_TERMS = {
   disclaimer:
     'Website performance depends on application architecture, hosting infrastructure, traffic volume, third-party services, media assets, and network conditions. Buildwith_lami optimizes the application for production performance, while specific uptime or performance guarantees require an appropriate infrastructure tier.',
   footerNotice:
-    'Regional pricing shown. USD rates are fixed U.S. market prices, not currency conversions. VAT, domains, premium licences, and provider usage above the stated allowance are excluded.'
+    'Regional starting budgets apply; USD prices are fixed regional rates, not currency conversions. Final scope, applicable taxes and running costs are confirmed in your proposal. Care fees cover labour; provider bills are separate except for any infrastructure allowance expressly included with your build.'
 };
 
 export const CARE_PLANS = [
   {
-    id: 'maint_essential',
-    name: 'Essential Care',
-    badge: 'Annual Website Care & Health Retainer',
-    billingCadence: 'ANNUAL',
-    priceNGN: WEBSITE_ANNUAL_CARE.web_starter.priceNGN,
-    priceFormatted: '130,000 / yr',
-    annualPriceNGN: WEBSITE_ANNUAL_CARE.web_starter.priceNGN,
-    monthlyPriceNGN: null,
-    popular: false,
-    bestFor: 'Static brochure sites, portfolios, and landing pages that qualify for free-tier hosting.',
-    examples: 'e.g. Small Business Site, Creator Portfolio, Campaign Landing Page',
-    timeline: 'Billed once per year',
-    revisions: 'Up to 2 minor text or image corrections per year',
-    support: 'Standard email & ticket support (24–48h response)',
-    infrastructureLevel: 'foundation',
-    desc: 'A lean annual plan that keeps an eligible static website deployed, monitored, and technically healthy.',
-    features: [
-      'Eligible free-tier static hosting setup and deployment management',
-      'Managed DNS, SSL and CDN configuration',
-      'Automated uptime checks with outage alerts',
-      'Quarterly dependency and security review',
-      'Source-controlled deployment and rollback support',
-      'Up to 2 minor text or image corrections per year'
+    "id": "maint_essential",
+    "name": "Essential Care",
+    "badge": "For Simple Static Websites",
+    "billingCadence": "ANNUAL",
+    "priceNGN": 130000,
+    "priceFormatted": "130,000 / yr",
+    "annualPriceNGN": 130000,
+    "monthlyPriceNGN": null,
+    "popular": false,
+    "bestFor": "Simple static business websites, portfolios and landing pages without a CMS, database or checkout.",
+    "timeline": "Billed annually; optional ongoing care",
+    "revisions": "2 content updates/year, up to 30 minutes each",
+    "support": "Acknowledgement within 2 business days",
+    "desc": "Monitoring and scheduled technical care for a qualifying static website. Hosting and other provider bills are separate.",
+    "features": [
+      "Automated uptime monitoring with alerts reviewed during business hours",
+      "Quarterly dependency, security and deployment review",
+      "2 minor text or image updates per year, up to 30 minutes each",
+      "Source-controlled deployment and rollback readiness"
     ],
-    notIncluded: [
-      'Dynamic servers, databases, or monthly feature development',
-      'Domain registration and paid provider usage',
-      'Premium third-party licences and transaction fees'
+    "notIncluded": [
+      "CMS, databases, e-commerce or application maintenance",
+      "Hosting, domains, email, paid tools and other provider bills",
+      "Major repairs, new features and after-hours support; quoted separately"
     ]
   },
   {
-    id: 'maint_standard',
-    name: 'Standard Care',
-    badge: 'Monthly Updates & Monitoring',
-    billingCadence: 'MONTHLY_OR_ANNUAL',
-    priceNGN: 40000,
-    priceFormatted: '40,000 / mo',
-    annualPriceNGN: WEBSITE_ANNUAL_CARE.web_growth.priceNGN,
-    monthlyPriceNGN: 40000,
-    popular: false,
-    bestFor: 'Growing websites that need regular content publishing and scheduled health checks.',
-    examples: 'e.g. Corporate Blogs, Professional Service Firms, Active Portfolios',
-    timeline: 'Monthly or Annual retainer',
-    revisions: 'Included within 2-hour monthly allowance',
-    support: 'Standard email & WhatsApp support (24h response)',
-    infrastructureLevel: 'growth',
-    desc: 'Routine CMS care with managed infrastructure, monthly checks, and reserved time for small updates.',
-    features: [
-      'Everything in Essential Care',
-      'Up to 2 hours of dedicated developer updates & content publishing per month',
-      'Monthly performance and security health summary',
-      'Backup or content-export verification where supported',
-      'Standard email & WhatsApp response window'
+    "id": "maint_standard",
+    "name": "Standard Care",
+    "badge": "Routine CMS Care & Small Updates",
+    "billingCadence": "MONTHLY_OR_ANNUAL",
+    "priceNGN": 40000,
+    "priceFormatted": "40,000 / mo",
+    "annualPriceNGN": 420000,
+    "monthlyPriceNGN": 40000,
+    "monthlyHours": 2,
+    "popular": false,
+    "bestFor": "Small CMS websites needing routine maintenance and occasional content updates.",
+    "timeline": "Optional monthly or annual retainer",
+    "revisions": "2 total hours/month; unused hours expire monthly",
+    "support": "Acknowledgement within 1 business day",
+    "desc": "Reserved time for agreed care and updates, with all manual work counted within the 2-hour monthly allowance. Provider bills are separate.",
+    "features": [
+      "Up to 2 total hours/month, including checks, troubleshooting, updates, testing and deployment",
+      "Automated uptime monitoring with alerts reviewed during business hours",
+      "CMS updates and backup or export checks within the monthly allowance",
+      "Short monthly work summary within the same time allowance"
     ],
-    notIncluded: [
-      'Major feature engineering (available in Growth / Pro Care)',
-      'After-hours emergency calls',
-      'Paid provider usage above the agreed Growth profile'
+    "notIncluded": [
+      "Hosting, domains, databases, email, licences and other provider bills",
+      "Redesigns, major features or work beyond the allowance; quoted and approved separately",
+      "24/7 monitoring by staff, after-hours response or guaranteed resolution times"
     ]
   },
   {
-    id: 'maint_growth',
-    name: 'Growth Care',
-    badge: 'Active Improvement Retainer',
-    billingCadence: 'MONTHLY_OR_ANNUAL',
-    priceNGN: 85000,
-    priceFormatted: '85,000 / mo',
-    annualPriceNGN: WEBSITE_ANNUAL_CARE.web_pro.priceNGN,
-    monthlyPriceNGN: 85000,
-    popular: true,
-    popularBadge: '⭐ Best Value',
-    bestFor: 'Active websites and e-commerce stores that change, publish content, and improve regularly.',
-    examples: 'e.g. E-Commerce Stores, Active Businesses, Lead Gen Portals',
-    timeline: 'Monthly or Annual retainer',
-    revisions: 'Included within 4-hour improvement allowance',
-    support: 'Prioritized email & WhatsApp support (12h response)',
-    infrastructureLevel: 'scale',
-    desc: 'Active website care with dedicated improvement time, conversion checks, and ongoing performance tuning.',
-    features: [
-      'Everything in Essential Care & Standard Care',
-      'Up to 4 hours of dedicated developer improvement work per month',
-      'Checkout, forms, and conversion flow testing where applicable',
-      'Performance monitoring & Core Web Vitals optimization',
-      'Small UX & conversion improvements',
-      'Priority email & WhatsApp response window',
-      'Monthly maintenance & performance reporting'
+    "id": "maint_growth",
+    "name": "Growth Care",
+    "badge": "Care for Active Websites & Stores",
+    "billingCadence": "MONTHLY_OR_ANNUAL",
+    "priceNGN": 85000,
+    "priceFormatted": "85,000 / mo",
+    "annualPriceNGN": 900000,
+    "monthlyPriceNGN": 85000,
+    "monthlyHours": 4,
+    "popular": true,
+    "popularBadge": "For Active Websites",
+    "bestFor": "Active websites and stores needing regular maintenance and small improvements.",
+    "timeline": "Optional monthly or annual retainer",
+    "revisions": "4 total hours/month; unused hours expire monthly",
+    "support": "Acknowledgement within 8 business hours",
+    "desc": "Reserved time for agreed care and updates, with all manual work counted within the 4-hour monthly allowance. Provider bills are separate.",
+    "features": [
+      "Up to 4 total hours/month, including checks, troubleshooting, updates, testing and deployment",
+      "Automated uptime monitoring with alerts reviewed during business hours",
+      "Checkout, form and performance checks, plus agreed small improvements within the allowance",
+      "Short monthly work summary within the same time allowance"
     ],
-    notIncluded: [
-      'Large-scale complete website redesigns',
-      'After-hours emergency calls',
-      'Paid provider usage above the agreed Scale profile',
-      'Third-party advertising and premium SaaS costs'
+    "notIncluded": [
+      "Hosting, domains, databases, email, licences and other provider bills",
+      "Redesigns, major features or work beyond the allowance; quoted and approved separately",
+      "24/7 monitoring by staff, after-hours response or guaranteed resolution times"
     ]
   },
   {
-    id: 'maint_pro',
-    name: 'Pro Care',
-    badge: 'Ongoing Engineering Retainer',
-    billingCadence: 'MONTHLY_OR_ANNUAL',
-    priceNGN: 225000,
-    priceFormatted: '225,000 / mo',
-    annualPriceNGN: 2400000,
-    monthlyPriceNGN: 225000,
-    popular: false,
-    bestFor: 'High-traffic stores, SaaS portals, and business-critical platforms where uptime matters.',
-    examples: 'e.g. High-Volume E-Commerce, SaaS Platforms, Corporate Groups',
-    timeline: 'Monthly or Annual retainer',
-    revisions: 'Included within 10-hour allowance',
-    support: 'Priority emergency support window (4h response, direct WhatsApp channel)',
-    infrastructureLevel: 'enterprise',
-    desc: 'A high-touch engineering retainer with 10 hours monthly development, priority emergency window, and proactive technical reviews.',
-    features: [
-      'Everything in Growth Care',
-      'Up to 10 hours of active feature engineering & workflow development per month',
-      'Priority emergency support window',
-      'Proactive quarterly architectural & SEO health reviews',
-      'Direct senior engineering WhatsApp / Call channel'
+    "id": "maint_pro",
+    "name": "Pro Care",
+    "badge": "Reserved Engineering & Maintenance",
+    "billingCadence": "MONTHLY_OR_ANNUAL",
+    "priceNGN": 225000,
+    "priceFormatted": "225,000 / mo",
+    "annualPriceNGN": 2400000,
+    "monthlyPriceNGN": 225000,
+    "monthlyHours": 10,
+    "popular": false,
+    "bestFor": "Established websites and applications with a defined ongoing engineering scope. Complex or critical systems require a separate assessment.",
+    "timeline": "Optional monthly or annual retainer",
+    "revisions": "10 total hours/month; unused hours expire monthly",
+    "support": "Acknowledgement within 4 business hours",
+    "desc": "Reserved time for agreed care and updates, with all manual work counted within the 10-hour monthly allowance. Provider bills are separate.",
+    "features": [
+      "Up to 10 total hours/month, including checks, troubleshooting, updates, testing and deployment",
+      "Automated uptime monitoring with alerts reviewed during business hours",
+      "Agreed feature, workflow and technical review work within the monthly allowance",
+      "Short monthly work summary within the same time allowance"
     ],
-    notIncluded: [
-      'Complete platform rewrites',
-      'Third-party enterprise software licensing',
-      'Infrastructure usage above the Enterprise profile agreed in the proposal',
-      'Uncapped on-demand engineering beyond allocated retainer'
+    "notIncluded": [
+      "Hosting, domains, databases, email, licences and other provider bills",
+      "Redesigns, major features or work beyond the allowance; quoted and approved separately",
+      "24/7 monitoring by staff, after-hours response or guaranteed resolution times"
     ]
   }
 ];
 
-export const OPTIONAL_ADDONS = [
+export const CARE_TERMS = [
   {
-    id: 'addon_shipping',
-    name: 'Multi-Zone Courier Shipping Rules',
-    desc: 'Local delivery zones (Lagos / Interstate / Intl) + Automated courier API sync',
-    costNGN: 100000,
-    highlight: true
+    "title": "Optional ongoing care",
+    "description": "Choose technical care quoted for your site, a monthly retainer, or handover to your own team. CMS and application care need their own assessment; Essential is for simple static sites only."
   },
   {
-    id: 'addon_gateway',
-    name: 'Cross-Border Payment Gateway',
-    desc: 'Accept international debit / credit cards, Stripe, UAE payments, or PayPal',
-    costNGN: 80000,
-    highlight: true
+    "title": "Provider bills",
+    "description": "Hosting, domains, databases, storage, email and paid tools are itemized separately and normally paid directly to providers. Any infrastructure allowance expressly included in your build is honoured for its agreed period."
   },
   {
-    id: 'addon_seo',
-    name: 'Advanced Local SEO & GBP Optimization',
-    desc: 'Google Business Profile setup, local citation building, geo-targeted landing pages, and review-generation strategy — beyond the technical SEO bundled in Growth',
-    costNGN: 100000,
-    highlight: true
+    "title": "Monthly work allowance",
+    "description": "All manual work counts: routine checks, troubleshooting, requested changes, testing, deployment, client communication and reporting. Annual billing still provides the stated monthly allowance; unused monthly hours do not roll over."
   },
   {
-    id: 'addon_automation',
-    name: 'Custom Workflow Automations',
-    desc: 'Webhook pipelines, automated CRM sync & customer order triggers',
-    costNGN: 100000
+    "title": "Business hours",
+    "description": "Monday–Friday, 9:00am–5:00pm WAT, excluding Nigerian public holidays. Automated monitoring runs continuously; staff review alerts during business hours."
   },
   {
-    id: 'addon_crm',
-    name: 'CRM & Leads Pipeline Integration',
-    desc: 'HubSpot, Notion, Airtable, or custom lead database capture',
-    costNGN: 100000
+    "title": "Response and extra work",
+    "description": "Response means acknowledgement and initial assessment, not a resolution guarantee. After-hours cover is not included. Work above the allowance is estimated and approved in writing before it begins."
   },
   {
-    id: 'addon_analytics',
-    name: 'Advanced Conversion Analytics',
-    desc: 'GA4 e-commerce events, Meta Pixel CAPI, and funnel drop-off tracking',
-    costNGN: 50000
-  },
-  {
-    id: 'addon_multicurrency',
-    name: 'Multi-Currency & Geolocation Pricing',
-    desc: 'Automatic visitor location detection and regional currency conversion display',
-    costNGN: 75000
-  },
-  {
-    id: 'addon_pages',
-    name: 'Additional Custom Pages (Set of 3)',
-    desc: 'Tailored responsive landing or story pages designed with high-conversion layouts',
-    costNGN: 75000
-  },
-  {
-    id: 'addon_maintenance',
-    name: 'Monthly Growth Care Retainer',
-    desc: 'Up to 4 hours dedicated developer improvement work, performance tuning & priority support',
-    costNGN: 150000
+    "title": "Warranty and handover",
+    "description": "Your build includes only the bug-fix warranty period stated in its scope. It does not include a year of ongoing care. If you choose handover, your team takes responsibility for provider billing and ongoing maintenance."
   }
 ];
 
@@ -396,8 +297,9 @@ export const BUILD_PRICING = {
     id: 'websites',
     label: '🌐 Web Development',
     title: '01. Web Development',
-    desc: 'One-time website builds with the first 12 months of infrastructure included and a clear annual care price from month 13.',
+    desc: 'One-time website builds with a defined starting scope. Eligible builds include the specified infrastructure allowance for 12 months; ongoing care is optional.',
     startingPriceNGN: 270000,
+    startingPriceUSD: 6000,
     startingPriceFormatted: '270,000',
     baseInfraIncluded: true,
     whatAffectsPricing: [
@@ -408,13 +310,14 @@ export const BUILD_PRICING = {
       'Browser / device support and launch QA scope'
     ],
     pricingNotes:
-      'The build fee covers strategy, design, development, launch, and the named infrastructure level for 12 months. The annual Care figure shown on each plan starts in month 13 if you want Buildwith_lami to keep managing the site. Domains, premium licences, and provider overages are separate.',
+      'Your proposal confirms the final build price, scope, bug-fix warranty and specified infrastructure allowance for 12 months. Before that allowance ends, choose a technical-care quote, optional monthly retainer, or handover. Domains, premium licences and provider overages are separate.',
     tiers: [
       {
         id: 'web_starter',
         name: 'Starter',
         badge: 'Focused 1–5 Page Website',
         priceNGN: 270000,
+        priceUSD: 6000,
         priceFormatted: '270,000',
         popular: false,
         bestFor: 'Individuals, startups, and small businesses launching their first site.',
@@ -423,7 +326,6 @@ export const BUILD_PRICING = {
         revisions: '1 round of revisions on the agreed design',
         support: '14 days of bug-fix support after launch',
         infrastructureLevel: 'foundation',
-        annualCare: WEBSITE_ANNUAL_CARE.web_starter,
         desc: 'A focused, responsive one-to-five page website with a clear content structure and mobile-first layout.',
         features: [
           'Technical planning and site architecture',
@@ -444,8 +346,7 @@ export const BUILD_PRICING = {
         id: 'web_growth',
         name: 'Growth',
         badge: 'Complete Custom Website + CMS',
-        priceNGN: 520000,
-        priceFormatted: '520,000',
+        priceFormatted: 'Custom Quote',
         popular: true,
         popularBadge: '⭐ Best Value',
         bestFor: 'Growing businesses needing a scalable website with easy content updates.',
@@ -454,7 +355,6 @@ export const BUILD_PRICING = {
         revisions: '2 structured rounds of revisions',
         support: '30 days of priority support after launch',
         infrastructureLevel: 'growth',
-        annualCare: WEBSITE_ANNUAL_CARE.web_growth,
         desc: 'A complete custom website built on modern components, with a CMS and integrated lead-capture pipelines.',
         features: [
           'Everything in Starter',
@@ -474,8 +374,7 @@ export const BUILD_PRICING = {
         id: 'web_pro',
         name: 'Pro Platform',
         badge: 'Advanced Portals & Scaled Web',
-        priceNGN: 950000,
-        priceFormatted: '950,000+',
+        priceFormatted: 'Custom Quote',
         popular: false,
         bestFor: 'Established companies needing custom integrations, gated areas, or bespoke modules.',
         examples: 'e.g. High-Traffic Platforms, Custom Portals, Directory Hubs',
@@ -483,7 +382,6 @@ export const BUILD_PRICING = {
         revisions: 'Iterative milestone reviews across each development phase',
         support: '60 days of priority engineering support',
         infrastructureLevel: 'scale',
-        annualCare: WEBSITE_ANNUAL_CARE.web_pro,
         desc: 'A high-performance digital platform with custom dynamic workflows, gated areas, and multi-API integrations.',
         features: [
           'Everything in Growth',
@@ -493,7 +391,7 @@ export const BUILD_PRICING = {
           'Dedicated staging preview environment'
         ],
         notIncluded: [
-          'Care work beyond the included first 12 months',
+          'Ongoing care and changes outside the stated bug-fix warranty',
           'Third-party SaaS API monthly subscriptions'
         ]
       }
@@ -505,6 +403,7 @@ export const BUILD_PRICING = {
     title: '02. E-Commerce Engines',
     desc: 'Modern online storefronts engineered for smooth checkout, inventory sync, and real revenue.',
     startingPriceNGN: 650000,
+    startingPriceUSD: 12000,
     startingPriceFormatted: '650,000',
     baseInfraIncluded: true,
     whatAffectsPricing: [
@@ -522,6 +421,7 @@ export const BUILD_PRICING = {
         name: 'Starter',
         badge: 'Focused Boutique Storefront',
         priceNGN: 650000,
+        priceUSD: 12000,
         priceFormatted: '650,000',
         popular: false,
         bestFor: 'New sellers launching a focused product line or boutique.',
@@ -550,8 +450,7 @@ export const BUILD_PRICING = {
         id: 'ecom_growth',
         name: 'Growth',
         badge: 'Serious Growing Brands',
-        priceNGN: 1250000,
-        priceFormatted: '1,250,000',
+        priceFormatted: 'Custom Quote',
         popular: true,
         popularBadge: '⭐ Best Value',
         bestFor: 'Growing stores that want better conversion and easier management.',
@@ -580,8 +479,7 @@ export const BUILD_PRICING = {
         id: 'ecom_pro',
         name: 'Pro Headless',
         badge: 'High-Volume Commerce',
-        priceNGN: 2200000,
-        priceFormatted: '2,200,000+',
+        priceFormatted: 'Custom Quote',
         popular: false,
         bestFor: 'High-volume merchants needing faster storefronts, custom checkouts, and ERP sync.',
         examples: 'e.g. High-Volume Retailers, Multi-Warehouse Stores',
@@ -611,6 +509,7 @@ export const BUILD_PRICING = {
     title: '03. Custom Software & SaaS',
     desc: 'Bespoke web applications, internal operational tools, and SaaS prototypes built for scale.',
     startingPriceNGN: 1200000,
+    startingPriceUSD: 30000,
     startingPriceFormatted: '1,200,000',
     baseInfraIncluded: true,
     whatAffectsPricing: [
@@ -627,8 +526,7 @@ export const BUILD_PRICING = {
         id: 'soft_mvp',
         name: 'MVP Platform',
         badge: 'Product Validation & Prototypes',
-        priceNGN: 1200000,
-        priceFormatted: '1,200,000',
+        priceFormatted: 'Custom Quote',
         popular: false,
         bestFor: 'Founders, startups, and teams validating a new software product.',
         examples: 'e.g. SaaS MVP, Client Data Portal, Booking Engine',
@@ -655,8 +553,7 @@ export const BUILD_PRICING = {
         id: 'soft_growth',
         name: 'Growth Platform',
         badge: 'Full-Scale Business Systems',
-        priceNGN: 2000000,
-        priceFormatted: '2,000,000+',
+        priceFormatted: 'Custom Quote',
         popular: true,
         popularBadge: '⭐ High-Scale Architecture',
         bestFor: 'Scaling companies needing internal ERPs, fintech tools & custom portals.',
@@ -684,8 +581,7 @@ export const BUILD_PRICING = {
         id: 'soft_enterprise',
         name: 'Enterprise',
         badge: 'Mission-Critical SaaS & ERP',
-        priceNGN: 4000000,
-        priceFormatted: '4,000,000+ starting',
+        priceFormatted: 'Custom Quote',
         popular: false,
         bestFor: 'Multi-tenant SaaS platforms, enterprise ERPs & mission-critical systems.',
         examples: 'e.g. Multi-Tenant SaaS, High-Volume Data Systems',
@@ -714,6 +610,7 @@ export const BUILD_PRICING = {
     title: '04. Business Management Systems & ERP',
     desc: 'Turnkey operational web applications engineered for schools, residential estates, wholesale warehouses, and supermarket retail chains.',
     startingPriceNGN: 850000,
+    startingPriceUSD: 24000,
     startingPriceFormatted: '850,000',
     baseInfraIncluded: true,
     offerStructureLabel: 'Separate solution starting points — not upgrade tiers',
@@ -731,8 +628,7 @@ export const BUILD_PRICING = {
         id: 'portal_gatepass',
         name: 'Access & Operations Hub',
         badge: 'Estate Gate Pass & Visitor System',
-        priceNGN: 850000,
-        priceFormatted: '850,000',
+        priceFormatted: 'Custom Quote',
         popular: false,
         bestFor: 'Residential estates, gated communities, corporate offices, and private facilities.',
         examples: 'e.g. Estate Gate Pass, Visitor QR Verification, Resident Management Hub',
@@ -758,8 +654,7 @@ export const BUILD_PRICING = {
         id: 'portal_school',
         name: 'School & Academic Portal',
         badge: 'School Management & Student Portal',
-        priceNGN: 1600000,
-        priceFormatted: '1,600,000',
+        priceFormatted: 'Custom Quote',
         popular: true,
         popularBadge: '⭐ Complete Academic Solution',
         bestFor: 'Primary & secondary schools, training academies, and tertiary institutions.',
@@ -787,8 +682,7 @@ export const BUILD_PRICING = {
         id: 'portal_retail',
         name: 'Logistics & Retail ERP',
         badge: 'Warehouse & Supermarket Hub',
-        priceNGN: 2400000,
-        priceFormatted: '2,400,000+',
+        priceFormatted: 'Custom Quote',
         popular: false,
         bestFor: 'Wholesale distributors, multi-warehouse operators, supermarkets, and multi-branch retail stores.',
         examples: 'e.g. Supermarket POS, Warehouse Inventory Hub, Wholesale Distribution ERP',
@@ -819,6 +713,7 @@ export const BUILD_PRICING = {
     title: '05. UI/UX & Product Design',
     desc: 'User-centered interfaces and clickable prototypes designed for engagement and clear visual hierarchy.',
     startingPriceNGN: 280000,
+    startingPriceUSD: 6000,
     startingPriceFormatted: '280,000',
     baseInfraIncluded: false,
     baseInfraNote:
@@ -838,6 +733,7 @@ export const BUILD_PRICING = {
         name: 'Starter',
         badge: 'Focused UI Wireframes & Layout',
         priceNGN: 280000,
+        priceUSD: 6000,
         priceFormatted: '280,000',
         popular: false,
         bestFor: 'New projects, landing pages, and straightforward multi-page flows.',
@@ -857,8 +753,7 @@ export const BUILD_PRICING = {
         id: 'uiux_growth',
         name: 'Growth',
         badge: 'Complete Product Design System',
-        priceNGN: 750000,
-        priceFormatted: '750,000',
+        priceFormatted: 'Custom Quote',
         popular: true,
         popularBadge: '⭐ Best Value',
         bestFor: 'Digital products, SaaS apps, and scalable customer platforms.',
@@ -880,8 +775,7 @@ export const BUILD_PRICING = {
         id: 'uiux_pro',
         name: 'Pro Platform',
         badge: 'Enterprise Design Architecture',
-        priceNGN: 1600000,
-        priceFormatted: '1,600,000+ starting',
+        priceFormatted: 'Custom Quote',
         popular: false,
         bestFor: 'Large-scale platforms, multi-role portals, and enterprise software.',
         examples: 'e.g. Multi-Tenant SaaS UI, Complex ERP Systems',
@@ -906,6 +800,7 @@ export const BUILD_PRICING = {
     title: '06. Branding & Visual Identity',
     desc: 'Distinctive brand identities, logo systems, and visual guidelines that build trust and market recognition.',
     startingPriceNGN: 250000,
+    startingPriceUSD: 6000,
     startingPriceFormatted: '250,000',
     baseInfraIncluded: false,
     baseInfraNote:
@@ -925,6 +820,7 @@ export const BUILD_PRICING = {
         name: 'Starter',
         badge: 'Core Identity Kit',
         priceNGN: 250000,
+        priceUSD: 6000,
         priceFormatted: '250,000',
         popular: false,
         bestFor: 'New ventures, personal brands, and early-stage startups.',
@@ -945,8 +841,7 @@ export const BUILD_PRICING = {
         id: 'brand_growth',
         name: 'Growth',
         badge: 'Complete Brand System',
-        priceNGN: 600000,
-        priceFormatted: '600,000',
+        priceFormatted: 'Custom Quote',
         popular: true,
         popularBadge: '⭐ Best Value',
         bestFor: 'Growing companies establishing a consistent, authoritative presence.',
@@ -969,8 +864,7 @@ export const BUILD_PRICING = {
         id: 'brand_pro',
         name: 'Pro Programme',
         badge: 'Enterprise Brand Governance',
-        priceNGN: 1400000,
-        priceFormatted: '1,400,000+ starting',
+        priceFormatted: 'Custom Quote',
         popular: false,
         bestFor: 'Multi-division companies, rebrands, and premium market leaders.',
         examples: 'e.g. Corporate Conglomerate, Premium Retail Brand',
@@ -995,6 +889,7 @@ export const BUILD_PRICING = {
     title: '07. Search Engine Optimization (SEO)',
     desc: 'Technical search optimization, schema architecture, and content structure for sustainable inbound growth.',
     startingPriceNGN: 220000,
+    startingPriceUSD: 6000,
     startingPriceFormatted: '220,000',
     baseInfraIncluded: false,
     offerStructureLabel: 'Choose your stage: Audit → Implementation → Ongoing Growth',
@@ -1015,6 +910,7 @@ export const BUILD_PRICING = {
         name: 'Starter Audit',
         badge: 'Technical Health & Roadmap',
         priceNGN: 220000,
+        priceUSD: 6000,
         priceFormatted: '220,000',
         popular: false,
         bestFor: 'Websites with poor search visibility or unindexed content.',
@@ -1036,8 +932,7 @@ export const BUILD_PRICING = {
         id: 'seo_growth',
         name: 'Growth Implementation',
         badge: 'Technical Fixes & Schema',
-        priceNGN: 550000,
-        priceFormatted: '550,000',
+        priceFormatted: 'Custom Quote',
         popular: true,
         popularBadge: '⭐ Best Value',
         bestFor: 'Businesses wanting technical SEO implemented directly in code.',
@@ -1060,8 +955,7 @@ export const BUILD_PRICING = {
         id: 'seo_pro',
         name: 'Ongoing Growth',
         badge: 'Ongoing Organic Growth',
-        priceNGN: 350000,
-        priceFormatted: '350,000 / mo',
+        priceFormatted: 'Custom Quote',
         popular: false,
         bestFor: 'Companies competing for high-intent, revenue-generating keywords.',
         examples: 'e.g. National Service Brands, Competitive E-Commerce',
@@ -1086,6 +980,7 @@ export const BUILD_PRICING = {
     title: '08. Digital Marketing & Campaigns',
     desc: 'Targeted ad campaigns, conversion funnels, and data attribution designed to generate qualified leads.',
     startingPriceNGN: 250000,
+    startingPriceUSD: 6000,
     startingPriceFormatted: '250,000',
     baseInfraIncluded: false,
     offerStructureLabel: 'Choose your stage: Strategy → Campaign Launch → Monthly Management',
@@ -1106,6 +1001,7 @@ export const BUILD_PRICING = {
         name: 'Strategy Blueprint',
         badge: 'Go-To-Market Roadmap',
         priceNGN: 250000,
+        priceUSD: 6000,
         priceFormatted: '250,000',
         popular: false,
         bestFor: 'Businesses needing a clear campaign direction before spending ad money.',
@@ -1126,8 +1022,7 @@ export const BUILD_PRICING = {
         id: 'mktg_growth',
         name: 'Campaign Launch',
         badge: 'Full Creative & Pixel Setup',
-        priceNGN: 700000,
-        priceFormatted: '700,000',
+        priceFormatted: 'Custom Quote',
         popular: true,
         popularBadge: '⭐ Best Value',
         bestFor: 'Brands ready to launch high-converting paid acquisition campaigns.',
@@ -1149,8 +1044,7 @@ export const BUILD_PRICING = {
         id: 'mktg_pro',
         name: 'Monthly Management',
         badge: 'Ongoing Growth Management',
-        priceNGN: 850000,
-        priceFormatted: '850,000 / mo',
+        priceFormatted: 'Custom Quote',
         popular: false,
         bestFor: 'Active businesses scaling monthly ad spend and lead flow.',
         examples: 'e.g. Scaling E-Commerce, High-Ticket Lead Gen',
@@ -1175,6 +1069,7 @@ export const BUILD_PRICING = {
     title: '09. AI Solutions & Workflow Automations',
     desc: 'Connected AI workflows that reduce repetitive work and move information between your business tools.',
     startingPriceNGN: 450000,
+    startingPriceUSD: 7200,
     startingPriceFormatted: '450,000',
     baseInfraIncluded: true,
     whatAffectsPricing: [
@@ -1191,8 +1086,7 @@ export const BUILD_PRICING = {
         id: 'ai_starter',
         name: 'Starter Automation',
         badge: 'Core Workflow Pipeline',
-        priceNGN: 450000,
-        priceFormatted: '450,000',
+        priceFormatted: 'Custom Quote',
         popular: false,
         bestFor: 'Teams spending hours on manual data entry and lead routing.',
         examples: 'e.g. Lead-to-CRM Sync, WhatsApp Order Notifications',
@@ -1214,8 +1108,7 @@ export const BUILD_PRICING = {
         id: 'ai_growth',
         name: 'Growth Pipeline',
         badge: 'Multi-Step AI Automation',
-        priceNGN: 1400000,
-        priceFormatted: '1,400,000',
+        priceFormatted: 'Custom Quote',
         popular: true,
         popularBadge: '⭐ Best Value',
         bestFor: 'Companies wanting AI-assisted operations, document processing & CRM sync.',
@@ -1239,8 +1132,7 @@ export const BUILD_PRICING = {
         id: 'ai_pro',
         name: 'Enterprise AI Suite',
         badge: 'Custom Agent Architecture',
-        priceNGN: 3000000,
-        priceFormatted: '3,000,000+ starting',
+        priceFormatted: 'Custom Quote',
         popular: false,
         bestFor: 'Enterprises deploying proprietary AI chatbots, custom models, and internal tools.',
         examples: 'e.g. Internal Knowledge Assistant, Secure Company Search',
@@ -1265,15 +1157,15 @@ export const BUILD_PRICING = {
     id: 'maintenance',
     label: '🛡️ Website Maintenance',
     title: '10. Website Care & Managed Operations',
-    desc: 'Keep your site live, monitored, maintained, and supported after the included first year.',
+    desc: 'Optional care for your website: choose a technical-care quote, reserved monthly work, or handover to your own team.',
     startingPriceNGN: 130000,
     startingPriceFormatted: '130,000 / yr',
-    baseInfraIncluded: true,
-    offerStructureLabel: 'Choose annual protection or a plan with reserved monthly improvement time.',
+    baseInfraIncluded: false,
+    offerStructureLabel: 'Care is optional. Provider bills are separate from these labour fees.',
     baseInfraNote:
-      'Essential Care is capped at ₦130,000 per year for eligible static sites on a commercially suitable free hosting tier. Dynamic websites and higher usage move to the matching managed plan.',
+      'Essential Care is ₦130,000/year for qualifying simple static websites. CMS websites and applications need a tailored baseline care quote; monthly development retainers are optional.',
     pricingNotes:
-      'Every price includes the matching infrastructure allowance and the management work listed on the plan. Domain renewals, provider usage above that allowance, premium licences, and third-party fees are quoted separately and require approval.',
+      'Care prices cover the stated labour and monitoring work, not provider bills. All manual work counts within monthly allowances, including routine checks, troubleshooting and reporting. Additional work is estimated and approved before it begins. Existing signed proposals retain their agreed terms.',
     tiers: CARE_PLANS
   }
 };

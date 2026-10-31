@@ -1,4 +1,4 @@
-import { BUILD_PRICING, USD_TIER_PRICING } from '../config/pricing.js';
+import { BUILD_PRICING } from '../config/pricing.js';
 
 // Commercial details always come from the same configuration as the pricing page.
 export const serviceDetails = {
@@ -22,7 +22,7 @@ export function getServicePlan(id) {
   if (!detail) return null;
   const category = BUILD_PRICING[detail.category];
   const tier = category.tiers[0];
-  return { ...detail, tier, pricingNotes: category.pricingNotes, priceNGN: tier.priceNGN, priceUSD: USD_TIER_PRICING[tier.id]?.priceUSD };
+  return { ...detail, tier, pricingNotes: category.pricingNotes, priceNGN: category.startingPriceNGN, priceUSD: category.startingPriceUSD };
 }
 
 export function regionalStartingPrices(plan) {
