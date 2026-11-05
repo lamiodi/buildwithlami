@@ -147,7 +147,7 @@ export const COMMERCIAL_TERMS = {
   disclaimer:
     'Website performance depends on application architecture, hosting infrastructure, traffic volume, third-party services, media assets, and network conditions. Buildwith_lami optimizes the application for production performance, while specific uptime or performance guarantees require an appropriate infrastructure tier.',
   footerNotice:
-    'Regional starting budgets apply; USD prices are fixed regional rates, not currency conversions. Final scope, applicable taxes and running costs are confirmed in your proposal. Care fees cover labour; provider bills are separate except for any infrastructure allowance expressly included with your build.'
+    'Final scope, applicable taxes and running costs are confirmed in your proposal. Existing signed proposals retain their agreed terms.'
 };
 
 export const CARE_PLANS = [
@@ -221,7 +221,7 @@ export const CARE_PLANS = [
     "bestFor": "Active websites and stores needing regular maintenance and small improvements.",
     "timeline": "Optional monthly or annual retainer",
     "revisions": "4 total hours/month; unused hours expire monthly",
-    "support": "Acknowledgement within 8 business hours",
+    "support": "Acknowledgement within 1 business day",
     "desc": "Reserved time for agreed care and updates, with all manual work counted within the 4-hour monthly allowance. Provider bills are separate.",
     "features": [
       "Up to 4 total hours/month, including checks, troubleshooting, updates, testing and deployment",
@@ -297,7 +297,7 @@ export const BUILD_PRICING = {
     id: 'websites',
     label: '🌐 Web Development',
     title: '01. Web Development',
-    desc: 'One-time website builds with a defined starting scope. Eligible builds include the specified infrastructure allowance for 12 months; ongoing care is optional.',
+    desc: 'Choose a focused business site, an editable website or a platform with custom integrations.',
     startingPriceNGN: 270000,
     startingPriceUSD: 6000,
     startingPriceFormatted: '270,000',
@@ -310,7 +310,7 @@ export const BUILD_PRICING = {
       'Browser / device support and launch QA scope'
     ],
     pricingNotes:
-      'Your proposal confirms the final build price, scope, bug-fix warranty and specified infrastructure allowance for 12 months. Before that allowance ends, choose a technical-care quote, optional monthly retainer, or handover. Domains, premium licences and provider overages are separate.',
+      'Content writing, photography, domain registration and premium licences are quoted separately unless expressly included in your scope.',
     tiers: [
       {
         id: 'web_starter',
@@ -324,7 +324,8 @@ export const BUILD_PRICING = {
         examples: 'e.g. Creator Showcase, Brand Presence, Product Waitlist',
         timeline: '1–2 weeks',
         revisions: '1 round of revisions on the agreed design',
-        support: '14 days of bug-fix support after launch',
+        warrantyDays: 14,
+        support: '14 days of bug-fix warranty after launch',
         infrastructureLevel: 'foundation',
         desc: 'A focused, responsive one-to-five page website with a clear content structure and mobile-first layout.',
         features: [
@@ -353,15 +354,16 @@ export const BUILD_PRICING = {
         examples: 'e.g. Corporate Sites, Service Firms, Marketing Portals',
         timeline: '2–4 weeks',
         revisions: '2 structured rounds of revisions',
-        support: '30 days of priority support after launch',
+        warrantyDays: 30,
+        support: '30 days of bug-fix warranty after launch',
         infrastructureLevel: 'growth',
-        desc: 'A complete custom website built on modern components, with a CMS and integrated lead-capture pipelines.',
+        desc: 'A custom website with an editable CMS, enquiry forms and email notifications.',
         features: [
           'Everything in Starter',
           'Up to 10 custom page templates',
           'CMS setup & content modeling',
           'Lead-capture forms & email notifications',
-          'Core Web Vitals & Technical SEO Compliance',
+          'Performance improvements and technical SEO setup',
           'Analytics integration'
         ],
         notIncluded: [
@@ -380,7 +382,8 @@ export const BUILD_PRICING = {
         examples: 'e.g. High-Traffic Platforms, Custom Portals, Directory Hubs',
         timeline: '4–8 weeks',
         revisions: 'Iterative milestone reviews across each development phase',
-        support: '60 days of priority engineering support',
+        warrantyDays: 60,
+        support: '60 days of bug-fix warranty after launch',
         infrastructureLevel: 'scale',
         desc: 'A high-performance digital platform with custom dynamic workflows, gated areas, and multi-API integrations.',
         features: [
@@ -400,8 +403,8 @@ export const BUILD_PRICING = {
   ecommerce: {
     id: 'ecommerce',
     label: '🛒 E-Commerce',
-    title: '02. E-Commerce Engines',
-    desc: 'Modern online storefronts engineered for smooth checkout, inventory sync, and real revenue.',
+    title: '02. Online Stores',
+    desc: 'Storefronts with checkout, product management and an order workflow suited to your business.',
     startingPriceNGN: 650000,
     startingPriceUSD: 12000,
     startingPriceFormatted: '650,000',
@@ -428,7 +431,8 @@ export const BUILD_PRICING = {
         examples: 'e.g. Emerging Boutiques, Single-Product Brands',
         timeline: '2–3 weeks',
         revisions: '1 round of revisions on the agreed design',
-        support: '14 days of launch bug-fix support',
+        warrantyDays: 14,
+        support: '14 days of bug-fix warranty after launch',
         infrastructureLevel: 'foundation',
         desc: 'A focused storefront for a small catalogue with a straightforward buying path.',
         features: [
@@ -457,7 +461,8 @@ export const BUILD_PRICING = {
         examples: 'e.g. Fashion Brands, Multi-Product Stores, Beauty Lines',
         timeline: '4–6 weeks',
         revisions: '2 rounds of revisions on the agreed design',
-        support: '30 days of priority bug-fix support after launch',
+        warrantyDays: 30,
+        support: '30 days of bug-fix warranty after launch',
         infrastructureLevel: 'growth',
         desc: 'A conversion-focused store with shipping, tax, analytics, and launch support.',
         features: [
@@ -485,7 +490,8 @@ export const BUILD_PRICING = {
         examples: 'e.g. High-Volume Retailers, Multi-Warehouse Stores',
         timeline: '6–10 weeks',
         revisions: 'Phased sprint milestones with continuous review',
-        support: '60 days of priority support with direct engineering access',
+        warrantyDays: 60,
+        support: '60 days of bug-fix warranty after launch',
         infrastructureLevel: 'scale',
         desc: 'Custom headless storefront architecture with high-performance browsing and custom backends.',
         features: [
@@ -532,7 +538,8 @@ export const BUILD_PRICING = {
         examples: 'e.g. SaaS MVP, Client Data Portal, Booking Engine',
         timeline: '4–6 weeks',
         revisions: '1 iteration round on validated prototype',
-        support: '90 days of post-launch engineering support',
+        warrantyDays: 90,
+        support: '90 days of bug-fix warranty after launch',
         infrastructureLevel: 'foundation',
         desc: 'Custom full-stack software built to test market demand, automate core business logic, and onboard early users.',
         features: [
@@ -560,7 +567,8 @@ export const BUILD_PRICING = {
         examples: 'e.g. Custom ERP, Financial Ledger, Multi-Role Portal',
         timeline: '6–10 weeks',
         revisions: '2 review cycles during phased delivery',
-        support: '90 days of priority post-launch engineering support',
+        warrantyDays: 90,
+        support: '90 days of bug-fix warranty after launch',
         infrastructureLevel: 'growth',
         desc: 'Robust architecture with multi-role workflows, automated reporting ledgers, and secure integration pipelines.',
         features: [
@@ -587,7 +595,8 @@ export const BUILD_PRICING = {
         examples: 'e.g. Multi-Tenant SaaS, High-Volume Data Systems',
         timeline: 'Scoped during discovery',
         revisions: 'Defined in statement of work',
-        support: '90 days of priority engineering support & dedicated on-call window',
+        warrantyDays: 90,
+        support: '90 days of bug-fix warranty after launch; any on-call cover is separately agreed',
         infrastructureLevel: 'enterprise',
         desc: 'Dedicated cloud infrastructure planning, compliance pipelines, and 100% intellectual property transfer.',
         features: [
@@ -634,7 +643,8 @@ export const BUILD_PRICING = {
         examples: 'e.g. Estate Gate Pass, Visitor QR Verification, Resident Management Hub',
         timeline: '2–3 weeks',
         revisions: '1 revision round on resident interface & QR pass layout',
-        support: '30 days of operational support & staff onboarding',
+        warrantyDays: 30,
+        support: '30 days of bug-fix warranty after launch; agreed staff onboarding included',
         infrastructureLevel: 'foundation',
         desc: 'A streamlined web portal allowing residents to generate timed digital visitor passes, with a guard tablet scanner for rapid entry validation.',
         features: [
@@ -643,7 +653,8 @@ export const BUILD_PRICING = {
           'Automated SMS / WhatsApp arrival notification to host resident',
           'Vehicle license plate logging, entry / exit timestamp audit trail',
           'Estate manager admin dashboard with resident directory & blacklist alerts',
-          '100% source code handover & database setup'
+          '100% source code handover & database setup',
+          'Staff onboarding for the delivered system'
         ],
         notIncluded: [
           'Hardware tablets / scanners (we provide hardware recommendations)',
@@ -661,7 +672,8 @@ export const BUILD_PRICING = {
         examples: 'e.g. School Management ERP, Student Report Card Portal, Tuition Billing',
         timeline: '4–6 weeks',
         revisions: '2 revision cycles across grading and student records',
-        support: '60 days of academic priority support & teacher training',
+        warrantyDays: 60,
+        support: '60 days of bug-fix warranty after launch; agreed teacher training included',
         infrastructureLevel: 'growth',
         desc: 'A comprehensive academic management system managing student admissions, continuous assessment grading, automated PDF report cards, and online fee collection.',
         features: [
@@ -671,7 +683,8 @@ export const BUILD_PRICING = {
           'One-click downloadable & printable PDF termly report cards',
           'Online school fees payment integration (Paystack / Cards) with auto-receipts',
           'Daily student attendance tracking and disciplinary record log',
-          'SMS / Email announcements broadcast engine for parents'
+          'SMS / Email announcements broadcast engine for parents',
+          'Teacher training for the delivered system'
         ],
         notIncluded: [
           'Third-party SMS broadcast credits (billed directly by provider)',
@@ -688,7 +701,8 @@ export const BUILD_PRICING = {
         examples: 'e.g. Supermarket POS, Warehouse Inventory Hub, Wholesale Distribution ERP',
         timeline: '6–8 weeks',
         revisions: 'Iterative milestone reviews per branch deployment',
-        support: '90 days of enterprise priority warranty & staff training',
+        warrantyDays: 90,
+        support: '90 days of bug-fix warranty after launch; agreed staff training included',
         infrastructureLevel: 'scale',
         desc: 'An enterprise inventory and Point-of-Sale operating system with real-time stock deductions, multi-location transfers, barcode scanning, and daily cash reconciliation.',
         features: [
@@ -698,7 +712,8 @@ export const BUILD_PRICING = {
           'Inter-warehouse stock transfer requests, dispatch approvals & transit logs',
           'Supplier purchase order management & goods received note (GRN) reconciliation',
           'Daily cash drawer reconciliation, cashier shift audits & gross profit analytics',
-          'Role-based permissions (Cashier, Storekeeper, Warehouse Manager, Auditor)'
+          'Role-based permissions (Cashier, Storekeeper, Warehouse Manager, Auditor)',
+          'Staff training for the delivered system'
         ],
         notIncluded: [
           'POS hardware peripherals (thermal printers, barcode scanners, cash drawers)',
@@ -1092,7 +1107,8 @@ export const BUILD_PRICING = {
         examples: 'e.g. Lead-to-CRM Sync, WhatsApp Order Notifications',
         timeline: '1–2 weeks',
         revisions: '1 round of tuning on prompt logic & triggers',
-        support: '14 days of automation monitoring support',
+        warrantyDays: 14,
+        support: '14 days of bug-fix warranty after launch',
         infrastructureLevel: 'foundation',
         desc: 'Streamlined automation connecting 2–3 core business tools.',
         features: [
@@ -1115,7 +1131,8 @@ export const BUILD_PRICING = {
         examples: 'e.g. AI Customer Service Triage, Automated Invoice Processing',
         timeline: '3–5 weeks',
         revisions: '2 testing rounds on automated logic & failovers',
-        support: '30 days of priority integration support',
+        warrantyDays: 30,
+        support: '30 days of bug-fix warranty after launch',
         infrastructureLevel: 'growth',
         desc: 'Advanced automated workflows with AI text extraction, CRM sync, and databases.',
         features: [
@@ -1138,7 +1155,8 @@ export const BUILD_PRICING = {
         examples: 'e.g. Internal Knowledge Assistant, Secure Company Search',
         timeline: '6–10 weeks',
         revisions: 'Iterative sprint reviews across data ingestion & outputs',
-        support: '60 days of priority engineering support',
+        warrantyDays: 60,
+        support: '60 days of bug-fix warranty after launch',
         infrastructureLevel: 'enterprise',
         desc: 'Secure company knowledge assistants and multi-step AI workflows tailored to internal data.',
         features: [
@@ -1156,8 +1174,8 @@ export const BUILD_PRICING = {
   maintenance: {
     id: 'maintenance',
     label: '🛡️ Website Maintenance',
-    title: '10. Website Care & Managed Operations',
-    desc: 'Optional care for your website: choose a technical-care quote, reserved monthly work, or handover to your own team.',
+    title: '10. Website Care',
+    desc: 'Monitoring, scheduled maintenance and agreed updates for an existing website.',
     startingPriceNGN: 130000,
     startingPriceFormatted: '130,000 / yr',
     baseInfraIncluded: false,

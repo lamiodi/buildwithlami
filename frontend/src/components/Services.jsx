@@ -178,7 +178,7 @@ const Services = () => {
           What I Build <span className="text-accent">For You</span>
         </motion.h3>
         <motion.p variants={item} className="text-base md:text-lg text-gray-700 dark:text-gray-300 leading-relaxed font-light">
-          Tell me what your business needs. I’ll help you choose a practical scope, then handle the design, engineering and launch with you.
+          Explore the design, development and technical services that can form part of your project.
         </motion.p>
       </motion.div>
 

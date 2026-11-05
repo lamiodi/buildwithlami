@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from './ui/select';
-import { Mail, Send, CheckCircle2, ShieldCheck, Code } from 'lucide-react';
+import { Mail, Send, CheckCircle2 } from 'lucide-react';
 
 const projectTypes = [
   'Business Website',
@@ -107,31 +107,14 @@ const Contact = () => {
                 Have a business problem to <span className="text-accent">solve?</span>
               </h2>
               <p className="text-gray-300 text-base md:text-lg font-light leading-relaxed">
-                Tell me what you're trying to achieve. I'll help you determine what should be built, what can wait, and the fastest path to production.
+                Share the goal, who it’s for and anything that is slowing your business down. A few sentences are enough to start.
               </p>
             </motion.div>
 
-            {/* Reassurance Metrics */}
-            <motion.div variants={item} className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-              <div className="flex items-start gap-3 p-3.5 rounded-xl bg-white/5 border border-white/10">
-                <ShieldCheck className="w-5 h-5 text-accent shrink-0 mt-0.5" />
-                <div>
-                  <span className="text-xs font-heading font-bold text-white uppercase tracking-wider block">50/50 Billing</span>
-                  <span className="text-[11px] text-gray-400">Milestone protected</span>
-                </div>
-              </div>
-              <div className="flex items-start gap-3 p-3.5 rounded-xl bg-white/5 border border-white/10">
-                <Code className="w-5 h-5 text-accent shrink-0 mt-0.5" />
-                <div>
-                  <span className="text-xs font-heading font-bold text-white uppercase tracking-wider block">100% IP Transfer</span>
-                  <span className="text-[11px] text-gray-400">Full repository handover</span>
-                </div>
-              </div>
-            </motion.div>
             
             <motion.div variants={item} className="space-y-3 pt-4 border-t border-white/10">
               <h3 className="text-white font-semibold">What happens next?</h3>
-              <p className="text-sm text-gray-300 leading-relaxed">I’ll review your brief, clarify the scope with you, and prepare a proposal. We agree the deliverables and price before work begins.</p>
+              <p className="text-sm text-gray-300 leading-relaxed">I’ll check the brief and suggest a call or a few follow-up questions before preparing your proposal.</p>
               <span className="text-[11px] font-mono font-bold uppercase tracking-widest text-gray-300 block">
                 Prefer Direct Email?
               </span>

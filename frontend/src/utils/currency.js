@@ -1,4 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useSyncExternalStore } from 'react';
+import { createPricingRegionStore, currencyForCountry } from './pricingRegion.js';
+
+const REGION_KEY = 'bwl-pricing-region';
 
 /**
  * Automatically detects the visitor's currency (NGN for Nigeria, USD elsewhere).
@@ -16,47 +19,48 @@ export const getInitialCurrency = () => {
   return 'USD';
 };
 
-export const useAutomatedCurrency = () => {
-  const [currency, setCurrency] = useState(getInitialCurrency);
-
-  useEffect(() => {
-    let isMounted = true;
-
-    const detectLocation = async () => {
-      try {
-        const res = await fetch('https://ipapi.co/json/');
-        if (!res.ok) throw new Error('ipapi failed');
-        const data = await res.json();
-        if (isMounted) {
-          const detected = data.country_code === 'NG' ? 'NGN' : 'USD';
-          setCurrency(detected);
-          return;
-        }
-      } catch {
-        try {
-          const res2 = await fetch('https://ipwho.is/');
-          if (res2.ok) {
-            const data2 = await res2.json();
-            if (isMounted) {
-              const detected = data2.country_code === 'NG' ? 'NGN' : 'USD';
-              setCurrency(detected);
-            }
-          }
-        } catch {
-          // Fallback retained
-        }
-      }
-    };
-
-    detectLocation();
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
-
-  return currency;
+const readRegion = () => {
+  try { return globalThis.localStorage?.getItem(REGION_KEY); } catch { return null; }
 };
+
+async function detectCurrency() {
+  for (const url of ['https://ipapi.co/json/', 'https://ipwho.is/']) {
+    try {
+      const response = await fetch(url, { signal: AbortSignal.timeout(4000) });
+      if (!response.ok) continue;
+      const data = await response.json();
+      if (data.success === false) continue;
+      const currency = currencyForCountry(data.country_code);
+      if (currency) return currency;
+    } catch { /* Keep the timezone default if location lookup fails. */ }
+  }
+  return null;
+}
+
+const regionStore = createPricingRegionStore({
+  initialCurrency: getInitialCurrency(),
+  savedRegion: readRegion(),
+  detect: detectCurrency,
+  persist: value => {
+    if (value) globalThis.localStorage?.setItem(REGION_KEY, value);
+    else globalThis.localStorage?.removeItem(REGION_KEY);
+  },
+});
+
+export function usePricingRegion() {
+  const region = useSyncExternalStore(regionStore.subscribe, regionStore.getSnapshot, regionStore.getSnapshot);
+  useEffect(() => {
+    regionStore.start();
+    const sync = event => {
+      if (event.key === REGION_KEY || event.key === null) regionStore.syncRegion(event.newValue);
+    };
+    window.addEventListener('storage', sync);
+    return () => window.removeEventListener('storage', sync);
+  }, []);
+  return { ...region, setRegion: regionStore.setRegion };
+}
+
+export const useAutomatedCurrency = () => usePricingRegion().currency;
 
 /**
  * Shared naira formatter for admin surfaces. One implementation instead

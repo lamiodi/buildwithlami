@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { PROJECT_GOALS, getProjectGoal, getGoalPlan } from '../src/data/projectGoals.js';
-import { inquiryContext, projectContactHref, whatsAppHref, serviceFromProjectType } from '../src/utils/inquiryContext.js';
+import { inquiryContext, projectContactHref, whatsAppHref, serviceFromProjectType, reconcileInquiryMessage } from '../src/utils/inquiryContext.js';
 import projects from '../src/data/fallbackProjects.js';
 
 test('The three scoped goals point to real case studies, public starting budgets and the correct contact service', () => {
@@ -53,6 +53,17 @@ test('Changing the contact service drops an incompatible old package', () => {
   assert.equal(changed.tier, null);
   assert.match(changed.message, /online store/);
   assert.equal(inquiryContext({pathname:'/contact',search:'?service=maintenance&tier=soft_enterprise'}).tier, null);
+});
+
+test('Changing service refreshes generated briefs while preserving a visitor’s own project details', () => {
+  const original = inquiryContext({pathname:'/contact', search:'?service=websites&tier=Growth'}).message;
+  const next = inquiryContext({pathname:'/contact', search:'?service=ecommerce'}).message;
+  assert.equal(reconcileInquiryMessage('', '', original), original);
+  assert.equal(reconcileInquiryMessage(original, original, next), next);
+  assert.equal(reconcileInquiryMessage(next, next, ''), '');
+  const customBrief = `${original} I need bookings and a customer dashboard.`;
+  assert.equal(reconcileInquiryMessage(customBrief, original, next), customBrief);
+  assert.equal(reconcileInquiryMessage(customBrief, original, ''), customBrief);
 });
 
 test('Outgoing links do not copy arbitrary URL text, private fields or a private route token', () => {

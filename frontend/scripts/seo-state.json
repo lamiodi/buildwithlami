@@ -1,11 +1,11 @@
 {
   "/": {
-    "hash": "6638032dece9d696b5264579f65bb02cb8c2483a1807b96efbc7feb2a3ebfb93",
-    "lastmod": "2026-10-31"
+    "hash": "240d192808d1a82286558aaf74ddd82cac951a1ce2802e1e179e826ec34fd217",
+    "lastmod": "2026-11-05"
   },
   "/software": {
-    "hash": "974db028dce24d54316499234c6c3343e5727e5bec304234cc58b6f589a966fb",
-    "lastmod": "2026-10-15"
+    "hash": "de5cf861350c9f8a41e827c8033555314599fdbf73faada758c028e86c2ed18c",
+    "lastmod": "2026-11-05"
   },
   "/services": {
     "hash": "cfe16bb29cf0741552ecabc62b790075babf0bf335ea25621f63c0e9616abea0",
@@ -24,8 +24,8 @@
     "lastmod": "2026-10-31"
   },
   "/about": {
-    "hash": "e51892d2ee18f3d640d47bdb3c4b7733dbfacf7c18ebd4451245ff8a32dc5e88",
-    "lastmod": "2026-10-15",
+    "hash": "c427c2d63216b56c20bcfb345d61fb08d0ac09326a2b200f8be9e7d9038e5f3a",
+    "lastmod": "2026-11-05",
     "image": "https://www.buildwithlami.com/eugene-hero.webp"
   },
   "/contact": {

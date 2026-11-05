@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useReducedMotion } from 'framer-motion';
 import { MapPin, ArrowRight } from 'lucide-react';
@@ -19,7 +18,7 @@ const About = () => {
       >
         <motion.div variants={item} className="bwl-eyebrow mb-3">
           <span className="w-2 h-2 bg-accent inline-block" />
-          <span>Meet the founder</span>
+            <span>Behind the work</span>
         </motion.div>
         <motion.h2 variants={item} className="text-4xl md:text-6xl lg:text-7xl font-heading font-bold mb-8 tracking-tight text-black dark:text-white">
           Meet <span className="text-accent">Eugene.</span>
@@ -66,17 +65,13 @@ const About = () => {
             viewport={sectionViewport}
           >
             <span className="text-xs font-mono font-bold uppercase tracking-[0.2em] text-accent block mb-2">
-              Your founder & engineer
+              Based in Lagos
             </span>
             <h3 className="text-2xl md:text-3xl leading-snug text-black dark:text-white font-heading font-bold mb-1">
               Eugene Odibenuah
             </h3>
             <p className="text-xs font-mono text-gray-500 dark:text-gray-400 uppercase tracking-wider">
               Founder & lead engineer
-            </p>
-            {/* Rich description for search engines — hidden visually but readable by crawlers and screen readers */}
-            <p className="sr-only">
-              Eugene Odibenuah is a full-stack software engineer and the founder of BuildWithLami, a software studio based in Lagos, Nigeria. He builds websites, e-commerce platforms, custom web applications, and enterprise business management systems for Nigerian and international clients. Projects delivered by Eugene Odibenuah include VonneX2X (an enterprise operations platform with POS, warehouse, payroll and gate-pass modules), The TiaBrand (a Nigerian fashion e-commerce store with Paystack checkout and bundle management), EduFlow (a school academic management and portal system), MediOS (a hospital operating system), and Sourceline Limited (a corporate website). Eugene works as the sole engineer from the initial brief through to production launch and warranty support, with no subcontracting of core delivery work.
             </p>
           </motion.div>
           <div className="md:w-1/2 flex flex-col items-start md:items-end text-left md:text-right">
@@ -87,7 +82,7 @@ const About = () => {
               transition={{ duration: shouldReduce ? 0 : 0.8, delay: shouldReduce ? 0 : 0.2 }}
               className="text-gray-700 dark:text-gray-300 leading-relaxed text-base md:text-lg font-light mb-6 opacity-90"
             >
-              I’m Eugene, the founder and lead engineer behind BuildWithLami. I work with you from the first brief to launch, building websites, commerce platforms, and tools that fit your business.
+              My client work includes VonneX2X, The TiaBrand and Sourceline Limited. Alongside those projects, I develop internal products and concepts to explore new workflows. You’ll find each project clearly labelled in my portfolio.
             </motion.p>
             <Link
               to="/about"

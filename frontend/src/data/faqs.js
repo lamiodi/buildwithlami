@@ -3,26 +3,25 @@
 // markup and the schema always tell Google the same story.
 // Shape: { q, a } — matches how Software/Survey/Drone pages render them.
 
+export const aboutFaqs = [
+  {
+    q: "Who is Eugene Odibenuah and where is BuildWithLami based?",
+    a: "I'm Eugene, a full-stack software engineer and the founder of BuildWithLami in Lagos, Nigeria. I work with Nigerian and international clients. My client work includes VonneX2X, The TiaBrand and Sourceline Limited. EduFlow is an internal product; MediOS is an internal concept. These classifications are shown in the portfolio."
+  }
+];
+
 export const homeFaqs = [
   {
-    q: "Who is Eugene Odibenuah?",
-    a: "Eugene Odibenuah is a full-stack software engineer and the founder of BuildWithLami, a software studio based in Lagos, Nigeria. He designs and builds websites, e-commerce platforms, and custom business software for Nigerian and international clients. His delivered projects include VonneX2X (an enterprise operations platform), The TiaBrand (a Nigerian fashion e-commerce store), EduFlow (an academic management system), MediOS (a hospital operating system), and Sourceline Limited (a corporate website). Eugene works directly with clients from the first brief through to production launch and post-launch support."
-  },
-  {
-    q: "Are you a web developer in Lagos, Nigeria?",
-    a: "Yes. I'm Eugene Odibenuah, a full-stack web developer based in Lagos, Nigeria. I build business websites, online stores, custom web applications, and enterprise software for clients in Nigeria and internationally. My studio, BuildWithLami, handles the full scope: design, engineering, deployment, and ongoing support."
-  },
-  {
     q: "What is your typical project timeline?",
-    a: "My delivery timeline depends on the project's size and complexity:\n\nLanding Pages: 1–2 weeks\nBusiness Websites: 2–6 weeks\nE-commerce Websites: 4–8 weeks\nCustom Web Applications: 6–12 weeks\nEnterprise Platforms & SaaS: 3–6 months\n\nAfter a discovery session, I'll provide a tailored project schedule with key milestones, review stages, and an estimated launch date."
+    a: "Typical timelines are 1–2 weeks for landing pages, 2–6 weeks for business websites, 4–8 weeks for online stores and 6–12 weeks for custom web applications. Larger platforms can take 3–6 months. Your proposal confirms milestones and a launch estimate based on the agreed scope and content readiness."
   },
   {
     q: "Do you offer post-launch support and maintenance?",
-    a: "Yes, I offer ongoing maintenance and support packages to ensure your application remains secure, up-to-date, and performs optimally as your user base grows."
+    a: "Yes. Ongoing care is optional and assessed for your site. It covers the agreed maintenance and work allowance. Your build's stated bug-fix warranty is separate; hosting and other provider costs are listed in the proposal."
   },
   {
     q: "How do you handle SEO?",
-    a: "SEO is built into my process from day one. I ensure proper semantic HTML, optimized performance (Core Web Vitals), metadata management, and accessible architecture so search engines can easily crawl and index your content."
+    a: "Builds include the technical SEO agreed in the scope, such as page metadata, crawlable structure and performance checks. Content strategy and ongoing search work can be quoted separately."
   },
   {
     q: "What technologies do you use?",
@@ -30,11 +29,11 @@ export const homeFaqs = [
   },
   {
     q: "Can you help redesign an existing website?",
-    a: "Absolutely. I often help clients modernize their legacy applications or websites, migrating them to newer, faster, and more secure technology stacks while improving the overall UX/UI."
+    a: "Yes. I review the existing site first, then recommend targeted improvements or a rebuild based on what can be retained."
   },
   {
     q: "What are your payment terms?",
-    a: "Typically, I structure payments: 50% upfront to secure a spot in the schedule and begin architecture & development, and the remaining 50% upon final delivery, testing, and project handover."
+    a: "50% to start and 50% on delivery. The proposal sets out the milestones and handover requirements."
   }
 ];
 
@@ -49,7 +48,7 @@ export const softwareFaqs = [
   },
   {
     q: 'What post-launch support and warranty is included?',
-    a: 'Every custom software build includes 90 days of complimentary bug fixes, performance monitoring, and security patching after launch.'
+    a: 'Custom software builds include a 90-day bug-fix warranty for the agreed scope. Ongoing maintenance, new features and any on-call cover are agreed separately. Named hosting and operations allowances remain as stated in your proposal.'
   },
   {
     q: 'Can you work with existing codebases and legacy systems?',
@@ -117,7 +116,7 @@ export const droneFaqs = [
 
 export const faqsByPath = {
   '/': homeFaqs,
-  '/about': homeFaqs.slice(0, 2), // "Who is Eugene Odibenuah?" and Lagos developer question
+  '/about': aboutFaqs,
   '/software': softwareFaqs,
   '/survey': surveyFaqs,
   '/drone': droneFaqs,

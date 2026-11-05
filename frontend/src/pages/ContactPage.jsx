@@ -1,11 +1,11 @@
-import { useState, useEffect, useMemo } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useState, useEffect, useMemo, useRef } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { motion, useReducedMotion } from 'framer-motion';
 import { api } from '../services/api';
 import { reducedMotionVariants, staggerContainer } from '../utils/motion';
 import { CONTACT } from '../config/contact';
 import { BUDGET_RANGES } from '../config/pricing';
-import { SERVICE_TYPES as SERVICE_TYPE_BY_ID, inquiryContext, serviceFromProjectType, validService, resolveServiceTier, whatsAppHref } from '../utils/inquiryContext.js';
+import { SERVICE_TYPES as SERVICE_TYPE_BY_ID, inquiryContext, serviceFromProjectType, validService, resolveServiceTier, whatsAppHref, reconcileInquiryMessage } from '../utils/inquiryContext.js';
 import { CheckCircle2, ArrowRight } from 'lucide-react';
 
 const CORE_PROJECT_TYPES = [
@@ -68,6 +68,8 @@ const SOCIAL_LINKS = [
 const ContactPage = () => {
   const shouldReduce = useReducedMotion();
   const location = useLocation();
+  const navigate = useNavigate();
+  const generatedMessageRef = useRef('');
 
   const [formData, setFormData] = useState({
     name: '',
@@ -100,25 +102,37 @@ const ContactPage = () => {
     setEmailError(!validateEmail(formData.email));
   };
 
-  // Detect URL parameters from Pricing Page selection (e.g. ?service=ecommerce&tier=Growth)
-  useEffect(() => {
-    window.scrollTo(0, 0);
+  // Keep the form and both WhatsApp entry points on the same service.
+  const handleProjectTypeChange = (event) => {
+    const projectType = event.target.value;
+    setFormData(prev => ({ ...prev, project_type: projectType }));
+    const params = new URLSearchParams(location.search);
+    const service = serviceFromProjectType(projectType);
+    if (service) params.set('service', service);
+    else params.delete('service');
+    params.delete('tier');
+    const search = params.toString();
+    navigate({ pathname: location.pathname, search: search ? `?${search}` : '', hash: location.hash }, {
+      replace: true, preventScrollReset: true,
+    });
+  };
 
+  // Refresh generated briefs when the service changes; preserve visitors' edits.
+  useEffect(() => {
     const params = new URLSearchParams(location.search);
     const context = inquiryContext({pathname:'/contact', search:location.search});
     const requestedCurrency = params.get('currency');
     const currencyParam = ['NGN', 'USD'].includes(requestedCurrency) ? requestedCurrency : '';
 
-    if (context.service) {
-      const matchedType = SERVICE_TYPE_BY_ID[context.service];
-      const currencyContext = currencyParam ? ` Prices were shown in ${currencyParam}.` : '';
-
-      setFormData(prev => ({
-        ...prev,
-        project_type: matchedType || prev.project_type,
-        message: prev.message || `${context.message}${currencyContext}`
-      }));
-    }
+    const currencyContext = currencyParam ? ` Prices were shown in ${currencyParam}.` : '';
+    const nextMessage = context.service ? `${context.message}${currencyContext}` : '';
+    const previousMessage = generatedMessageRef.current;
+    generatedMessageRef.current = nextMessage;
+    setFormData(prev => ({
+      ...prev,
+      project_type: SERVICE_TYPE_BY_ID[context.service] || '',
+      message: reconcileInquiryMessage(prev.message, previousMessage, nextMessage),
+    }));
   }, [location.search]);
 
   const handleSubmit = async (e) => {
@@ -157,6 +171,7 @@ const ContactPage = () => {
       }
 
       setStatus('success');
+      generatedMessageRef.current = '';
       setFormData({
         name: '',
         email: '',
@@ -195,7 +210,7 @@ const ContactPage = () => {
             I&apos;ll <span className="text-accent">confirm the right next step.</span>
           </h1>
           <p className="mt-4 text-base sm:text-lg text-gray-700 dark:text-gray-300 font-light leading-relaxed">
-            Share your goal, preferred timeline and budget, or tell me about the website you need maintained. I personally review every inquiry and reply within one business day with a fit assessment and clear next step. Your proposal confirms scope, price and ongoing costs before work begins.
+            Share your goal, preferred timeline and budget, or tell me about the website you need maintained. You can start with a short description.
           </p>
         </motion.header>
 
@@ -292,7 +307,7 @@ const ContactPage = () => {
                   <select
                     id="project_type"
                     value={formData.project_type}
-                    onChange={(event) => setFormData({ ...formData, project_type: event.target.value })}
+                    onChange={handleProjectTypeChange}
                     className={`bwl-input bwl-select min-h-12 text-base ${
                       formData.project_type ? '' : 'text-gray-500 dark:text-gray-400'
                     }`}
@@ -453,7 +468,7 @@ const ContactPage = () => {
                 <span>Message Eugene on WhatsApp</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </a>
-              <p className="text-xs text-gray-300">About: {whatsAppContext.label}. I’ll review your enquiry within one business day.</p>
+              <p className="text-xs text-gray-300">About: {whatsAppContext.label}. This opens WhatsApp with a starting message you can edit.</p>
             </div>
 
             {/* Direct Information Card */}

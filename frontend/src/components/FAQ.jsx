@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { motion, useReducedMotion, AnimatePresence } from 'framer-motion';
 import { staggerContainer, fadeUpItem, sectionViewport, reducedMotionVariants } from '../utils/motion';
 import { homeFaqs } from '../data/faqs';
@@ -26,11 +26,11 @@ const FAQ = () => {
       >
         <div className="bwl-eyebrow mb-3">
           <span className="w-2 h-2 bg-accent inline-block" />
-          <span>Frequently Asked Questions</span>
+          <span>Before you enquire</span>
         </div>
-        <h3 className="text-3xl md:text-5xl font-heading font-bold mb-4 text-black dark:text-white">Frequently Asked Questions</h3>
+        <h2 className="text-3xl md:text-5xl font-heading font-bold mb-4 text-black dark:text-white">A few practical answers.</h2>
         <p className="text-gray-600 dark:text-gray-400 text-base md:text-lg font-light leading-relaxed">
-          Everything you need to know about my engineering services, process, and milestone billing.
+          Timelines, payment and what happens after launch.
         </p>
       </motion.div>
 

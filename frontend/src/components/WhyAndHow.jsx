@@ -24,12 +24,12 @@ const principles = [
   },
   {
     title: 'Built around the business',
-    description: 'Commercial goals and real workflows shape the scope—not a generic template.',
+    description: 'Your users, day-to-day tasks and commercial goals shape the scope.',
     icon: Target
   },
   {
     title: 'Progress you can see',
-    description: 'Live staging and milestone tracking keep decisions, progress, and timing clear.',
+    description: 'Project tracking records milestones, decisions and changes to the scope.',
     icon: Zap
   },
   {
@@ -55,7 +55,7 @@ const steps = [
   {
     number: '03',
     title: 'Build',
-    description: 'Review working software through live staging and milestone updates.',
+    description: 'Try the working software in a staging preview and share feedback.',
     icon: Code2
   },
   {
@@ -64,12 +64,6 @@ const steps = [
     description: 'Deploy, hand over the repository, and begin post-launch warranty support.',
     icon: Rocket
   }
-];
-
-const deliveryStandards = [
-  ['Payments', '50% to begin, 50% on delivery'],
-  ['Visibility', 'Live staging and project tracking'],
-  ['Ownership', 'Repository and product handoff']
 ];
 
 const WhyAndHow = () => {
@@ -94,7 +88,7 @@ const WhyAndHow = () => {
             How I work with you.
           </h2>
           <p className="max-w-2xl text-base sm:text-lg leading-relaxed text-gray-600 dark:text-gray-400">
-            You work directly with me, with a clear scope, working software to review and an agreed handover. Here’s how we get from your first brief to launch.
+            These are the standards behind each project, followed by the stages where you review and approve the work.
           </p>
         </motion.header>
 
@@ -128,7 +122,7 @@ const WhyAndHow = () => {
         <div id="how-it-works" className="mt-24 sm:mt-32 scroll-mt-24">
           <div className="grid lg:grid-cols-[minmax(0,1fr)_minmax(0,0.72fr)] gap-5 lg:gap-16 items-end">
             <h2 className="max-w-3xl text-3xl sm:text-4xl lg:text-5xl font-heading font-bold leading-tight tracking-[-0.025em] text-black dark:text-white">
-              From brief to launch, without guesswork.
+              Four stages, with you involved.
             </h2>
             <p className="max-w-xl text-sm sm:text-base leading-relaxed text-gray-600 dark:text-gray-400">
               Each stage ends with a visible deliverable and a clear approval point.
@@ -167,21 +161,6 @@ const WhyAndHow = () => {
             })}
           </motion.ol>
 
-          <div className="mt-14 grid sm:grid-cols-3 border-y border-gray-200 dark:border-white/10">
-            {deliveryStandards.map(([label, value], index) => (
-              <div
-                key={label}
-                className={`py-5 ${index > 0 ? 'sm:border-l sm:border-gray-200 sm:dark:border-white/10 sm:pl-7' : ''}`}
-              >
-                <p className="text-[10px] font-mono font-bold uppercase tracking-[0.18em] text-gray-500 dark:text-gray-400">
-                  {label}
-                </p>
-                <p className="mt-1.5 text-sm font-semibold text-gray-900 dark:text-white">
-                  {value}
-                </p>
-              </div>
-            ))}
-          </div>
         </div>
       </div>
     </section>

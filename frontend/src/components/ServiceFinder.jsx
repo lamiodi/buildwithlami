@@ -1,4 +1,4 @@
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowRight, Globe, ShoppingBag, Workflow, CircleHelp, CheckCircle2 } from 'lucide-react';
 import { PROJECT_GOALS, getGoalPlan, getProjectGoal } from '../data/projectGoals.js';
 import { inquiryContext, projectContactHref, whatsAppHref } from '../utils/inquiryContext.js';
@@ -7,7 +7,9 @@ import { useAutomatedCurrency } from '../utils/currency.js';
 const icons = { websites: Globe, ecommerce: ShoppingBag, software: Workflow, unsure: CircleHelp };
 
 export default function ServiceFinder() {
-  const [params, setParams] = useSearchParams();
+  const [params] = useSearchParams();
+  const location = useLocation();
+  const navigate = useNavigate();
   const selected = getProjectGoal(params.get('service'));
   const plan = getGoalPlan(selected);
   const currency = useAutomatedCurrency();
@@ -16,13 +18,15 @@ export default function ServiceFinder() {
     style:'currency', currency, maximumFractionDigits:0
   }).format(currency === 'NGN' ? plan.priceNGN : plan.priceUSD);
 
-  const choose = id => setParams(current => {
-    const next = new URLSearchParams(current);
+  const choose = id => {
+    const next = new URLSearchParams(params);
     next.set('service', id);
     // A package from an earlier link is not a new recommendation.
     next.delete('tier');
-    return next;
-  }, {replace:true, preventScrollReset:true});
+    navigate({pathname:location.pathname, search:`?${next}`, hash:location.hash}, {
+      replace:true, preventScrollReset:true,
+    });
+  };
 
   return (
     <section id="start" aria-labelledby="service-finder-title" className="max-w-7xl mx-auto px-6 md:px-12 pb-20 md:pb-24 scroll-mt-24">
@@ -60,7 +64,7 @@ export default function ServiceFinder() {
               <div className="mt-5 border-y border-gray-200 py-4 dark:border-white/10">
                 <p className="text-xs font-semibold text-gray-500 dark:text-gray-400">{currency === 'NGN' ? 'Nigeria' : 'International'} starting budget</p>
                 <p className="mt-1 text-3xl font-heading font-bold text-gray-900 dark:text-white">From {budget}</p>
-                <p className="mt-2 text-xs leading-relaxed text-gray-500 dark:text-gray-400">Final scope, regional pricing and ongoing costs are confirmed in your proposal.</p>
+                <p className="mt-2 text-xs leading-relaxed text-gray-500 dark:text-gray-400">For the entry scope. Explore the service below for package details.</p>
               </div>
               <p className="mt-4 text-xs font-semibold text-gray-500 dark:text-gray-400">Relevant work</p>
               <Link to={`/projects/${plan.project}`} className="mt-1 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-gray-900 underline decoration-accent underline-offset-4 dark:text-white">{plan.projectTitle}<ArrowRight className="h-4 w-4" aria-hidden="true" /></Link>

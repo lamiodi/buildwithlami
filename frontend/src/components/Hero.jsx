@@ -1,10 +1,13 @@
 import { motion, useReducedMotion } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { CheckCircle2 } from 'lucide-react';
 import { staggerContainer, fadeUpItem, reducedMotionVariants } from '../utils/motion';
+import { inquiryContext, projectContactHref } from '../utils/inquiryContext.js';
 
 const Hero = () => {
   const shouldReduce = useReducedMotion();
+  const location = useLocation();
+  const contactHref = projectContactHref(inquiryContext(location).service);
   const container = shouldReduce ? reducedMotionVariants : staggerContainer;
   const item = shouldReduce ? reducedMotionVariants : fadeUpItem;
 
@@ -61,7 +64,7 @@ const Hero = () => {
         {/* Button Pair - Exact Architectural Standard */}
         <div className="flex flex-col sm:flex-row sm:items-center gap-4 relative z-20">
           <Link
-            to="/contact"
+            to={contactHref}
             className="btn-primary w-full sm:w-auto text-center"
           >
             Discuss your project
@@ -73,7 +76,7 @@ const Hero = () => {
             See my work
           </Link>
         </div>
-        <Link to="/#start" className="mt-5 inline-flex min-h-11 items-center text-sm font-semibold text-gray-700 underline decoration-accent underline-offset-4 hover:text-accent dark:text-gray-300">Help me choose a starting point →</Link>
+        <a href="#start" className="mt-5 inline-flex min-h-11 items-center text-sm font-semibold text-gray-700 underline decoration-accent underline-offset-4 hover:text-accent dark:text-gray-300">Help me choose a starting point →</a>
       </motion.div>
       
       {/* Founder Image Card */}

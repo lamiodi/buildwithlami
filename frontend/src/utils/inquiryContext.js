@@ -70,6 +70,10 @@ export function whatsAppHref(message) {
   return `https://wa.me/${CONTACT.phoneE164}?text=${encodeURIComponent(message)}`;
 }
 
+export function reconcileInquiryMessage(current, previousGenerated, nextGenerated) {
+  return !current || current === previousGenerated ? nextGenerated : current;
+}
+
 export function projectContactHref(service, currency) {
   const params = new URLSearchParams();
   if (validService(service)) params.set('service', service);

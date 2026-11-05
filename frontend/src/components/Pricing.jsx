@@ -1,545 +1,173 @@
 import { useState, useEffect } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { 
-  ArrowRight, 
-  ChevronRight
-} from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import CheckIcon from './CheckIcon';
+import PricingRegionSelector from './PricingRegionSelector';
 import { staggerContainer, fadeUpItem, cardHover, sectionViewport, reducedMotionVariants } from '../utils/motion';
-import { 
-  COMMERCIAL_TERMS, 
-  BUILD_PRICING,
-  INFRASTRUCTURE_LEVELS,
-  USD_CARE_PRICING,
-  CARE_TERMS
-} from '../config/pricing';
+import { COMMERCIAL_TERMS, BUILD_PRICING, INFRASTRUCTURE_LEVELS, USD_CARE_PRICING, CARE_TERMS } from '../config/pricing';
 import { useAutomatedCurrency } from '../utils/currency';
 import fallbackProjects from '../data/fallbackProjects';
 
-const CORE_PRICING_CATEGORIES = ['websites', 'ecommerce', 'software', 'portals', 'maintenance'];
-const SPECIALIST_PRICING_CATEGORIES = ['uiux', 'branding', 'seo', 'marketing', 'ai'];
-const usdStartingPriceFor = (category) => category.startingPriceUSD ?? USD_CARE_PRICING[category.tiers[0]?.id]?.priceUSD;
-const PROOF_PROJECT_BY_CATEGORY = {
-  websites: 'sourceline-limited',
-  ecommerce: 'tiabrand-ecommerce',
-  software: 'vonnex2x-enterprise-erp',
-  portals: 'vonnex2x-enterprise-erp',
-  uiux: 'wodibenuah-fair'
-};
+const CORE_CATEGORIES = ['websites', 'ecommerce', 'software', 'portals', 'maintenance'];
+const SPECIALIST_CATEGORIES = ['uiux', 'branding', 'seo', 'marketing', 'ai'];
+const PROOF_PROJECTS = { websites:'sourceline-limited', ecommerce:'tiabrand-ecommerce', software:'vonnex2x-enterprise-erp', portals:'vonnex2x-enterprise-erp', uiux:'wodibenuah-fair' };
+const HOME_BUDGETS = [
+  { id:'websites', title:'Business website', scope:'Up to 5 page templates; editable CMS quoted separately.' },
+  { id:'ecommerce', title:'Online store', scope:'Up to 25 products, order management and one payment gateway.' },
+  { id:'software', title:'Business software', scope:'A defined workflow, user roles and the data it needs.' },
+];
+const categoryFromHash = hash => Object.hasOwn(BUILD_PRICING, String(hash || '').slice(1)) ? hash.slice(1) : null;
 
-const categoryFromHash = (hash) => {
-  const categoryId = String(hash || '').replace(/^#/, '');
-  return Object.prototype.hasOwnProperty.call(BUILD_PRICING, categoryId) ? categoryId : null;
-};
-
-const Pricing = ({ isHomepage = false }) => {
+export default function Pricing({ isHomepage = false }) {
   const shouldReduce = useReducedMotion();
   const location = useLocation();
   const navigate = useNavigate();
+  const currency = useAutomatedCurrency();
+  const [activeCategory, setActiveCategory] = useState(() => categoryFromHash(location.hash) || 'websites');
   const container = shouldReduce ? reducedMotionVariants : staggerContainer;
   const item = shouldReduce ? reducedMotionVariants : fadeUpItem;
 
-  const displayCurrency = useAutomatedCurrency();
-
-  const formatRegionalAmount = (amountNgn, amountUsd) => {
-    const amount = displayCurrency === 'USD' ? amountUsd : amountNgn;
-    const symbol = displayCurrency === 'USD' ? '$' : '₦';
-    return `${symbol}${Number(amount || 0).toLocaleString(displayCurrency === 'USD' ? 'en-US' : 'en-NG')}`;
-  };
-
-  // USD values are fixed regional prices; they are intentionally not
-  // presented as exchange-rate equivalents of Nigerian pricing.
-  const renderPrice = (amountNgn, amountUsd, formatted, forceCustom = false) => {
-    if (forceCustom || formatted === 'Custom Quote') return formatted;
-    const suffixMatch = String(formatted || '').match(/(\s*\/\s*(yr|mo)\b|\s*\+\s*starting|\s*\+)\s*$/i);
-    const suffix = suffixMatch ? suffixMatch[0] : '';
-    return <span>{formatRegionalAmount(amountNgn, amountUsd)}{suffix}</span>;
-  };
-
-  const [activeCategory, setActiveCategory] = useState(
-    () => categoryFromHash(location.hash) || 'websites'
-  );
-
   useEffect(() => {
-    const hashedCategory = categoryFromHash(location.hash);
-    if (hashedCategory) setActiveCategory(hashedCategory);
+    const category = categoryFromHash(location.hash);
+    if (category) setActiveCategory(category);
   }, [location.hash]);
 
-  const handleCategoryChange = (categoryId) => {
-    if (!Object.prototype.hasOwnProperty.call(BUILD_PRICING, categoryId)) return;
-    setActiveCategory(categoryId);
-    navigate(
-      { pathname: location.pathname, search: location.search, hash: `#${categoryId}` },
-      { replace: true }
-    );
+  const amount = (ngn, usd) => `${currency === 'NGN' ? '₦' : '$'}${Number(currency === 'NGN' ? ngn : usd).toLocaleString(currency === 'NGN' ? 'en-NG' : 'en-US')}`;
+  const price = (ngn, usd, formatted) => {
+    const suffix = String(formatted || '').match(/(\s*\/\s*(yr|mo)\b|\s*\+\s*starting|\s*\+)\s*$/i)?.[0] || '';
+    return `${amount(ngn, usd)}${suffix}`;
   };
 
-  // Get active category object and tiers
-  const currentCategoryData = BUILD_PRICING[activeCategory] || BUILD_PRICING.websites;
-  const currentTiers = currentCategoryData.tiers;
-  const isCareCategory = activeCategory === 'maintenance';
-  const isWebsiteCategory = activeCategory === 'websites';
-  const relevantProof = fallbackProjects.find(
-    (project) => project.slug === PROOF_PROJECT_BY_CATEGORY[activeCategory] && project.project_status === 'Client Work'
-  );
-  return (
-    <section id="pricing" className="py-24 px-6 md:px-12 bg-gray-50 dark:bg-background transition-colors duration-300">
-      <div className="max-w-7xl mx-auto">
-        
-        {/* ── HEADER ── */}
-        <motion.div
-          className="text-center mb-16"
-          variants={container}
-          initial="hidden"
-          whileInView="visible"
-          viewport={sectionViewport}
-        >
-          {isHomepage && (
-            <div className="bwl-eyebrow mb-4 justify-center">
-              <span className="w-2 h-2 bg-accent inline-block" />
-              <span>Studio Pricing · Scoped to the Work</span>
-            </div>
-          )}
-
-          <motion.h2 variants={item} className="text-4xl md:text-5xl lg:text-6xl font-heading font-bold text-gray-900 dark:text-white tracking-tight mb-4">
-            Clear starting budgets. <br />
-            <span className="italic font-normal text-accent">Tailored project proposals.</span>
-          </motion.h2>
-
-          <motion.p variants={item} className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto text-sm sm:text-base font-light leading-relaxed mb-6">
-            Website builds start from {formatRegionalAmount(BUILD_PRICING.websites.startingPriceNGN, BUILD_PRICING.websites.startingPriceUSD)}.
-            {' '}Your final price depends on the pages, features and integrations you need. We agree the scope and price before work begins.
-          </motion.p>
-
-          <motion.div variants={item} className="flex flex-col items-center gap-3">
-            <Link to={`/contact?service=${isHomepage ? 'websites' : activeCategory}&currency=${displayCurrency}`} className="btn-primary">
-              Get my project quote <ArrowRight className="w-4 h-4 ml-2" aria-hidden="true" />
-            </Link>
-            <p className="max-w-2xl text-xs leading-relaxed text-gray-600 dark:text-gray-400">
-              Ongoing care is optional. Hosting, domain renewals and paid tools are listed in your proposal, including any infrastructure allowance included with your build.
-            </p>
-          </motion.div>
-
-          {isHomepage && (
-            <motion.div variants={item} className="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs font-mono text-gray-500 dark:text-gray-400">
-              <span><strong className="text-gray-900 dark:text-white font-semibold">50% upfront</strong>, 50% on delivery</span>
-              <span className="hidden sm:inline text-gray-300 dark:text-white/20">·</span>
-              <span>Post-launch warranty included</span>
-            </motion.div>
-          )}
-        </motion.div>
-
-        {/* ── HOMEPAGE SUMMARY PILLARS (Clean Overview for Homepage) ── */}
-        {isHomepage ? (
-          <div className="space-y-12">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {/* Pillar 1: Web Development */}
-              <div className="p-8 rounded-3xl bg-white dark:bg-[#141414] border border-gray-200 dark:border-white/10 shadow-lg flex flex-col justify-between hover:border-accent/40 transition-all duration-300">
-                <div>
-                  <div className="bwl-eyebrow mb-2">
-                    <span className="w-2 h-2 bg-accent inline-block" />
-                    <span>01 · Web Development</span>
-                  </div>
-                  <h3 className="text-2xl font-bold font-heading text-gray-900 dark:text-white mb-2">Web Development</h3>
-                  <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed mb-4">Best for businesses establishing their online presence.</p>
-                  <p className="text-xs text-gray-600 dark:text-gray-400 mb-6 leading-relaxed font-light">
-                    Custom websites built around real goals, content, and customers—not a generic theme.
-                  </p>
-                  <div className="p-4 rounded-2xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5 mb-6">
-                    <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 block mb-1">Starting from</span>
-                    <span className="text-3xl font-heading font-extrabold text-gray-900 dark:text-white">
-                      {renderPrice(
-                        BUILD_PRICING.websites.startingPriceNGN,
-                        usdStartingPriceFor(BUILD_PRICING.websites),
-                        BUILD_PRICING.websites.startingPriceFormatted
-                      )}
-                    </span>
-                    <span className="text-xs text-gray-500 dark:text-gray-400 block mt-1">Starter · Growth (Best Value) · Pro Custom</span>
-                  </div>
-                  <ul className="space-y-2.5 text-xs text-gray-700 dark:text-gray-300 mb-6">
-                    <li className="flex items-center gap-2.5"><CheckIcon className="text-accent" /> <span>Responsive custom interface</span></li>
-                    <li className="flex items-center gap-2.5"><CheckIcon className="text-accent" /> <span>Editable CMS available on Growth and Pro</span></li>
-                    <li className="flex items-center gap-2.5"><CheckIcon className="text-accent" /> <span>Starter: {BUILD_PRICING.websites.tiers[0].support}</span></li>
-                  </ul>
-                </div>
-                <Link to="/pricing#websites" className="btn-dark w-full text-center" style={{ touchAction: 'manipulation' }}>
-                  View Web Tiers <ArrowRight className="w-3.5 h-3.5 ml-2" />
-                </Link>
-              </div>
-
-              {/* Pillar 2: E-Commerce (Featured) */}
-              <div className="p-8 rounded-3xl bg-white dark:bg-[#141414] border-2 border-accent shadow-xl flex flex-col justify-between relative">
-                <span className="absolute -top-3 right-6 bg-accent text-white text-[10px] font-mono font-bold uppercase tracking-widest px-3 py-1 shadow-md">
-                  Core Commerce Engine
-                </span>
-                <div>
-                  <div className="bwl-eyebrow mb-2">
-                    <span className="w-2 h-2 bg-accent inline-block" />
-                    <span>02 · E-Commerce</span>
-                  </div>
-                  <h3 className="text-2xl font-bold font-heading text-gray-900 dark:text-white mb-2">E-Commerce Engines</h3>
-                  <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed mb-4">Best for brands selling products online.</p>
-                  <p className="text-xs text-gray-600 dark:text-gray-400 mb-6 leading-relaxed font-light">
-                    Online stores designed for clearer paths to purchase, multi-channel payments, and fulfillment.
-                  </p>
-                  <div className="p-4 rounded-2xl bg-accent/5 dark:bg-accent/10 border border-accent/20 mb-6">
-                    <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-accent block mb-1">Starting from</span>
-                    <span className="text-3xl font-heading font-extrabold text-gray-900 dark:text-white">
-                      {renderPrice(
-                        BUILD_PRICING.ecommerce.startingPriceNGN,
-                        usdStartingPriceFor(BUILD_PRICING.ecommerce),
-                        BUILD_PRICING.ecommerce.startingPriceFormatted
-                      )}
-                    </span>
-                    <span className="text-xs text-gray-600 dark:text-gray-400 block mt-1 font-medium">Starter · Growth (Best Value) · Pro Custom</span>
-                  </div>
-                  <ul className="space-y-2.5 text-xs text-gray-700 dark:text-gray-300 mb-6">
-                    <li className="flex items-center gap-2.5"><CheckIcon className="text-accent" /> <span>Checkout with an agreed primary payment gateway</span></li>
-                    <li className="flex items-center gap-2.5"><CheckIcon className="text-accent" /> <span>Starter: up to 25 products &amp; order management</span></li>
-                    <li className="flex items-center gap-2.5"><CheckIcon className="text-accent" /> <span>Starter: {BUILD_PRICING.ecommerce.tiers[0].support}</span></li>
-                  </ul>
-                </div>
-                <Link to="/pricing#ecommerce" className="btn-primary w-full text-center" style={{ touchAction: 'manipulation' }}>
-                  Compare E-Commerce Tiers <ArrowRight className="w-3.5 h-3.5 ml-2" />
-                </Link>
-              </div>
-
-              {/* Pillar 3: Custom Software */}
-              <div className="p-8 rounded-3xl bg-white dark:bg-[#141414] border border-gray-200 dark:border-white/10 shadow-lg flex flex-col justify-between hover:border-accent/40 transition-all duration-300">
-                <div>
-                  <div className="bwl-eyebrow mb-2">
-                    <span className="w-2 h-2 bg-accent inline-block" />
-                    <span>03 · Custom Software</span>
-                  </div>
-                  <h3 className="text-2xl font-bold font-heading text-gray-900 dark:text-white mb-2">Custom Software & SaaS</h3>
-                  <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed mb-4">Best for teams building a product or automating operations.</p>
-                  <p className="text-xs text-gray-600 dark:text-gray-400 mb-6 leading-relaxed font-light">
-                    Custom web applications, SaaS prototypes, booking systems, and internal operational portals.
-                  </p>
-                  <div className="p-4 rounded-2xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5 mb-6">
-                    <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 block mb-1">Starting from</span>
-                    <span className="text-3xl font-heading font-extrabold text-gray-900 dark:text-white">
-                      {renderPrice(
-                        BUILD_PRICING.software.startingPriceNGN,
-                        usdStartingPriceFor(BUILD_PRICING.software),
-                        BUILD_PRICING.software.startingPriceFormatted
-                      )}
-                    </span>
-                    <span className="text-xs text-gray-500 dark:text-gray-400 block mt-1">MVP · Growth Platform · Enterprise</span>
-                  </div>
-                  <ul className="space-y-2.5 text-xs text-gray-700 dark:text-gray-300 mb-6">
-                    <li className="flex items-center gap-2.5"><CheckIcon className="text-accent" /> <span>Secure sign-in, user roles, and business data workflows</span></li>
-                    <li className="flex items-center gap-2.5"><CheckIcon className="text-accent" /> <span>Source code and IP handover</span></li>
-                    <li className="flex items-center gap-2.5"><CheckIcon className="text-accent" /> <span>MVP: {BUILD_PRICING.software.tiers[0].support}</span></li>
-                  </ul>
-                </div>
-                <Link to="/pricing#software" className="btn-dark w-full text-center" style={{ touchAction: 'manipulation' }}>
-                  View Software Scope <ArrowRight className="w-3.5 h-3.5 ml-2" />
-                </Link>
-              </div>
-            </div>
-
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-t border-gray-200 dark:border-white/10 pt-6">
-              <p className="text-sm text-gray-600 dark:text-gray-300">Not sure which package fits? We can help you choose.</p>
-              <div className="flex flex-wrap gap-5 text-sm font-semibold">
-                <Link to="/contact" className="text-gray-900 dark:text-white underline underline-offset-4 hover:text-accent">Get my project quote</Link>
-                <Link to="/pricing" className="text-accent inline-flex items-center gap-1">Compare all packages <ChevronRight className="w-4 h-4" /></Link>
-              </div>
-            </div>
+  if (isHomepage) return (
+    <section id="pricing" aria-labelledby="home-budget-title" className="bg-gray-50 px-6 py-16 dark:bg-background md:px-12">
+      <div className="mx-auto max-w-7xl">
+        <div className="mb-8 flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
+          <div className="max-w-xl">
+            <h2 id="home-budget-title" className="font-heading text-3xl font-bold text-gray-900 dark:text-white sm:text-4xl">Plan your budget.</h2>
+            <p className="mt-3 text-sm leading-relaxed text-gray-600 dark:text-gray-300">Entry scopes for three common projects. Compare packages and ongoing costs on the pricing page.</p>
           </div>
-        ) : (
-          /* ── FULL STUDIO PRICING PAGE EXPERIENCE ── */
-          <div className="space-y-16">
-
-            {/* ── 1. PRIMARY CATEGORY NAVIGATION (Responsive Matrix) ── */}
-            <div className="border-b border-gray-200 dark:border-white/10 pb-8">
-              <div className="max-w-2xl">
-                <label htmlFor="pricing-category" className="block text-xs font-bold text-gray-900 dark:text-white mb-2">
-                  Choose the closest service
-                </label>
-                <select
-                  id="pricing-category"
-                  value={activeCategory}
-                  onChange={(event) => handleCategoryChange(event.target.value)}
-                  className="bwl-input min-h-12 text-base font-semibold"
-                >
-                  <optgroup label="Core build and support">
-                    {CORE_PRICING_CATEGORIES.map((categoryId) => (
-                      <option key={categoryId} value={categoryId}>{BUILD_PRICING[categoryId].label}</option>
-                    ))}
-                  </optgroup>
-                  <optgroup label="Specialist services and add-ons">
-                    {SPECIALIST_PRICING_CATEGORIES.map((categoryId) => (
-                      <option key={categoryId} value={categoryId}>{BUILD_PRICING[categoryId].label}</option>
-                    ))}
-                  </optgroup>
-                </select>
-                <p className="mt-2 text-xs text-gray-500 dark:text-gray-400" aria-live="polite">
-                  Prices are shown automatically in {displayCurrency} based on your region.
-                </p>
-              </div>
-            </div>
-
-            {/* ── 2. CARDS GRID (For Active Category) ── */}
-            <div id={activeCategory}>
-              <div className="mb-8 p-6 sm:p-8 rounded-2xl bg-white dark:bg-[#141414] border border-gray-200 dark:border-white/10 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div className="max-w-3xl">
-                  <h3 className="text-2xl sm:text-3xl font-bold font-heading text-gray-900 dark:text-white">
-                    {currentCategoryData.title}
-                  </h3>
-                  <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                    {currentCategoryData.desc}
-                  </p>
-                </div>
-                <div className="shrink-0 p-3 sm:p-4 rounded-xl bg-accent/5 dark:bg-accent/10 border border-accent/20 text-left md:text-right">
-                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-accent block">
-                    {isCareCategory ? 'Plans from' : 'Starting investment'}
-                  </span>
-                  <span className="text-2xl font-bold font-heading text-gray-900 dark:text-white">
-                    {renderPrice(
-                      currentCategoryData.startingPriceNGN,
-                      usdStartingPriceFor(currentCategoryData),
-                      currentCategoryData.startingPriceFormatted
-                    )}
-                  </span>
-                </div>
-              </div>
-
-              {isWebsiteCategory && (
-                <div className="mb-8 grid grid-cols-1 sm:grid-cols-3 border border-gray-200 dark:border-white/10 rounded-2xl overflow-hidden bg-white dark:bg-[#141414]">
-                  <div className="p-5 sm:p-6 border-b sm:border-b-0 sm:border-r border-gray-200 dark:border-white/10">
-                    <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-accent">Build fee</span>
-                    <p className="mt-2 text-sm font-bold text-gray-900 dark:text-white">Paid once</p>
-                    <p className="mt-1 text-xs leading-relaxed text-gray-500 dark:text-gray-400">Strategy, design, development, testing, and launch.</p>
-                  </div>
-                  <div className="p-5 sm:p-6 border-b sm:border-b-0 sm:border-r border-gray-200 dark:border-white/10">
-                    <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-accent">First 12 months</span>
-                    <p className="mt-2 text-sm font-bold text-gray-900 dark:text-white">Infrastructure included</p>
-                    <p className="mt-1 text-xs leading-relaxed text-gray-500 dark:text-gray-400">The specified allowance is included after launch. Ongoing care is separate.</p>
-                  </div>
-                  <div className="p-5 sm:p-6">
-                    <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-accent">From month 13</span>
-                    <p className="mt-2 text-sm font-bold text-gray-900 dark:text-white">Choose your ongoing support</p>
-                    <p className="mt-1 text-xs leading-relaxed text-gray-500 dark:text-gray-400">Technical care by quote, an optional retainer, or handover. Provider renewals are itemized separately.</p>
-                  </div>
-                </div>
-              )}
-
-              {relevantProof && (
-                <div className="mb-8 border-y border-gray-200 dark:border-white/10 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                  <div className="min-w-0">
-                    <div className="flex flex-wrap items-center gap-2 mb-1">
-                      <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-accent">Relevant client work</span>
-                      <span className="text-[10px] font-semibold text-gray-500 dark:text-gray-400">{relevantProof.industry}</span>
-                    </div>
-                    <p className="font-heading font-bold text-gray-900 dark:text-white">{relevantProof.title}</p>
-                  </div>
-                  <Link
-                    to={`/projects/${relevantProof.slug}`}
-                    className="shrink-0 inline-flex items-center gap-2 text-sm font-bold text-accent hover:text-gray-900 dark:hover:text-white transition-colors"
-                  >
-                    View case study <ArrowRight className="w-4 h-4" aria-hidden="true" />
-                  </Link>
-                </div>
-              )}
-
-              <motion.div
-                className={`grid grid-cols-1 ${
-                  currentTiers.length === 4 
-                    ? 'md:grid-cols-2 lg:grid-cols-4' 
-                    : 'md:grid-cols-3'
-                } gap-6`}
-                variants={container}
-                initial="hidden"
-                whileInView="visible"
-                viewport={sectionViewport}
-              >
-                {currentTiers.map((tier) => {
-                  const isCustom = tier.priceFormatted === 'Custom Quote';
-                  const infrastructure = tier.infrastructureLevel
-                    ? INFRASTRUCTURE_LEVELS[tier.infrastructureLevel]
-                    : null;
-                  const usdTierPricing = USD_CARE_PRICING[tier.id];
-                  const contactQuery = new URLSearchParams({
-                    service: activeCategory,
-                    tier: tier.name,
-                    currency: displayCurrency
-                  }).toString();
-                  const annualCarePrice = isCareCategory && tier.monthlyPriceNGN && tier.annualPriceNGN
-                    ? formatRegionalAmount(tier.annualPriceNGN, usdTierPricing?.annualPriceUSD)
-                    : null;
-                  const annualCareSavings = annualCarePrice
-                    ? formatRegionalAmount(
-                        (tier.monthlyPriceNGN * 12) - tier.annualPriceNGN,
-                        (usdTierPricing.monthlyPriceUSD * 12) - usdTierPricing.annualPriceUSD
-                      )
-                    : null;
-
-                  return (
-                    <motion.div
-                      key={tier.id}
-                      id={`pricing-card-${tier.id}`}
-                      whileHover={shouldReduce ? {} : cardHover}
-                      className={`relative p-6 sm:p-8 border ${
-                        tier.popular
-                          ? 'border-accent dark:border-accent shadow-xl ring-2 ring-accent/20'
-                          : 'border-gray-200 dark:border-white/10'
-                      } bg-white dark:bg-[#141414] rounded-2xl group hover:shadow-2xl hover:border-accent/60 transition-all duration-300 flex flex-col justify-between`}
-                    >
-                      <div>
-                        {tier.popular && (
-                          <span className="absolute -top-3 right-6 bg-accent text-white text-[10px] font-mono font-bold uppercase tracking-widest px-3 py-0.5 shadow-md">
-                            {typeof tier.popularBadge === 'string' ? tier.popularBadge.replace('⭐ ', '') : "Best Value"}
-                          </span>
-                        )}
-
-                        <div className="flex items-baseline justify-between gap-2 mb-1">
-                          <h3 className="text-2xl font-heading font-bold text-black dark:text-white">
-                            {tier.name}
-                          </h3>
-                        </div>
-
-                        <p className="text-xs text-gray-500 dark:text-gray-400 font-semibold mb-4">{tier.badge}</p>
-
-                        <p className="text-xs text-gray-600 dark:text-gray-400 mb-5 leading-relaxed">
-                          <span className="font-bold text-gray-900 dark:text-white">Best for: </span>{tier.bestFor}
-                        </p>
-
-                        {/* Price Tag */}
-                        <div className="flex flex-wrap items-baseline gap-1.5 mb-4 border-b border-gray-100 dark:border-white/5 pb-4">
-                          {isCustom ? (
-                            <span className="text-3xl font-heading font-bold text-black dark:text-white leading-none">Tailored quote</span>
-                          ) : (
-                            <>
-                              <span className="text-xs text-gray-500 font-semibold">
-                                {isCareCategory
-                                  ? tier.billingCadence === 'ANNUAL' ? 'annual plan' : 'monthly plan'
-                                  : 'starting at'}
-                              </span>
-                              <span className="text-3xl sm:text-4xl font-heading font-extrabold text-black dark:text-white tracking-tight leading-none">
-                                {renderPrice(tier.priceNGN, tier.priceUSD ?? usdTierPricing?.priceUSD, tier.priceFormatted)}
-                              </span>
-                            </>
-                          )}
-                        </div>
-
-                        {annualCarePrice && (
-                          <p className="-mt-1 mb-4 text-xs font-semibold text-gray-600 dark:text-gray-300">
-                            Annual: <span className="text-gray-900 dark:text-white">{annualCarePrice}/year</span>
-                            {annualCareSavings && Number(tier.monthlyPriceNGN * 12) > Number(tier.annualPriceNGN) && (
-                              <span className="ml-2 text-emerald-700 dark:text-emerald-400">Save {annualCareSavings}</span>
-                            )}
-                          </p>
-                        )}
-
-                        {infrastructure && (
-                          <p className="mb-5 border-y border-blue-200 dark:border-blue-400/20 py-3 text-xs font-semibold text-blue-700 dark:text-blue-300">
-                            {infrastructure.shortName} infrastructure allowance included for 12 months
-                          </p>
-                        )}
-
-                        {isCareCategory && <p className="mb-4 text-xs font-semibold text-gray-600 dark:text-gray-300">Optional care fee · Provider bills separate</p>}
-
-                        {/* Essential delivery details */}
-                        <div className="space-y-1.5 text-xs text-gray-600 dark:text-gray-300 font-medium mb-6">
-                          <div className="flex items-center gap-1.5">
-                            <span className="font-semibold text-gray-500">Timeline:</span>
-                            <span>{tier.timeline}</span>
-                          </div>
-                          <div className="flex items-center gap-1.5 text-accent">
-                            <span className="font-semibold text-gray-500">Support:</span>
-                            <span className="font-semibold">{tier.support}</span>
-                          </div>
-                          {isCareCategory && <p><span className="font-semibold text-gray-500">Work allowance: </span>{tier.revisions}</p>}
-                        </div>
-                        <details className="mb-6 text-xs leading-relaxed text-gray-600 dark:text-gray-300">
-                          <summary className="cursor-pointer py-2 font-semibold text-gray-900 dark:text-white">Full scope and exclusions</summary>
-                          {tier.features.length > 4 && <ul className="mt-2 list-disc space-y-2 pl-4">{tier.features.slice(4).map(feature => <li key={feature}>{feature}</li>)}</ul>}
-                          <p className="mt-3 font-semibold">Quoted separately or excluded</p>
-                          <ul className="mt-2 list-disc space-y-2 pl-4">{tier.notIncluded?.map(item => <li key={item}>{item}</li>)}</ul>
-                        </details>
-
-                        {/* Deliverables List (Included) */}
-                        <div className="space-y-3 mb-6">
-                          <span className="text-[10px] font-extrabold uppercase tracking-widest text-gray-400 dark:text-gray-500 block font-mono">
-                            Included in this scope
-                          </span>
-                          <ul className="space-y-2 text-xs text-gray-700 dark:text-gray-300">
-                            {tier.features.slice(0, 4).map((feat, fIdx) => (
-                              <li key={fIdx} className="flex items-start gap-2.5 leading-snug">
-                                <CheckIcon className="w-4 h-4 shrink-0 mt-0.5 text-accent" />
-                                <span>{feat}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      </div>
-
-                      <div className="relative z-10">
-                        <Link
-                          to={`/contact?${contactQuery}`}
-                          className={tier.popular ? 'btn-primary w-full' : 'btn-dark w-full'}
-                          style={{ touchAction: 'manipulation' }}
-                        >
-                          {isCareCategory ? 'Discuss this care plan' : 'Get my project quote'} <ArrowRight className="w-3.5 h-3.5 ml-2" />
-                        </Link>
-                      </div>
-                    </motion.div>
-                  );
-                })}
-              </motion.div>
-
-              <div className="mt-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-t border-gray-200 dark:border-white/10 pt-5 text-xs">
-                <div className="max-w-4xl text-gray-600 dark:text-gray-400">
-                  {currentCategoryData.whatAffectsPricing?.length > 0 && (
-                    <p>
-                      <strong className="text-gray-900 dark:text-white">Price depends on: </strong>
-                      {currentCategoryData.whatAffectsPricing.slice(0, 2).join(' · ')}
-                    </p>
-                  )}
-                  {currentCategoryData.pricingNotes && (
-                    <p className="mt-2 leading-relaxed">{currentCategoryData.pricingNotes}</p>
-                  )}
-                </div>
-                <Link
-                  to={`/contact?service=${encodeURIComponent(activeCategory)}`}
-                  className="shrink-0 font-bold text-accent hover:text-gray-900 dark:hover:text-white transition-colors"
-                >
-                  Ask a pricing question →
-                </Link>
-              </div>
-            </div>
-
-            <div className="p-6 sm:p-8 rounded-2xl bg-white dark:bg-[#161616] border border-gray-200 dark:border-white/10">
-              <h3 className="text-xl font-bold font-heading text-black dark:text-white mb-4">How optional care works</h3>
-              <dl className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
-                {CARE_TERMS.map(term => <div key={term.title}><dt className="font-semibold text-gray-900 dark:text-white">{term.title}</dt><dd className="mt-2 leading-relaxed text-gray-600 dark:text-gray-400">{term.description}</dd></div>)}
-              </dl>
-              <Link to={`/contact?service=maintenance&currency=${displayCurrency}`} className="mt-6 inline-flex min-h-11 items-center font-semibold text-accent underline underline-offset-4">Get a technical-care quote <ArrowRight className="ml-2 w-4 h-4" aria-hidden="true" /></Link>
-            </div>
-
-            <div className="p-6 sm:p-8 rounded-2xl bg-white dark:bg-[#161616] border border-gray-200 dark:border-white/10">
-              <h3 className="text-xl font-bold font-heading text-black dark:text-white mb-4">Simple terms</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-sm text-gray-600 dark:text-gray-400">
-                <p><strong className="text-gray-900 dark:text-white">Build payments:</strong> 50% to start, 50% on delivery. Care is billed at its chosen cadence.</p>
-                <p><strong className="text-gray-900 dark:text-white">First year:</strong> Named infrastructure included with eligible builds.</p>
-                <p><strong className="text-gray-900 dark:text-white">Renewal:</strong> Confirm provider costs and choose optional care or handover before the included allowance ends.</p>
-                <p><strong className="text-gray-900 dark:text-white">Warranty:</strong> Bug fixes within the agreed scope and stated warranty period. New work is quoted separately.</p>
-              </div>
-            </div>
-
-            {/* ── FOOTER COMMERCIAL NOTICE ── */}
-            <div className="text-center text-xs text-gray-500 dark:text-gray-400 font-mono pt-4 border-t border-gray-200 dark:border-white/10">
-              {COMMERCIAL_TERMS.footerNotice}
-            </div>
-
-          </div>
-        )}
-
+          <PricingRegionSelector />
+        </div>
+        <div className="grid gap-4 md:grid-cols-3">
+          {HOME_BUDGETS.map(budget => {
+            const category = BUILD_PRICING[budget.id];
+            return <article key={budget.id} className="flex flex-col rounded-2xl border border-gray-200 bg-white p-6 dark:border-white/10 dark:bg-[#141414]">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{budget.title}</h3>
+              <p className="mt-3 font-heading text-3xl font-bold text-gray-900 dark:text-white"><span className="text-xs font-normal text-gray-500 dark:text-gray-400">From </span>{amount(category.startingPriceNGN, category.startingPriceUSD)}</p>
+              <p className="mb-4 mt-3 flex-1 text-sm leading-relaxed text-gray-600 dark:text-gray-300">{budget.scope}</p>
+              <Link to={`/pricing#${budget.id}`} className="inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-accent underline underline-offset-4">View {budget.title.toLowerCase()} scopes<ArrowRight className="h-4 w-4" aria-hidden="true" /></Link>
+            </article>;
+          })}
+        </div>
       </div>
     </section>
   );
-};
 
-export default Pricing;
+  const category = BUILD_PRICING[activeCategory];
+  const isCare = activeCategory === 'maintenance';
+  const proof = fallbackProjects.find(project => project.slug === PROOF_PROJECTS[activeCategory] && project.project_status === 'Client Work');
+  const changeCategory = id => {
+    if (!Object.hasOwn(BUILD_PRICING, id)) return;
+    setActiveCategory(id);
+    navigate({pathname:location.pathname, search:location.search, hash:`#${id}`}, {replace:true});
+  };
+
+  return (
+    <section id="pricing" className="bg-gray-50 px-6 py-24 transition-colors dark:bg-background md:px-12">
+      <div className="mx-auto max-w-7xl space-y-10">
+        <motion.header className="mx-auto max-w-3xl text-center" variants={container} initial="hidden" whileInView="visible" viewport={sectionViewport}>
+          <motion.h1 variants={item} className="mb-4 font-heading text-4xl font-bold tracking-tight text-gray-900 dark:text-white md:text-5xl lg:text-6xl">Clear starting budgets.<br /><span className="font-normal italic text-accent">Tailored project proposals.</span></motion.h1>
+          <motion.p variants={item} className="mx-auto max-w-2xl text-sm leading-relaxed text-gray-600 dark:text-gray-300 sm:text-base">{isCare ? 'Care plans' : activeCategory === 'websites' ? 'Websites' : activeCategory === 'ecommerce' ? 'Online stores' : 'Projects'} start from {price(category.startingPriceNGN, category.startingPriceUSD ?? USD_CARE_PRICING[category.tiers[0].id]?.priceUSD, category.startingPriceFormatted)}. I’ll confirm the scope and final price before work begins.</motion.p>
+          <motion.div variants={item} className="mt-6">
+            <Link to={`/contact?service=${activeCategory}&currency=${currency}`} className="btn-primary">{isCare ? 'Get my care quote' : 'Get my project quote'}<ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" /></Link>
+          </motion.div>
+        </motion.header>
+
+        <div className="flex flex-col gap-6 border-b border-gray-200 pb-8 dark:border-white/10 sm:flex-row sm:justify-between">
+          <div className="w-full sm:max-w-md">
+            <label htmlFor="pricing-category" className="mb-2 block text-xs font-bold text-gray-900 dark:text-white">Choose the closest service</label>
+            <select id="pricing-category" value={activeCategory} onChange={event => changeCategory(event.target.value)} className="bwl-input min-h-12 text-base font-semibold">
+              <optgroup label="Core build and support">{CORE_CATEGORIES.map(id => <option key={id} value={id}>{BUILD_PRICING[id].label}</option>)}</optgroup>
+              <optgroup label="Specialist services and add-ons">{SPECIALIST_CATEGORIES.map(id => <option key={id} value={id}>{BUILD_PRICING[id].label}</option>)}</optgroup>
+            </select>
+          </div>
+          <PricingRegionSelector />
+        </div>
+
+        <div id={activeCategory} className="scroll-mt-24">
+          <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+            <div className="max-w-3xl">
+              <h2 className="font-heading text-2xl font-bold text-gray-900 dark:text-white sm:text-3xl">{category.title.replace(/^\d+\.\s*/, '')}</h2>
+              <p className="mt-2 text-sm leading-relaxed text-gray-600 dark:text-gray-300">{category.desc}</p>
+            </div>
+            <p className="shrink-0 rounded-xl border border-accent/20 bg-accent/5 p-4 font-heading text-2xl font-bold text-gray-900 dark:bg-accent/10 dark:text-white"><span className="mb-1 block text-xs font-semibold text-accent">{isCare ? 'Plans from' : 'Starting budget'}</span>{price(category.startingPriceNGN, category.startingPriceUSD ?? USD_CARE_PRICING[category.tiers[0].id]?.priceUSD, category.startingPriceFormatted)}</p>
+          </div>
+
+          <p className="mb-8 rounded-xl border border-gray-200 p-4 text-sm leading-relaxed text-gray-600 dark:border-white/10 dark:text-gray-300">{isCare
+            ? 'Care fees cover labour; provider bills are separate. Every plan includes automated uptime alerts reviewed during business hours. Essential covers static sites; CMS websites, stores and applications need an assessed care scope.'
+            : 'Build fees are paid once. Ongoing care is optional. Your proposal lists included hosting and operations allowances, provider renewals and paid tools.'}</p>
+
+          {proof && <div className="mb-8 flex flex-wrap items-center justify-between gap-3 border-y border-gray-200 py-4 dark:border-white/10"><p className="text-sm text-gray-600 dark:text-gray-300">Relevant client work: <strong className="text-gray-900 dark:text-white">{proof.title}</strong></p><Link to={`/projects/${proof.slug}`} className="inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-accent">View case study<ArrowRight className="h-4 w-4" aria-hidden="true" /></Link></div>}
+
+          <motion.div key={activeCategory} className={`grid grid-cols-1 gap-6 ${category.tiers.length === 4 ? 'md:grid-cols-2 xl:grid-cols-4' : 'md:grid-cols-3'}`} variants={container} initial="hidden" whileInView="visible" viewport={sectionViewport}>
+            {category.tiers.map(tier => {
+              const custom = tier.priceFormatted === 'Custom Quote';
+              const infrastructure = INFRASTRUCTURE_LEVELS[tier.infrastructureLevel];
+              const usd = USD_CARE_PRICING[tier.id];
+              const query = new URLSearchParams({service:activeCategory, tier:tier.name, currency});
+              const annual = isCare && tier.monthlyPriceNGN && tier.annualPriceNGN;
+              const saving = annual ? (currency === 'NGN' ? tier.monthlyPriceNGN * 12 - tier.annualPriceNGN : usd.monthlyPriceUSD * 12 - usd.annualPriceUSD) : 0;
+              const features = isCare ? tier.features.filter(feature => !/^(Up to \d+ total hours|Automated uptime|2 minor text or image)/.test(feature)) : tier.features;
+              return <motion.article key={tier.id} id={`pricing-card-${tier.id}`} whileHover={shouldReduce ? {} : cardHover} className={`relative flex flex-col justify-between rounded-2xl border bg-white p-6 dark:bg-[#141414] sm:p-7 ${tier.popular ? 'border-accent shadow-lg ring-2 ring-accent/15' : 'border-gray-200 dark:border-white/10'}`}>
+                <div>
+                  {tier.popular && <span className="absolute -top-3 right-5 bg-accent px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-wider text-white">{tier.popularBadge?.replace('⭐ ', '') || 'Best Value'}</span>}
+                  <h3 className="font-heading text-2xl font-bold text-gray-900 dark:text-white">{tier.name}</h3>
+                  <p className="mb-5 mt-2 text-sm leading-relaxed text-gray-600 dark:text-gray-300">{tier.bestFor}</p>
+                  <p className="mb-5 border-b border-gray-100 pb-5 font-heading text-3xl font-bold text-gray-900 dark:border-white/10 dark:text-white">{custom ? 'Tailored quote' : <><span className="mb-1 block font-body text-xs font-normal text-gray-500 dark:text-gray-400">{isCare ? (tier.billingCadence === 'ANNUAL' ? 'Annual plan' : 'Monthly plan') : 'Starting at'}</span>{price(tier.priceNGN, tier.priceUSD ?? usd?.priceUSD, tier.priceFormatted)}</>}</p>
+                  {annual && <p className="mb-5 text-xs leading-relaxed text-gray-600 dark:text-gray-300">Or {amount(tier.annualPriceNGN, usd.annualPriceUSD)}/year{saving > 0 && <span className="block text-emerald-700 dark:text-emerald-400">Save {currency === 'NGN' ? '₦' : '$'}{saving.toLocaleString()} compared with 12 monthly payments</span>}</p>}
+                  <dl className="mb-6 space-y-3 text-sm">
+                    {isCare ? <>
+                      <div><dt className="text-xs text-gray-500 dark:text-gray-400">Work allowance</dt><dd className="mt-1 font-semibold text-gray-900 dark:text-white">{tier.monthlyHours ? `${tier.monthlyHours} total hours/month` : tier.revisions}</dd></div>
+                      <div><dt className="text-xs text-gray-500 dark:text-gray-400">Response time</dt><dd className="mt-1 text-gray-700 dark:text-gray-300">{tier.support}</dd></div>
+                    </> : <>
+                      <div><dt className="text-xs text-gray-500 dark:text-gray-400">Delivery estimate</dt><dd className="mt-1 text-gray-700 dark:text-gray-300">{tier.timeline}</dd></div>
+                      <div><dt className="text-xs text-gray-500 dark:text-gray-400">{tier.warrantyDays ? 'Bug-fix warranty' : 'Launch support'}</dt><dd className="mt-1 text-gray-700 dark:text-gray-300">{tier.warrantyDays ? `${tier.warrantyDays} days after launch` : tier.support}</dd></div>
+                    </>}
+                  </dl>
+                  <p className="mb-3 text-xs font-semibold text-gray-900 dark:text-white">Included work</p>
+                  <ul className="mb-5 space-y-3 text-sm text-gray-700 dark:text-gray-300">{features.slice(0, 4).map(feature => <li key={feature} className="flex items-start gap-2 leading-relaxed"><CheckIcon className="mt-0.5 h-4 w-4 shrink-0 text-accent" /><span>{feature}</span></li>)}</ul>
+                  <details className="mb-6 text-xs leading-relaxed text-gray-600 dark:text-gray-300">
+                    <summary className="cursor-pointer py-3 font-semibold text-gray-900 dark:text-white">Scope details and exclusions</summary>
+                    {features.length > 4 && <ul className="mt-2 list-disc space-y-2 pl-4">{features.slice(4).map(feature => <li key={feature}>{feature}</li>)}</ul>}
+                    {!isCare && <p className="mt-3"><strong>Design reviews: </strong>{tier.revisions}</p>}
+                    {infrastructure && <><p className="mt-4 font-semibold">{infrastructure.shortName} hosting and operations allowance · 12 months</p><ul className="mt-2 list-disc space-y-2 pl-4">{infrastructure.included.map(feature => <li key={feature}>{feature}</li>)}</ul></>}
+                    <p className="mt-4 font-semibold">Quoted separately or excluded</p>
+                    <ul className="mt-2 list-disc space-y-2 pl-4">{tier.notIncluded?.map(exclusion => <li key={exclusion}>{exclusion}</li>)}</ul>
+                  </details>
+                </div>
+                <Link to={`/contact?${query}`} className={`${tier.popular ? 'btn-primary' : 'btn-dark'} w-full`}>{isCare ? 'Discuss this care plan' : 'Get my project quote'}<ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" /></Link>
+              </motion.article>;
+            })}
+          </motion.div>
+
+          {!isCare && category.whatAffectsPricing?.length > 0 && <div className="mt-6 flex flex-col justify-between gap-3 text-sm sm:flex-row"><p className="max-w-3xl text-gray-600 dark:text-gray-300"><strong>Price depends on: </strong>{category.whatAffectsPricing.slice(0,2).join(' · ')}</p><Link to={`/contact?service=${activeCategory}&currency=${currency}`} className="inline-flex min-h-11 shrink-0 items-center font-semibold text-accent">Ask a pricing question →</Link></div>}
+        </div>
+
+        <details key={isCare ? 'care-terms' : 'build-terms'} className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-white/10 dark:bg-[#141414] sm:p-8">
+          <summary className="cursor-pointer font-heading text-xl font-bold text-gray-900 dark:text-white">{isCare ? 'Care hours, billing and response terms' : 'Payment, running costs and warranty'}</summary>
+          <dl className="mt-6 grid gap-6 text-sm sm:grid-cols-2">
+            {isCare ? CARE_TERMS.map(term => <div key={term.title}><dt className="font-semibold text-gray-900 dark:text-white">{term.title}</dt><dd className="mt-2 leading-relaxed text-gray-600 dark:text-gray-300">{term.description}</dd></div>) : <>
+              <div><dt className="font-semibold text-gray-900 dark:text-white">Build payments</dt><dd className="mt-2 leading-relaxed text-gray-600 dark:text-gray-300">50% to start, 50% on delivery.</dd></div>
+              <div><dt className="font-semibold text-gray-900 dark:text-white">Hosting and provider bills</dt><dd className="mt-2 leading-relaxed text-gray-600 dark:text-gray-300">Eligible builds include the allowance named in the scope for 12 months. Domains, licences, usage above that allowance and renewals are itemized separately. You can pay providers directly after handover.</dd></div>
+              <div><dt className="font-semibold text-gray-900 dark:text-white">Bug-fix warranty</dt><dd className="mt-2 leading-relaxed text-gray-600 dark:text-gray-300">The stated warranty covers faults in the agreed build. New features, content changes and ongoing maintenance are separate work.</dd></div>
+              <div><dt className="font-semibold text-gray-900 dark:text-white">Optional care</dt><dd className="mt-2 leading-relaxed text-gray-600 dark:text-gray-300">Choose an assessed care scope, a monthly retainer or handover to your team. A retainer is not required to keep your site online. <Link to="/pricing#maintenance" className="font-semibold text-accent underline underline-offset-4">View care plans</Link>.</dd></div>
+            </>}
+          </dl>
+          {!isCare && category.pricingNotes && <p className="mt-6 border-t border-gray-200 pt-4 text-xs leading-relaxed text-gray-500 dark:border-white/10 dark:text-gray-400">{category.pricingNotes}</p>}
+        </details>
+        <p className="text-center text-xs leading-relaxed text-gray-500 dark:text-gray-400">{COMMERCIAL_TERMS.footerNotice}</p>
+      </div>
+    </section>
+  );
+}
