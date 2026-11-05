@@ -3,11 +3,14 @@ import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { api } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
+import { authReturnTo } from '../utils/authReturnTo.js';
+import { AUTH_EMAIL_TIMEOUT_MS } from '../config/apiPolicy.js';
 
 const LoginPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, loading: authLoading, login } = useAuth();
+  const returnTo = authReturnTo(location);
 
   // ── Two-step state ──────────────────────────────────────
   // step 1: email + password
@@ -30,10 +33,9 @@ const LoginPage = () => {
     // bounce straight back to /login and trigger the verify-loop.
     if (authLoading) return;
     if (user) {
-      const from = location.state?.from || '/admin';
-      navigate(from, { replace: true });
+      navigate(returnTo, { replace: true });
     }
-  }, [user, authLoading, navigate, location.state]);
+  }, [user, authLoading, navigate, returnTo]);
 
   // Auto-focus the 2FA input as soon as we transition to step 2.
   useEffect(() => {
@@ -58,8 +60,7 @@ const LoginPage = () => {
           return;
         }
         // Login succeeded - cookie is set, user state updated
-        const from = location.state?.from || '/admin';
-        navigate(from, { replace: true });
+        navigate(returnTo, { replace: true });
       } else {
         setError(res.error === 'Request timed out' ? 'The sign-in service took too long to respond. Please retry in a moment.' : res.error || 'Invalid credentials. Please try again.');
       }
@@ -68,8 +69,7 @@ const LoginPage = () => {
       const res = await login({ twoFactorCode, challengeToken });
       if (res.ok) {
         // Cookie is set, user state updated
-        const from = location.state?.from || '/admin';
-        navigate(from, { replace: true });
+        navigate(returnTo, { replace: true });
       } else {
         setError(res.error || 'Invalid 2FA code.');
         setTwoFactorCode('');
@@ -84,7 +84,7 @@ const LoginPage = () => {
     setResending(true);
     setError('');
     setResendNotice('');
-    const res = await api.post('/auth/login/2fa/resend', { challengeToken }, {}, 'none');
+    const res = await api.post('/auth/login/2fa/resend', { challengeToken }, { timeout: AUTH_EMAIL_TIMEOUT_MS }, 'none');
     setResending(false);
     if (res.ok) {
       setResendNotice(res.data?.message || 'New code sent to your email.');

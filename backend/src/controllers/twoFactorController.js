@@ -74,7 +74,12 @@ export async function setupTwoFactor(req, res) {
         }
 
         const email = rows[0].email;
-        await generateAndSendOtp(req.user.id, email);
+        try {
+            await generateAndSendOtp(req.user.id, email);
+        } catch (err) {
+            console.error('[2FA] setup delivery failed:', err.code || err.message);
+            return res.status(503).json({ error: 'Your verification code could not be delivered. Please retry in a moment.' });
+        }
 
         console.log('[2FA] setup OTP emailed to', email);
         return res.json({
@@ -239,6 +244,11 @@ export async function resendLoginOtp(req, res) {
     );
     if (rows.length === 0) return res.status(404).json({ error: 'User not found.' });
 
-    await generateAndSendOtp(payload.id, rows[0].email);
+    try {
+        await generateAndSendOtp(payload.id, rows[0].email);
+    } catch (err) {
+        console.error('[2FA] resend delivery failed:', err.code || err.message);
+        return res.status(503).json({ error: 'Your verification code could not be delivered. Please retry in a moment.' });
+    }
     return res.json({ success: true, message: `New verification code sent to ${rows[0].email}.` });
 }

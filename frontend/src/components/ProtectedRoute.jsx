@@ -33,7 +33,7 @@ const ProtectedRoute = ({ children }) => {
     if (!user && sessionError) return <div role="alert" className="min-h-screen flex flex-col gap-4 items-center justify-center p-6 text-center"><p>{sessionError}</p><button type="button" onClick={() => window.location.reload()} className="bg-accent text-white font-bold px-5 py-3 rounded-xl">Retry session check</button></div>;
 
     if (!user) {
-        return <Navigate to={`/login?from=${encodeURIComponent(location.pathname)}`} replace />;
+        return <Navigate to={`/login?from=${encodeURIComponent(location.pathname + location.search + location.hash)}`} replace />;
     }
 
     return children;

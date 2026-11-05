@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { api } from '../services/api';
+import { AUTH_EMAIL_TIMEOUT_MS } from '../config/apiPolicy.js';
 import { ArrowLeft, Mail, CheckCircle2, AlertCircle } from 'lucide-react';
 
 const ForgotPasswordPage = () => {
@@ -17,7 +18,7 @@ const ForgotPasswordPage = () => {
     setSubmitting(true);
 
     try {
-      const res = await api.post('/auth/forgot-password', { email });
+      const res = await api.post('/auth/forgot-password', { email }, { timeout: AUTH_EMAIL_TIMEOUT_MS }, 'none');
       if (res.ok) {
         setSuccessMessage(
           res.data?.message || 'If an account exists with this email, a password reset link has been dispatched.'

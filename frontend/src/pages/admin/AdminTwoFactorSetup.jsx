@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { api } from '../../services/api';
 import { notify } from '../../services/notify';
 import { useAuth } from '../../contexts/AuthContext';
+import { AUTH_EMAIL_TIMEOUT_MS } from '../../config/apiPolicy.js';
 
 /**
  * /admin/security/2fa — Email-OTP Two-Factor Setup & Management.
@@ -45,7 +46,7 @@ const AdminTwoFactorSetup = () => {
     // ── Send/resend setup code ───────────────────────────────
     const handleStartSetup = async () => {
         setSendingCode(true);
-        const res = await api.post('/auth/2fa/setup');
+        const res = await api.post('/auth/2fa/setup', undefined, { timeout: AUTH_EMAIL_TIMEOUT_MS });
         setSendingCode(false);
         if (res.ok) {
             notify.success(res.data?.message || 'Verification code sent to your email.');

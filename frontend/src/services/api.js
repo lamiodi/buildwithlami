@@ -33,8 +33,11 @@
 //
 // Fall back to '/api' so the Vercel rewrite (vercel.json) handles
 // routing and the cookie stays first-party.
+import { API_REQUEST_TIMEOUT_MS, API_READY_TIMEOUT_MS, UPLOAD_TIMEOUT_MS } from '../config/apiPolicy.js';
+import { createServiceAvailability } from '../utils/serviceAvailability.js';
+
 const API_BASE = (() => {
-    const env = import.meta.env.VITE_API_URL;
+    const env = import.meta.env?.VITE_API_URL;
     if (!env) return '/api';
     if (env.startsWith('/')) return env;
     try {
@@ -47,7 +50,7 @@ const API_BASE = (() => {
 })();
 
 // Default request timeout (ms). Avoids hanging the UI on a dead connection.
-const DEFAULT_TIMEOUT_MS = 15_000;
+const DEFAULT_TIMEOUT_MS = API_REQUEST_TIMEOUT_MS;
 
 // ── Token storage ─────────────────────────────────────────
 // We deliberately read tokens from localStorage (set by the
@@ -72,6 +75,19 @@ function formatEndpoint(path) {
     if (path === '/api') return API_BASE;
     return `${API_BASE}${path.startsWith('/') ? path : `/${path}`}`;
 }
+
+const availability = createServiceAvailability({
+    async check() {
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), API_READY_TIMEOUT_MS);
+        try {
+            const response = await fetch(formatEndpoint('/health'), { credentials:'include', signal:controller.signal, cache:'no-store' });
+            if (!response.ok || (await response.json()).status !== 'ok') throw new Error('Service unavailable');
+        } catch {
+            throw new Error('The service is taking longer to connect. Please retry in a moment.');
+        } finally { clearTimeout(timer); }
+    },
+});
 
 /**
  * Append `opts.params` as a real query string. fetch() ignores unknown
@@ -123,11 +139,12 @@ function buildConfig(options, { auth = 'admin' } = {}) {
     const timeout = options.timeout ?? DEFAULT_TIMEOUT_MS;
     const timer = setTimeout(() => internalController.abort(), timeout);
 
+    const abort = () => internalController.abort();
     if (options.signal) {
         if (options.signal.aborted) {
             internalController.abort();
         } else {
-            options.signal.addEventListener('abort', () => internalController.abort(), { once: true });
+            options.signal.addEventListener('abort', abort, { once: true });
         }
     }
 
@@ -155,7 +172,11 @@ function buildConfig(options, { auth = 'admin' } = {}) {
         signal: internalController.signal,
     };
 
-    return { config, timer, internalController };
+    const cleanup = () => {
+        clearTimeout(timer);
+        options.signal?.removeEventListener('abort', abort);
+    };
+    return { config, cleanup };
 }
 
 const prepareBody = (body) => {
@@ -174,6 +195,7 @@ async function parse(res) {
         try {
             data = JSON.parse(text);
         } catch {
+            if (res.ok) return { ok:false, status:res.status, error:'The service returned an unexpected response. Please retry.' };
             data = { raw: text };
         }
     }
@@ -199,24 +221,30 @@ async function request(path, options = {}, { auth = 'admin' } = {}) {
     // `params` is consumed here, never passed to fetch().
     const { params, ...rest } = options;
     const url = buildUrl(path, params);
-    const { config, timer } = buildConfig(rest, { auth });
+    await availability.ensure(rest.signal);
+    const { config, cleanup } = buildConfig(rest, { auth });
 
     try {
-        return await fetch(url, config);
+        const result = await parse(await fetch(url, config));
+        if (result.status >= 500) availability.invalidate();
+        return result;
+    } catch (error) {
+        if (!rest.signal?.aborted) availability.invalidate();
+        throw error;
     } finally {
-        clearTimeout(timer);
+        cleanup();
     }
 }
 
 export const api = {
-    /** Initialize API client — kept for backwards compatibility. */
-    async init() { return; },
+    /** Start the shared, bounded service-readiness check. */
+    async init() { try { await availability.ensure(); } catch { /* Requests can retry the readiness check. */ } },
 
     /** GET — returns the parsed result envelope. */
     get: async (path, opts = {}, auth = 'admin') => {
         try {
             const res = await request(path, { method: 'GET', ...opts }, { auth });
-            return handleResult(await parse(res), auth);
+            return handleResult(res, auth);
         } catch (err) {
             console.error(`[API] GET ${path} failed:`, err.message);
             return { ok: false, status: 0, error: err.name === 'AbortError' ? 'Request timed out' : err.message };
@@ -231,7 +259,7 @@ export const api = {
                 body: prepareBody(body),
                 ...opts,
             }, { auth });
-            return handleResult(await parse(res), auth);
+            return handleResult(res, auth);
         } catch (err) {
             console.error(`[API] POST ${path} failed:`, err.message);
             return { ok: false, status: 0, error: err.name === 'AbortError' ? 'Request timed out' : err.message };
@@ -245,7 +273,7 @@ export const api = {
                 body: prepareBody(body),
                 ...opts,
             }, { auth });
-            return handleResult(await parse(res), auth);
+            return handleResult(res, auth);
         } catch (err) {
             console.error(`[API] PUT ${path} failed:`, err.message);
             return { ok: false, status: 0, error: err.name === 'AbortError' ? 'Request timed out' : err.message };
@@ -259,7 +287,7 @@ export const api = {
                 body: prepareBody(body),
                 ...opts,
             }, { auth });
-            return handleResult(await parse(res), auth);
+            return handleResult(res, auth);
         } catch (err) {
             console.error(`[API] PATCH ${path} failed:`, err.message);
             return { ok: false, status: 0, error: err.name === 'AbortError' ? 'Request timed out' : err.message };
@@ -269,7 +297,7 @@ export const api = {
     delete: async (path, opts = {}, auth = 'admin') => {
         try {
             const res = await request(path, { method: 'DELETE', ...opts }, { auth });
-            return handleResult(await parse(res), auth);
+            return handleResult(res, auth);
         } catch (err) {
             console.error(`[API] DELETE ${path} failed:`, err.message);
             return { ok: false, status: 0, error: err.name === 'AbortError' ? 'Request timed out' : err.message };
@@ -277,7 +305,7 @@ export const api = {
     },
 
     /**
-     * Multipart upload — sends a single `file` field. Used by the
+     * Multipart upload — sends a single `image` field. Used by the
      * portfolio image picker and the admin upload route.
      * The Content-Type header is intentionally left unset so the browser
      * generates the correct multipart boundary.
@@ -285,28 +313,19 @@ export const api = {
      * Recognises HTTP 413 (Payload Too Large) so the UI can show a
      * clear, actionable error instead of a generic failure.
      */
-    upload: async (path, file, { auth = 'admin' } = {}) => {
+    upload: async (path, file, { auth = 'admin', timeout = UPLOAD_TIMEOUT_MS, signal } = {}) => {
         try {
             const form = new FormData();
             form.append('image', file);
 
-            const headers = {};
-            if (auth === 'admin') {
-                const token = getAdminToken();
-                if (token) headers.Authorization = `Bearer ${token}`;
-            } else if (auth === 'client') {
-                const token = getClientToken();
-                if (token) headers.Authorization = `Bearer ${token}`;
-            }
-
-            const res = await fetch(formatEndpoint(path), {
+            const res = await request(path, {
                 method: 'POST',
-                credentials: 'include',
-                headers,
                 body: form,
-            });
+                timeout,
+                signal,
+            }, { auth });
 
-            return handleResult(await parse(res), auth);
+            return handleResult(res, auth);
         } catch (err) {
             console.error(`[API] UPLOAD ${path} failed:`, err.message);
             return { ok: false, status: 0, error: err.name === 'AbortError' ? 'Request timed out' : err.message };

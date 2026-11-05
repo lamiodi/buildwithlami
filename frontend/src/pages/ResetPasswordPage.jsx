@@ -35,7 +35,7 @@ const ResetPasswordPage = () => {
       const res = await api.post('/auth/reset-password', {
         token,
         password,
-      });
+      }, {}, 'none');
 
       if (res.ok) {
         setSuccess(true);

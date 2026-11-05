@@ -1,0 +1,4 @@
+export const API_REQUEST_TIMEOUT_MS = 15_000;
+export const API_READY_TIMEOUT_MS = 60_000;
+export const AUTH_EMAIL_TIMEOUT_MS = 30_000;
+export const UPLOAD_TIMEOUT_MS = 60_000;

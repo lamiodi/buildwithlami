@@ -23,6 +23,7 @@
 
 import { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { api } from '../services/api.js';
+import { AUTH_EMAIL_TIMEOUT_MS } from '../config/apiPolicy.js';
 
 // ── Token persistence (see docs/AUTH_MODEL.md) ────────────
 // The auth flow uses BOTH:
@@ -90,7 +91,11 @@ export function AuthProvider({ children }) {
                 // the global bwl:api-unauthorized event — that event is only
                 // meaningful for authenticated requests that unexpectedly lose their token.
                 // Also raise timeout to 30s to handle Render.com free-tier cold starts.
-                const res = await api.get('/auth/me', { timeout: 30000 }, 'none');
+                const savedToken = readAdminToken();
+                const res = await api.get('/auth/me', {
+                    timeout: 30000,
+                    headers: savedToken ? { Authorization: `Bearer ${savedToken}` } : {},
+                }, 'none');
                 if (cancelled) return;
                 if (res.ok && res.data && res.data.id) {
                     setUser(res.data);
@@ -130,7 +135,7 @@ export function AuthProvider({ children }) {
         // auth:'none' — /auth/login is a public endpoint; no Bearer token is
         // expected or sent. Using the default 'admin' scope here caused the
         // request to be aborted when there was no token in localStorage.
-        const res = await api.post('/auth/login', { email, password }, { timeout: 20000 }, 'none');
+        const res = await api.post('/auth/login', { email, password }, { timeout: AUTH_EMAIL_TIMEOUT_MS }, 'none');
         if (res.ok && res.data) {
             if (res.data.requires2fa) {
                 // Return a marker so the LoginPage knows to render

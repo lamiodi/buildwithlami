@@ -13,11 +13,11 @@ test('stage validation accepts legacy titles, derives progress, and rejects inva
 const enabled = process.env.BWL_ISOLATED_TEST === '1' && process.env.TEST_BASE_URL && process.env.TEST_DATABASE_URL;
 let pool, token, clientId, projectId;
 let requestNumber = 0;
-const api = async (method, pathname, body) => {
+const api = async (method, pathname, body, timeout = 15000) => {
     const response = await fetch(`${process.env.TEST_BASE_URL}${pathname}`, {
         method, headers: { 'Content-Type': 'application/json', 'X-Forwarded-For': `10.91.1.${++requestNumber % 240 + 1}`, ...(token ? { Authorization: `Bearer ${token}` } : {}) },
         body: body === undefined ? undefined : JSON.stringify(body),
-        signal: AbortSignal.timeout(15000),
+        signal: AbortSignal.timeout(timeout),
     });
     return { status: response.status, data: await response.json() };
 };
@@ -123,12 +123,12 @@ test('two-factor mail failure and timeout return retryable errors without granti
         await pool.query(`INSERT INTO users (email, password, role, two_factor_enabled) VALUES ($1, $2, 'Owner', true)
             ON CONFLICT (email) DO UPDATE SET password = EXCLUDED.password, two_factor_enabled = true`, [email, await bcrypt.hash(password, 4)]);
         const start = Date.now();
-        const result = await api('POST', '/api/auth/login', { email, password });
+        const result = await api('POST', '/api/auth/login', { email, password }, 30000);
         assert.equal(result.status, 503);
         assert.match(result.data.error, /could not be delivered.*retry/i);
         assert.equal(result.data.token, undefined);
         assert.equal(result.data.challengeToken, undefined);
-        assert.ok(Date.now() - start < 14000, 'mail delivery must fail within the browser request window');
+        assert.ok(Date.now() - start < 28000, 'mail delivery must fail before the 30-second email request window');
         const stored = await pool.query('SELECT two_factor_enabled FROM users WHERE email = $1', [email]);
         assert.equal(stored.rows[0].two_factor_enabled, true);
     }
@@ -140,4 +140,28 @@ test('dashboard exposes client names and division without mixing invoice currenc
     assert.equal(result.data.projects.find((p) => p.id === projectId).client_name, 'Admin audit fixture');
     assert.equal(result.data.clients.find((c) => c.id === clientId).division, 'SOFTWARE');
     assert.ok(result.data.invoices.some((i) => i.project_id === projectId && i.currency === 'USD'));
+});
+
+test('setup and resend report mail delivery failures as retryable without enabling two-factor access', options, async () => {
+    const jwt = (await import('jsonwebtoken')).default;
+    const { rows } = await pool.query("UPDATE users SET two_factor_enabled = false WHERE email = 'otp-failure@isolated.test' RETURNING id, email");
+    const user = rows[0];
+    const ownerToken = jwt.sign({id:user.id,email:user.email,role:'Owner'}, process.env.TEST_JWT_SECRET, {expiresIn:'5m'});
+    const challenge = jwt.sign({id:user.id,purpose:'2fa'}, process.env.TEST_JWT_SECRET, {expiresIn:'5m'});
+    for (const [pathname, body, credential] of [
+        ['/api/auth/2fa/setup', {}, ownerToken],
+        ['/api/auth/login/2fa/resend', {challengeToken:challenge}, null],
+    ]) {
+        const response = await fetch(process.env.TEST_BASE_URL + pathname, {
+            method:'POST', headers:{'Content-Type':'application/json','X-Forwarded-For':'10.91.2.20',...(credential?{Authorization:`Bearer ${credential}`}:{})},
+            body:JSON.stringify(body),signal:AbortSignal.timeout(30000),
+        });
+        assert.equal(response.status,503);
+        const data=await response.json();
+        assert.match(data.error,/could not be delivered.*retry/i);
+        assert.equal(data.token,undefined);
+    }
+    const state=await pool.query('SELECT two_factor_enabled FROM users WHERE id=$1',[user.id]);
+    assert.equal(state.rows[0].two_factor_enabled,false);
+    await pool.query('UPDATE users SET two_factor_enabled=true WHERE id=$1',[user.id]);
 });

@@ -143,7 +143,7 @@ app.use(cookieParser()); // Parse cookies for JWT auth
 
 // ── Health-check (legacy, no DB) ─────────────────────────
 app.get('/api/health', (_req, res) => {
-    res.json({ status: 'ok', timestamp: new Date().toISOString() });
+    res.json({ status: 'ok', revision: process.env.RENDER_GIT_COMMIT?.slice(0, 12) || null, timestamp: new Date().toISOString() });
 });
 
 // ── Uptime routes (/ping and /health with DB check) ──────

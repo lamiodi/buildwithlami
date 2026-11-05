@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { Navigate, useLocation, Link } from 'react-router-dom';
 import { useClientAuth } from '../../contexts/ClientAuthContext';
+import { authReturnTo } from '../../utils/authReturnTo.js';
 
 export default function ClientLogin() {
     const { login, clientUser } = useClientAuth();
@@ -9,13 +10,12 @@ export default function ClientLogin() {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     
-    const navigate = useNavigate();
     const location = useLocation();
+    const returnTo = authReturnTo(location, 'portal');
 
     // If already logged in, redirect to portal
     if (clientUser) {
-        navigate('/portal', { replace: true });
-        return null;
+        return <Navigate to={returnTo} replace />;
     }
 
     const handleSubmit = async (e) => {
@@ -25,8 +25,6 @@ export default function ClientLogin() {
 
         try {
             await login(email, password);
-            const from = location.state?.from?.pathname || '/portal';
-            navigate(from, { replace: true });
         } catch (err) {
             setError(err.message || 'Failed to login');
         } finally {

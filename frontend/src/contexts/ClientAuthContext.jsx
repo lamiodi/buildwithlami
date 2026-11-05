@@ -54,7 +54,7 @@ export function ClientAuthProvider({ children }) {
     }, [checkSession]);
 
     const login = useCallback(async (email, password) => {
-        const res = await api.post('/client-auth/login', { email, password }, {}, 'client');
+        const res = await api.post('/client-auth/login', { email, password }, {}, 'none');
         if (!res.ok) {
             throw new Error(res.error || (res.data && res.data.error) || 'Login failed');
         }
