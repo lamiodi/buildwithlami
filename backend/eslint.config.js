@@ -2,7 +2,7 @@ import js from '@eslint/js';
 import globals from 'globals';
 
 export default [
-  { ignores: ['node_modules', 'migrations'] },
+  { ignores: ['node_modules', 'migrations', '.tmp'] },
   {
     files: ['**/*.{js,mjs,cjs}'],
     languageOptions: {

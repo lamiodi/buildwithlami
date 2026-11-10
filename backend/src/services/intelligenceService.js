@@ -49,7 +49,6 @@ const REASON_LABELS = {
 };
 
 const MONEY_RE = /invoice|payment|checkout|deposit|receipt|pay\b/i;
-const LAUNCH_RE = /launch|deploy|go.?live|dns|ssl|domain/i;
 
 const startOfDay = (d) => { const x = new Date(d); x.setHours(0, 0, 0, 0); return x; };
 const daysFromToday = (dueAt) => {

@@ -9,10 +9,15 @@ This project uses a standard health check system for integration with external m
   - Body: `{"status": "ok", "timestamp": "..."}`
   - Used for basic application server health checks without touching the database.
 
-- **`/ping`** or **`/api/ping`** (GET)
-  - Returns: `200 OK` if the database and server are healthy.
-  - Body: `{"status": "ok", "db_time": "...", "timestamp": "..."}`
-  - Used for comprehensive system checks (Server + Database).
+- **`/ping`** (GET)
+  - Returns: `200 OK`
+  - Body: `{"status": "ok", "message": "pong"}`
+  - Lightweight liveness check without touching the database.
+
+- **`/health`** or **`/api/ping`** (GET)
+  - Returns: `200 OK` if the database and server are healthy (`503` if the database is unreachable).
+  - Body: `{"status": "ok", "database": "connected", "dbTime": "...", "db_time": "...", "latencyMs": 12, "timestamp": "..."}`
+  - Used for comprehensive system checks (Server + Database). `/api/ping` is also reachable through the frontend domain via Vercel's `/api/*` rewrite.
 
 ## UptimeRobot Setup Instructions
 

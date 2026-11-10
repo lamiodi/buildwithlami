@@ -16,18 +16,20 @@ router.get('/ping', (_req, res) => {
 });
 
 // Full health check — verifies DB connectivity with a simple
-// query. Uptime bots should hit this endpoint to catch DB
-// outages, SSL issues, or pool exhaustion.
-router.get('/health', async (_req, res) => {
+// query. Uptime bots should hit this endpoint (/health or /api/ping)
+// to catch DB outages, SSL issues, or pool exhaustion.
+router.get(['/health', '/api/ping'], async (_req, res) => {
     try {
         const start = Date.now();
         const result = await pool.query('SELECT 1 AS ok, NOW() AS db_time');
         const latencyMs = Date.now() - start;
+        const dbTime = result.rows[0].db_time;
 
         res.json({
             status: 'ok',
             database: 'connected',
-            dbTime: result.rows[0].db_time,
+            dbTime,
+            db_time: dbTime,
             latencyMs,
             timestamp: new Date().toISOString(),
         });

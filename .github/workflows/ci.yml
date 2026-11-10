@@ -43,9 +43,9 @@ jobs:
           # unset in CI.
           VITE_API_URL: ${{ secrets.VITE_API_URL }}
 
-      - name: Test admin calculations
+      - name: Run frontend test suite
         working-directory: frontend
-        run: npm run test:admin
+        run: npm test
 
       # ── Backend ────────────────────────────────────────
       - name: Install backend dependencies
