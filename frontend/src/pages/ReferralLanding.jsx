@@ -46,7 +46,7 @@ const ReferralLanding = () => {
               This referral link isn't active
             </h1>
             <p className="text-sm text-gray-500 dark:text-gray-400 font-body leading-relaxed mb-8">
-              No worries — you can still reach BuildWithLami directly.
+              No worries, you can still reach BuildWithLami directly.
             </p>
             <Link to="/contact" className="inline-block bg-accent hover:bg-orange-600 text-white font-bold py-3 px-8 rounded-xl transition-all shadow-lg hover:shadow-accent/30 text-sm font-body">
               Get in touch
@@ -65,7 +65,7 @@ const ReferralLanding = () => {
               {referrer} thinks we should talk.
             </h1>
             <p className="text-sm text-gray-500 dark:text-gray-400 font-body leading-relaxed mb-8">
-              You've been referred by one of our clients. Tell us what you're building and get the same care they did — web, software, surveying and drone work under one roof.
+              You've been referred by one of our clients. Tell us what you're building and get the same care they did: web, software, surveying and drone work under one roof.
             </p>
             <Link to="/contact" className="inline-block bg-accent hover:bg-orange-600 text-white font-bold py-3 px-8 rounded-xl transition-all shadow-lg hover:shadow-accent/30 text-sm font-body">
               Start the conversation

@@ -19,12 +19,12 @@ const fallbackProjects = [
     tech_stack: ["React", "Node.js", "PostgreSQL", "Supabase"],
     image: "/images/projects/case/vonnex2x-screenshot.webp",
     gallery: [
-      { src: "/images/projects/case/vonnex2x-dashboard-desktop.webp", alt: "VonneX2X owner dashboard — daily bookings, revenue, expenses, net profit and low-stock alerts", device: "desktop" },
-      { src: "/images/projects/case/vonnex2x-pos-desktop.webp", alt: "VonneX2X point of sale — product catalogue with live stock counts and shopping cart checkout", device: "desktop" },
-      { src: "/images/projects/case/vonnex2x-bookings-desktop.webp", alt: "VonneX2X bookings calendar — service appointments with status tracking", device: "desktop" },
-      { src: "/images/projects/case/vonnex2x-dashboard-mobile.webp", alt: "VonneX2X dashboard on mobile — today's numbers at a glance", device: "phone" },
-      { src: "/images/projects/case/vonnex2x-inventory-mobile.webp", alt: "VonneX2X inventory on mobile — stock levels and restock flags", device: "phone" },
-      { src: "/images/projects/case/vonnex2x-workers-mobile.webp", alt: "VonneX2X workforce management on mobile — staff roster and assignments", device: "phone" },
+      { src: "/images/projects/case/vonnex2x-dashboard-desktop.webp", alt: "VonneX2X owner dashboard with daily bookings, revenue, expenses, net profit and low-stock alerts", device: "desktop" },
+      { src: "/images/projects/case/vonnex2x-pos-desktop.webp", alt: "VonneX2X point of sale product catalogue with live stock counts and shopping cart checkout", device: "desktop" },
+      { src: "/images/projects/case/vonnex2x-bookings-desktop.webp", alt: "VonneX2X bookings calendar service appointments with status tracking", device: "desktop" },
+      { src: "/images/projects/case/vonnex2x-dashboard-mobile.webp", alt: "VonneX2X dashboard on mobile with today's numbers at a glance", device: "phone" },
+      { src: "/images/projects/case/vonnex2x-inventory-mobile.webp", alt: "VonneX2X inventory on mobile with stock levels and restock flags", device: "phone" },
+      { src: "/images/projects/case/vonnex2x-workers-mobile.webp", alt: "VonneX2X workforce management on mobile with staff roster and assignments", device: "phone" },
     ],
     live_url: "#",
     github_url: null,
@@ -40,8 +40,8 @@ const fallbackProjects = [
       constraints: [
         "Zero tolerance for downtime during business hours.",
         "Must work on existing Android hardware at the point of sale.",
-        "Owner is non-technical — every workflow must be obvious in one tap.",
-        "Sensitive staff location data — privacy-by-design is non-negotiable."
+        "Owner is non-technical: every workflow must be obvious in one tap.",
+        "Sensitive staff location data: privacy-by-design is non-negotiable."
       ],
       goals: [
         "Collapse retail + service scheduling into a single source of truth.",
@@ -51,7 +51,7 @@ const fallbackProjects = [
     },
     solution: {
       architecture: "A modular monolith in Node.js with a clear service boundary per domain (scheduling, POS, HR, inventory). Real-time channels on Socket.io broadcast booking and inventory changes; PostgreSQL is the system of record with row-level constraints enforcing business invariants.",
-      ui: "A single-page React operator console with three primary surfaces — calendar, POS, dashboard. Every action is undoable, every destructive action is confirmed twice.",
+      ui: "A single-page React operator console with three primary surfaces: calendar, POS, and dashboard. Every action is undoable, and every destructive action is confirmed twice.",
       backend: "Express API surface, JWT auth with refresh rotation, server-validated business rules, and an idempotent transaction log so partial network failures auto-recover.",
       performance: "Server-rendered first paint for the operator's most-used screen, optimistic UI on the client, and Redis-backed hot keys for the daily roster.",
       security: "Encrypted-at-rest credentials, GPS fences evaluated server-side, role-based access control with audit trail on every privileged action.",
@@ -95,7 +95,7 @@ const fallbackProjects = [
         name: "Commerce",
         icon: "tag",
         items: [
-          { title: "Unified retail & service POS", description: "One screen, one cart, one receipt — across products and services." },
+          { title: "Unified retail & service POS", description: "One screen, one cart, one receipt across products and services." },
           { title: "Real-time inventory sync", description: "Stock updates propagate to every terminal in under 400ms." }
         ]
       },
@@ -103,7 +103,7 @@ const fallbackProjects = [
         name: "Analytics",
         icon: "chart",
         items: [
-          { title: "Owner dashboard", description: "Daily revenue, top services, staff performance — at a glance." },
+          { title: "Owner dashboard", description: "Daily revenue, top services, staff performance at a glance." },
           { title: "Exportable ledgers", description: "Accountant-ready CSV exports of every transaction." }
         ]
       }
@@ -179,12 +179,12 @@ const fallbackProjects = [
     tech_stack: ["React", "Node.js", "PostgreSQL", "Paystack"],
     image: "/images/projects/case/tiabrand-screenshot.webp",
     gallery: [
-      { src: "/images/projects/case/tiabrand-home-desktop.webp", alt: "The TiaBrand storefront homepage — campaign hero with brand navigation", device: "desktop" },
-      { src: "/images/projects/case/tiabrand-shop-desktop.webp", alt: "The TiaBrand shop — product grid with naira pricing and category filtering", device: "desktop" },
-      { src: "/images/projects/case/tiabrand-product-desktop.webp", alt: "The TiaBrand product page — variant selection and add-to-cart", device: "desktop" },
+      { src: "/images/projects/case/tiabrand-home-desktop.webp", alt: "The TiaBrand storefront homepage with campaign hero and brand navigation", device: "desktop" },
+      { src: "/images/projects/case/tiabrand-shop-desktop.webp", alt: "The TiaBrand shop product grid with naira pricing and category filtering", device: "desktop" },
+      { src: "/images/projects/case/tiabrand-product-desktop.webp", alt: "The TiaBrand product page with variant selection and add-to-cart", device: "desktop" },
       { src: "/images/projects/case/tiabrand-home-mobile.webp", alt: "The TiaBrand homepage on mobile", device: "phone" },
-      { src: "/images/projects/case/tiabrand-shop-mobile.webp", alt: "The TiaBrand shop on mobile — thumb-friendly product browsing", device: "phone" },
-      { src: "/images/projects/case/tiabrand-product-mobile.webp", alt: "The TiaBrand product page on mobile — mobile checkout flow", device: "phone" },
+      { src: "/images/projects/case/tiabrand-shop-mobile.webp", alt: "The TiaBrand shop on mobile with thumb-friendly product browsing", device: "phone" },
+      { src: "/images/projects/case/tiabrand-product-mobile.webp", alt: "The TiaBrand product page on mobile with mobile checkout flow", device: "phone" },
     ],
     live_url: "#",
     github_url: null,
@@ -210,7 +210,7 @@ const fallbackProjects = [
     },
     solution: {
       architecture: "A Next-style SPA on React + Vite talking to a thin Express API. PostgreSQL holds the canonical catalog; a derived bundle resolver computes available stock atomically inside a transaction.",
-      ui: "Editorial product pages, a focused cart drawer, and a frictionless checkout — every screen is hand-tuned for mobile buyers.",
+      ui: "Editorial product pages, a focused cart drawer, and a frictionless checkout: every screen is hand-tuned for mobile buyers.",
       backend: "Paystack webhooks drive order state, a reservation queue auto-releases stock on abandoned checkouts, and a daily reconciliation job re-syncs inventory.",
       performance: "Static-first delivery, image variants served from Cloudinary, and prefetched currency rates cached at the edge.",
       security: "PCI-DSS friendly redirect to Paystack, signed webhook handlers, and strict CORS for the storefront domain.",
@@ -321,9 +321,9 @@ const fallbackProjects = [
     tech_stack: ["React", "Supabase", "Node.js", "Paystack"],
     image: "/images/projects/case/wodibenuah-screenshot.webp",
     gallery: [
-      { src: "/images/projects/case/wodibenuah-home-desktop.webp", alt: "Wodibenuah Fair homepage — editorial masthead with event countdown", device: "desktop" },
-      { src: "/images/projects/case/wodibenuah-vendors-desktop.webp", alt: "Wodibenuah Fair vendor showcase — participating exhibitors grid", device: "desktop" },
-      { src: "/images/projects/case/wodibenuah-register-desktop.webp", alt: "Wodibenuah Fair vendor registration — booth application flow", device: "desktop" },
+      { src: "/images/projects/case/wodibenuah-home-desktop.webp", alt: "Wodibenuah Fair homepage with editorial masthead and event countdown", device: "desktop" },
+      { src: "/images/projects/case/wodibenuah-vendors-desktop.webp", alt: "Wodibenuah Fair vendor showcase with participating exhibitors grid", device: "desktop" },
+      { src: "/images/projects/case/wodibenuah-register-desktop.webp", alt: "Wodibenuah Fair vendor registration booth application flow", device: "desktop" },
       { src: "/images/projects/case/wodibenuah-home-mobile.webp", alt: "Wodibenuah Fair homepage on mobile", device: "phone" },
       { src: "/images/projects/case/wodibenuah-vendors-mobile.webp", alt: "Wodibenuah Fair vendor showcase on mobile", device: "phone" },
       { src: "/images/projects/case/wodibenuah-register-mobile.webp", alt: "Wodibenuah Fair registration on mobile", device: "phone" },
@@ -341,7 +341,7 @@ const fallbackProjects = [
       problem: "Wodibenuah Fair is a premium lifestyle exhibition. Their previous site couldn't handle vendor onboarding, ticket spikes on launch day, or the visual standard of the brand.",
       constraints: [
         "Ticket pages must survive a 50x traffic spike on launch day.",
-        "Vendor onboarding is multi-step with document upload — no lost progress allowed.",
+        "Vendor onboarding is multi-step with document upload: no lost progress allowed.",
         "Admin team needs a calm command center, not a generic CRUD grid."
       ],
       goals: [
@@ -389,7 +389,7 @@ const fallbackProjects = [
         icon: "store",
         items: [
           { title: "Multi-step onboarding", description: "Persistent drafts, document upload, and approval pipeline." },
-          { title: "Vendor dashboard", description: "Sales, leads, and event schedule — at a glance." }
+          { title: "Vendor dashboard", description: "Sales, leads, and event schedule at a glance." }
         ]
       },
       {
@@ -465,9 +465,9 @@ const fallbackProjects = [
     tech_stack: ["React 19", "Supabase", "Vite", "Tailwind CSS"],
     image: "/images/projects/case/sourceline-screenshot.webp",
     gallery: [
-      { src: "/images/projects/case/sourceline-home-desktop.webp", alt: "Sourceline Limited homepage — trust-first hero with SURCON certification badges", device: "desktop" },
-      { src: "/images/projects/case/sourceline-verify-desktop.webp", alt: "Sourceline license verification portal — public SURCON lookup", device: "desktop" },
-      { src: "/images/projects/case/sourceline-portfolio-desktop.webp", alt: "Sourceline project portfolio — completed survey case studies", device: "desktop" },
+      { src: "/images/projects/case/sourceline-home-desktop.webp", alt: "Sourceline Limited homepage with trust-first hero and SURCON certification badges", device: "desktop" },
+      { src: "/images/projects/case/sourceline-verify-desktop.webp", alt: "Sourceline license verification portal with public SURCON lookup", device: "desktop" },
+      { src: "/images/projects/case/sourceline-portfolio-desktop.webp", alt: "Sourceline project portfolio with completed survey case studies", device: "desktop" },
       { src: "/images/projects/case/sourceline-home-mobile.webp", alt: "Sourceline homepage on mobile", device: "phone" },
       { src: "/images/projects/case/sourceline-verify-mobile.webp", alt: "Sourceline verification portal on mobile", device: "phone" },
       { src: "/images/projects/case/sourceline-portfolio-mobile.webp", alt: "Sourceline portfolio on mobile", device: "phone" },
@@ -607,12 +607,12 @@ const fallbackProjects = [
     tech_stack: ["React", "Node.js", "PostgreSQL", "Termii API"],
     image: "/images/projects/case/eduflow-screenshot.webp",
     gallery: [
-      { src: "/images/projects/case/eduflow-overview-desktop.webp", alt: "EduFlow proprietor dashboard — enrolment, attendance, staff and outstanding fees", device: "desktop" },
-      { src: "/images/projects/case/eduflow-exams-desktop.webp", alt: "EduFlow exams manager — CA and WAEC score entry with auto grading", device: "desktop" },
-      { src: "/images/projects/case/eduflow-fees-desktop.webp", alt: "EduFlow fees ledger — installment tracking and receipts", device: "desktop" },
+      { src: "/images/projects/case/eduflow-overview-desktop.webp", alt: "EduFlow proprietor dashboard with enrolment, attendance, staff and outstanding fees", device: "desktop" },
+      { src: "/images/projects/case/eduflow-exams-desktop.webp", alt: "EduFlow exams manager with CA and WAEC score entry and auto grading", device: "desktop" },
+      { src: "/images/projects/case/eduflow-fees-desktop.webp", alt: "EduFlow fees ledger with installment tracking and receipts", device: "desktop" },
       { src: "/images/projects/case/eduflow-overview-mobile.webp", alt: "EduFlow dashboard on mobile", device: "phone" },
       { src: "/images/projects/case/eduflow-fees-mobile.webp", alt: "EduFlow fees ledger on mobile", device: "phone" },
-      { src: "/images/projects/case/eduflow-attendance-mobile.webp", alt: "EduFlow attendance on mobile — one-tap daily register", device: "phone" },
+      { src: "/images/projects/case/eduflow-attendance-mobile.webp", alt: "EduFlow attendance on mobile with one-tap daily register", device: "phone" },
     ],
     live_url: "#",
     github_url: null,
@@ -750,11 +750,11 @@ const fallbackProjects = [
     tech_stack: ["React", "PWA", "IndexedDB", "RxDB"],
     image: "/images/projects/case/medios-screenshot.webp",
     gallery: [
-      { src: "/images/projects/case/medios-landing-desktop.webp", alt: "MediOS landing page — offline-first hospital OS positioning", device: "desktop" },
-      { src: "/images/projects/case/medios-dashboard-desktop.webp", alt: "MediOS hospital dashboard — today's operations across clinic, lab and pharmacy", device: "desktop" },
-      { src: "/images/projects/case/medios-claims-desktop.webp", alt: "MediOS HMO claims engine — tariff validation with approval and rejection rates", device: "desktop" },
+      { src: "/images/projects/case/medios-landing-desktop.webp", alt: "MediOS landing page with offline-first hospital OS positioning", device: "desktop" },
+      { src: "/images/projects/case/medios-dashboard-desktop.webp", alt: "MediOS hospital dashboard with daily operations across clinic, lab and pharmacy", device: "desktop" },
+      { src: "/images/projects/case/medios-claims-desktop.webp", alt: "MediOS HMO claims engine with tariff validation, approval and rejection rates", device: "desktop" },
       { src: "/images/projects/case/medios-landing-mobile.webp", alt: "MediOS landing page on mobile", device: "phone" },
-      { src: "/images/projects/case/medios-dashboard-mobile.webp", alt: "MediOS dashboard on mobile — clinical operations in three taps", device: "phone" },
+      { src: "/images/projects/case/medios-dashboard-mobile.webp", alt: "MediOS dashboard on mobile with clinical operations in three taps", device: "phone" },
       { src: "/images/projects/case/medios-claims-mobile.webp", alt: "MediOS claims on mobile", device: "phone" },
     ],
     live_url: "#",

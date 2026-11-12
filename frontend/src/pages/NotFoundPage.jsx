@@ -11,7 +11,7 @@ const NotFoundPage = () => {
 
   useEffect(() => {
     const prevTitle = document.title;
-    document.title = '404 — Page Not Found | BuildWithLami';
+    document.title = '404: Page Not Found | BuildWithLami';
     let metaRobots = document.querySelector('meta[name="robots"]');
     let created = false;
     let prevRobots = 'index, follow';

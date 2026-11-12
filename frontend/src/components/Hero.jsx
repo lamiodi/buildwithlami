@@ -36,7 +36,7 @@ const Hero = () => {
         </motion.h1>
 
         <motion.p variants={item} className="text-gray-700 dark:text-gray-300 text-base sm:text-lg md:text-xl max-w-xl leading-relaxed mb-8 font-light">
-          I’m Eugene, the founder and engineer behind BuildWithLami. I work directly with you to design and build websites, online stores and business software—from the first brief to launch.
+          I’m Eugene, the founder and engineer behind BuildWithLami. I work directly with you to design and build websites, online stores and business software from the first brief to launch.
         </motion.p>
 
         {/* Reassurance Chips */}
@@ -95,7 +95,7 @@ const Hero = () => {
             />
             <img
               src="/eugene-hero.webp"
-              alt="Eugene Odibenuah — Founder & CTO, BuildWithLami"
+              alt="Eugene Odibenuah, Founder & CTO, BuildWithLami"
               className="w-full h-full object-cover rounded-xl"
               width="800"
               height="1200"

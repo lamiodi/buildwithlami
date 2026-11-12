@@ -180,7 +180,7 @@ const ClientProjectTracker = () => {
             We couldn't open this project tracker
           </h1>
           <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
-            {error}. The link may be incomplete — please double-check the link
+            {error}. The link may be incomplete. Please double-check the link
             from your email, or get in touch and we'll resend it.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">

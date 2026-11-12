@@ -101,7 +101,7 @@ export default function DivisionQuoteForm({ division, services, selectedService 
             aria-invalid={!!errors.service} aria-describedby={errors.service ? `${id('service')}-error` : undefined}>
             <option value="">Choose a service</option>
             {services.map((service) => <option key={service.id} value={service.category}>{service.category}</option>)}
-            <option value="Help choosing a service">Not sure yet — help me choose</option>
+            <option value="Help choosing a service">Not sure yet, help me choose</option>
           </select>
           {errors.service && <p id={`${id('service')}-error`} role="alert" className="division-field-error">{errors.service}</p>}
         </div>

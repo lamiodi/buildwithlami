@@ -46,7 +46,7 @@ export default function ClientDashboard() {
     const completeAction = async (id) => {
         const res = await api.patch(`/client-portal/actions/${id}/complete`, {}, 'client');
         if (res.ok) {
-            notify.success('Marked as done — thanks!');
+            notify.success('Marked as done, thanks!');
             fetchActionsAndOnboarding();
         } else {
             notify.error(res.error || 'Could not update action.');
@@ -83,12 +83,12 @@ export default function ClientDashboard() {
                         </div>
                         <div className="flex-1 min-w-0">
                             <p className="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-                                Project onboarding {activeOnboarding.status === 'NEEDS_CHANGES' ? '— updates needed' : activeOnboarding.completion_percent < 100 ? 'in progress' : '— almost there'}
+                                Project onboarding {activeOnboarding.status === 'NEEDS_CHANGES' ? ': updates needed' : activeOnboarding.completion_percent < 100 ? 'in progress' : ': almost there'}
                             </p>
                             <div className="mt-2 h-2 bg-gray-200 dark:bg-white/10 rounded-full overflow-hidden max-w-md">
                                 <div className="h-full bg-accent rounded-full transition-all" style={{ width: `${activeOnboarding.completion_percent || 0}%` }} />
                             </div>
-                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1.5">{activeOnboarding.completion_percent || 0}% complete — your progress saves automatically.</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1.5">{activeOnboarding.completion_percent || 0}% complete. Your progress saves automatically.</p>
                         </div>
                         <span className="text-sm font-bold text-accent whitespace-nowrap">
                             {activeOnboarding.status === 'NEEDS_CHANGES' ? 'Update now →' : 'Continue →'}
@@ -134,7 +134,7 @@ export default function ClientDashboard() {
                                     {a.description && <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">{a.description}</p>}
                                     {a.due_at && (
                                         <p className={`text-xs mt-1 font-medium ${a.overdue ? 'text-red-500' : 'text-gray-400'}`}>
-                                            Due {new Date(a.due_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}{a.overdue ? ' — overdue' : ''}
+                                            Due {new Date(a.due_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}{a.overdue ? ' (overdue)' : ''}
                                         </p>
                                     )}
                                 </div>

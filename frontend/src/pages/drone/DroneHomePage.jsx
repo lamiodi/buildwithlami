@@ -691,7 +691,7 @@ const DroneHomePage = () => {
           <div className="max-w-7xl mx-auto">
             <div className={`drone-observe flex flex-col md:flex-row justify-between items-end mb-12 gap-8 ${visibleElements.has('services-header') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'} transition-all duration-1000`} data-id="services-header">
               <div>
-                <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-500 mb-4">— Commercial Capabilities</p>
+                <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-500 mb-4">Commercial Capabilities</p>
                 <h2 className="drone-heading text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter text-gray-900 mb-4 leading-[0.95]">
                   Drone<br/>Services
                 </h2>
@@ -783,7 +783,7 @@ const DroneHomePage = () => {
           className="px-6 md:px-12 py-24 max-w-7xl mx-auto w-full shrink-0"
         >
           <div className={`drone-observe mb-12 ${visibleElements.has('why-header') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'} transition-all duration-1000`} data-id="why-header">
-            <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-500 mb-4">— Commercial Reliability</p>
+            <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-500 mb-4">Commercial Reliability</p>
             <h2 className="drone-heading text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter text-gray-900 leading-[0.95]">
               Why Clients<br/>Hire Me
             </h2>
@@ -828,7 +828,7 @@ const DroneHomePage = () => {
           className="px-6 md:px-12 py-24 max-w-7xl mx-auto w-full shrink-0"
         >
           <div className={`drone-observe mb-16 ${visibleElements.has('workflow-header') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'} transition-all duration-1000`} data-id="workflow-header">
-            <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-500 mb-4">— Execution Standard</p>
+            <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-500 mb-4">Execution Standard</p>
             <h2 className="drone-heading text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter text-gray-900 leading-[0.95]">
               How We<br/>Work
             </h2>
@@ -853,7 +853,7 @@ const DroneHomePage = () => {
         {/* ==== INDUSTRIES SECTION (Compact Strip) ==== */}
         <section className="px-6 md:px-12 py-12 max-w-7xl mx-auto w-full shrink-0">
           <div className="bg-white rounded-3xl p-8 border border-gray-100">
-            <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-400 mb-6 text-center md:text-left">— Sectors Served</p>
+            <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-400 mb-6 text-center md:text-left">Sectors Served</p>
             <div className="flex flex-wrap items-center justify-between gap-4">
               {industries.map((ind, idx) => {
                 const Icon = ind.icon;
@@ -879,7 +879,7 @@ const DroneHomePage = () => {
         >
           <div className={`drone-observe flex flex-col md:flex-row justify-between items-end mb-16 gap-6 ${visibleElements.has('portfolio-header') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'} transition-all duration-1000`} data-id="portfolio-header">
             <div>
-              <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-500 mb-4">— Selected Work &amp; Demonstration Projects</p>
+              <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-500 mb-4">Selected Work &amp; Demonstration Projects</p>
               <h2 className="drone-heading text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter text-gray-900 leading-[0.95]">
                 Sample<br/>Missions
               </h2>
@@ -992,7 +992,7 @@ const DroneHomePage = () => {
           className="px-6 md:px-12 py-24 max-w-7xl mx-auto w-full shrink-0"
         >
           <div className={`drone-observe mb-16 ${visibleElements.has('equipment-header') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'} transition-all duration-1000`} data-id="equipment-header">
-            <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-500 mb-4">— Owned Hardware</p>
+            <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-500 mb-4">Owned Hardware</p>
             <h2 className="drone-heading text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter text-gray-900 leading-[0.95]">
               Flight<br/>Equipment
             </h2>
@@ -1106,7 +1106,7 @@ const DroneHomePage = () => {
         >
           <div className="bg-gradient-to-br from-zinc-900 to-black text-white rounded-[2.5rem] p-8 md:p-14 border border-zinc-800 shadow-2xl relative overflow-hidden">
             <div className="max-w-3xl mb-12">
-              <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-accent mb-3">— Transparent Quotations</p>
+              <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-accent mb-3">Transparent Quotations</p>
               <h2 className="drone-heading text-3xl sm:text-4xl md:text-5xl font-black tracking-tight mb-4">
                 Pricing &amp; Quote Expectations
               </h2>
@@ -1156,7 +1156,7 @@ const DroneHomePage = () => {
         >
           <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-24">
             <div className={`drone-observe ${visibleElements.has('faq-header') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'} transition-all duration-1000`} data-id="faq-header">
-              <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-500 mb-4">— Client Guidance</p>
+              <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-500 mb-4">Client Guidance</p>
               <h2 className="drone-heading text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter text-gray-900 leading-[0.95]">
                 Frequently<br/>Answered
               </h2>
@@ -1209,7 +1209,7 @@ const DroneHomePage = () => {
         >
           <div className="bg-black text-white rounded-[2.5rem] p-8 md:p-16 grid grid-cols-1 md:grid-cols-2 gap-12">
             <div>
-              <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-400 mb-4">— Direct Dispatch</p>
+              <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-400 mb-4">Direct Dispatch</p>
               <h2 className="drone-heading text-4xl md:text-5xl font-black tracking-tighter leading-[0.95] mb-6">
                 Let’s plan<br/>your project
               </h2>

@@ -321,7 +321,7 @@ const buildGallery = (project) => {
   if (Array.isArray(project?.gallery) && project.gallery.length > 0) {
     return project.gallery.map((g, i) =>
       typeof g === 'string'
-        ? { src: g, alt: `${project.title} — frame ${i + 1}` }
+        ? { src: g, alt: `${project.title}, frame ${i + 1}` }
         : g
     );
   }
@@ -329,26 +329,26 @@ const buildGallery = (project) => {
     project?.image_url ||
     surveyPlaceholder({ width: 1600, height: 900, label: project?.title || 'Survey' });
   return [
-    { src: hero, alt: `${project?.title || 'Survey'} — primary` },
+    { src: hero, alt: `${project?.title || 'Survey'}, primary` },
     {
       src: 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?q=80&w=1600&auto=format&fit=crop',
-      alt: `${project?.title || 'Survey'} — field work`,
+      alt: `${project?.title || 'Survey'}, field work`,
     },
     {
       src: 'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1600&auto=format&fit=crop',
-      alt: `${project?.title || 'Survey'} — equipment setup`,
+      alt: `${project?.title || 'Survey'}, equipment setup`,
     },
     {
       src: 'https://images.unsplash.com/photo-1569336415962-a4bd9f69cd83?q=80&w=1600&auto=format&fit=crop',
-      alt: `${project?.title || 'Survey'} — traverse point`,
+      alt: `${project?.title || 'Survey'}, traverse point`,
     },
     {
       src: 'https://images.unsplash.com/photo-1473968512647-3e447244af8f?q=80&w=1600&auto=format&fit=crop',
-      alt: `${project?.title || 'Survey'} — aerial coverage`,
+      alt: `${project?.title || 'Survey'}, aerial coverage`,
     },
     {
       src: 'https://images.unsplash.com/photo-1508614589041-895b889cc23d?q=80&w=1600&auto=format&fit=crop',
-      alt: `${project?.title || 'Survey'} — boundary marking`,
+      alt: `${project?.title || 'Survey'}, boundary marking`,
     },
   ];
 };
@@ -599,7 +599,7 @@ const SurveyProjectDetailPage = () => {
   if (error || !project) {
     return (
       <div className="min-h-screen bg-white text-black flex flex-col items-center justify-center text-center px-6 survey-body">
-        <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-500 mb-4">— 404</p>
+        <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-500 mb-4">404</p>
         <h1 className="survey-heading text-5xl md:text-7xl font-black uppercase tracking-tighter mb-6">
           Project<br />Not Found
         </h1>
@@ -1404,7 +1404,7 @@ const SurveyProjectDetailPage = () => {
               variants={fadeUp}
               className="mt-6 text-base md:text-lg text-black/70 max-w-2xl mx-auto font-light leading-relaxed"
             >
-              Boundary delineation, topographic surveys, engineering setting-out, and as-built plans — delivered with precision and on schedule.
+              Boundary delineation, topographic surveys, engineering setting-out, and as-built plans delivered with precision and on schedule.
             </motion.p>
             <motion.div
               variants={fadeUp}

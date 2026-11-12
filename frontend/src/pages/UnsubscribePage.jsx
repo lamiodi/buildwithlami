@@ -51,7 +51,7 @@ const UnsubscribePage = () => {
                         </div>
                         <h1 className="text-2xl font-extrabold font-heading text-gray-900 dark:text-white mb-2">You're unsubscribed</h1>
                         <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
-                            {company ? `BuildWithLami won't email ${company} again` : 'BuildWithLami won\'t email this address again'} — any scheduled follow-ups have been cancelled, and the address is permanently suppressed from future outreach.
+                            {company ? `BuildWithLami won't email ${company} again` : 'BuildWithLami won\'t email this address again'}. Any scheduled follow-ups have been cancelled, and the address is permanently suppressed from future outreach.
                         </p>
                     </>
                 )}
@@ -87,7 +87,7 @@ const UnsubscribePage = () => {
                 )}
 
                 <p className="text-[11px] text-gray-400 dark:text-gray-500 mt-8 tracking-wide uppercase">
-                    BuildWithLami — buildwithlami.com
+                    BuildWithLami (buildwithlami.com)
                 </p>
             </div>
         </div>

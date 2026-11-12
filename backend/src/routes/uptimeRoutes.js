@@ -9,9 +9,9 @@ import pool from '../config/db.js';
 
 const router = Router();
 
-// Lightweight ping — no DB hit. Uptime bots can hit this to
-// confirm the Node process is alive.
-router.get('/ping', (_req, res) => {
+// Lightweight ping — no DB hit. Uptime bots can hit the bare
+// service root (/) or /ping to confirm the Node process is alive.
+router.get(['/', '/ping'], (_req, res) => {
     res.json({ status: 'ok', message: 'pong' });
 });
 

@@ -622,7 +622,7 @@ export const BUILD_PRICING = {
     startingPriceUSD: 24000,
     startingPriceFormatted: '850,000',
     baseInfraIncluded: true,
-    offerStructureLabel: 'Separate solution starting points — not upgrade tiers',
+    offerStructureLabel: 'Separate solution starting points, not upgrade tiers',
     whatAffectsPricing: [
       'Number of distinct operational roles (Admins, Staff, Students / Residents / Cashiers)',
       'Hardware integration requirements (QR scanners, barcode readers, thermal printers)',
@@ -741,7 +741,7 @@ export const BUILD_PRICING = {
       'Developer handoff pairing and CSS variable tokens export'
     ],
     pricingNotes:
-      'All UI/UX engagements deliver 100% Figma source files with complete autolayout, component variables, and developer-ready CSS design tokens. No hosting / domain infrastructure is included — that layer is bundled only when paired with a development build.',
+      'All UI/UX engagements deliver 100% Figma source files with complete autolayout, component variables, and developer-ready CSS design tokens. No hosting or domain infrastructure is included; that layer is bundled only when paired with a development build.',
     tiers: [
       {
         id: 'uiux_starter',
@@ -819,7 +819,7 @@ export const BUILD_PRICING = {
     startingPriceFormatted: '250,000',
     baseInfraIncluded: false,
     baseInfraNote:
-      'Branding deliverables are static assets (logos, decks, stationery) — no hosting required. Domain registration is included only when paired with a development build.',
+      'Branding deliverables are static assets (logos, decks, stationery) with no hosting required. Domain registration is included only when paired with a development build.',
     whatAffectsPricing: [
       'Number of distinct logo concept directions explored',
       'Depth of brand guidelines deck and usage rules',
@@ -909,7 +909,7 @@ export const BUILD_PRICING = {
     baseInfraIncluded: false,
     offerStructureLabel: 'Choose your stage: Audit → Implementation → Ongoing Growth',
     baseInfraNote:
-      'SEO engagements are advisory + code-implementation services. No hosting or domain is included — these are owned by the client.',
+      'SEO engagements are advisory and code-implementation services. No hosting or domain is included; these are owned by the client.',
     whatAffectsPricing: [
       'Website size, domain authority, and indexation history',
       'Technical debt, crawl errors, and legacy redirect chains',

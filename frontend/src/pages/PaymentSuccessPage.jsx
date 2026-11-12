@@ -28,7 +28,7 @@ export default function PaymentSuccessPage() {
                     Payment successful
                 </h1>
                 <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-                    Thank you — your payment went through. Your invoice is marked
+                    Thank you, your payment went through. Your invoice is marked
                     as paid and your receipt is on its way to your inbox.
                 </p>
                 {reference && (
@@ -39,7 +39,7 @@ export default function PaymentSuccessPage() {
                 {late && (
                     <p className="text-xs text-gray-400 mb-6">
                         Don't see it reflected yet? Records can take a minute to
-                        sync — we've been notified either way.
+                        sync; we've been notified either way.
                     </p>
                 )}
                 <Link

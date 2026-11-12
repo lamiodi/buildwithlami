@@ -43,7 +43,7 @@ export default function ClientApprovals() {
     if (res.ok) {
       notify.success(
         decision === 'APPROVED'
-          ? (kind === 'cr' ? 'Change approved — thank you!' : 'Approved — thank you!')
+          ? (kind === 'cr' ? 'Change approved, thank you!' : 'Approved, thank you!')
           : 'Feedback sent to Lami.'
       );
       setComment(''); setCommentFor(null);
@@ -74,7 +74,7 @@ export default function ClientApprovals() {
           Approvals & Changes
         </h1>
         <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-          Your sign-offs here are recorded with a timestamp — no need to confirm over WhatsApp.
+          Your sign-offs here are recorded with a timestamp, so there is no need to confirm over WhatsApp.
         </p>
       </div>
 

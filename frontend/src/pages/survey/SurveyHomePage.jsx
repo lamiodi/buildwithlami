@@ -287,7 +287,7 @@ const SurveyHomePage = () => {
       location: "Lekki Phase 1, Lagos",
       scope: "Boundary Demarcation, Beacon Monumentation & Title Annexure",
       instruments: "Multi-Frequency GNSS RTK + Optical Total Station",
-      coordinateRef: "Project-specified CRS — Minna Datum / UTM Zone 31N",
+      coordinateRef: "Project-specified CRS: Minna Datum / UTM Zone 31N",
       deliverables: "Survey Plan, Coordinate Register, AutoCAD (.DWG), Deed Annexure",
       outcome: "Provided coordinate-controlled boundary evidence and survey documentation to support resolution of the encroachment dispute.",
       whatIDid: [
@@ -299,9 +299,9 @@ const SurveyHomePage = () => {
       ],
       tags: ['Cadastral'],
       images: [
-        { url: '/images/survey/survey_proj_boundary.webp', caption: '01 — Perimeter Boundary Demarcation & Beaconing' },
-        { url: '/images/survey/survey_hero_field.webp', caption: '02 — Dual-Frequency GNSS Ground Control Setup' },
-        { url: '/images/survey/survey_inst_totalstation.webp', caption: '03 — Total Station Optical Traverse & Angle Checks' }
+        { url: '/images/survey/survey_proj_boundary.webp', caption: '01. Perimeter Boundary Demarcation & Beaconing' },
+        { url: '/images/survey/survey_hero_field.webp', caption: '02. Dual-Frequency GNSS Ground Control Setup' },
+        { url: '/images/survey/survey_inst_totalstation.webp', caption: '03. Total Station Optical Traverse & Angle Checks' }
       ],
       isCaseStudy: true
     },
@@ -313,7 +313,7 @@ const SurveyHomePage = () => {
       location: "Ibeju-Lekki Axis, Lagos",
       scope: "Master Plan Subdivision, Right-of-Way Staking & Plot Beaconing",
       instruments: "GNSS RTK Multi-Constellation + Optical Total Station",
-      coordinateRef: "Project-specified CRS — Minna Datum / UTM Zone 31N",
+      coordinateRef: "Project-specified CRS: Minna Datum / UTM Zone 31N",
       deliverables: "Master Subdivision Plan, 42 Individual Plot Beacon Schedules, Road Network Profile",
       outcome: "Provided coordinate-controlled plot demarcation and access-corridor documentation to support the developer's subsequent sales and development activities.",
       whatIDid: [
@@ -325,9 +325,9 @@ const SurveyHomePage = () => {
       ],
       tags: ['Subdivision'],
       images: [
-        { url: '/images/survey/survey_proj_subdivision.webp', caption: '01 — Master Estate Subdivision Layout & Beaconing' },
-        { url: '/images/drone/drone_proj_orthomosaic.webp', caption: '02 — Aerial Orthomosaic Baseline & Boundary Overlay' },
-        { url: '/images/survey/survey_inst_gnss.webp', caption: '03 — High-Precision RTK Plot Corner Setting Out' }
+        { url: '/images/survey/survey_proj_subdivision.webp', caption: '01. Master Estate Subdivision Layout & Beaconing' },
+        { url: '/images/drone/drone_proj_orthomosaic.webp', caption: '02. Aerial Orthomosaic Baseline & Boundary Overlay' },
+        { url: '/images/survey/survey_inst_gnss.webp', caption: '03. High-Precision RTK Plot Corner Setting Out' }
       ],
       isCaseStudy: true
     },
@@ -339,7 +339,7 @@ const SurveyHomePage = () => {
       location: "Guzape Hills, Abuja (FCT)",
       scope: "Topographic Baseline, 0.5m Contours & Digital Terrain Modeling (DTM)",
       instruments: "GNSS RTK + Aerial Photogrammetry Platform + Digital Level",
-      coordinateRef: "Project-specified CRS — Minna Datum / UTM Zone 32N",
+      coordinateRef: "Project-specified CRS: Minna Datum / UTM Zone 32N",
       deliverables: "2D/3D Contour Plan, Digital Surface Model (DSM/DTM), Spot Height Grid, Orthomosaic",
       outcome: "Identified natural flood pathways and steep gradients, saving on earthwork cut/fill civil excavation costs.",
       whatIDid: [
@@ -351,9 +351,9 @@ const SurveyHomePage = () => {
       ],
       tags: ['Topographic'],
       images: [
-        { url: '/images/survey/survey_proj_topographic.webp', caption: '01 — 3D Contour Model & Elevation Spot Heights' },
-        { url: '/images/survey/survey_hero_field.webp', caption: '02 — On-Site Ground Control Point (GCP) Calibration' },
-        { url: '/images/drone/drone_proj_orthomosaic.webp', caption: '03 — High-Resolution 2D Georeferenced Orthomosaic' }
+        { url: '/images/survey/survey_proj_topographic.webp', caption: '01. 3D Contour Model & Elevation Spot Heights' },
+        { url: '/images/survey/survey_hero_field.webp', caption: '02. On-Site Ground Control Point (GCP) Calibration' },
+        { url: '/images/drone/drone_proj_orthomosaic.webp', caption: '03. High-Resolution 2D Georeferenced Orthomosaic' }
       ],
       isCaseStudy: true
     },
@@ -365,7 +365,7 @@ const SurveyHomePage = () => {
       location: "Ikeja Industrial Zone, Lagos",
       scope: "Building Footprint Staking, Column Axis Alignment & As-Built QA",
       instruments: "Optical Total Station + Precision Leveling Staff",
-      coordinateRef: "Project-specified CRS — Local Engineering Grid & TBM Elevation",
+      coordinateRef: "Project-specified CRS: Local Engineering Grid & TBM Elevation",
       deliverables: "Setting Out Certificate, Grid Alignment Sheet, As-Built Deviation Audit",
       outcome: "Maintained precise column alignment across structural pillars, facilitating seamless pre-fabricated roof truss installation.",
       whatIDid: [
@@ -377,9 +377,9 @@ const SurveyHomePage = () => {
       ],
       tags: ['Engineering'],
       images: [
-        { url: '/images/survey/survey_proj_boundary.webp', caption: '01 — Building Footprint & Column Axis Staking' },
-        { url: '/images/survey/survey_inst_totalstation.webp', caption: '02 — Optical EDM Distance & Alignment Verification' },
-        { url: '/images/survey/survey_hero_field.webp', caption: '03 — Vertical Datum Leveling & Foundation Quality Control' }
+        { url: '/images/survey/survey_proj_boundary.webp', caption: '01. Building Footprint & Column Axis Staking' },
+        { url: '/images/survey/survey_inst_totalstation.webp', caption: '02. Optical EDM Distance & Alignment Verification' },
+        { url: '/images/survey/survey_hero_field.webp', caption: '03. Vertical Datum Leveling & Foundation Quality Control' }
       ],
       isCaseStudy: true
     },
@@ -590,7 +590,7 @@ const SurveyHomePage = () => {
         <div className={`observe ${visibleElements.has('services-header') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'} transition-all duration-1000`} data-id="services-header">
           <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
             <div>
-              <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-500 mb-3">— Survey Disciplines</p>
+              <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-500 mb-3">Survey Disciplines</p>
               <h2 className="survey-heading text-4xl md:text-6xl font-black tracking-tight uppercase text-gray-900">
                 Services
               </h2>
@@ -685,7 +685,7 @@ const SurveyHomePage = () => {
         className="py-20 px-6 md:px-12 max-w-[1400px] mx-auto border-t border-gray-300"
       >
         <div className={`observe ${visibleElements.has('workflow-header') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'} transition-all duration-1000 mb-14`} data-id="workflow-header">
-          <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-500 mb-3">— Survey Methodology</p>
+          <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-500 mb-3">Survey Methodology</p>
           <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
             <h2 className="survey-heading text-4xl md:text-6xl font-black tracking-tight uppercase text-gray-900">
               How We Work
@@ -725,7 +725,7 @@ const SurveyHomePage = () => {
         <div className={`observe ${visibleElements.has('projects-header') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'} transition-all duration-1000 mb-12`} data-id="projects-header">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
             <div>
-              <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-500 mb-3">— Technical Case Studies</p>
+              <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-500 mb-3">Technical Case Studies</p>
               <h2 className="survey-heading text-4xl md:text-6xl font-black tracking-tight uppercase text-gray-900">
                 Portfolio
               </h2>
@@ -755,9 +755,9 @@ const SurveyHomePage = () => {
             const carouselImages = proj.images && proj.images.length > 0 
               ? proj.images 
               : [
-                  { url: proj.image_url || '/images/survey/survey_proj_boundary.webp', caption: '01 — Primary Field Demarcation' },
-                  { url: '/images/survey/survey_hero_field.webp', caption: '02 — GNSS RTK Control Setup' },
-                  { url: '/images/survey/survey_inst_totalstation.webp', caption: '03 — Total Station Traverse Verification' }
+                  { url: proj.image_url || '/images/survey/survey_proj_boundary.webp', caption: '01. Primary Field Demarcation' },
+                  { url: '/images/survey/survey_hero_field.webp', caption: '02. GNSS RTK Control Setup' },
+                  { url: '/images/survey/survey_inst_totalstation.webp', caption: '03. Total Station Traverse Verification' }
                 ];
 
             return (
@@ -867,7 +867,7 @@ const SurveyHomePage = () => {
         <div className={`observe ${visibleElements.has('equipment-header') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'} transition-all duration-1000`} data-id="equipment-header">
           <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
             <div>
-              <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-500 mb-3">— Field Hardware</p>
+              <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-500 mb-3">Field Hardware</p>
               <h2 className="survey-heading text-4xl md:text-6xl font-black tracking-tight uppercase text-gray-900">
                 Equipment
               </h2>
@@ -922,7 +922,7 @@ const SurveyHomePage = () => {
       <section className="py-20 px-6 md:px-12 max-w-[1400px] mx-auto border-t border-gray-300">
         <div className="bg-black text-white p-8 md:p-14 grid grid-cols-1 md:grid-cols-[1.4fr_1fr] gap-10 items-start">
           <div>
-            <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-400 mb-3">— Aerial Division</p>
+            <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-400 mb-3">Aerial Division</p>
             <h2 className="survey-heading text-3xl sm:text-4xl md:text-5xl font-black uppercase tracking-tight mb-6">
               Need Aerial Imaging &amp; Drone Mapping?
             </h2>
@@ -965,7 +965,7 @@ const SurveyHomePage = () => {
         className="py-20 px-6 md:px-12 max-w-[1400px] mx-auto border-t border-gray-300"
       >
         <div className={`observe ${visibleElements.has('profile-header') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'} transition-all duration-1000 mb-12`} data-id="profile-header">
-          <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-500 mb-3">— Professional Profile</p>
+          <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-500 mb-3">Professional Profile</p>
           <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
             <div>
               <h2 className="survey-heading text-4xl md:text-6xl font-black tracking-tight uppercase text-gray-900">
@@ -1052,7 +1052,7 @@ const SurveyHomePage = () => {
       >
         <div className="grid grid-cols-1 md:grid-cols-[1fr_2fr] gap-10 md:gap-20">
           <div className={`observe ${visibleElements.has('faq-header') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'} transition-all duration-1000`} data-id="faq-header">
-            <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-500 mb-3">— Frequently Asked Questions</p>
+            <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-500 mb-3">Frequently Asked Questions</p>
             <h2 className="survey-heading text-4xl md:text-6xl font-black tracking-tight uppercase text-gray-900 mb-4">
               FAQ
             </h2>
@@ -1106,7 +1106,7 @@ const SurveyHomePage = () => {
           
           {/* Left Column - Contact Information */}
           <div className="w-full md:w-1/2">
-            <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-500 mb-3">— Direct Brief Submission</p>
+            <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-500 mb-3">Direct Brief Submission</p>
             <h2 className="survey-heading text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight uppercase text-gray-900 mb-6">
               Let’s plan your survey
             </h2>

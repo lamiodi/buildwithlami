@@ -432,14 +432,14 @@ const ContactPage = () => {
                   ) : (
                     <span className="flex items-center justify-center gap-2">
                       <CheckCircle2 className="w-4 h-4" />
-                      Inquiry received — I&apos;ll reply within one business day
+                      Inquiry received. I&apos;ll reply within one business day
                     </span>
                   )}
                 </button>
 
                 {status === 'error' && (
                   <p className="text-red-600 dark:text-red-400 text-xs mt-3 text-center" role="alert">
-                    Your inquiry could not be sent. Your details are still here—try again or use the WhatsApp option below.
+                    Your inquiry could not be sent. Your details are still here. Please try again or use the WhatsApp option below.
                   </p>
                 )}
               </div>

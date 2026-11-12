@@ -94,7 +94,7 @@ const SECTIONS = [
   {
     key: 'website',
     label: 'Website & Domain',
-    description: 'Existing website, domain and hosting. Never share passwords here — sensitive access is collected separately via a secure vault.',
+    description: 'Existing website, domain and hosting. Never share passwords here; sensitive access is collected separately via a secure vault.',
     required: ['owns_domain'],
     fields: [
       F('existing_website_url', 'Existing website URL (if any)', 'url', { half: true }),
@@ -127,7 +127,7 @@ const SECTIONS = [
       F('brand_tagline', 'Tagline', 'text', { half: true }),
       F('brand_description', 'Brand description', 'textarea', { placeholder: 'How should the brand feel to customers?' }),
       F('has_logo', 'Do you have a logo?', 'select', { half: true, options: YES_NO }),
-      F('logo_url', 'Logo file link', 'url', { half: true, placeholder: 'Drive / Dropbox link — or upload under Documents' }),
+      F('logo_url', 'Logo file link', 'url', { half: true, placeholder: 'Drive / Dropbox link, or upload under Documents' }),
       F('favicon_url', 'Favicon link (optional)', 'url', { half: true }),
       F('primary_colour', 'Primary brand colour', 'text', { half: true, placeholder: '#F44A22 or "flame orange"' }),
       F('secondary_colour', 'Secondary colour', 'text', { half: true }),
@@ -175,11 +175,11 @@ const SECTIONS = [
   {
     key: 'content',
     label: 'Content',
-    description: 'Copy and files for the site. You can also upload files under Documents in the portal — paste links here.',
+    description: 'Copy and files for the site. You can also upload files under Documents in the portal, or paste links here.',
     required: ['has_copy'],
     fields: [
       F('has_copy', 'Do you have website copy (text)?', 'select', { required: true, half: true, options: [
-        { value: 'yes', label: 'Yes, ready' }, { value: 'partial', label: 'Some of it' }, { value: 'no', label: 'No — need help' },
+        { value: 'yes', label: 'Yes, ready' }, { value: 'partial', label: 'Some of it' }, { value: 'no', label: 'No, need help' },
       ] }),
       F('need_copywriting', 'Need copywriting assistance?', 'select', { half: true, options: YES_NO }),
       F('copy_doc_link', 'Copy document link', 'url', { half: true }),
@@ -223,7 +223,7 @@ const SECTIONS = [
       F('fixed_vs_live', 'Fixed prices or live conversion?', 'select', { half: true, options: [
         { value: 'fixed', label: 'Fixed per currency' }, { value: 'live', label: 'Live conversion' }, { value: 'not_sure', label: 'Not sure' },
       ] }),
-      { name: 'payment_providers', label: 'Payment methods to accept (we never ask for secret keys here — access is requested securely later)', type: 'multiselect', options: [
+      { name: 'payment_providers', label: 'Payment methods to accept (we never ask for secret keys here; access is requested securely later)', type: 'multiselect', options: [
         { value: 'paystack', label: 'Paystack' }, { value: 'stripe', label: 'Stripe' },
         { value: 'paypal', label: 'PayPal' }, { value: 'klarna', label: 'Klarna' },
         { value: 'clearpay', label: 'Clearpay' }, { value: 'bank_transfer', label: 'Bank transfer' },
@@ -254,7 +254,7 @@ const SECTIONS = [
     when: ['BOOKING'],
     required: ['services'],
     fields: [
-      F('services', 'List your services', 'textarea', { required: true, placeholder: 'e.g. Boundary survey — ₦150k per plot…' }),
+      F('services', 'List your services', 'textarea', { required: true, placeholder: 'e.g. Boundary survey: ₦150k per plot…' }),
       F('service_categories', 'Service categories', 'text', { half: true }),
       F('service_duration', 'Typical service duration', 'text', { half: true }),
       F('service_pricing', 'Pricing', 'textarea', {}),
@@ -291,7 +291,7 @@ const SECTIONS = [
   {
     key: 'policies',
     label: 'Policies & Legal',
-    description: 'Policies you already have. BuildWithLami drafts standard templates where missing — this is not legal advice.',
+    description: 'Policies you already have. BuildWithLami drafts standard templates where missing. Note that this is not legal advice.',
     required: [],
     fields: [
       F('has_policies', 'Do you have existing policies?', 'select', { half: true, options: YES_NO }),
@@ -416,7 +416,7 @@ export default function ClientOnboarding() {
         setTimeout(() => setSaveState('idle'), 1800);
       } else {
         setSaveState('idle');
-        notify.error(res.error || 'Autosave failed — check your connection.');
+        notify.error(res.error || 'Autosave failed. Check your connection.');
       }
     }, 1200);
   }, [locked]);
@@ -443,10 +443,10 @@ export default function ClientOnboarding() {
     setSubmitting(false);
     if (res.ok && res.data) {
       setOnboarding(res.data);
-      notify.success('Onboarding submitted — Lami will review it shortly. 🚀');
+      notify.success('Onboarding submitted! Lami will review it shortly. 🚀');
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
-      notify.error(res.error || 'Could not submit — try again.');
+      notify.error(res.error || 'Could not submit. Please try again.');
     }
   };
 
@@ -478,7 +478,7 @@ export default function ClientOnboarding() {
         <CheckCircle2 size={44} className="mx-auto text-emerald-500 mb-4" />
         <h2 className="text-2xl font-bold text-gray-900 dark:text-white font-heading mb-2">Onboarding complete ✅</h2>
         <p className="text-gray-500 dark:text-gray-400">
-          Your onboarding was approved. Everything from here happens in your project — check the Projects tab for progress.
+          Your onboarding was approved. Everything from here happens in your project. Check the Projects tab for progress.
         </p>
       </div>
     );
@@ -564,7 +564,7 @@ export default function ClientOnboarding() {
             <>
               <h2 className="text-xl font-bold text-gray-900 dark:text-white font-heading mb-1.5">Review & Submit</h2>
               <p className="text-sm text-gray-500 dark:text-gray-400 font-body mb-6">
-                Double-check your answers. You can come back and edit any section — progress is saved automatically.
+                Double-check your answers. You can come back and edit any section. Progress is saved automatically.
               </p>
               <div className="space-y-5 max-h-[420px] overflow-y-auto pr-2">
                 {sections.map((s) => {

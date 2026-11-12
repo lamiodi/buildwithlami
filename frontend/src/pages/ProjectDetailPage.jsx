@@ -499,7 +499,7 @@ const ProjectDetailPage = () => {
     return [
       {
         src: imageUrl,
-        alt: `${project.title} — actual product screenshot`,
+        alt: `${project.title}, actual product screenshot`,
         device: 'desktop',
       },
     ];
@@ -696,7 +696,7 @@ const ProjectDetailPage = () => {
                 <img
                   ref={heroImageRef}
                   src={imageUrl}
-                  alt={`${project.title} — primary interface`}
+                  alt={`${project.title}, primary interface`}
                   className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-1000"
                   loading="eager"
                   width="1600"
@@ -789,7 +789,7 @@ const ProjectDetailPage = () => {
                 <SectionHeader
                   number="02"
                   eyebrow="The Challenge"
-                  title="What I had to solve — and why it was hard."
+                  title="What I had to solve, and why it was hard."
                   lede="The core operational bottlenecks and constraints that defined the project requirements."
                 />
 
@@ -980,7 +980,7 @@ const ProjectDetailPage = () => {
                 <SectionHeader
                   number="05"
                   eyebrow="Feature Showcase"
-                  title="What the product does — by surface area."
+                  title="What the product does by surface area."
                   lede="Grouped by how an operator actually encounters them, not by internal hierarchy."
                 />
 

@@ -23,7 +23,7 @@ const experience = [
   {
     role: 'Founder & Full-Stack Developer',
     company: 'Buildwith_lami',
-    period: '2023 — Present',
+    period: '2023 - Present',
     location: 'Lagos, Nigeria (Worldwide Remote)',
     overview:
       'I run Buildwith_lami, where I design and engineer custom digital products for businesses, founders, and growing teams.',
@@ -39,7 +39,7 @@ const experience = [
   {
     role: 'Independent Full-Stack Developer',
     company: 'Freelance Engagements',
-    period: '2021 — 2023',
+    period: '2021 - 2023',
     location: 'Lagos, Nigeria (Remote)',
     overview:
       'Built custom web applications, e-commerce storefronts, and internal tools for growing brands and businesses.',
@@ -59,7 +59,7 @@ const education = [
     degree: 'B.Sc. Surveying & Geoinformatics',
     institution: 'Enugu State University of Science and Technology (ESUT)',
     details:
-      'Developed a strong analytical, mathematical, and spatial modeling foundation — skills that translate directly into systems thinking, distributed architecture, and data integrity.',
+      'Developed a strong analytical, mathematical, and spatial modeling foundation, building skills that translate directly into systems thinking, distributed architecture, and data integrity.',
   },
   {
     period: '2023 – Present',
@@ -136,7 +136,7 @@ const toolCategories = [
 const workingStylePillars = [
   {
     title: 'Direct Communication',
-    desc: 'You work directly with the engineer building your product — no account managers, no game of telephone.',
+    desc: 'You work directly with the engineer building your product, with no account managers and no game of telephone.',
     icon: 'chat',
   },
   {
@@ -249,7 +249,7 @@ const AboutPage = () => {
         sublabel: 'Preview Image',
         src: '/image.png',
         type: 'image',
-        title: 'Software Mastery — Credential Preview',
+        title: 'Software Mastery: Credential Preview',
       },
       {
         key: 'cv',
@@ -257,7 +257,7 @@ const AboutPage = () => {
         sublabel: 'Preview PDF',
         src: '/full-stack-developer.pdf',
         type: 'pdf',
-        title: 'Full-Stack Developer — Resume Preview',
+        title: 'Full-Stack Developer: Resume Preview',
       },
     ],
     []
@@ -330,7 +330,7 @@ const AboutPage = () => {
                 <source type="image/webp" srcSet="/eugene-hero.webp" />
                 <img
                   src="/eugene-hero.webp"
-                  alt="Eugene Odibenuah — Founder of Buildwith_lami"
+                  alt="Eugene Odibenuah, Founder of Buildwith_lami"
                   loading="eager"
                   fetchPriority="high"
                   decoding="async"
@@ -404,7 +404,7 @@ const AboutPage = () => {
                 <h3 className="text-xs uppercase tracking-[0.25em] font-bold text-accent font-mono">
                   // Professional Experience
                 </h3>
-                <span className="text-xs font-mono text-gray-500">2021 — Present</span>
+                <span className="text-xs font-mono text-gray-500">2021 - Present</span>
               </div>
               <div className="space-y-8">
                 {experience.map((exp, index) => (
@@ -502,7 +502,7 @@ const AboutPage = () => {
                               type="button"
                               onClick={() => setPreviewFile(asset)}
                               className="inline-flex items-center gap-2 px-3 py-1.5 text-[11px] font-mono font-bold uppercase tracking-wider bg-accent/10 hover:bg-accent text-accent hover:text-white border border-accent/30 hover:border-accent rounded-md transition-all cursor-pointer"
-                              aria-label={`${asset.label} — ${asset.sublabel}`}
+                              aria-label={`${asset.label}, ${asset.sublabel}`}
                             >
                               {asset.type === 'pdf' ? (
                                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -721,7 +721,7 @@ const AboutPage = () => {
               Let&apos;s build something <span className="text-accent">exceptional.</span>
             </h2>
             <p className="text-sm sm:text-base md:text-lg text-gray-700 dark:text-gray-300 font-light leading-relaxed">
-              Whether you&apos;re launching a startup, upgrading critical business systems, or automating manual workflows — I&apos;m ready to help you engineer a dependable digital product.
+              Whether you&apos;re launching a startup, upgrading critical business systems, or automating manual workflows, I&apos;m ready to help you engineer a dependable digital product.
             </p>
           </div>
 

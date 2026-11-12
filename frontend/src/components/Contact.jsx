@@ -267,14 +267,14 @@ const Contact = () => {
               
               {status === 'success' && (
                 <div ref={feedbackRef} tabIndex={-1} role="status" className="rounded-xl border border-emerald-400/40 bg-emerald-400/10 p-4 text-sm text-white leading-relaxed">
-                  <p className="font-semibold mb-1">Thank you — your enquiry is in.</p>
+                  <p className="font-semibold mb-1">Thank you! Your enquiry is in.</p>
                   <p>I’ll review your brief and reply by email to discuss the next step.</p>
                   <button type="button" className="underline underline-offset-4 mt-3 min-h-11" onClick={() => { setStatus('idle'); requestAnimationFrame(() => formRef.current?.querySelector('[name="name"]')?.focus()); }}>Send another enquiry</button>
                 </div>
               )}
               {status === 'error' && (
                 <p ref={feedbackRef} tabIndex={-1} role="alert" className="text-red-300 text-sm leading-relaxed">
-                    Your enquiry could not be confirmed. Your details are still here — please try again, or <a className="underline" href={`mailto:${CONTACT.email}`}>email me directly</a>.
+                    Your enquiry could not be confirmed. Your details are still here. Please try again, or <a className="underline" href={`mailto:${CONTACT.email}`}>email me directly</a>.
                 </p>
               )}
 

@@ -92,7 +92,7 @@ const PaymentPage = () => {
             `).join('')
             : `
                 <tr>
-                    <td>${invoice.project_name ? `Services — ${invoice.project_name}` : 'Services rendered'}</td>
+                    <td>${invoice.project_name ? `Services: ${invoice.project_name}` : 'Services rendered'}</td>
                     <td style="text-align:right">${amount}</td>
                 </tr>
             `;
@@ -407,7 +407,7 @@ const PaymentPage = () => {
                     <div className="bg-amber-50 border border-amber-200 rounded-2xl p-5 mb-6 flex items-start gap-3">
                         <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center text-amber-700 text-xl flex-shrink-0">⏳</div>
                         <div>
-                            <p className="font-bold text-amber-900">Proof received — reviewing now</p>
+                            <p className="font-bold text-amber-900">Proof received, reviewing now</p>
                             <p className="text-sm text-amber-800">
                                 Reference: <span className="font-mono">{latestProof.transaction_reference}</span> ·
                                 Submitted {new Date(latestProof.created_at).toLocaleString()}
@@ -579,7 +579,7 @@ const BankTransferBlock = ({ invoice, currency, meta, bank, form, setForm, proof
             {submitted ? (
                 <div className="bg-green-50 border border-green-200 rounded-xl p-5 text-center">
                     <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-green-100 flex items-center justify-center text-green-700 text-2xl">✓</div>
-                    <p className="font-bold text-green-900">Thank you — proof received</p>
+                    <p className="font-bold text-green-900">Thank you, proof received</p>
                     <p className="text-sm text-green-800 mt-1">Our team will review and confirm your payment within 1 business hour. You'll receive an email when it's confirmed.</p>
                 </div>
             ) : (

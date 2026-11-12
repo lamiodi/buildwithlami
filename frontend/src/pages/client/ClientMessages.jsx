@@ -123,7 +123,7 @@ export default function ClientMessages() {
                     <p className="text-sm text-gray-500">Loading…</p>
                 ) : messages.length === 0 ? (
                     <p className="text-sm text-gray-500 dark:text-gray-400">
-                        No messages yet — send your first one above.
+                        No messages yet. Send your first one above.
                     </p>
                 ) : (
                     messages.map((m) => (

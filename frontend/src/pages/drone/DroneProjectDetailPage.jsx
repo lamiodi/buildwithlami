@@ -118,7 +118,7 @@ const EQUIPMENT_CATALOG = [
     image: 'https://images.unsplash.com/photo-1473968512647-3e447244af8f?q=80&w=1200&auto=format&fit=crop',
     purpose: 'Primary aerial platform for photo and 4K video capture.',
     specs: ['4K / 30fps video', '12 MP stills', 'Sub-249 g takeoff weight', 'GPS + downward vision'],
-    role: 'All primary flight work — wide establishing shots, orbit passes, top-downs.',
+    role: 'All primary flight work: wide establishing shots, orbit passes, and top-downs.',
     icon: Plane,
   },
   {
@@ -127,7 +127,7 @@ const EQUIPMENT_CATALOG = [
     image: 'https://images.unsplash.com/photo-1507582020474-9a35b7d455d9?q=80&w=1200&auto=format&fit=crop',
     purpose: 'Long-range command link with a built-in mobile mount.',
     specs: ['OcuSync 2.0 transmission', 'Up to 10 km range', 'Dual control sticks', 'USB-C charging'],
-    role: 'Frames every shot — exposure, gimbal tilt, focus, and flight path.',
+    role: 'Frames every shot: exposure, gimbal tilt, focus, and flight path.',
     icon: Maximize2,
   },
   {
@@ -234,16 +234,16 @@ const splitTitle = (title = '') => {
 const buildGallery = (project) => {
   if (Array.isArray(project?.gallery) && project.gallery.length > 0) {
     return project.gallery.map((g, i) =>
-      typeof g === 'string' ? { src: g, alt: `${project.title} — frame ${i + 1}` } : g
+      typeof g === 'string' ? { src: g, alt: `${project.title}, frame ${i + 1}` } : g
     );
   }
   const hero = project?.image_url || dronePlaceholder({ width: 1600, height: 900, label: project?.title || 'Mission' });
   return [
-    { src: hero, alt: `${project?.title || 'Mission'} — hero` },
-    { src: 'https://images.unsplash.com/photo-1473968512647-3e447244af8f?q=80&w=1600&auto=format&fit=crop', alt: `${project?.title || 'Mission'} — aerial` },
-    { src: 'https://images.unsplash.com/photo-1507582020474-9a35b7d455d9?q=80&w=1600&auto=format&fit=crop', alt: `${project?.title || 'Mission'} — establishing` },
-    { src: 'https://images.unsplash.com/photo-1508614589041-895b889cc23d?q=80&w=1600&auto=format&fit=crop', alt: `${project?.title || 'Mission'} — top-down` },
-    { src: 'https://images.unsplash.com/photo-1527977966376-1c8408f9f108?q=80&w=1600&auto=format&fit=crop', alt: `${project?.title || 'Mission'} — detail` },
+    { src: hero, alt: `${project?.title || 'Mission'}, hero` },
+    { src: 'https://images.unsplash.com/photo-1473968512647-3e447244af8f?q=80&w=1600&auto=format&fit=crop', alt: `${project?.title || 'Mission'}, aerial` },
+    { src: 'https://images.unsplash.com/photo-1507582020474-9a35b7d455d9?q=80&w=1600&auto=format&fit=crop', alt: `${project?.title || 'Mission'}, establishing` },
+    { src: 'https://images.unsplash.com/photo-1508614589041-895b889cc23d?q=80&w=1600&auto=format&fit=crop', alt: `${project?.title || 'Mission'}, top-down` },
+    { src: 'https://images.unsplash.com/photo-1527977966376-1c8408f9f108?q=80&w=1600&auto=format&fit=crop', alt: `${project?.title || 'Mission'}, detail` },
   ];
 };
 
@@ -463,7 +463,7 @@ const DroneProjectDetailPage = () => {
   if (error || !project) {
     return (
       <div className="min-h-screen bg-[#0a0a0a] text-white flex flex-col items-center justify-center text-center px-6 drone-body">
-        <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-white/50 mb-4">— 404</p>
+        <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-white/50 mb-4">404</p>
         <h1 className="drone-heading text-4xl md:text-6xl text-white leading-[0.95] mb-6">Mission<br />Not Found</h1>
         <p className="text-sm text-white/60 mb-10 max-w-md">
           {error || "We couldn't find that mission. It may have been archived."}
@@ -1127,7 +1127,7 @@ const DroneProjectDetailPage = () => {
               variants={fadeUp}
               className="mt-6 text-base md:text-lg text-white/70 max-w-2xl mx-auto font-light leading-relaxed"
             >
-              Aerial photography, videography, mapping, and inspection — delivered on time, on brief, and to cinematic standard.
+              Aerial photography, videography, mapping, and inspection delivered on time, on brief, and to cinematic standard.
             </motion.p>
             <div
               className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3 md:gap-4"
